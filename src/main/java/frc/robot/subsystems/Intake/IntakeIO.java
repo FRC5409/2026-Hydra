@@ -13,8 +13,17 @@ public interface IntakeIO {
         public double intakePosition = 0.0;
     }
     public default void setVoltage(double volts) {}
+
     public default void updateInputs(intakeInputs inputs) {}
-    public default double getMotorCurrent() { return 0.0; }
+
+    public default double getMotorCurrent() {
+        return 0.0;
+    }
+
     public default void coastMode() {}
+
     public default void brakeMode() {}
-} 
+
+    }
+
+  
