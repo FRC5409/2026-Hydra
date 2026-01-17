@@ -1,8 +1,10 @@
 package frc.robot.subsystems.Intake;
 
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.*;
 
 import java.util.function.DoubleSupplier;
+
+import edu.wpi.first.math.util.Units;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -38,8 +40,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal<Voltage>     extensionVoltageSignal;
     private final StatusSignal<Current>     extensionCurrentSignal;
 
-    private final DoubleSupplier positionSignal;
-
     public IntakeIOTalonFX(int rollerMotorId, int extensionMotorId) {
         rollerMotor = new TalonFX(rollerMotorId);
         extensionMotor = new TalonFX(extensionMotorId);
@@ -48,47 +48,26 @@ public final class IntakeIOTalonFX implements IntakeIO {
         positionControl = new PositionVoltage(0.0);
         positionControl.withSlot(0);
 
-        TalonFXConfigurator rollerConfigurator = new TalonFXConfigurator();
+        // Phoenix Pro style (phoenix6) — use camelCase fields
+        TalonFXConfiguration rollerConfigurator = new TalonFXConfiguration();
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration();
 
-        extensionConfigurator.Slot0 = 
-            new Slot0Configs()
-                .withKP(0.0001)
-                .withKI(0.0)
-                .withKD(0.0);
+        // rollerConfigurator.slot0
+        //     .withKP(0, 0.5)
+        //     .withKI(0, 0.0)
+        //     .withKD(0, 0.0)
+        //     .withKF(0, 0.0);
 
-        extensionConfigurator.MotorOutput = 
-            new MotorOutputConfigs()
-                .withInverted(InvertedValue.Clockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Brake);
+        extensionConfigurator.Slot0 = new Slot0Configs()
+            .withKP(1.0)
+            .withKI(0.0)
+            .withKD(0.0);
 
-        extensionConfigurator.CurrentLimits = 
-            new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(40)
-                .withSupplyCurrentLimitEnable(true);
+        rollerConfigurator.Slot0 = new Slot0Configs()
+            .withKP(rollerMotorId)
+            .withKI(rollerMotorId)
+            .withKD(rollerMotorId);
 
-        rollerConfigurator.Slot0 = 
-            new Slot0Configs()
-                .withKP(0.001)
-                .withKI(0.0)
-                .withKD(0.0);
-        
-        rollerConfigurator.MotorOutput = 
-            new MotorOutputConfigs()
-                .withInverted(InvertedValue.CounterClockwise_Positive)
-                .withNeutralMode(NeutralModeValue.Brake);
-        
-        rollerConfigurator.CurrentLimits = 
-            new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(30)
-                .withSupplyCurrentLimitEnable(true);
-
-        // config.Feedback = 
-        //     new FeedbackConfigs()
-        //         .withSensorToMechanismRatio(ElevatorConstants.kSensorRatio);
-
-        rollerConfigurator.apply(rollerMotor);
-        extensionConfigurator.apply(extensionMotor);
 
         extensionPositionSignal    = extensionMotor.getPosition();
         extensionTemperatureSignal = extensionMotor.getDeviceTemp();
@@ -113,30 +92,43 @@ public final class IntakeIOTalonFX implements IntakeIO {
             rollerCurrentSignal
         );
 
-        motor.optimizeBusUtilization();
+        rollerMotor.optimizeBusUtilization();
+        extensionMotor.optimizeBusUtilization();
     }
 
-    @Override
     public void setVoltageCommand(double voltage) {
-        motor.setVoltage(voltage);
+        rollerMotor.setVoltage(voltage);
     }
 
-    @Override
     public void setSetpointCommand(Distance position) {
-        motor.setControl(
+        extensionMotor.setControl(
           positionControl.withPosition(
             position.in(Meters)
           )
         );
     }
 
-    @Override
-    public Distance getPosition() {
-        return Meters.of(positionSignal.getValueAsDouble());
+    public void coastMode() {
+        rollerMotor.setNeutralMode(NeutralModeValue.Coast);
+        extensionMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
+    public void brakeMode() {
+        rollerMotor.setNeutralMode(NeutralModeValue.Brake);
+        extensionMotor.setNeutralMode(NeutralModeValue.Brake);
+    }   
+
     @Override
-    public void updateInputs(intakeInputsAutoLogged inputs) {
-        
+    public void updateInputs(IntakeIO.intakeInputs inputs) {
+        inputs.extensionConnection = true;
+        inputs.extensionVolts = extensionVoltageSignal.getValueAsDouble();
+        inputs.extensionCurrent = extensionCurrentSignal.getValueAsDouble();
+        inputs.extensionTemp = extensionTemperatureSignal.getValueAsDouble();
+        inputs.extensionPosition = extensionPositionSignal.getValueAsDouble();
+
+        inputs.rollerConnection = true;
+        inputs.rollerVolts = rollerVoltageSignal.getValueAsDouble();
+        inputs.rollerCurrent = rollerCurrentSignal.getValueAsDouble();
+        inputs.rollerTemp = rollerTemperatureSignal.getValueAsDouble();
     }
 }
