@@ -9,11 +9,17 @@ import edu.wpi.first.units.measure.Distance;
 public interface HopperIO {
     @AutoLog
     public class HopperInputs {
-        public boolean motorConnection = false;
-        public double motorCurrent = 0.0;
-        public double motorVoltage = 0.0;
-        public double motorTemp = 0.0;
-        public double motorPosition = 0.0;
+        public boolean mainMotorConnection = false;
+        public double mainMotorCurrent = 0.0;
+        public double mainMotorVoltage = 0.0;
+        public double mainMotorTemp = 0.0;
+        public double mainMotorPosition = 0.0;
+
+        public boolean followerMotorConnection = false;
+        public double followerMotorCurrent = 0.0;
+        public double followerMotorVoltage = 0.0;
+        public double followerMotorTemp = 0.0;
+        public double followerMotorPosition = 0.0;
     }
 
     public default void updateInputs(HopperInputs inputs) {}
