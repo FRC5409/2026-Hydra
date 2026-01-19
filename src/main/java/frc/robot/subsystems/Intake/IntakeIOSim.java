@@ -47,4 +47,5 @@ public class IntakeIOSim implements IntakeIO {
   public void stopMotorCommand() {
     appliedVoltage = 0.0;
   }
+
 }
