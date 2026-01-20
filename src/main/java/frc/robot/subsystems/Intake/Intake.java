@@ -1,4 +1,5 @@
 package frc.robot.subsystems.Intake;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,9 +12,12 @@ public class Intake extends SubsystemBase {
     private final IntakeIO io;
     private final intakeInputsAutoLogged inputs;
 
+    Mechanism2d mech = new Mechanism2d(20, 20);
+
     public Intake(IntakeIO io) {
         this.io = io;
         inputs = new intakeInputsAutoLogged();
+
     }
 
     public Command intakeCommand(double voltage) {
@@ -36,7 +40,6 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> io.setSetpointCommand(Meters.of(0.0)), this);
     }
 
-    @Override
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);

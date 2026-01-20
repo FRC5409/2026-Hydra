@@ -25,9 +25,6 @@ public class IntakeIOSim implements IntakeIO {
     inputs.rollerCurrent = Math.abs(inputs.rollerVolts) / MAX_VOLTAGE * 20.0; // crude estimate
     inputs.rollerTemp = 20.0 + inputs.rollerCurrent * 0.05; // crude estimate
     inputs.rollerConnection = true;
-
-    Mechanism2d mech = new Mechanism2d(20, 20);
-    var arm = mech.getRoot("IntakeSim", 10, 10);
     
   }
 
