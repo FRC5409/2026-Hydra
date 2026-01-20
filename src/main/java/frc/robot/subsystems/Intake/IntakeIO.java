@@ -1,8 +1,12 @@
 package frc.robot.subsystems.Intake;
-
+import static edu.wpi.first.units.Units.Meters;
 
 import org.littletonrobotics.junction.AutoLog;
+
+import edu.wpi.first.units.measure.Distance;
+
 public interface IntakeIO {
+
     @AutoLog
     public class intakeInputs{
         public boolean rollerConnection = false;
@@ -22,7 +26,7 @@ public interface IntakeIO {
         public boolean isExtended = false;
         public boolean isRetracted = true;
     }
-    public default void setVoltage(double volts) {}
+    public default void setVoltage(double voltage) {}
 
     public default void updateInputs(intakeInputs inputs) {}
 
@@ -30,7 +34,7 @@ public interface IntakeIO {
         return 0.0;
     }
 
-    public default void setSetpointCommand(edu.wpi.first.units.measure.Distance position) {}
+    public default void setSetpoint(edu.wpi.first.units.measure.Distance position) {}
 
     public default void coastMode() {}
 
@@ -39,6 +43,10 @@ public interface IntakeIO {
     public default void extend() {}
 
     public default void retract() {}
+
+    public default void stopMotor() {}
+
+    public default Distance getPosition() {return Meters.of(0);}
 
     }
 

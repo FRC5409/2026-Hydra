@@ -2,20 +2,12 @@ package frc.robot.subsystems.Intake;
 
 import static edu.wpi.first.units.Units.*;
 
-import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.math.util.Units;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
@@ -96,11 +88,11 @@ public final class IntakeIOTalonFX implements IntakeIO {
         extensionMotor.optimizeBusUtilization();
     }
 
-    public void setVoltageCommand(double voltage) {
+    public void setVoltage(double voltage) {
         rollerMotor.setVoltage(voltage);
     }
 
-    public void setSetpointCommand(Distance position) {
+    public void setSetpoint(Distance position) {
         extensionMotor.setControl(
           positionControl.withPosition(
             position.in(Meters)

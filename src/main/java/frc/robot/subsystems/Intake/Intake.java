@@ -9,39 +9,39 @@ import org.littletonrobotics.junction.Logger;
 
 
 public class Intake extends SubsystemBase {
-    private final IntakeIO io;
+    private final IntakeIO intakeIO;
     private final intakeInputsAutoLogged inputs;
 
     Mechanism2d mech = new Mechanism2d(20, 20);
 
     public Intake(IntakeIO io) {
-        this.io = io;
+        this.intakeIO = io;
         inputs = new intakeInputsAutoLogged();
 
     }
 
     public Command intakeCommand(double voltage) {
-                System.out.println("Intaking with voltage: " + voltage);
-                return Commands.runOnce(() -> io.setVoltage(voltage), this);
-
+                // System.out.println("Intaking with voltage: " + voltage);
+                return Commands.runOnce(() -> intakeIO.setVoltage(voltage), this);
     }
 
     public Command brakemodeCommand() {
-        return Commands.runOnce(() -> io.brakeMode(), this);
+        return Commands.runOnce(() -> intakeIO.brakeMode(), this);
     }
 
     public Command extendCommand() {
-         System.out.println("Extending Intake");
-         return Commands.runOnce(() -> io.setSetpointCommand(Meters.of(0.3)), this);
+        //  System.out.println("Extending Intake");
+         return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(100)), this);
     }
 
     public Command retractCommand() {
-        System.out.println("Retracting Intake");
-        return Commands.runOnce(() -> io.setSetpointCommand(Meters.of(0.0)), this);
+        // System.out.println("Retracting Intake");
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(0.0)), this);
     }
 
     public void periodic() {
-        io.updateInputs(inputs);
+        intakeIO.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
+
     }
 }

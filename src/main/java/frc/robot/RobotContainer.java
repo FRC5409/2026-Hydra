@@ -25,6 +25,10 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.Intake.Intake;
+import frc.robot.subsystems.Intake.IntakeIO;
+import frc.robot.subsystems.Intake.IntakeIOSim;
+import frc.robot.subsystems.Intake.IntakeIOTalonFX;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 
@@ -37,7 +41,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final Intake intake;
+  private final Intake sys_intake;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -49,7 +53,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
-        intake = new Intake(new frc.robot.subsystems.Intake.IntakeIOTalonFX(4,5));
+        sys_intake = new Intake(new IntakeIOTalonFX(4,5));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -81,7 +85,7 @@ public class RobotContainer {
         break;
 
       case SIM:
-        intake = new Intake(new frc.robot.subsystems.Intake.IntakeIOSim());
+        sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -93,7 +97,7 @@ public class RobotContainer {
         break;
 
       default:
-        intake = new Intake(new frc.robot.subsystems.Intake.IntakeIOSim());
+        sys_intake = new Intake(new IntakeIO(){});
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -167,14 +171,18 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller .button(1).onTrue( 
-        Commands.runOnce( () -> intake.extendCommand(), intake));
-    
+    controller .button(1)
+        .onTrue( 
+            sys_intake.intakeCommand(12))
+        .onFalse( 
+            sys_intake.intakeCommand(0));
+        
+        
     controller .button(2).onTrue( 
-        Commands.runOnce( () -> intake.retractCommand(), intake));
+        sys_intake.extendCommand());
     
     controller .button(3).onTrue( 
-        Commands.runOnce( () -> intake.intakeCommand(12.0), intake));
+        sys_intake.retractCommand());
   }
 
   /**
