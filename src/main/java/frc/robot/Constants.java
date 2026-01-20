@@ -28,4 +28,11 @@ public final class Constants {
     /** Replaying from a log file. */
     REPLAY
   }
+
+  public static final class kLauncher {
+    public static final double kP = 0.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+    
+  }
 }
