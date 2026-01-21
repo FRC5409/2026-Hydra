@@ -14,6 +14,13 @@ public class VisionConstants {
     public static final int DISCONNECTION_TIMEOUT    = 5;
     public static final int THROTTLE_DISABLED        = 200;
 
+    /**
+     * if enabled, the {@link VisionIOLimelight} will use
+     * {@link frc.robot.subsystems.vision.VisionIOLimelight.IMUMode#FUSED} estimations if the detected AprilTag is
+     * strong enough.
+     */
+    public static final boolean ALLOW_FUSED_GYRO_ESTIMATIONS = true;
+
     // 1σ translation error at zero distance (meters)
     public static final double VISION_XY_STDDEV_BASE_METERS  = 0.10;
     // Additional translation error per meter of tag distance

@@ -1,6 +1,7 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -15,7 +16,7 @@ import org.littletonrobotics.junction.Logger;
  * @author Logan Dhillon, FRC 5409 Chargers
  */
 public class VisionIOLimelight implements VisionIO {
-    private double lastPrxLatency = 0;
+    private double lastPrxLatency     = 0;
     private double disconnectedFrames = 0;
 
     public VisionIOLimelight() {
@@ -102,8 +103,13 @@ public class VisionIOLimelight implements VisionIO {
                 VisionConstants.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureZ().in(Units.Degrees));
     }
 
-    private void logGryoMode(String mode) {
-        Logger.recordOutput("Vision/Gyro-Mode", mode);
+    /**
+     * Logs the mode used for the bot's {@link Rotation2d} (gyro) in the pose estimator
+     *
+     * @param mode mode used for estimating rotation
+     */
+    private void logGryoMode(IMUMode mode) {
+        Logger.recordOutput("Vision/Gyro-Mode", mode.name());
     }
 
     /**
@@ -114,9 +120,27 @@ public class VisionIOLimelight implements VisionIO {
      */
     @Override
     public LimelightHelpers.PoseEstimate estimatePose(Drive drive) {
-        LimelightHelpers.SetRobotOrientation(VisionConstants.PRIMARY_CAM_NAME,
-                                             drive.getRotation().getDegrees(),
-                                             0, 0, 0, 0, 0);
+        ChassisSpeeds speeds = drive.getChassisSpeeds();
+        Rotation2d yaw = drive.getRotation();
+
+        if (VisionConstants.ALLOW_FUSED_GYRO_ESTIMATIONS &&
+            DriverStation.isEnabled() && // enabled
+            LimelightHelpers.getTA(VisionConstants.PRIMARY_CAM_NAME) >= 1.5 && // confident tag
+            Math.abs(speeds.vxMetersPerSecond) < 0.1 && // bot not moving
+            Math.abs(speeds.vyMetersPerSecond) < 0.1 &&
+            Math.abs(speeds.omegaRadiansPerSecond) < 0.1) {
+            LimelightHelpers.SetIMUMode(VisionConstants.PRIMARY_CAM_NAME, IMUMode.FUSED.ID); // use fused IMU
+            // ...and get estimate for bot pose in FUSED mode
+            yaw = LimelightHelpers.getBotPoseEstimate_wpiBlue(VisionConstants.PRIMARY_CAM_NAME).pose.getRotation();
+            logGryoMode(IMUMode.FUSED);
+        } else {
+            logGryoMode(IMUMode.EXTERNAL);
+        }
+
+        LimelightHelpers.SetRobotOrientation(
+                VisionConstants.PRIMARY_CAM_NAME,
+                yaw.getDegrees(), 0, 0, 0, 0, 0);
+
         return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.PRIMARY_CAM_NAME);
     }
 
@@ -124,8 +148,9 @@ public class VisionIOLimelight implements VisionIO {
     public void setRotation(Rotation2d rotation) {
         // use fused IMU when setting rotation
         LimelightHelpers.SetIMUMode(VisionConstants.PRIMARY_CAM_NAME, IMUMode.FUSED.ID);
-        LimelightHelpers.SetRobotOrientation(VisionConstants.PRIMARY_CAM_NAME, rotation.getDegrees(),
-                                             0, 0, 0, 0, 0);
+        LimelightHelpers.SetRobotOrientation(
+                VisionConstants.PRIMARY_CAM_NAME, rotation.getDegrees(),
+                0, 0, 0, 0, 0);
     }
 
     /**
