@@ -1,8 +1,6 @@
 package frc.robot.subsystems.Intake;
 import static edu.wpi.first.units.Units.Meters;
-
 import org.littletonrobotics.junction.AutoLog;
-
 import edu.wpi.first.units.measure.Distance;
 
 public interface IntakeIO {

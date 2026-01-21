@@ -1,7 +1,5 @@
 package frc.robot.subsystems.Intake;
-
 import static edu.wpi.first.units.Units.*;
-
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.Slot0Configs;
@@ -37,18 +35,12 @@ public final class IntakeIOTalonFX implements IntakeIO {
         extensionMotor = new TalonFX(extensionMotorId);
         rollerMotor.set(0.0);
         extensionMotor.set(0.0);
+
         positionControl = new PositionVoltage(0.0);
         positionControl.withSlot(0);
 
-        // Phoenix Pro style (phoenix6) — use camelCase fields
         TalonFXConfiguration rollerConfigurator = new TalonFXConfiguration();
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration();
-
-        // rollerConfigurator.slot0
-        //     .withKP(0, 0.5)
-        //     .withKI(0, 0.0)
-        //     .withKD(0, 0.0)
-        //     .withKF(0, 0.0);
 
         extensionConfigurator.Slot0 = new Slot0Configs()
             .withKP(1.0)
@@ -59,7 +51,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
             .withKP(rollerMotorId)
             .withKI(rollerMotorId)
             .withKD(rollerMotorId);
-
 
         extensionPositionSignal    = extensionMotor.getPosition();
         extensionTemperatureSignal = extensionMotor.getDeviceTemp();

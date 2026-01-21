@@ -1,5 +1,4 @@
 package frc.robot.subsystems.Intake;
-
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.measure.Distance;
 
