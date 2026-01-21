@@ -29,8 +29,6 @@ public interface LauncherIO {
 
     public default void setVoltage(double volts) {}
 
-    public default void prepareFuel() {} // ?
-
     public default void launchFuel() {}
 
     public default void setHoodPos(Angle pos) {}

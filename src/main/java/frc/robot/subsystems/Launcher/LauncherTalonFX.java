@@ -1,11 +1,18 @@
 package frc.robot.subsystems.Launcher;
 
+import static edu.wpi.first.units.Units.Amps;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -14,7 +21,6 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 
 public class LauncherTalonFX implements LauncherIO {
-    // check how many motors launcher uses
     private int launcherCanID;
     private int launcherSensorID;
 
@@ -24,11 +30,11 @@ public class LauncherTalonFX implements LauncherIO {
     private TalonFX hoodMotor;
     private CANcoder hoodSensor;
 
+    private TalonFX launcherMotor;
     private CANcoder launcherSensor;
 
     private final VelocityVoltage velocityVoltage;
 
-    TalonFX launcherMotor = new TalonFX(launcherCanID);
     private StatusSignal<Temperature> temperatureLauncher;
     private StatusSignal<Temperature> temperatureHood;
     private StatusSignal<Voltage> voltageLauncher;
@@ -51,6 +57,7 @@ public class LauncherTalonFX implements LauncherIO {
         hoodMotor = new TalonFX(hoodCanID);
         hoodSensor = new CANcoder(hoodSensorID);
 
+        launcherMotor = new TalonFX(launcherCanID);
         launcherSensor = new CANcoder(launcherSensorID);
 
         temperatureLauncher = launcherMotor.getDeviceTemp();
@@ -80,20 +87,37 @@ public class LauncherTalonFX implements LauncherIO {
         TalonFXConfigurator launcherConfigurator = launcherMotor.getConfigurator();
         TalonFXConfigurator hoodConfigurator = hoodMotor.getConfigurator();
 
-        // CirrentLimitConfigs
+        Slot0Configs launcherSlotConfigs = new Slot0Configs();
+        launcherSlotConfigs.kG = 0.0;
+        launcherSlotConfigs.kS = 0.1;
+        launcherSlotConfigs.kV = 0.12;
+        launcherSlotConfigs.kP = 0.11;
+        launcherSlotConfigs.kI = 0.0;
+        launcherSlotConfigs.kD = 0.0;
+
+        launcherConfigurator.apply(launcherSlotConfigs);
+
+        final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
+
+        launcherMotor.setControl(velocityVoltage.withVelocity(8).withFeedForward(0.5));
+ 
+        CurrentLimitsConfigs launcherCurrentLimitsConfigs = new CurrentLimitsConfigs(); // check
+        launcherCurrentLimitsConfigs.SupplyCurrentLimit = 30;
+        launcherCurrentLimitsConfigs.SupplyCurrentLimitEnable = true;
+
         // MotorOutputConfigs
+        MotorOutputConfigs launcheOutputConfigs = new MotorOutputConfigs(); // check
+        launcherConfigurator.apply(launcheOutputConfigs);
+
         // FeedBackConfigs
-        // SlotConfigs
+        FeedbackConfigs launcherFeedbackConfigs = new FeedbackConfigs().withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder).withRemoteCANcoder(launcherSensor); // check
+        launcherConfigurator.apply(launcherFeedbackConfigs);
     }
     
-
     @Override
     public void setVoltage(double volts) {
         launcherMotor.setVoltage(volts);
     }
-
-    @Override
-    public void prepareFuel() {} // ?
 
     @Override
     public void launchFuel() {
