@@ -3,6 +3,9 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -15,8 +18,42 @@ import org.littletonrobotics.junction.Logger;
  * @author Logan Dhillon, FRC 5409 Chargers
  */
 public class Vision extends SubsystemBase {
+    public static final String PRIMARY_CAM_NAME = "limelight";
 
-    private final VisionIO io;
+    public static final int FIDUCIAL_TRUST_THRESHOLD = 1;
+    public static final int DISCONNECTION_TIMEOUT    = 5;
+    public static final int THROTTLE_DISABLED        = 200;
+
+    /**
+     * If enabled, the {@link VisionIOLimelight} will use
+     * {@link frc.robot.subsystems.vision.VisionIOLimelight.IMUMode#FUSED} estimations if the detected AprilTag is
+     * strong enough.
+     */
+    public static final boolean ALLOW_FUSED_GYRO_ESTIMATIONS = true;
+
+    /**
+     * 1σ translation error at zero distance (meters)
+     */
+    public static final double XY_STDDEV_BASE_METERS  = 0.10;
+    /**
+     * Additional translation error per meter of tag distance
+     */
+    public static final double XY_STDDEV_PER_METER    = 0.05;
+    /**
+     * 1σ rotation error at zero distance (deg)
+     */
+    public static final double THETA_STDDEV_BASE_DEG  = 2.0;
+    /**
+     * Additional rotation error per meter of tag distance (deg / meter)
+     */
+    public static final double THETA_STDDEV_PER_METER = 1.5;
+
+    // TODO: update these to camera offset
+    public static final Transform3d OFFSET_FROM_ROBOT_ORIGIN = new Transform3d(
+            new Translation3d(0, 0, 0),
+            new Rotation3d(0, 0, 0));
+
+    private final VisionIO               io;
     private final VisionInputsAutoLogged inputs;
 
     private final Alert disconnectedAlert = new Alert(
@@ -40,26 +77,27 @@ public class Vision extends SubsystemBase {
         LimelightHelpers.PoseEstimate estimate = io.estimatePose(drive);
 
         // if estimate is invalid, don't update pose
-        if (estimate == null || estimate.tagCount < VisionConstants.FIDUCIAL_TRUST_THRESHOLD) return;
+        if (estimate == null || estimate.tagCount < Vision.FIDUCIAL_TRUST_THRESHOLD) return;
 
         drive.addVisionMeasurement(estimate.pose, estimate.timestampSeconds, deriveStdDevs(estimate.avgTagDist));
     }
 
     /**
      * Derives the standard deviation of background noise in the fiducial pose estimation given the factors from
-     * {@link VisionConstants}
+     * constants
      *
      * @param avgTagDist average tag distance, retrieved from pose estimate
      *
      * @return standard deviations as a 3rd-degree matrix
      */
     private Vector<N3> deriveStdDevs(double avgTagDist) {
-        double xy = VisionConstants.VISION_XY_STDDEV_BASE_METERS +
-                    VisionConstants.VISION_XY_STDDEV_PER_METER * avgTagDist;
+        double xy = XY_STDDEV_BASE_METERS +
+                    XY_STDDEV_PER_METER * avgTagDist;
         // TODO: this should be tested
-        return VecBuilder.fill(xy, xy,
-                               Math.toRadians(VisionConstants.VISION_THETA_STDDEV_BASE_DEG +
-                                              VisionConstants.VISION_THETA_STDDEV_PER_METER * avgTagDist)
+        return VecBuilder.fill(
+                xy, xy,
+                Math.toRadians(THETA_STDDEV_BASE_DEG +
+                               THETA_STDDEV_PER_METER * avgTagDist)
         );
     }
 

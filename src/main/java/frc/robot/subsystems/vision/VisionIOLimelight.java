@@ -24,7 +24,7 @@ public class VisionIOLimelight implements VisionIO {
                 .onTrue(
                         Commands.parallel(
                                 setIMUMode(IMUMode.FUSED),
-                                setThrottle(VisionConstants.THROTTLE_DISABLED)
+                                setThrottle(Vision.THROTTLE_DISABLED)
                         )
                 ).onFalse(
                         Commands.parallel(
@@ -35,37 +35,37 @@ public class VisionIOLimelight implements VisionIO {
 
         // TODO: add throttle debug commands, i'll do this when my FRC Checkmate library is done
 //        DebugCommand.register("No Throttle LL", setThrottle(0));
-//        DebugCommand.register("Throttle LL", setThrottle(VisionConstants.THROTTLE_DISABLED));
+//        DebugCommand.register("Throttle LL", setThrottle(Vision.THROTTLE_DISABLED));
 //        DebugCommand.register("Fused LL", setIMUMode(IMUMode.FUSED));
 //        DebugCommand.register("Internal LL", setIMUMode(IMUMode.INTERNAL));
 
-        LimelightHelpers.SetThrottle(VisionConstants.PRIMARY_CAM_NAME, VisionConstants.THROTTLE_DISABLED);
-        LimelightHelpers.SetIMUMode(VisionConstants.PRIMARY_CAM_NAME, IMUMode.FUSED.ID);
+        LimelightHelpers.SetThrottle(Vision.PRIMARY_CAM_NAME, Vision.THROTTLE_DISABLED);
+        LimelightHelpers.SetIMUMode(Vision.PRIMARY_CAM_NAME, IMUMode.FUSED.ID);
     }
 
     private Command setThrottle(int throttle) {
         return Commands.runOnce(
-                () -> LimelightHelpers.SetThrottle(VisionConstants.PRIMARY_CAM_NAME, throttle)
+                () -> LimelightHelpers.SetThrottle(Vision.PRIMARY_CAM_NAME, throttle)
         ).ignoringDisable(true);
     }
 
     private Command setIMUMode(IMUMode mode) {
         return Commands.runOnce(
-                () -> LimelightHelpers.SetIMUMode(VisionConstants.PRIMARY_CAM_NAME, mode.ID)
+                () -> LimelightHelpers.SetIMUMode(Vision.PRIMARY_CAM_NAME, mode.ID)
         ).ignoringDisable(true);
     }
 
     @Override
     public void updateInputs(VisionInputs inputs) {
-        inputs.tx = LimelightHelpers.getTX(VisionConstants.PRIMARY_CAM_NAME);
-        inputs.ty = LimelightHelpers.getTY(VisionConstants.PRIMARY_CAM_NAME);
-        inputs.ta = LimelightHelpers.getTA(VisionConstants.PRIMARY_CAM_NAME);
-        inputs.hasTarget = LimelightHelpers.getTV(VisionConstants.PRIMARY_CAM_NAME);
-        inputs.targetId = LimelightHelpers.getFiducialID(VisionConstants.PRIMARY_CAM_NAME);
-        inputs.imgLatency = LimelightHelpers.getLatency_Capture(VisionConstants.PRIMARY_CAM_NAME);
-        inputs.prxLatency = LimelightHelpers.getLatency_Pipeline(VisionConstants.PRIMARY_CAM_NAME);
+        inputs.tx = LimelightHelpers.getTX(Vision.PRIMARY_CAM_NAME);
+        inputs.ty = LimelightHelpers.getTY(Vision.PRIMARY_CAM_NAME);
+        inputs.ta = LimelightHelpers.getTA(Vision.PRIMARY_CAM_NAME);
+        inputs.hasTarget = LimelightHelpers.getTV(Vision.PRIMARY_CAM_NAME);
+        inputs.targetId = LimelightHelpers.getFiducialID(Vision.PRIMARY_CAM_NAME);
+        inputs.imgLatency = LimelightHelpers.getLatency_Capture(Vision.PRIMARY_CAM_NAME);
+        inputs.prxLatency = LimelightHelpers.getLatency_Pipeline(Vision.PRIMARY_CAM_NAME);
 
-        double[] hw = LimelightHelpers.getLimelightNTTableEntry(VisionConstants.PRIMARY_CAM_NAME, "hw")
+        double[] hw = LimelightHelpers.getLimelightNTTableEntry(Vision.PRIMARY_CAM_NAME, "hw")
                                       .getDoubleArray(new double[]{ 0.0, 0.0, 0.0, 0.0 });
 
         try {
@@ -85,7 +85,7 @@ public class VisionIOLimelight implements VisionIO {
             disconnectedFrames = 0;
             inputs.isConnected = true;
         } else {
-            inputs.isConnected = ++disconnectedFrames <= VisionConstants.DISCONNECTION_TIMEOUT;
+            inputs.isConnected = ++disconnectedFrames <= Vision.DISCONNECTION_TIMEOUT;
         }
 
         lastPrxLatency = inputs.prxLatency;
@@ -94,13 +94,13 @@ public class VisionIOLimelight implements VisionIO {
     @Override
     public void setCameraOffset() {
         LimelightHelpers.setCameraPose_RobotSpace(
-                VisionConstants.PRIMARY_CAM_NAME,
-                VisionConstants.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getX(),
-                VisionConstants.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getY(),
-                VisionConstants.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getZ(),
-                VisionConstants.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureX().in(Units.Degrees),
-                VisionConstants.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureY().in(Units.Degrees),
-                VisionConstants.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureZ().in(Units.Degrees));
+                Vision.PRIMARY_CAM_NAME,
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getX(),
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getY(),
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getZ(),
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureX().in(Units.Degrees),
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureY().in(Units.Degrees),
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureZ().in(Units.Degrees));
     }
 
     /**
@@ -123,33 +123,33 @@ public class VisionIOLimelight implements VisionIO {
         ChassisSpeeds speeds = drive.getChassisSpeeds();
         Rotation2d yaw = drive.getRotation();
 
-        if (VisionConstants.ALLOW_FUSED_GYRO_ESTIMATIONS &&
+        if (Vision.ALLOW_FUSED_GYRO_ESTIMATIONS &&
             DriverStation.isEnabled() && // enabled
-            LimelightHelpers.getTA(VisionConstants.PRIMARY_CAM_NAME) >= 1.5 && // confident tag
+            LimelightHelpers.getTA(Vision.PRIMARY_CAM_NAME) >= 1.5 && // confident tag
             Math.abs(speeds.vxMetersPerSecond) < 0.1 && // bot not moving
             Math.abs(speeds.vyMetersPerSecond) < 0.1 &&
             Math.abs(speeds.omegaRadiansPerSecond) < 0.1) {
-            LimelightHelpers.SetIMUMode(VisionConstants.PRIMARY_CAM_NAME, IMUMode.FUSED.ID); // use fused IMU
+            LimelightHelpers.SetIMUMode(Vision.PRIMARY_CAM_NAME, IMUMode.FUSED.ID); // use fused IMU
             // ...and get estimate for bot pose in FUSED mode
-            yaw = LimelightHelpers.getBotPoseEstimate_wpiBlue(VisionConstants.PRIMARY_CAM_NAME).pose.getRotation();
+            yaw = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose.getRotation();
             logGryoMode(IMUMode.FUSED);
         } else {
             logGryoMode(IMUMode.EXTERNAL);
         }
 
         LimelightHelpers.SetRobotOrientation(
-                VisionConstants.PRIMARY_CAM_NAME,
+                Vision.PRIMARY_CAM_NAME,
                 yaw.getDegrees(), 0, 0, 0, 0, 0);
 
-        return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(VisionConstants.PRIMARY_CAM_NAME);
+        return LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Vision.PRIMARY_CAM_NAME);
     }
 
     @Override
     public void setRotation(Rotation2d rotation) {
         // use fused IMU when setting rotation
-        LimelightHelpers.SetIMUMode(VisionConstants.PRIMARY_CAM_NAME, IMUMode.FUSED.ID);
+        LimelightHelpers.SetIMUMode(Vision.PRIMARY_CAM_NAME, IMUMode.FUSED.ID);
         LimelightHelpers.SetRobotOrientation(
-                VisionConstants.PRIMARY_CAM_NAME, rotation.getDegrees(),
+                Vision.PRIMARY_CAM_NAME, rotation.getDegrees(),
                 0, 0, 0, 0, 0);
     }
 
@@ -158,7 +158,7 @@ public class VisionIOLimelight implements VisionIO {
      */
     public static void forwardLimelightPorts() {
         for (int i = 5800; i <= 5809; i++)
-            PortForwarder.add(i, VisionConstants.PRIMARY_CAM_NAME + ".local", i);
+            PortForwarder.add(i, Vision.PRIMARY_CAM_NAME + ".local", i);
     }
 
     public enum IMUMode {
