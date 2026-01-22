@@ -290,7 +290,7 @@ public class Drive extends SubsystemBase {
 
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  private ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
@@ -310,6 +310,30 @@ public class Drive extends SubsystemBase {
       output += modules[i].getFFCharacterizationVelocity() / 4.0;
     }
     return output;
+  }
+
+  // Copied from last year
+  /** Returns the field relative measured chassis speeds of the robot */
+  public ChassisSpeeds getFieldRelativeSpeeds() {
+    ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());
+    Rotation2d robotRotation = getRotation();
+
+    return new ChassisSpeeds(
+      speeds.vxMetersPerSecond * robotRotation.getCos() - speeds.vyMetersPerSecond * robotRotation.getSin(), 
+      speeds.vxMetersPerSecond * robotRotation.getSin() + speeds.vyMetersPerSecond * robotRotation.getCos(), 
+      speeds.omegaRadiansPerSecond
+    );
+  }
+
+  public ChassisSpeeds getFieldRelativeSpeeds(double omegaRadiansPerSecond){
+    ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());
+    Rotation2d robotRotation = getRotation();
+
+    return new ChassisSpeeds(
+      speeds.vxMetersPerSecond * robotRotation.getCos() - speeds.vyMetersPerSecond * robotRotation.getSin(), 
+      speeds.vxMetersPerSecond * robotRotation.getSin() + speeds.vyMetersPerSecond * robotRotation.getCos(), 
+      omegaRadiansPerSecond
+    );
   }
 
   /** Returns the current odometry pose. */
