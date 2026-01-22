@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -38,12 +39,21 @@ public class Hopper extends SubsystemBase {
         );
     }
 
+    public Command manualExtend() {
+        return Commands.runOnce(() -> io.setMotorVoltage(2), this);
+    }
+
+    public Command manualRetract() {
+        return Commands.runOnce(() -> io.setMotorVoltage(-2), this);
+    }
+
     public Command stopMotor() {
         return Commands.runOnce(
             () -> io.stopMotor()
         );
     }
 
+    @Override
     public void periodic() {
         // This method will be called once per scheduler run
         io.updateInputs(inputs);

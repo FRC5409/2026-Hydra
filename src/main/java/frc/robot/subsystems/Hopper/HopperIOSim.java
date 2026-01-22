@@ -13,12 +13,13 @@ public class HopperIOSim implements HopperIO {
     private boolean running;
     private ElevatorSim hopperSim;
     private PIDController pid;
+    private double manualVoltage = 0.0;
 
     public HopperIOSim() {
         hopperSim = new ElevatorSim(
             DCMotor.getFalcon500(2),
             10, //Test value, needs to be tuned
-            0.1,
+            0.1, //Test value
             0.0127, //Test value
             0.0, 
             0.3, 
@@ -32,6 +33,8 @@ public class HopperIOSim implements HopperIO {
     @Override
     public void setMotorVoltage(double voltage) {
         hopperSim.setInputVoltage(voltage);
+        manualVoltage = voltage;
+        running = true;
     }
 
     @Override
@@ -55,12 +58,17 @@ public class HopperIOSim implements HopperIO {
         double volts = 0.0;
         double current = 0.0;
         if (running) {
+
+            /* PID control */
             volts = MathUtil.clamp(
                 pid.calculate(hopperSim.getPositionMeters()) * 12, 
                 -RoboRioSim.getVInVoltage(), 
                 RoboRioSim.getVInVoltage()
             );
             current = hopperSim.getCurrentDrawAmps();
+
+            /* MANUAL control */
+            //volts = MathUtil.clamp(manualVoltage, -RoboRioSim.getVInVoltage(), RoboRioSim.getVInVoltage());
         }
         hopperSim.setInputVoltage (volts);
         hopperSim.update(0.02);
