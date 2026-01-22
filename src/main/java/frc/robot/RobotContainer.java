@@ -128,7 +128,7 @@ public class RobotContainer {
             () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
         )
     );
-
+    
     // Switch to X pattern when X button is pressed
     primaryController.x()
       .onTrue(
@@ -141,29 +141,6 @@ public class RobotContainer {
       .onFalse(
         Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
-    primaryController.b()
-      .whileTrue(
-        DriveCommands.alignToPoint(
-          sys_drive, 
-          () -> Pose2d.kZero, 
-          () -> {return MetersPerSecond.of(2.75);}, 
-          () -> {return MetersPerSecondPerSecond.of(61);})
-      );
-
-    primaryController.y()
-      // .whileTrue(
-      //   DriveCommands.alignHeading(
-      //     sys_drive, 
-      //     () -> Rotation2d.kZero  
-      //   )
-      // );
-      .whileTrue(
-        DriveCommands.joystickDriveAtAngle(
-          sys_drive, 
-          () -> -primaryController.getLeftY(), 
-          () -> -primaryController.getLeftX(), 
-          () -> Rotation2d.kZero)
-      );
   }
 
   /**
