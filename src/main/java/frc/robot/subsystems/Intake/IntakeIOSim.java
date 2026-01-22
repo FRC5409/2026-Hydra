@@ -2,11 +2,28 @@ package frc.robot.subsystems.Intake;
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.units.measure.Distance;
 
+
 public class IntakeIOSim implements IntakeIO {
 
   private static final double MAX_VOLTAGE = 12.0;
   private double appliedVoltage = 0.0;
   private Distance position = Meters.of(0);
+
+  // private final IntakeSimulation intakeSimulation;
+
+  // public IntakeIOSim(AbstractDriveTrainSimulation driveTrain) {
+  //   this.intakeSimulation = new IntakeSimulation(
+  //       "Fuel",
+  //       driveTrain,
+  //       // Width of the intake
+  //       Meters.of(0.7),
+  //       // The extension length of the intake beyond the robot's frame (when activated)
+  //       Meters.of(0.2),
+  //       // The intake is mounted on the back side of the chassis
+  //       IntakeSimulation.IntakeSide.BACK,
+  //       // The intake can hold up to 1 fuel
+  //       1);
+  // }
 
   @Override
   public void setVoltage(double voltage) {
@@ -18,7 +35,24 @@ public class IntakeIOSim implements IntakeIO {
   public void setSetpoint(Distance setpoint) {
     position = setpoint;
     System.out.println("IntakeIOSim.setSetpoint: setpoint=" + setpoint.in(Meters));
-  }
+  //   if (setpoint.in(Meters) > 0) {
+  //     intakeSimulation.startIntake();
+  //   } else {
+  //     intakeSimulation.stopIntake();
+  //   }
+  // }
+
+  // @Override
+  //   public boolean isNoteInsideIntake() {
+  //       return intakeSimulation.getGamePiecesAmount() != 0;
+  //   }
+
+  // @Override
+  //   public void launchNote() {
+  //       if (intakeSimulation.obtainGamePieceFromIntake())
+  //           LauncherIOSim.launchNote();
+  //   }
+}
 
   @Override
   public Distance getPosition() {
