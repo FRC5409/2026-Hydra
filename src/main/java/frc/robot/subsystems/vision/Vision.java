@@ -91,13 +91,11 @@ public class Vision extends SubsystemBase {
      * @return standard deviations as a 3rd-degree matrix
      */
     private Vector<N3> deriveStdDevs(double avgTagDist) {
-        double xy = XY_STDDEV_BASE_METERS +
-                    XY_STDDEV_PER_METER * avgTagDist;
+        double xy = XY_STDDEV_BASE_METERS + XY_STDDEV_PER_METER * avgTagDist;
         // TODO: this should be tested
         return VecBuilder.fill(
                 xy, xy,
-                Math.toRadians(THETA_STDDEV_BASE_DEG +
-                               THETA_STDDEV_PER_METER * avgTagDist)
+                Math.toRadians(THETA_STDDEV_BASE_DEG + THETA_STDDEV_PER_METER * avgTagDist)
         );
     }
 
