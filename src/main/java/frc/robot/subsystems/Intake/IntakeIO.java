@@ -2,6 +2,8 @@ package frc.robot.subsystems.Intake;
 import static edu.wpi.first.units.Units.Meters;
 import org.littletonrobotics.junction.AutoLog;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 
 public interface IntakeIO {
 
@@ -9,15 +11,15 @@ public interface IntakeIO {
     public class intakeInputs{
 
         public boolean rollerConnection = false;
-        public double rollerVolts = 0.0;
-        public double rollerCurrent = 0.0;
+        public Voltage rollerVolts = Volts.of(0.0);
+        public Current rollerCurrent = 0.0;
         public double rollerTemp = 0.0;
-        public double rollerVelocity = 0.0;
+        public Voltage rollerVelocity = Volts.of(0.0);
 
         public boolean extensionConnection = false;
         public boolean extensionRunning = false;
-        public double extensionVolts = 0.0;
-        public double extensionCurrent = 0.0;
+        public Voltage extensionVolts = Volts.of(0.0);
+        public Current extensionCurrent = Amps.of(0.0);
         public double extensionTemp = 0.0;
         public double extensionVelocity = 0.0;
         public double extensionPosition = 0.0;
