@@ -91,13 +91,13 @@ public class IntakeIOSim implements IntakeIO {
       inputs.isExtended = extensionSim.getPositionMeters() >= kExtension.EXTENSION_MAX_DISTANCE.in(Meters) - 0.01;
       inputs.isRetracted = extensionSim.getPositionMeters() <= kExtension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
       inputs.extensionVelocity = extensionSim.getVelocityMetersPerSecond();
-      // inputs.extensionCurrent = extensionSim.getCurrentDrawAmps().in(Amps);
+      inputs.extensionCurrent = Amps.of(extensionSim.getCurrentDrawAmps());
       inputs.extensionRunning = running;
-      inputs.extensionVolts = volts;
+      inputs.extensionVolts = Volts.of(volts);
       inputs.extensionTemp = 25.0; // Constant temp for sim
 
-      inputs.rollerCurrent = rollerVoltage / 12.0 * 20.0; // Simulated current draw
-      inputs.rollerVolts = rollerVoltage;
+      inputs.rollerCurrent = Amps.of(rollerVoltage / 12.0 * 20.0); // Simulated current draw
+      inputs.rollerVolts = Volts.of(rollerVoltage);
       inputs.rollerTemp = 25.0;
       inputs.rollerVelocity = rollerVoltage / 12.0 * 5000.0; // Simulated velocity
 

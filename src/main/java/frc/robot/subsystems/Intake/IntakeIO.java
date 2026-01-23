@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Intake;
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
+import static edu.wpi.first.units.Units.Amps;
+
 import org.littletonrobotics.junction.AutoLog;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Current;
@@ -12,9 +14,9 @@ public interface IntakeIO {
 
         public boolean rollerConnection = false;
         public Voltage rollerVolts = Volts.of(0.0);
-        public Current rollerCurrent = 0.0;
+        public Current rollerCurrent = Amps.of(0.0);
         public double rollerTemp = 0.0;
-        public Voltage rollerVelocity = Volts.of(0.0);
+        public double rollerVelocity = 0.0;
 
         public boolean extensionConnection = false;
         public boolean extensionRunning = false;
@@ -52,7 +54,7 @@ public interface IntakeIO {
 
     public default void stopMotor() {}
 
-    public default Distance getPosition() {return Meters.of(0);}
+    public default Distance getPosition() { return null; }
 
     }
 
