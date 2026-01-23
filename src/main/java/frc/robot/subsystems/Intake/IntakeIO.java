@@ -7,14 +7,15 @@ public interface IntakeIO {
 
     @AutoLog
     public class intakeInputs{
+
         public boolean rollerConnection = false;
         public double rollerVolts = 0.0;
         public double rollerCurrent = 0.0;
         public double rollerTemp = 0.0;
         public double rollerVelocity = 0.0;
-        public double rollerPosition = 0.0;
 
         public boolean extensionConnection = false;
+        public boolean extensionRunning = false;
         public double extensionVolts = 0.0;
         public double extensionCurrent = 0.0;
         public double extensionTemp = 0.0;
@@ -23,16 +24,21 @@ public interface IntakeIO {
 
         public boolean isExtended = false;
         public boolean isRetracted = true;
+
     }
-    public default void setVoltage(double voltage) {}
+    public default void setExtensionVoltage(double voltage) {}
+
+    public default void setRollerVoltage(double voltage) {}
 
     public default void updateInputs(intakeInputs inputs) {}
 
     public default double getMotorCurrent() {
+
         return 0.0;
+
     }
 
-    public default void setSetpoint(edu.wpi.first.units.measure.Distance position) {}
+    public default void setSetpoint(Distance position) {}
 
     public default void coastMode() {}
 

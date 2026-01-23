@@ -1,82 +1,108 @@
 package frc.robot.subsystems.Intake;
 import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.simulation.ElevatorSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import frc.robot.subsystems.Intake.IntakeConstants.kExtension;
 
 
 public class IntakeIOSim implements IntakeIO {
+  
+    private final ElevatorSim extensionSim;
+    private final PIDController pid;
+    private boolean running;
+    private double rollerVoltage = 0.0;
 
-  private static final double MAX_VOLTAGE = 12.0;
-  private double appliedVoltage = 0.0;
-  private Distance position = Meters.of(0);
+    public IntakeIOSim() {
 
-  // private final IntakeSimulation intakeSimulation;
+      // Ensure simulator has a battery voltage available
+      RoboRioSim.setVInVoltage(12.0);
 
-  // public IntakeIOSim(AbstractDriveTrainSimulation driveTrain) {
-  //   this.intakeSimulation = new IntakeSimulation(
-  //       "Fuel",
-  //       driveTrain,
-  //       // Width of the intake
-  //       Meters.of(0.7),
-  //       // The extension length of the intake beyond the robot's frame (when activated)
-  //       Meters.of(0.2),
-  //       // The intake is mounted on the back side of the chassis
-  //       IntakeSimulation.IntakeSide.BACK,
-  //       // The intake can hold up to 1 fuel
-  //       1);
-  // }
+      extensionSim = new ElevatorSim(
+            DCMotor.getKrakenX60(1), 
+            kExtension.kGearing, 
+            kExtension.INTAKE_MASS.in(Kilograms), 
+            kExtension.INTAKE_DRUMRADIUS.in(Meters), 
+            kExtension.INTAKE_MIN_DISTANCE.in(Meters), 
+            kExtension.INTAKE_MAX_DISTANCE.in(Meters), 
+            false, 
+            kExtension.INTAKE_MIN_DISTANCE.in(Meters)
+        );
 
-  @Override
-  public void setVoltage(double voltage) {
-    appliedVoltage = voltage;
-    System.out.println("IntakeIOSim.setVoltage: voltage=" + voltage);
-  }
+      pid = new PIDController(
+            kExtension.SIM_PIDConstants.kP, 
+            kExtension.SIM_PIDConstants.kI, 
+            kExtension.SIM_PIDConstants.kD
+        );
 
-  @Override
-  public void setSetpoint(Distance setpoint) {
-    position = setpoint;
-    System.out.println("IntakeIOSim.setSetpoint: setpoint=" + setpoint.in(Meters));
-  //   if (setpoint.in(Meters) > 0) {
-  //     intakeSimulation.startIntake();
-  //   } else {
-  //     intakeSimulation.stopIntake();
-  //   }
-  // }
+      running = false;
 
-  // @Override
-  //   public boolean isNoteInsideIntake() {
-  //       return intakeSimulation.getGamePiecesAmount() != 0;
-  //   }
+    }
 
-  // @Override
-  //   public void launchNote() {
-  //       if (intakeSimulation.obtainGamePieceFromIntake())
-  //           LauncherIOSim.launchNote();
-  //   }
-}
+    @Override
+    public void setExtensionVoltage(double voltage) {
 
-  @Override
-  public Distance getPosition() {
-    return position;
-  }
+      extensionSim.setInputVoltage(voltage);
+      running = voltage != 0;
 
-  @Override
-  public void stopMotor() {
-    appliedVoltage = 0.0;
-  }
+    }
 
-  @Override
-  public void updateInputs(IntakeIO.intakeInputs inputs) {
-    inputs.extensionPosition = position.in(Meters);
-    inputs.extensionVolts = appliedVoltage;
+    @Override
+    public void setRollerVoltage(double voltage) {
 
-    inputs.extensionCurrent = Math.abs(inputs.extensionVolts) / MAX_VOLTAGE * 40.0; // crude estimate
-    inputs.extensionTemp = 20.0 + inputs.extensionCurrent * 0.05; // crude estimate
-    inputs.extensionConnection = true;
+      rollerVoltage = voltage;
 
-    inputs.rollerVolts = appliedVoltage;
-    inputs.rollerCurrent = Math.abs(inputs.rollerVolts) / MAX_VOLTAGE * 20.0; // crude estimate
-    inputs.rollerTemp = 20.0 + inputs.rollerCurrent * 0.05; // crude estimate
-    inputs.rollerConnection = true;
-    // System.out.println("IntakeIOSim.updateInputs: volts=" + inputs.extensionVolts + " pos=" + inputs.extensionPosition);
-  }
+    }
+
+    @Override
+    public void setSetpoint(Distance position) {
+
+      pid.setSetpoint(position.in(Meters));
+      running = true;
+
+    }
+
+    @Override
+    public Distance getPosition() {
+
+      return Meters.of(extensionSim.getPositionMeters());
+
+    } 
+
+    @Override
+    public void updateInputs(intakeInputs inputs) {
+
+        double volts = 0.0;
+
+        if (running) {
+            double pidOut = pid.calculate(extensionSim.getPositionMeters());
+            // use RoboRioSim voltage if available, otherwise fallback to 12V
+            double maxV = Math.max(12.0, RoboRioSim.getVInVoltage());
+            volts = MathUtil.clamp(pidOut * 12.0, -maxV, maxV);
+        }
+
+      extensionSim.setInputVoltage(volts);
+      extensionSim.update(0.02);
+
+      inputs.extensionPosition = extensionSim.getPositionMeters();
+      inputs.isExtended = extensionSim.getPositionMeters() >= kExtension.EXTENSION_MAX_DISTANCE.in(Meters) - 0.01;
+      inputs.isRetracted = extensionSim.getPositionMeters() <= kExtension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
+      inputs.extensionVelocity = extensionSim.getVelocityMetersPerSecond();
+      inputs.extensionCurrent = extensionSim.getCurrentDrawAmps();
+      inputs.extensionRunning = running;
+      inputs.extensionVolts = volts;
+      inputs.extensionTemp = 25.0; // Constant temp for sim
+
+      inputs.rollerCurrent = rollerVoltage / 12.0 * 20.0; // Simulated current draw
+      inputs.rollerVolts = rollerVoltage;
+      inputs.rollerTemp = 25.0;
+      inputs.rollerVelocity = rollerVoltage / 12.0 * 5000.0; // Simulated velocity
+
+
+      inputs.rollerConnection = true;
+      inputs.extensionConnection = true;
+    }
 }

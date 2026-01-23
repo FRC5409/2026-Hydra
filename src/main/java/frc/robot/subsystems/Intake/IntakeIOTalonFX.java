@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.Intake.IntakeConstants.kExtension;
 
 public final class IntakeIOTalonFX implements IntakeIO {
   
@@ -31,6 +32,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal<Current>     extensionCurrentSignal;
 
     public IntakeIOTalonFX(int rollerMotorId, int extensionMotorId) {
+
         rollerMotor = new TalonFX(rollerMotorId);
         extensionMotor = new TalonFX(extensionMotorId);
         rollerMotor.set(0.0);
@@ -39,18 +41,13 @@ public final class IntakeIOTalonFX implements IntakeIO {
         positionControl = new PositionVoltage(0.0);
         positionControl.withSlot(0);
 
-        TalonFXConfiguration rollerConfigurator = new TalonFXConfiguration();
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration();
 
         extensionConfigurator.Slot0 = new Slot0Configs()
-            .withKP(1.0)
-            .withKI(0.0)
-            .withKD(0.0);
+            .withKP(kExtension.TALONFX_PIDConstants.kP)
+            .withKI(kExtension.TALONFX_PIDConstants.kI)
+            .withKD(kExtension.TALONFX_PIDConstants.kD);
 
-        rollerConfigurator.Slot0 = new Slot0Configs()
-            .withKP(rollerMotorId)
-            .withKI(rollerMotorId)
-            .withKD(rollerMotorId);
 
         extensionPositionSignal    = extensionMotor.getPosition();
         extensionTemperatureSignal = extensionMotor.getDeviceTemp();
@@ -63,6 +60,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
         rollerCurrentSignal     = rollerMotor.getSupplyCurrent();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
+
             50, 
             extensionPositionSignal,
             extensionTemperatureSignal,
@@ -77,32 +75,52 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
         rollerMotor.optimizeBusUtilization();
         extensionMotor.optimizeBusUtilization();
+
     }
 
-    public void setVoltage(double voltage) {
+    public void setRollerVoltage(double voltage) {
+
         rollerMotor.setVoltage(voltage);
+
+    }
+
+    public void setExtensionVoltage(double voltage) {
+
+        extensionMotor.setVoltage(voltage);
+
     }
 
     public void setSetpoint(Distance position) {
+
         extensionMotor.setControl(
+
           positionControl.withPosition(
+
             position.in(Meters)
+
           )
+
         );
+
     }
 
     public void coastMode() {
+
         rollerMotor.setNeutralMode(NeutralModeValue.Coast);
         extensionMotor.setNeutralMode(NeutralModeValue.Coast);
+
     }
 
     public void brakeMode() {
+
         rollerMotor.setNeutralMode(NeutralModeValue.Brake);
         extensionMotor.setNeutralMode(NeutralModeValue.Brake);
+
     }   
 
     @Override
     public void updateInputs(IntakeIO.intakeInputs inputs) {
+
         inputs.extensionConnection = true;
         inputs.extensionVolts = extensionVoltageSignal.getValueAsDouble();
         inputs.extensionCurrent = extensionCurrentSignal.getValueAsDouble();
@@ -113,5 +131,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.rollerVolts = rollerVoltageSignal.getValueAsDouble();
         inputs.rollerCurrent = rollerCurrentSignal.getValueAsDouble();
         inputs.rollerTemp = rollerTemperatureSignal.getValueAsDouble();
+
     }
 }
