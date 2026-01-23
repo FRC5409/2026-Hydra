@@ -171,18 +171,6 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller .button(1)
-        .onTrue( 
-            sys_intake.intakeCommand(12))
-        .onFalse( 
-            sys_intake.intakeCommand(0));
-
-
-    controller .button(2).onTrue( 
-        sys_intake.extendCommand());
-    
-    controller .button(3).onTrue( 
-        sys_intake.retractCommand());
   }
 
   /**
