@@ -1,9 +1,13 @@
 package frc.robot.subsystems.Intake;
 import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import org.littletonrobotics.junction.AutoLog;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
@@ -15,15 +19,15 @@ public interface IntakeIO {
         public boolean rollerConnection = false;
         public Voltage rollerVolts = Volts.of(0.0);
         public Current rollerCurrent = Amps.of(0.0);
-        public double rollerTemp = 0.0;
-        public double rollerVelocity = 0.0;
+        public Temperature rollerTemp = Celsius.of(0.0);
+        public LinearVelocity rollerVelocity = MetersPerSecond.of(0.0);
 
         public boolean extensionConnection = false;
         public boolean extensionRunning = false;
         public Voltage extensionVolts = Volts.of(0.0);
         public Current extensionCurrent = Amps.of(0.0);
-        public double extensionTemp = 0.0;
-        public double extensionVelocity = 0.0;
+        public Temperature extensionTemp = Celsius.of(0.0);
+        public LinearVelocity extensionVelocity = MetersPerSecond.of(0.0);
         public double extensionPosition = 0.0;
 
         public boolean isExtended = false;

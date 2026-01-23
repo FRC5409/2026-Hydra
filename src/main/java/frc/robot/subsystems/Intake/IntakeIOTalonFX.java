@@ -124,13 +124,13 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.extensionConnection = true;
         inputs.extensionVolts = Volts.of(extensionVoltageSignal.getValueAsDouble());
         inputs.extensionCurrent = Amps.of(extensionCurrentSignal.getValueAsDouble());
-        inputs.extensionTemp = extensionTemperatureSignal.getValueAsDouble();
+        inputs.extensionTemp = Celsius.of(extensionTemperatureSignal.getValueAsDouble());
         inputs.extensionPosition = extensionPositionSignal.getValueAsDouble();
 
         inputs.rollerConnection = true;
         inputs.rollerVolts = Volts.of(rollerVoltageSignal.getValueAsDouble());
         inputs.rollerCurrent = Amps.of(rollerCurrentSignal.getValueAsDouble());
-        inputs.rollerTemp = rollerTemperatureSignal.getValueAsDouble();
+        inputs.rollerTemp = Celsius.of(rollerTemperatureSignal.getValueAsDouble());
 
     }
 }
