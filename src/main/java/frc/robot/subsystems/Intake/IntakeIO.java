@@ -9,7 +9,7 @@ import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 
-public interface IntakeIO {
+public interface intakeIO {
 
     @AutoLog
     public class IntakeInputs{

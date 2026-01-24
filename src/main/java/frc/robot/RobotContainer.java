@@ -24,11 +24,11 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.Intake.Intake;
-import frc.robot.subsystems.Intake.IntakeIO;
-import frc.robot.subsystems.Intake.IntakeIOSim;
-import frc.robot.subsystems.Intake.IntakeIOTalonFX;
-import frc.robot.subsystems.Intake.IntakeConstants.*;
+import frc.robot.subsystems.Intake.intake;
+import frc.robot.subsystems.Intake.intakeIO;
+import frc.robot.subsystems.Intake.intakeIOSim;
+import frc.robot.subsystems.Intake.intakeIOTalonFX;
+import frc.robot.subsystems.Intake.intakeConstants.*;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 
@@ -41,7 +41,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final Intake sys_intake;
+  private final intake sys_intake;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -53,7 +53,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
-        sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+        sys_intake = new intake(new intakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -85,7 +85,7 @@ public class RobotContainer {
         break;
 
       case SIM:
-        sys_intake = new Intake(new IntakeIOSim());
+        sys_intake = new intake(new intakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -97,7 +97,7 @@ public class RobotContainer {
         break;
 
       default:
-        sys_intake = new Intake(new IntakeIO(){});
+        sys_intake = new intake(new intakeIO(){});
         // Replayed robot, disable IO implementations
         drive =
             new Drive(

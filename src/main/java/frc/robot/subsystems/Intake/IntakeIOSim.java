@@ -6,17 +6,17 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import frc.robot.subsystems.Intake.IntakeConstants.Extension;
+import frc.robot.subsystems.Intake.intakeConstants.Extension;
 
 
-public class IntakeIOSim implements IntakeIO {
+public class intakeIOSim implements intakeIO {
   
     private final ElevatorSim extensionSim;
     private final PIDController pid;
     private boolean running;
     private double rollerVoltage = 0.0;
 
-    public IntakeIOSim() {
+    public intakeIOSim() {
 
       // Ensure simulator has a battery voltage available
       RoboRioSim.setVInVoltage(12.0);

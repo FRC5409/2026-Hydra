@@ -5,12 +5,12 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import static edu.wpi.first.units.Units.Meters;
 import org.littletonrobotics.junction.Logger;
 
-public class Intake extends SubsystemBase {
+public class intake extends SubsystemBase {
 
-    private final IntakeIO intakeIO;
+    private final intakeIO intakeIO;
     private final IntakeInputsAutoLogged inputs;
 
-    public Intake(IntakeIO io) {
+    public intake(intakeIO io) {
 
         this.intakeIO = io;
         inputs = new IntakeInputsAutoLogged();

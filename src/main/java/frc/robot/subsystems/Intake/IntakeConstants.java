@@ -7,7 +7,7 @@ import edu.wpi.first.units.measure.Voltage;
 import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.config.PIDConstants;
 
-public final class IntakeConstants {
+public final class intakeConstants {
 
 	public static final class Extension {
 
