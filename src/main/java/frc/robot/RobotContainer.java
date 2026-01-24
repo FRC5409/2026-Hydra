@@ -18,12 +18,8 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.launcher.*;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -35,6 +31,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+
+  protected final Launcher sys_launcher;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -57,6 +55,13 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        sys_launcher = new Launcher(new LauncherTalonFX(
+                LauncherConstants.LAUNCHER_CAN_ID,
+                LauncherConstants.LAUNCHER_SENSOR_ID,
+                LauncherConstants.HOOD_CAN_ID,
+                LauncherConstants.HOOD_SENSOR_ID)
+        );
 
         // The ModuleIOTalonFXS implementation provides an example implementation for
         // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -86,6 +91,8 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
+
+                sys_launcher =  new Launcher(new LauncherSim());
         break;
 
       default:
@@ -97,6 +104,9 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
+
+        sys_launcher = new Launcher(new LauncherIO() {});
+
         break;
     }
 
@@ -163,6 +173,10 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
+    primaryController.x()
+                     .onTrue(Commands.sequence(Commands.runOnce(sys_launcher::launchFuel, sys_launcher)))
+                     .onFalse(Commands.runOnce(sys_launcher::stop));
   }
 
   /**
