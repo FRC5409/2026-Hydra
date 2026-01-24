@@ -88,6 +88,16 @@ public class SerializerIOTalonFX implements SerializerIO {
     }
 
     @Override
+    public void setIndexerMotorVoltage(double voltage) {
+        floorMotor.setVoltage(voltage);
+    }
+
+    @Override
+    public void setFeederMotorVoltage(double voltage) {
+        feederMotor.setVoltage(voltage);
+    }
+
+    @Override
     public void stopMotor() {
         floorMotor.stopMotor();
     }

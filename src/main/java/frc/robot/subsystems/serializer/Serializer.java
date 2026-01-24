@@ -15,12 +15,12 @@ public class Serializer extends SubsystemBase{
         inputs = new SerializerInputsAutoLogged();
     }
 
-    public Command feedToLauncher() {
+    public Command rollToLauncher() {
         return Commands.runOnce(() ->
             io.setMotorVoltage(4.0), this); //test value
     }
 
-    public Command feedToIntake() {
+    public Command rollToIntake() {
         return Commands.runOnce(() ->
             io.setMotorVoltage(-4.0), this); //test value
     }
