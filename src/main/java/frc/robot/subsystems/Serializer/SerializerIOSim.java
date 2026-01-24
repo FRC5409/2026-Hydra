@@ -1,5 +1,7 @@
 package frc.robot.subsystems.Serializer;
 
+import static edu.wpi.first.units.Units.Volts;
+
 public class SerializerIOSim implements SerializerIO {
 
     private double volts = 0.0;
@@ -18,10 +20,10 @@ public class SerializerIOSim implements SerializerIO {
 
     @Override
     public void updateInputs(SerializerInputs inputs) {
-        inputs.floorMotorConnection = true;
-        inputs.feederMotorConnection = true;
-        inputs.floorAppliedVoltage = volts;
-        inputs.feederAppliedVoltage = volts;
+        inputs.isFloorMotorConnected = true;
+        inputs.isFeederMotorConnected = true;
+        inputs.floorAppliedVoltage = Volts.of(volts);
+        inputs.feederAppliedVoltage = Volts.of(volts);
     }
 
 

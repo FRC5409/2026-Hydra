@@ -53,15 +53,15 @@ public class SerializerIOSparkMax implements SerializerIO {
 
     @Override
     public void updateInputs(SerializerInputs inputs){
-        inputs.floorMotorConnection = !(indexerMotor.getFaults().motorType || indexerMotor.getFaults().can);
+        inputs.isFloorMotorConnected = !(indexerMotor.getFaults().motorType || indexerMotor.getFaults().can);
         inputs.floorAppliedVoltage = indexerMotor.get() * RobotController.getBatteryVoltage();
         inputs.floorAppliedCurrent = indexerMotor.getOutputCurrent();
         inputs.floorMotorTemperature = indexerMotor.getMotorTemperature();
 
-        inputs.feederMotorConnection = !(feederMotor.getFaults().motorType || indexerMotor.getFaults().can);
+        inputs.isFeederMotorConnected = !(feederMotor.getFaults().motorType || indexerMotor.getFaults().can);
         inputs.feederAppliedVoltage = feederMotor.get() * RobotController.getBatteryVoltage();
         inputs.feederAppliedCurrent = feederMotor.getOutputCurrent();
-        inputs.feederAppliedCurrent = feederMotor.getMotorTemperature();
+        inputs.feederMotorTemperature = feederMotor.getMotorTemperature();
 
     }
 

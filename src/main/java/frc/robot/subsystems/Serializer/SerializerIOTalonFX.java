@@ -16,6 +16,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
 
 public class SerializerIOTalonFX implements SerializerIO {
     
@@ -37,9 +38,9 @@ public class SerializerIOTalonFX implements SerializerIO {
     private StatusSignal<Temperature> feederDeviceTemp;
 
 
-    public SerializerIOTalonFX(int floorID, int feederID) {
-        floorMotor = new TalonFX(floorID);
-        feederMotor = new TalonFX(feederID);
+    public SerializerIOTalonFX(int floorId, int feederId) {
+        floorMotor = new TalonFX(floorId);
+        feederMotor = new TalonFX(feederId);
 
         floorMotorConfig = floorMotor.getConfigurator();
         feederMotorConfig = feederMotor.getConfigurator();
@@ -53,7 +54,7 @@ public class SerializerIOTalonFX implements SerializerIO {
         floorMotor.setNeutralMode(NeutralModeValue.Brake);
         feederMotor.setNeutralMode(NeutralModeValue.Brake);
 
-        feederMotor.setControl(new Follower(floorID, MotorAlignmentValue.Opposed));
+        feederMotor.setControl(new Follower(floorId, MotorAlignmentValue.Opposed));
 
         deviceVelocity = floorMotor.getVelocity();
         devicePosition = floorMotor.getPosition();
@@ -94,7 +95,7 @@ public class SerializerIOTalonFX implements SerializerIO {
 
     @Override
     public void updateInputs(SerializerInputs inputs) {
-        inputs.floorMotorConnection = BaseStatusSignal.refreshAll(
+        inputs.isFloorMotorConnected = BaseStatusSignal.refreshAll(
             devicePosition,
             deviceVelocity,
             floorDeviceVoltage,
@@ -102,7 +103,7 @@ public class SerializerIOTalonFX implements SerializerIO {
             floorDeviceTemp
         ).isOK();
         
-        inputs.feederMotorConnection = BaseStatusSignal.refreshAll(
+        inputs.isFeederMotorConnected = BaseStatusSignal.refreshAll(
             feederDeviceVoltage,
             feederDeviceCurrent,
             feederDeviceTemp
