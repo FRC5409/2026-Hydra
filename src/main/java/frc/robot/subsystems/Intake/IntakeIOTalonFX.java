@@ -44,10 +44,11 @@ public final class IntakeIOTalonFX implements IntakeIO {
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration();
 
         extensionConfigurator.Slot0 = new Slot0Configs()
-            .withKP(kExtension.TALONFX_PIDConstants.kP)
-            .withKI(kExtension.TALONFX_PIDConstants.kI)
-            .withKD(kExtension.TALONFX_PIDConstants.kD);
+            .withKP(kExtension.TALONFX_PIDCONSTANTS.kP)
+            .withKI(kExtension.TALONFX_PIDCONSTANTS.kI)
+            .withKD(kExtension.TALONFX_PIDCONSTANTS.kD);
 
+        extensionMotor.getConfigurator().apply(extensionConfigurator);
 
         extensionPositionSignal    = extensionMotor.getPosition();
         extensionTemperatureSignal = extensionMotor.getDeviceTemp();
@@ -61,7 +62,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
         BaseStatusSignal.setUpdateFrequencyForAll(
 
-            50, 
+            kExtension.UPDATE_FREQUENCY,   
             extensionPositionSignal,
             extensionTemperatureSignal,
             extensionVoltageSignal,
@@ -92,15 +93,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
     public void setSetpoint(Distance position) {
 
-        extensionMotor.setControl(
-
-          positionControl.withPosition(
-
-            position.in(Meters)
-
-          )
-
-        );
+        extensionMotor.setControl(positionControl.withPosition(position.in(Meters)));
 
     }
 
@@ -119,18 +112,18 @@ public final class IntakeIOTalonFX implements IntakeIO {
     }   
 
     @Override
-    public void updateInputs(IntakeIO.intakeInputs inputs) {
+    public void updateInputs(IntakeIO.IntakeInputs inputs) {
 
         inputs.extensionConnection = true;
         inputs.extensionVolts = Volts.of(extensionVoltageSignal.getValueAsDouble());
         inputs.extensionCurrent = Amps.of(extensionCurrentSignal.getValueAsDouble());
-        inputs.extensionTemp = Celsius.of(extensionTemperatureSignal.getValueAsDouble());
+        inputs.extensionTemp = 0.0;
         inputs.extensionPosition = extensionPositionSignal.getValueAsDouble();
 
         inputs.rollerConnection = true;
         inputs.rollerVolts = Volts.of(rollerVoltageSignal.getValueAsDouble());
         inputs.rollerCurrent = Amps.of(rollerCurrentSignal.getValueAsDouble());
-        inputs.rollerTemp = Celsius.of(rollerTemperatureSignal.getValueAsDouble());
+        inputs.rollerTemp = 0.0;
 
     }
 }

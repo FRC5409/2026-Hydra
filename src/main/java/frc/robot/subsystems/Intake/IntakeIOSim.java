@@ -23,7 +23,7 @@ public class IntakeIOSim implements IntakeIO {
 
       extensionSim = new ElevatorSim(
             DCMotor.getKrakenX60(1), 
-            kExtension.kGearing, 
+            kExtension.GEARING, 
             kExtension.INTAKE_MASS.in(Kilograms), 
             kExtension.INTAKE_DRUMRADIUS.in(Meters), 
             kExtension.INTAKE_MIN_DISTANCE.in(Meters), 
@@ -33,9 +33,9 @@ public class IntakeIOSim implements IntakeIO {
         );
 
       pid = new PIDController(
-            kExtension.SIM_PIDConstants.kP, 
-            kExtension.SIM_PIDConstants.kI, 
-            kExtension.SIM_PIDConstants.kD
+            kExtension.SIM_PIDCONSTANTS.kP, 
+            kExtension.SIM_PIDCONSTANTS.kI, 
+            kExtension.SIM_PIDCONSTANTS.kD
         );
 
       running = false;
@@ -73,7 +73,7 @@ public class IntakeIOSim implements IntakeIO {
     } 
 
     @Override
-    public void updateInputs(intakeInputs inputs) {
+    public void updateInputs(IntakeInputs inputs) {
 
         double volts = 0.0;
 

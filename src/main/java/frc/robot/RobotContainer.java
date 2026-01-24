@@ -28,7 +28,7 @@ import frc.robot.subsystems.Intake.Intake;
 import frc.robot.subsystems.Intake.IntakeIO;
 import frc.robot.subsystems.Intake.IntakeIOSim;
 import frc.robot.subsystems.Intake.IntakeIOTalonFX;
-
+import frc.robot.subsystems.Intake.IntakeConstants.*;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 
@@ -53,7 +53,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
-        sys_intake = new Intake(new IntakeIOTalonFX(4,5));
+        sys_intake = new Intake(new IntakeIOTalonFX(kRoller.MOTORID, kExtension.MOTORID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder

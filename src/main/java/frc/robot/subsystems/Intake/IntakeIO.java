@@ -14,7 +14,7 @@ import edu.wpi.first.units.measure.Voltage;
 public interface IntakeIO {
 
     @AutoLog
-    public class intakeInputs{
+    public class IntakeInputs{
 
         public boolean rollerConnection = false;
         public Voltage rollerVolts = Volts.of(0.0);
@@ -38,7 +38,7 @@ public interface IntakeIO {
 
     public default void setRollerVoltage(double voltage) {}
 
-    public default void updateInputs(intakeInputs inputs) {}
+    public default void updateInputs(IntakeInputs inputs) {}
 
     public default double getMotorCurrent() {
 
