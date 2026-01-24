@@ -16,10 +16,10 @@ public final class IntakeConstants {
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.5);
 
-		public static PIDConstants TALONFX_PIDCONSTANTS = new PIDConstants(1.0, 0.01, 0.0);
-		public static PIDConstants SIM_PIDCONSTANTS = new PIDConstants(1.0, 0.0, 0.0);
-		public static final Voltage MAXVOLTAGE = Volts.of(12.0);
-		public static final Current MAXCURRENT = Amps.of(40.0);
+		public static final PIDConstants TALONFX_PID = new PIDConstants(1.0, 0.01, 0.0);
+		public static final PIDConstants SIM_PID = new PIDConstants(1.0, 0.0, 0.0);
+		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
+		public static final Current MAX_CURRENT = Amps.of(40.0);
 		public static final double GEARING = 10.0;
 		public static final Mass INTAKE_MASS = Kilograms.of(1.0);
 		public static final Distance INTAKE_DRUMRADIUS = Meters.of(0.0254);
@@ -34,8 +34,8 @@ public final class IntakeConstants {
 
 		public static final int MOTORID = 4;
 
-        public static final Voltage MAXVOLTAGE = Volts.of(12.0);
-        public static final Current MAXCURRENT = Amps.of(40.0);
+        public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
+        public static final Current MAX_CURRENT = Amps.of(40.0);
         public static final double GEARING = 10.0;
         public static final Mass ROLLER_MASS = Kilograms.of(1.0);
         public static final Distance ROLLER_DRUMRADIUS = Meters.of(0.0254);

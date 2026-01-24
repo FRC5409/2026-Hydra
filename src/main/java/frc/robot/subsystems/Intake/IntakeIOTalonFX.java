@@ -44,9 +44,9 @@ public final class IntakeIOTalonFX implements IntakeIO {
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration();
 
         extensionConfigurator.Slot0 = new Slot0Configs()
-            .withKP(Extension.TALONFX_PIDCONSTANTS.kP)
-            .withKI(Extension.TALONFX_PIDCONSTANTS.kI)
-            .withKD(Extension.TALONFX_PIDCONSTANTS.kD);
+            .withKP(Extension.TALONFX_PID.kP)
+            .withKI(Extension.TALONFX_PID.kI)
+            .withKD(Extension.TALONFX_PID.kD);
 
         extensionMotor.getConfigurator().apply(extensionConfigurator);
 
