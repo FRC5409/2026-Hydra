@@ -24,7 +24,15 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -35,6 +43,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Elevator sys_elevator;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -58,6 +67,9 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
+        sys_elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.MAIN_MOTOR_ID));
+
+
         // The ModuleIOTalonFXS implementation provides an example implementation for
         // TalonFXS controller connected to a CANdi with a PWM encoder. The
         // implementations
@@ -79,6 +91,7 @@ public class RobotContainer {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
+        sys_elevator = new Elevator(new ElevatorIOSim());
         drive =
             new Drive(
                 new GyroIO() {},
@@ -90,6 +103,7 @@ public class RobotContainer {
 
       default:
         // Replayed robot, disable IO implementations
+        sys_elevator = new Elevator(new ElevatorIO(){});
         drive =
             new Drive(
                 new GyroIO() {},
@@ -163,6 +177,9 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+    
+    primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
+    primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
   }
 
   /**

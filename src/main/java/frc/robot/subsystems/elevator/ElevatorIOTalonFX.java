@@ -43,7 +43,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private StatusSignal<Current> secondaryDeviceCurrent;
     private StatusSignal<Temperature> secondaryDeviceTemp;
 
-    public ElevatorIOTalonFX(int mainMotorID, int followerMotorID) {
+    public ElevatorIOTalonFX(int mainMotorID) {
 
         m_motor = new TalonFX(mainMotorID);
 
