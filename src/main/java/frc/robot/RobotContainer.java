@@ -40,8 +40,8 @@ import static edu.wpi.first.units.Units.Meters;
  */
 public class RobotContainer {
     // Subsystems
-    private final Drive  sys_drive;
-    private final Vision sys_vision;
+    protected final Drive  sys_drive;
+    protected final Vision sys_vision;
 
     public static SwerveDriveSimulation simConfig;
 

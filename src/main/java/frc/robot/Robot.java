@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,16 +22,14 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
-import com.ctre.phoenix6.SignalLogger;
-
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
  * described in the TimedRobot documentation. If you change the name of this class or the package after creating this
  * project, you must also update the build.gradle file in the project.
  */
 public class Robot extends LoggedRobot {
-    private Command        autonomousCommand;
-    private RobotContainer robotContainer;
+    private       Command        autonomousCommand;
+    private final RobotContainer robotContainer;
 
     private double matchTime = -1;
 
@@ -82,7 +81,6 @@ public class Robot extends LoggedRobot {
         VisionIOLimelight.forwardLimelightPorts();
 
         SignalLogger.enableAutoLogging(false);
-
     }
 
     /** This function is called periodically during all modes. */
