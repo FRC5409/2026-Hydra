@@ -18,8 +18,8 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import java.util.Queue;
 
@@ -84,9 +84,9 @@ public class GyroIOPigeon2 implements GyroIO {
     inputs.pitchPosition =  Rotation2d.fromDegrees(pitch.getValueAsDouble());
     inputs.rollPosition =   Rotation2d.fromDegrees(roll.getValueAsDouble());
 
-    inputs.yawVelocityRadPerSec =     Units.degreesToRadians(yawVelocity.getValueAsDouble());
-    inputs.pitchVelocityRadPerSec =   Units.degreesToRadians(pitchVelocity.getValueAsDouble());
-    inputs.rollVelocityRadPerSec =    Units.degreesToRadians(rollVelocity.getValueAsDouble());
+    inputs.yawVelocityRadPerSec =     RadiansPerSecond.of(Units.degreesToRadians(yawVelocity.getValueAsDouble()));
+    inputs.pitchVelocityRadPerSec =   RadiansPerSecond.of(Units.degreesToRadians(pitchVelocity.getValueAsDouble()));
+    inputs.rollVelocityRadPerSec =    RadiansPerSecond.of(Units.degreesToRadians(rollVelocity.getValueAsDouble()));
 
     inputs.odometryYawTimestamps =
         yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();

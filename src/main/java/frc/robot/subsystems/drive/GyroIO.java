@@ -9,8 +9,11 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import org.littletonrobotics.junction.AutoLog;
 
 public interface GyroIO {
@@ -22,9 +25,9 @@ public interface GyroIO {
     public Rotation2d pitchPosition = Rotation2d.kZero;
     public Rotation2d rollPosition = Rotation2d.kZero;
   
-    public double yawVelocityRadPerSec = 0.0;
-    public double pitchVelocityRadPerSec = 0.0;
-    public double rollVelocityRadPerSec = 0.0;
+    public AngularVelocity yawVelocityRadPerSec = RadiansPerSecond.of(0.0);
+    public AngularVelocity pitchVelocityRadPerSec = RadiansPerSecond.of(0.0);
+    public AngularVelocity rollVelocityRadPerSec = RadiansPerSecond.of(0.0);
 
     public double[] odometryYawTimestamps = new double[] {};
     public double[] odometryPitchTimestamps = new double[] {};
