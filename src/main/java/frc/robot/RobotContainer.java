@@ -186,23 +186,13 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller.x().onTrue(Commands.sequence(
-                            Commands.runOnce(
-                                () ->
-                                sys_launcher.launchFuel(), sys_launcher),
-                            Commands.runOnce(
-                                () ->
-                                sys_launcher.runVelocity(1), sys_launcher)
-                            
-                        )
-                    )
-                  .onFalse(Commands.runOnce(
-                        () ->
-                            sys_launcher.stop()
-                        )
-                    );
+    primaryController.x()
+                     .onTrue(Commands.sequence(
+                             Commands.runOnce(sys_launcher::launchFuel, sys_launcher),
+                             Commands.runOnce(() -> sys_launcher.runVelocity(1), sys_launcher)))
+                     .onFalse(Commands.runOnce(sys_launcher::stop));
 
-    controller.y().onTrue(Commands.runOnce(() -> sys_launcher.runVelocity(1)));
+    primaryController.y().onTrue(Commands.runOnce(() -> sys_launcher.runVelocity(1)));
   }
 
   /**
