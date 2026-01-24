@@ -22,9 +22,9 @@ public class Launcher extends SubsystemBase{
     private final LauncherInputsAutoLogged inputs;
 
     private static Pose3d launcherMech;
-        StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
+    StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
         .getStructTopic("MyPose", Pose3d.struct).publish();
-        StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
+    StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("MyPoseArray", Pose3d.struct).publish();
 
     public Launcher(LauncherIO io) {
@@ -35,8 +35,7 @@ public class Launcher extends SubsystemBase{
     }
 
     public Angle getHoodPos() {
-        return io.getHoodPos();
-        
+        return io.getHoodPos();   
     }
 
     public Command launchFuel() {
@@ -44,15 +43,22 @@ public class Launcher extends SubsystemBase{
     }
 
     public Command moveHood(Angle angle) {
-        String angleAsString = angle.toString();
         return Commands.sequence(
             Commands.runOnce(() -> io.setHoodPos(angle), this),
-            Commands.waitUntil(() -> io.getHoodPos().isNear(Radians.of(Integer.getInteger(angleAsString)), 1.0))
+            Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 1.0))
         );
     }
 
     public Command setVoltage(double volts) {
         return Commands.runOnce(() -> io.setVoltage(volts), this);
+    }
+
+    public Command runVelocity(double velocity) {
+        return Commands.runOnce(() -> io.runVelocity(velocity));
+    }
+
+    public Command stop() {
+        return Commands.runOnce(() -> io.stop(), this);
     }
 
     @Override

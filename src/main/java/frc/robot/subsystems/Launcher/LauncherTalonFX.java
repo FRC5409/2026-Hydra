@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.subsystems.Launcher.LauncherConstants.kLauncher;
 
 public class LauncherTalonFX implements LauncherIO {
     private int launcherCanID;
@@ -32,8 +33,6 @@ public class LauncherTalonFX implements LauncherIO {
 
     private TalonFX launcherMotor;
     private CANcoder launcherSensor;
-
-    private final VelocityVoltage velocityVoltage;
 
     private StatusSignal<Temperature> temperatureLauncher;
     private StatusSignal<Temperature> temperatureHood;
@@ -82,36 +81,30 @@ public class LauncherTalonFX implements LauncherIO {
             hoodPosition
         );
 
-        velocityVoltage = new VelocityVoltage(0).withSlot(0);
-
         TalonFXConfigurator launcherConfigurator = launcherMotor.getConfigurator();
         TalonFXConfigurator hoodConfigurator = hoodMotor.getConfigurator();
 
         Slot0Configs launcherSlotConfigs = new Slot0Configs();
-        launcherSlotConfigs.kG = 0.0;
-        launcherSlotConfigs.kS = 0.1;
-        launcherSlotConfigs.kV = 0.12;
-        launcherSlotConfigs.kP = 0.11;
-        launcherSlotConfigs.kI = 0.0;
-        launcherSlotConfigs.kD = 0.0;
+        launcherSlotConfigs.kG = kLauncher.kG;
+        launcherSlotConfigs.kS = kLauncher.kS;
+        launcherSlotConfigs.kV = kLauncher.kV;
+        launcherSlotConfigs.kP = kLauncher.kP;
+        launcherSlotConfigs.kI = kLauncher.kI;
+        launcherSlotConfigs.kD = kLauncher.kD;
 
         launcherConfigurator.apply(launcherSlotConfigs);
-
-        final VelocityVoltage velocityVoltage = new VelocityVoltage(0).withSlot(0);
-
-        launcherMotor.setControl(velocityVoltage.withVelocity(8).withFeedForward(0.5));
  
-        CurrentLimitsConfigs launcherCurrentLimitsConfigs = new CurrentLimitsConfigs(); // check
+        CurrentLimitsConfigs launcherCurrentLimitsConfigs = new CurrentLimitsConfigs();
         launcherCurrentLimitsConfigs.SupplyCurrentLimit = 30;
         launcherCurrentLimitsConfigs.SupplyCurrentLimitEnable = true;
 
-        // MotorOutputConfigs
-        MotorOutputConfigs launcheOutputConfigs = new MotorOutputConfigs(); // check
+        MotorOutputConfigs launcheOutputConfigs = new MotorOutputConfigs();
         launcherConfigurator.apply(launcheOutputConfigs);
 
-        // FeedBackConfigs
-        FeedbackConfigs launcherFeedbackConfigs = new FeedbackConfigs().withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder).withRemoteCANcoder(launcherSensor); // check
+        FeedbackConfigs launcherFeedbackConfigs = new FeedbackConfigs();
         launcherConfigurator.apply(launcherFeedbackConfigs);
+        launcherFeedbackConfigs.withFeedbackSensorSource(FeedbackSensorSourceValue.FusedCANcoder);
+        launcherFeedbackConfigs.withRemoteCANcoder(launcherSensor);
     }
     
     @Override
@@ -120,8 +113,16 @@ public class LauncherTalonFX implements LauncherIO {
     }
 
     @Override
+    public void runVelocity(double velocity) {
+        launcherMotor.setControl(
+            new VelocityVoltage(velocity).withSlot(0)
+            .withFeedForward(0.5)
+        );
+    }
+
+    @Override
     public void launchFuel() {
-        launcherMotor.set(0.5);
+        launcherMotor.set(0.1);
         // launcherMotor.setControl(velocityVoltage.withVelocity(10));
     }
 
@@ -158,12 +159,12 @@ public class LauncherTalonFX implements LauncherIO {
 
         inputs.temperatureLauncher = temperatureLauncher.getValueAsDouble();
         inputs.temperatureHood = temperatureHood.getValueAsDouble();
-        inputs.volatgeLauncher = voltageLauncher.getValueAsDouble();
-        inputs.voltageHood = voltageHood.getValueAsDouble();
-        inputs.currentLauncher = currentLauncher.getValueAsDouble();
-        inputs.currentHood = currentHood.getValueAsDouble();
-        inputs.speedLauncher = speedLauncher.getValueAsDouble();
-        inputs.speedHood = speedHood.getValueAsDouble();
-        inputs.hoodPosition = hoodPosition.getValueAsDouble();
+        inputs.volatgeLauncher = voltageLauncher.getValue();
+        inputs.voltageHood = voltageHood.getValue();
+        inputs.currentLauncher = currentLauncher.getValue();
+        inputs.currentHood = currentHood.getValue();
+        inputs.speedLauncherRadians = speedLauncher.getValue();
+        inputs.speedHoodRadians = speedHood.getValue();
+        inputs.hoodPosition = hoodPosition.getValue();
     }
 }

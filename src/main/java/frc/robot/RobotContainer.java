@@ -19,9 +19,11 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.Launcher.Launcher;
+import frc.robot.subsystems.Launcher.LauncherConstants;
 import frc.robot.subsystems.Launcher.LauncherIO;
 import frc.robot.subsystems.Launcher.LauncherSim;
 import frc.robot.subsystems.Launcher.LauncherTalonFX;
+import frc.robot.subsystems.Launcher.LauncherConstants.kLauncher;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -40,14 +42,13 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
 
-  protected final Launcher launcher;
+  protected final Launcher sys_launcher;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
-  private final LoggedDashboardChooser<Command> launcherMech;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -64,7 +65,12 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
-        launcher = new Launcher(new LauncherTalonFX(0, 0, 0, 0));
+        sys_launcher = new Launcher(new LauncherTalonFX(
+            kLauncher.LAUNCHER_CANDID,
+            kLauncher.LAUNCHER_SENSORID,
+            kLauncher.HOOD_CANID,
+            kLauncher.HOOD_SENSORID)
+        );
 
         // The ModuleIOTalonFXS implementation provides an example implementation for
         // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -96,7 +102,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackRight));
 
                 System.out.println("AAAAA");
-                launcher =  new Launcher(new LauncherSim());
+                sys_launcher =  new Launcher(new LauncherSim());
                 System.out.println("BBBBB");
         break;
 
@@ -110,14 +116,13 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        launcher = new Launcher(null);
+        sys_launcher = new Launcher(null);
 
         break;
     }
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-    launcherMech = new LoggedDashboardChooser<>("Laucnher MECH", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
     autoChooser.addOption(
@@ -178,7 +183,23 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    controller.x().onTrue(Commands.runOnce(() -> launcher.launchFuel()));
+    controller.x().onTrue(Commands.sequence(
+                            Commands.runOnce(
+                                () ->
+                                sys_launcher.launchFuel(), sys_launcher),
+                            Commands.runOnce(
+                                () ->
+                                sys_launcher.runVelocity(1), sys_launcher)
+                            
+                        )
+                    )
+                  .onFalse(Commands.runOnce(
+                        () ->
+                            sys_launcher.stop()
+                        )
+                    );
+
+    controller.y().onTrue(Commands.runOnce(() -> sys_launcher.runVelocity(1)));
   }
 
   /**

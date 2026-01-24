@@ -5,7 +5,7 @@
 // license that can be found in the LICENSE file
 // at the root directory of this project.
 
-package frc.robot;
+package frc.robot.subsystems.Launcher;
 
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.RobotBase;
  * on a roboRIO. Change the value of "simMode" to switch between "sim" (physics sim) and "replay"
  * (log replay from a file).
  */
-public final class Constants {
+public final class LauncherConstants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
@@ -27,5 +27,20 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static final class kLauncher {
+    public static final int LAUNCHER_CANDID = 5;
+    public static final int LAUNCHER_SENSORID = 1;
+    public static final int HOOD_CANID = 1;
+    public static final int HOOD_SENSORID = 1;
+
+    public static final double kG = 0.0;
+    public static final double kS = 0.1;
+    public static final double kV = 0.12;
+    public static final double kP = 0.11;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+    
   }
 }
