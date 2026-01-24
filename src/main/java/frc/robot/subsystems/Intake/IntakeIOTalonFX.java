@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Intake;
+package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -12,9 +12,9 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.Intake.intakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
 
-public final class intakeIOTalonFX implements intakeIO {
+public final class IntakeIOTalonFX implements IntakeIO {
   
     private final TalonFX rollerMotor;
     private final TalonFX extensionMotor;
@@ -31,7 +31,7 @@ public final class intakeIOTalonFX implements intakeIO {
     private final StatusSignal<Voltage>     extensionVoltageSignal;
     private final StatusSignal<Current>     extensionCurrentSignal;
 
-    public intakeIOTalonFX(int rollerMotorId, int extensionMotorId) {
+    public IntakeIOTalonFX(int rollerMotorId, int extensionMotorId) {
 
         rollerMotor = new TalonFX(rollerMotorId);
         extensionMotor = new TalonFX(extensionMotorId);
@@ -112,7 +112,7 @@ public final class intakeIOTalonFX implements intakeIO {
     }   
 
     @Override
-    public void updateInputs(intakeIO.IntakeInputs inputs) {
+    public void updateInputs(IntakeIO.IntakeInputs inputs) {
 
         inputs.isExtensionConnected = true;
         inputs.extensionVolts = Volts.of(extensionVoltageSignal.getValueAsDouble());

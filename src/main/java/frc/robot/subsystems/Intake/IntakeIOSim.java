@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Intake;
+package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -6,18 +6,18 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import frc.robot.subsystems.Intake.intakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
 
 
-public class intakeIOSim implements intakeIO {
+public class IntakeIOSim implements IntakeIO {
   
     private final ElevatorSim extensionSim;
     private final PIDController pid;
     private boolean running;
     private double rollerVoltage = 0.0;
 
-    public intakeIOSim() {
-
+    public IntakeIOSim() {
+      
       // Ensure simulator has a battery voltage available
       RoboRioSim.setVInVoltage(12.0);
 
@@ -33,9 +33,9 @@ public class intakeIOSim implements intakeIO {
         );
 
       pid = new PIDController(
-            Extension.SIM_PIDCONSTANTS.kP, 
-            Extension.SIM_PIDCONSTANTS.kI, 
-            Extension.SIM_PIDCONSTANTS.kD
+            Extension.SIM_PID.kP, 
+            Extension.SIM_PID.kI, 
+            Extension.SIM_PID.kD
         );
 
       running = false;
