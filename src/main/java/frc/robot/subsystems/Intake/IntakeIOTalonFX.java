@@ -12,7 +12,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.Intake.IntakeConstants.kExtension;
+import frc.robot.subsystems.Intake.IntakeConstants.Extension;
 
 public final class IntakeIOTalonFX implements IntakeIO {
   
@@ -44,9 +44,9 @@ public final class IntakeIOTalonFX implements IntakeIO {
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration();
 
         extensionConfigurator.Slot0 = new Slot0Configs()
-            .withKP(kExtension.TALONFX_PIDCONSTANTS.kP)
-            .withKI(kExtension.TALONFX_PIDCONSTANTS.kI)
-            .withKD(kExtension.TALONFX_PIDCONSTANTS.kD);
+            .withKP(Extension.TALONFX_PIDCONSTANTS.kP)
+            .withKI(Extension.TALONFX_PIDCONSTANTS.kI)
+            .withKD(Extension.TALONFX_PIDCONSTANTS.kD);
 
         extensionMotor.getConfigurator().apply(extensionConfigurator);
 
@@ -62,7 +62,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
         BaseStatusSignal.setUpdateFrequencyForAll(
 
-            kExtension.UPDATE_FREQUENCY,   
+            Extension.UPDATE_FREQUENCY,   
             extensionPositionSignal,
             extensionTemperatureSignal,
             extensionVoltageSignal,

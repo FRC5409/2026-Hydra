@@ -6,7 +6,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
-import frc.robot.subsystems.Intake.IntakeConstants.kExtension;
+import frc.robot.subsystems.Intake.IntakeConstants.Extension;
 
 
 public class IntakeIOSim implements IntakeIO {
@@ -23,19 +23,19 @@ public class IntakeIOSim implements IntakeIO {
 
       extensionSim = new ElevatorSim(
             DCMotor.getKrakenX60(1), 
-            kExtension.GEARING, 
-            kExtension.INTAKE_MASS.in(Kilograms), 
-            kExtension.INTAKE_DRUMRADIUS.in(Meters), 
-            kExtension.INTAKE_MIN_DISTANCE.in(Meters), 
-            kExtension.INTAKE_MAX_DISTANCE.in(Meters), 
+            Extension.GEARING, 
+            Extension.INTAKE_MASS.in(Kilograms), 
+            Extension.INTAKE_DRUMRADIUS.in(Meters), 
+            Extension.INTAKE_MIN_DISTANCE.in(Meters), 
+            Extension.INTAKE_MAX_DISTANCE.in(Meters), 
             false, 
-            kExtension.INTAKE_MIN_DISTANCE.in(Meters)
+            Extension.INTAKE_MIN_DISTANCE.in(Meters)
         );
 
       pid = new PIDController(
-            kExtension.SIM_PIDCONSTANTS.kP, 
-            kExtension.SIM_PIDCONSTANTS.kI, 
-            kExtension.SIM_PIDCONSTANTS.kD
+            Extension.SIM_PIDCONSTANTS.kP, 
+            Extension.SIM_PIDCONSTANTS.kI, 
+            Extension.SIM_PIDCONSTANTS.kD
         );
 
       running = false;
@@ -88,17 +88,17 @@ public class IntakeIOSim implements IntakeIO {
       extensionSim.update(0.02);
 
       inputs.extensionPosition = extensionSim.getPositionMeters();
-      inputs.isExtended = extensionSim.getPositionMeters() >= kExtension.EXTENSION_MAX_DISTANCE.in(Meters) - 0.01;
-      inputs.isRetracted = extensionSim.getPositionMeters() <= kExtension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
+      inputs.isExtended = extensionSim.getPositionMeters() >= Extension.EXTENSION_MAX_DISTANCE.in(Meters) - 0.01;
+      inputs.isRetracted = extensionSim.getPositionMeters() <= Extension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
       inputs.extensionVelocity = MetersPerSecond.of(extensionSim.getVelocityMetersPerSecond());
       inputs.extensionCurrent = Amps.of(extensionSim.getCurrentDrawAmps());
       inputs.extensionRunning = running;
       inputs.extensionVolts = Volts.of(volts);
-      inputs.extensionTemp = Celsius.of(25.0); // Constant temp for sim
+      inputs.extensionTemp = 25.0; // Constant temp for sim
 
       inputs.rollerCurrent = Amps.of(rollerVoltage / 12.0 * 20.0); // Simulated current draw
       inputs.rollerVolts = Volts.of(rollerVoltage);
-      inputs.rollerTemp = Celsius.of(25.0);
+      inputs.rollerTemp = 25.0;
       inputs.rollerVelocity = MetersPerSecond.of(rollerVoltage / 12.0 * 5000.0); // Simulated velocity
 
 

@@ -9,7 +9,9 @@ import com.pathplanner.lib.config.PIDConstants;
 
 public final class IntakeConstants {
 
-	public static final class kExtension {
+	public static final class Extension {
+
+		public static final int MOTORID = 5;
 
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.5);
@@ -24,13 +26,17 @@ public final class IntakeConstants {
 		public static final Distance INTAKE_MIN_DISTANCE = Meters.of(0.0);
 		public static final Distance INTAKE_MAX_DISTANCE = Meters.of(0.5); 
 
+		public static final int UPDATE_FREQUENCY = 50; // in Hz
+
 	}
 
-    public static final class kRoller {
+    public static final class Roller {
 
-        public static final Voltage kMaxVoltage = Volts.of(12.0);
-        public static final Current kMaxCurrent = Amps.of(40.0);
-        public static final double kGearing = 10.0;
+		public static final int MOTORID = 4;
+
+        public static final Voltage MAXVOLTAGE = Volts.of(12.0);
+        public static final Current MAXCURRENT = Amps.of(40.0);
+        public static final double GEARING = 10.0;
         public static final Mass ROLLER_MASS = Kilograms.of(1.0);
         public static final Distance ROLLER_DRUMRADIUS = Meters.of(0.0254);
 
