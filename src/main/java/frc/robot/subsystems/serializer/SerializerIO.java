@@ -1,12 +1,10 @@
-package frc.robot.subsystems.Serializer;
+package frc.robot.subsystems.serializer;
 
 import org.littletonrobotics.junction.AutoLog;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
-
-import org.littletonrobotics.junction.AutoLog;
 
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;

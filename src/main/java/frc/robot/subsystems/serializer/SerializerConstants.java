@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Serializer;
+package frc.robot.subsystems.serializer;
 
 import static edu.wpi.first.units.Units.Amps;
 

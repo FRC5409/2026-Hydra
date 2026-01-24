@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Serializer;
+package frc.robot.subsystems.serializer;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -28,6 +28,18 @@ public class Serializer extends SubsystemBase{
     public Command stop() {
         return Commands.runOnce(() ->
             io.stopMotor(), this);
+    }
+
+    public Command setFeederVoltage(double voltage){
+        return Commands.runOnce(() -> {
+            io.setFeederMotorVoltage(voltage);
+        });
+    }
+
+    public Command setIndexerVoltage(double voltage){
+        return Commands.runOnce(() -> {
+            io.setIndexerMotorVoltage(voltage);
+        });
     }
 
     public void periodic() {

@@ -1,34 +1,34 @@
-package frc.robot.subsystems.Serializer;
-
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.config.SparkMaxConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
-import edu.wpi.first.wpilibj.RobotController;
+package frc.robot.subsystems.serializer;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.wpilibj.RobotController;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
 
-// Indexer for Ortona
+/**
+ * Indexer for Ortona
+ */
 public class SerializerIOSparkMax implements SerializerIO {
-    private SparkMax indexerMotor;
-    private SparkMax feederMotor;
-    private SparkMaxConfig indexerMotorConfig;
-    private SparkMaxConfig feederMotorConfig;
-    
-    public SerializerIOSparkMax(int indexerMotorID, int feederMotorID) {
-        indexerMotor =  new SparkMax(indexerMotorID, MotorType.kBrushless);
-        feederMotor = new SparkMax(feederMotorID, MotorType.kBrushless);
-        indexerMotorConfig = new SparkMaxConfig();
-        feederMotorConfig = new SparkMaxConfig();
+    private final SparkMax indexerMotor;
+    private final SparkMax feederMotor;
 
-        indexerMotorConfig.smartCurrentLimit((int) SerializerConstants.ORTONA_SPARK_MAX_CURRENT_LIMIT.magnitude());
+    public SerializerIOSparkMax(int indexerMotorID, int feederMotorID) {
+        indexerMotor = new SparkMax(indexerMotorID, MotorType.kBrushless);
+        feederMotor = new SparkMax(feederMotorID, MotorType.kBrushless);
+        SparkMaxConfig indexerMotorConfig = new SparkMaxConfig();
+        SparkMaxConfig feederMotorConfig = new SparkMaxConfig();
+
+        indexerMotorConfig.smartCurrentLimit((int)SerializerConstants.ORTONA_SPARK_MAX_CURRENT_LIMIT.magnitude());
         indexerMotorConfig.idleMode(IdleMode.kBrake);
         indexerMotorConfig.inverted(SerializerConstants.ORTONA_INDEXER_MOTOR_INVERTED);
 
-        feederMotorConfig.smartCurrentLimit((int) SerializerConstants.ORTONA_SPARK_MAX_CURRENT_LIMIT.magnitude());
+        feederMotorConfig.smartCurrentLimit((int)SerializerConstants.ORTONA_SPARK_MAX_CURRENT_LIMIT.magnitude());
         feederMotorConfig.idleMode(IdleMode.kBrake);
         feederMotorConfig.inverted(SerializerConstants.ORTONA_FEEDER_MOTOR_INVERTED);
 
@@ -37,34 +37,30 @@ public class SerializerIOSparkMax implements SerializerIO {
     }
 
     @Override
-    public void setMotorVoltage(double voltage){
+    public void setMotorVoltage(double voltage) {
         indexerMotor.setVoltage(voltage);
     }
 
     @Override
-    public void setIndexerMotorVoltage(double voltage){
+    public void setIndexerMotorVoltage(double voltage) {
         indexerMotor.setVoltage(voltage);
     }
 
     @Override
-    public void setFeederMotorVoltage(double voltage){
+    public void setFeederMotorVoltage(double voltage) {
         feederMotor.setVoltage(voltage);
     }
 
     @Override
-    public void updateInputs(SerializerInputs inputs){
+    public void updateInputs(SerializerInputs inputs) {
         inputs.isFloorMotorConnected = !(indexerMotor.getFaults().motorType || indexerMotor.getFaults().can);
-        inputs.floorAppliedVoltage = indexerMotor.get() * RobotController.getBatteryVoltage();
-        inputs.floorAppliedCurrent = indexerMotor.getOutputCurrent();
+        inputs.floorAppliedVoltage = Volts.of(indexerMotor.get() * RobotController.getBatteryVoltage());
+        inputs.floorAppliedCurrent = Amps.of(indexerMotor.getOutputCurrent());
         inputs.floorMotorTemperature = indexerMotor.getMotorTemperature();
 
         inputs.isFeederMotorConnected = !(feederMotor.getFaults().motorType || indexerMotor.getFaults().can);
-        inputs.feederAppliedVoltage = feederMotor.get() * RobotController.getBatteryVoltage();
-        inputs.feederAppliedCurrent = feederMotor.getOutputCurrent();
+        inputs.feederAppliedVoltage = Volts.of(feederMotor.get() * RobotController.getBatteryVoltage());
+        inputs.feederAppliedCurrent = Amps.of(feederMotor.getOutputCurrent());
         inputs.feederMotorTemperature = feederMotor.getMotorTemperature();
-
     }
-
-    
-
 }
