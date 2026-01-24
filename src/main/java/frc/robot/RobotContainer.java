@@ -24,7 +24,13 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.Intake.Intake;
+import frc.robot.subsystems.Intake.IntakeIO;
+import frc.robot.subsystems.Intake.IntakeIOSim;
+import frc.robot.subsystems.Intake.IntakeIOTalonFX;
+import frc.robot.subsystems.Intake.IntakeConstants.*;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -35,6 +41,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Intake sys_intake;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -47,6 +54,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
+        sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -78,6 +86,7 @@ public class RobotContainer {
         break;
 
       case SIM:
+        sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -89,6 +98,7 @@ public class RobotContainer {
         break;
 
       default:
+        sys_intake = new Intake(new IntakeIO(){});
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -163,6 +173,7 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
   }
 
   /**
