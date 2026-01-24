@@ -17,6 +17,10 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
+
+import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Radians;
+
 import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
@@ -114,5 +118,12 @@ public class GyroIOPigeon2 implements GyroIO {
 
     rollTimestampQueue.clear();
     rollPositionQueue.clear();
+
+    inputs.tilt = 
+        Radians.of(
+          Math.acos(
+            Math.cos(inputs.pitchPosition.getRadians()) * Math.cos(inputs.rollPosition.getRadians())
+          )
+        );
   }
 }

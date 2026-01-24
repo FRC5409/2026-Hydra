@@ -7,6 +7,11 @@
 
 package frc.robot.subsystems.drive;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
@@ -90,24 +95,24 @@ public class ModuleIOSim implements ModuleIO {
 
     // Update drive inputs
     inputs.driveConnected = true;
-    inputs.drivePositionRad = driveSim.getAngularPositionRad();
-    inputs.driveVelocityRadPerSec = driveSim.getAngularVelocityRadPerSec();
-    inputs.driveAppliedVolts = driveAppliedVolts;
-    inputs.driveCurrentAmps = Math.abs(driveSim.getCurrentDrawAmps());
+    inputs.drivePositionRad = Radians.of(driveSim.getAngularPositionRad());
+    inputs.driveVelocityRadPerSec = RadiansPerSecond.of(driveSim.getAngularVelocityRadPerSec());
+    inputs.driveAppliedVolts = Volts.of(driveAppliedVolts);
+    inputs.driveCurrentAmps = Amps.of(Math.abs(driveSim.getCurrentDrawAmps()));
 
     // Update turn inputs
     inputs.turnConnected = true;
     inputs.turnEncoderConnected = true;
     inputs.turnAbsolutePosition = new Rotation2d(turnSim.getAngularPositionRad());
     inputs.turnPosition = new Rotation2d(turnSim.getAngularPositionRad());
-    inputs.turnVelocityRadPerSec = turnSim.getAngularVelocityRadPerSec();
-    inputs.turnAppliedVolts = turnAppliedVolts;
-    inputs.turnCurrentAmps = Math.abs(turnSim.getCurrentDrawAmps());
+    inputs.turnVelocityRadPerSec = RadiansPerSecond.of(turnSim.getAngularVelocityRadPerSec());
+    inputs.turnAppliedVolts = Volts.of(turnAppliedVolts);
+    inputs.turnCurrentAmps = Amps.of(Math.abs(turnSim.getCurrentDrawAmps()));
 
     // Update odometry inputs (50Hz because high-frequency odometry in sim doesn't
     // matter)
     inputs.odometryTimestamps = new double[] {Timer.getFPGATimestamp()};
-    inputs.odometryDrivePositionsRad = new double[] {inputs.drivePositionRad};
+    inputs.odometryDrivePositionsRad = new double[] {inputs.drivePositionRad.in(Radians)};
     inputs.odometryTurnPositions = new Rotation2d[] {inputs.turnPosition};
   }
 
