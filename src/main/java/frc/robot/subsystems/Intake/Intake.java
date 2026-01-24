@@ -19,7 +19,6 @@ public class Intake extends SubsystemBase {
 
     public Command intakeCommand(double voltage) {
 
-        System.out.println("Running Intake at voltage: " + voltage);
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage), this);
 
     }
@@ -32,14 +31,12 @@ public class Intake extends SubsystemBase {
 
     public Command extendCommand() {
 
-        System.out.println("Extending Intake");
          return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(0.5)), this);
 
     }
 
     public Command retractCommand() {
 
-        System.out.println("Retracting Intake");
         return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(0.0)), this);
 
     }
