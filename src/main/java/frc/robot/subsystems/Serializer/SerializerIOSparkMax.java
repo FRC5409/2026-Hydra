@@ -17,11 +17,11 @@ public class SerializerIOSparkMax implements SerializerIO {
     private SparkMaxConfig motorConfig;
     private final boolean inverted = false;
     
-    public SerializerIOSparkMax(int ID) {
-        motor =  new SparkMax(ID, MotorType.kBrushless);
+    public SerializerIOSparkMax(int id) {
+        motor =  new SparkMax(id, MotorType.kBrushless);
         motorConfig = new SparkMaxConfig();
 
-        motorConfig.smartCurrentLimit(30);
+        motorConfig.smartCurrentLimit((int) SerializerConstants.ORTONA_SPARK_MAX_CURRENT_LIMIT.magnitude());
         motorConfig.idleMode(IdleMode.kBrake);
         motorConfig.inverted(inverted);
 
