@@ -102,7 +102,7 @@ public class IntakeIOSim implements IntakeIO {
       inputs.rollerVelocity = MetersPerSecond.of(rollerVoltage / 12.0 * 5000.0); // Simulated velocity
 
 
-      inputs.rollerConnection = true;
-      inputs.extensionConnection = true;
+      inputs.isRollerConnected = true;
+      inputs.isExtensionConnected = true;
     }
 }
