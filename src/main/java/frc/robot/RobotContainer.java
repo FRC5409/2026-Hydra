@@ -19,10 +19,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.launcher.LauncherConstants;
-import frc.robot.subsystems.launcher.LauncherSim;
-import frc.robot.subsystems.launcher.LauncherTalonFX;
+import frc.robot.subsystems.launcher.*;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -95,9 +92,7 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
-                System.out.println("AAAAA");
                 sys_launcher =  new Launcher(new LauncherSim());
-                System.out.println("BBBBB");
         break;
 
       default:
@@ -110,7 +105,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
 
-        sys_launcher = new Launcher(null);
+        sys_launcher = new Launcher(new LauncherIO() {});
 
         break;
     }
