@@ -10,7 +10,6 @@ import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.subsystems.launcher.LauncherConstants.kLauncher;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -43,7 +42,7 @@ public class LauncherSim implements LauncherIO {
         );
 
         flywheelSim.update(0.01);
-        controller = new PIDController(kLauncher.kP, kLauncher.kI, kLauncher.kD);
+        controller = new PIDController(LauncherConstants.kP, LauncherConstants.kI, LauncherConstants.kD);
         mech2D = new Mechanism2d(5.0, 5.0);
 
         root = mech2D.getRoot("Bot base", 2, 0);

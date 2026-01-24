@@ -18,16 +18,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.launcher.Launcher;
+import frc.robot.subsystems.launcher.LauncherConstants;
 import frc.robot.subsystems.launcher.LauncherSim;
 import frc.robot.subsystems.launcher.LauncherTalonFX;
-import frc.robot.subsystems.launcher.LauncherConstants.kLauncher;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -65,10 +60,10 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
         sys_launcher = new Launcher(new LauncherTalonFX(
-            kLauncher.LAUNCHER_CANDID,
-            kLauncher.LAUNCHER_SENSORID,
-            kLauncher.HOOD_CANID,
-            kLauncher.HOOD_SENSORID)
+                LauncherConstants.LAUNCHER_CAN_ID,
+                LauncherConstants.LAUNCHER_SENSOR_ID,
+                LauncherConstants.HOOD_CAN_ID,
+                LauncherConstants.HOOD_SENSOR_ID)
         );
 
         // The ModuleIOTalonFXS implementation provides an example implementation for

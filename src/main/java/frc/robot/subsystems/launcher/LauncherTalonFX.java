@@ -8,7 +8,6 @@ import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.FeedbackSensorSourceValue;
 import edu.wpi.first.units.measure.*;
-import frc.robot.subsystems.launcher.LauncherConstants.kLauncher;
 
 public class LauncherTalonFX implements LauncherIO {
     private final TalonFX  hoodMotor;
@@ -61,12 +60,12 @@ public class LauncherTalonFX implements LauncherIO {
         TalonFXConfigurator hoodConfigurator = hoodMotor.getConfigurator();
 
         Slot0Configs launcherSlotConfigs = new Slot0Configs();
-        launcherSlotConfigs.kG = kLauncher.kG;
-        launcherSlotConfigs.kS = kLauncher.kS;
-        launcherSlotConfigs.kV = kLauncher.kV;
-        launcherSlotConfigs.kP = kLauncher.kP;
-        launcherSlotConfigs.kI = kLauncher.kI;
-        launcherSlotConfigs.kD = kLauncher.kD;
+        launcherSlotConfigs.kG = LauncherConstants.kG;
+        launcherSlotConfigs.kS = LauncherConstants.kS;
+        launcherSlotConfigs.kV = LauncherConstants.kV;
+        launcherSlotConfigs.kP = LauncherConstants.kP;
+        launcherSlotConfigs.kI = LauncherConstants.kI;
+        launcherSlotConfigs.kD = LauncherConstants.kD;
         launcherConfigurator.apply(launcherSlotConfigs);
 
         CurrentLimitsConfigs launcherCurrentLimitsConfigs = new CurrentLimitsConfigs();
