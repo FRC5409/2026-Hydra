@@ -13,32 +13,56 @@ import com.revrobotics.ResetMode;
 
 // Indexer for Ortona
 public class SerializerIOSparkMax implements SerializerIO {
-    private SparkMax motor;
-    private SparkMaxConfig motorConfig;
-    private final boolean inverted = false;
+    private SparkMax indexerMotor;
+    private SparkMax feederMotor;
+    private SparkMaxConfig indexerMotorConfig;
+    private SparkMaxConfig feederMotorConfig;
     
-    public SerializerIOSparkMax(int id) {
-        motor =  new SparkMax(id, MotorType.kBrushless);
-        motorConfig = new SparkMaxConfig();
+    public SerializerIOSparkMax(int indexerMotorID, int feederMotorID) {
+        indexerMotor =  new SparkMax(indexerMotorID, MotorType.kBrushless);
+        feederMotor = new SparkMax(feederMotorID, MotorType.kBrushless);
+        indexerMotorConfig = new SparkMaxConfig();
+        feederMotorConfig = new SparkMaxConfig();
 
-        motorConfig.smartCurrentLimit((int) SerializerConstants.ORTONA_SPARK_MAX_CURRENT_LIMIT.magnitude());
-        motorConfig.idleMode(IdleMode.kBrake);
-        motorConfig.inverted(inverted);
+        indexerMotorConfig.smartCurrentLimit((int) SerializerConstants.ORTONA_SPARK_MAX_CURRENT_LIMIT.magnitude());
+        indexerMotorConfig.idleMode(IdleMode.kBrake);
+        indexerMotorConfig.inverted(SerializerConstants.ORTONA_INDEXER_MOTOR_INVERTED);
 
-        motor.configure(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        feederMotorConfig.smartCurrentLimit((int) SerializerConstants.ORTONA_SPARK_MAX_CURRENT_LIMIT.magnitude());
+        feederMotorConfig.idleMode(IdleMode.kBrake);
+        feederMotorConfig.inverted(SerializerConstants.ORTONA_FEEDER_MOTOR_INVERTED);
+
+        indexerMotor.configure(indexerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        feederMotor.configure(feederMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     @Override
     public void setMotorVoltage(double voltage){
-        motor.setVoltage(voltage);
+        indexerMotor.setVoltage(voltage);
+    }
+
+    @Override
+    public void setIndexerMotorVoltage(double voltage){
+        indexerMotor.setVoltage(voltage);
+    }
+
+    @Override
+    public void setFeederMotorVoltage(double voltage){
+        feederMotor.setVoltage(voltage);
     }
 
     @Override
     public void updateInputs(SerializerInputs inputs){
-        inputs.floorMotorConnection = !(motor.getFaults().motorType || motor.getFaults().can);
-        inputs.floorAppliedVoltage = motor.get() * RobotController.getBatteryVoltage();
-        inputs.floorAppliedCurrent = motor.getOutputCurrent();
-        inputs.floorMotorTemperature = motor.getMotorTemperature();
+        inputs.floorMotorConnection = !(indexerMotor.getFaults().motorType || indexerMotor.getFaults().can);
+        inputs.floorAppliedVoltage = indexerMotor.get() * RobotController.getBatteryVoltage();
+        inputs.floorAppliedCurrent = indexerMotor.getOutputCurrent();
+        inputs.floorMotorTemperature = indexerMotor.getMotorTemperature();
+
+        inputs.feederMotorConnection = !(feederMotor.getFaults().motorType || indexerMotor.getFaults().can);
+        inputs.feederAppliedVoltage = feederMotor.get() * RobotController.getBatteryVoltage();
+        inputs.feederAppliedCurrent = feederMotor.getOutputCurrent();
+        inputs.feederAppliedCurrent = feederMotor.getMotorTemperature();
+
     }
 
     
