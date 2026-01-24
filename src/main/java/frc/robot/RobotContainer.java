@@ -180,12 +180,8 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     primaryController.x()
-                     .onTrue(Commands.sequence(
-                             Commands.runOnce(sys_launcher::launchFuel, sys_launcher),
-                             Commands.runOnce(() -> sys_launcher.runVelocity(1), sys_launcher)))
+                     .onTrue(Commands.sequence(Commands.runOnce(sys_launcher::launchFuel, sys_launcher)))
                      .onFalse(Commands.runOnce(sys_launcher::stop));
-
-    primaryController.y().onTrue(Commands.runOnce(() -> sys_launcher.runVelocity(1)));
   }
 
   /**

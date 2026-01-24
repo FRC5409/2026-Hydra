@@ -35,7 +35,7 @@ public class Launcher extends SubsystemBase{
     }
 
     public Command launchFuel() {
-        return Commands.runOnce(() -> io.launchFuel());
+        return Commands.runOnce(io::launchFuel);
     }
 
     public Command moveHood(Angle angle) {
@@ -54,7 +54,7 @@ public class Launcher extends SubsystemBase{
     }
 
     public Command stop() {
-        return Commands.runOnce(() -> io.stop(), this);
+        return Commands.runOnce(io::stop, this);
     }
 
     @Override
