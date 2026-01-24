@@ -9,6 +9,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -355,5 +356,19 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+
+  public void brakeMode(){
+    for(Module module: modules){
+      module.driveNeutralMode(NeutralModeValue.Brake);
+      module.steerNeutralMode(NeutralModeValue.Brake);
+    }
+  }
+
+  public void coastMode(){
+    for(Module module: modules){
+      module.driveNeutralMode(NeutralModeValue.Coast);
+      module.steerNeutralMode(NeutralModeValue.Coast);
+    }
   }
 }
