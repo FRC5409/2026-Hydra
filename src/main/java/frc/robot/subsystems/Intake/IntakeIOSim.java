@@ -33,9 +33,9 @@ public class intakeIOSim implements intakeIO {
         );
 
       pid = new PIDController(
-            Extension.SIM_PID.kP, 
-            Extension.SIM_PID.kI, 
-            Extension.SIM_PID.kD
+            Extension.SIM_PIDCONSTANTS.kP, 
+            Extension.SIM_PIDCONSTANTS.kI, 
+            Extension.SIM_PIDCONSTANTS.kD
         );
 
       running = false;
