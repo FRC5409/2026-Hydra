@@ -1,6 +1,11 @@
 package frc.robot.subsystems.Hopper;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Celsius;
+import static edu.wpi.first.units.Units.Kelvin;
+import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -13,27 +18,29 @@ public class HopperIOSim implements HopperIO {
     private boolean running;
     private ElevatorSim hopperSim;
     private PIDController pid;
-    private double manualVoltage = 0.0;
+    private double inputVoltage = 0.0;
 
     public HopperIOSim() {
+
         hopperSim = new ElevatorSim(
-            DCMotor.getFalcon500(2),
-            10, //Test value, needs to be tuned
-            0.1, //Test value
-            0.0127, //Test value
-            0.0, 
-            0.3, 
-            false,
+            DCMotor.getKrakenX60(1), 
+            HopperConstants.kGearing, 
+            HopperConstants.HOPPER_MASS.in(Kilograms), 
+            HopperConstants.HOPPER_DRUMRADIUS.in(Meters), 
+            HopperConstants.HOPPER_MIN_EXTENSION, 
+            HopperConstants.HOPPER_MAX_EXTENSION, 
+            false, 
             0.0
-        );
-        pid = new PIDController(0.001, 0.0, 0); //needs tuning
+            );
+
+        pid = new PIDController(HopperConstants.SIM_PID.kP, HopperConstants.SIM_PID.kI, HopperConstants.SIM_PID.kD); //needs tuning
         running = false;
     }
 
     @Override
     public void setMotorVoltage(double voltage) {
         hopperSim.setInputVoltage(voltage);
-        manualVoltage = voltage;
+        inputVoltage = voltage;
         running = true;
     }
 
@@ -65,25 +72,27 @@ public class HopperIOSim implements HopperIO {
                 -RoboRioSim.getVInVoltage(), 
                 RoboRioSim.getVInVoltage()
             );
-            current = hopperSim.getCurrentDrawAmps();
 
             /* MANUAL control */
             //volts = MathUtil.clamp(manualVoltage, -RoboRioSim.getVInVoltage(), RoboRioSim.getVInVoltage());
+
+            current = hopperSim.getCurrentDrawAmps();
+
         }
         hopperSim.setInputVoltage (volts);
         hopperSim.update(0.02);
 
         inputs.mainMotorConnection = true;
-        inputs.mainMotorVoltage = volts;
-        inputs.mainMotorCurrent = Math.abs(current);
+        inputs.mainMotorVoltage = Volts.of(volts);
+        inputs.mainMotorCurrent = Amps.of(current);
         inputs.mainMotorTemp = 0.0;
-        inputs.mainMotorPosition = hopperSim.getPositionMeters();
+        inputs.mainMotorPosition = Meters.of(hopperSim.getPositionMeters());
 
         inputs.followerMotorConnection = true;
-        inputs.followerMotorVoltage = volts;
-        inputs.followerMotorCurrent = Math.abs(current);
+        inputs.followerMotorVoltage = Volts.of(volts);
+        inputs.followerMotorCurrent = Amps.of(current);
         inputs.followerMotorTemp = 0.0;
-        inputs.followerMotorPosition = hopperSim.getPositionMeters();
+        inputs.followerMotorPosition = Meters.of(hopperSim.getPositionMeters());
     }
 
 

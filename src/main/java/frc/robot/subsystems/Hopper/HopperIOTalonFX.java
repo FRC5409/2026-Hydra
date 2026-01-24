@@ -1,6 +1,9 @@
 package frc.robot.subsystems.Hopper;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -57,14 +60,14 @@ public class HopperIOTalonFX implements HopperIO {
         m_followerMotorConfig.apply(m_currentConfig);
 
         m_encoderConfigs = new FeedbackConfigs()
-            .withSensorToMechanismRatio(1.0/10.0); //Test (random placeholder) value, needs to be tuned
+            .withSensorToMechanismRatio(HopperConstants.kGearing); //Test (random placeholder) value, needs to be tuned
         m_mainMotorConfig.apply(m_encoderConfigs);
         m_followerMotorConfig.apply(m_encoderConfigs);
 
         m_pidConfig = new Slot0Configs()
-            .withKP(0.001) //test value
-            .withKI(0.0)
-            .withKD(0.0);
+            .withKP(HopperConstants.SIM_PID.kP) //test value
+            .withKI(HopperConstants.SIM_PID.kI)
+            .withKD(HopperConstants.SIM_PID.kD);
 
         m_mainMotorConfig.apply(m_pidConfig);
         m_followerMotorConfig.apply(m_pidConfig);
@@ -139,20 +142,20 @@ public class HopperIOTalonFX implements HopperIO {
             mainDeviceCurrent, 
             mainDeviceTemp
         ).isOK();
-        inputs.mainMotorVoltage = mainDeviceVoltage.getValueAsDouble();
-        inputs.mainMotorCurrent = Math.abs(mainDeviceCurrent.getValueAsDouble());
+        inputs.mainMotorVoltage = Volts.of(mainDeviceVoltage.getValueAsDouble());
+        inputs.mainMotorCurrent = Amps.of(mainDeviceCurrent.getValueAsDouble());
         inputs.mainMotorTemp = mainDeviceTemp.getValueAsDouble();
-        inputs.mainMotorPosition = motorPosition.getValueAsDouble();
+        inputs.mainMotorPosition = Meters.of(motorPosition.getValueAsDouble());
         
         inputs.followerMotorConnection = BaseStatusSignal.refreshAll(
             followerDeviceVoltage, 
             followerDeviceCurrent, 
             followerDeviceTemp
         ).isOK();
-        inputs.followerMotorVoltage = followerDeviceVoltage.getValueAsDouble();
-        inputs.followerMotorCurrent = Math.abs(followerDeviceCurrent.getValueAsDouble());
+        inputs.followerMotorVoltage = Volts.of(followerDeviceVoltage.getValueAsDouble());
+        inputs.followerMotorCurrent = Amps.of(followerDeviceCurrent.getValueAsDouble());
         inputs.followerMotorTemp = followerDeviceTemp.getValueAsDouble();        
-        inputs.followerMotorPosition = motorPosition.getValueAsDouble();
+        inputs.followerMotorPosition = Meters.of(motorPosition.getValueAsDouble());
     }
 
 }
