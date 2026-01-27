@@ -24,6 +24,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
+import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerConstants;
 import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.subsystems.serializer.SerializerIOSim;
 import frc.robot.subsystems.serializer.SerializerIOTalonFX;
@@ -47,6 +49,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Intake sys_intake;
+  private final Serializer sys_serializer;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -60,6 +63,7 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+        sys_serializer = new Serializer(new SerializerIOTalonFX(SerializerConstants.INDEXER_ID, SerializerConstants.FEEDER_ID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -92,6 +96,7 @@ public class RobotContainer {
 
       case SIM:
         sys_intake = new Intake(new IntakeIOSim());
+        sys_serializer = new Serializer(new SerializerIOSim());
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -104,6 +109,7 @@ public class RobotContainer {
 
       default:
         sys_intake = new Intake(new IntakeIO(){});
+        sys_serializer = new Serializer(new SerializerIO() {});
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
