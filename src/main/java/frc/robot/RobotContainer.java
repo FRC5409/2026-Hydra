@@ -19,19 +19,11 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.GyroIOSim;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
-
-import frc.robot.Constants.Mode;
-
-import static edu.wpi.first.units.Units.Meters;
-
+import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -39,25 +31,27 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import static edu.wpi.first.units.Units.Meters;
+
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
+ * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
+ * Instead, the structure of the robot (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
-  protected final Drive sys_drive;
+    // Subsystems
+    protected final Drive  sys_drive;
+    protected final Vision sys_vision;
 
-  public static SwerveDriveSimulation simConfig;
+    public static SwerveDriveSimulation simConfig;
 
 
-  // Controller
-  private final CommandXboxController primaryController = new CommandXboxController(0);
-  private final CommandXboxController secondaryController = new CommandXboxController(1);
+    // Controller
+    private final CommandXboxController primaryController   = new CommandXboxController(0);
+    private final CommandXboxController secondaryController = new CommandXboxController(1);
 
-  // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+    // Dashboard inputs
+    private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -73,7 +67,8 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-        break;
+          sys_vision = new Vision(new VisionIOLimelight());
+          break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
@@ -84,15 +79,15 @@ public class RobotContainer {
           .withBumperSize(Meters.of(0.881), Meters.of(0.881))
           .withSwerveModule(
             COTS.ofMark4i(
-              DCMotor.getKrakenX60(1), 
-              DCMotor.getKrakenX60(1), 
-              DriveConstants.WHEEL_COF, 
+              DCMotor.getKrakenX60(1),
+              DCMotor.getKrakenX60(1),
+              DriveConstants.WHEEL_COF,
               1
             )
           );
 
           simConfig = new SwerveDriveSimulation(
-            driveConfig, 
+            driveConfig,
             new Pose2d(3, 3, Rotation2d.kZero)
           );
 
@@ -108,46 +103,46 @@ public class RobotContainer {
                         new ModuleIOSim(simConfig.getModules()[3])
                       );
 
+          sys_vision = new Vision(new VisionIOSim(simConfig));
 
         break;
 
-      default:
-        // Replayed robot, disable IO implementations
-        sys_drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
-        break;
+            default:
+                // Replayed robot, disable IO implementations
+                sys_drive = new Drive(
+                        new GyroIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {});
+                sys_vision = new Vision(new VisionIO() {});
+                break;
+        }
+
+        // Set up auto routines
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+        // Set up SysId routines
+        autoChooser.addOption(
+                "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(sys_drive));
+        autoChooser.addOption(
+                "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(sys_drive));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Forward)",
+                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Quasistatic Reverse)",
+                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Forward)", sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        autoChooser.addOption(
+                "Drive SysId (Dynamic Reverse)", sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        // Configure the button bindings
+        configureButtonBindings();
     }
 
-    // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(sys_drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(sys_drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-    // Configure the button bindings
-    configureButtonBindings();
-  }
-
-  /**
-     * Updates sim positions of algae, coral and robot poses
+    /*** Updates sim positions of algae, coral and robot poses
      */
     public void updateSim() {
         SimulatedArena.getInstance().simulationPeriodic();
@@ -158,53 +153,52 @@ public class RobotContainer {
     }
 
   /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    // Default command, normal field-relative drive
-    sys_drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            sys_drive,
-            () -> -primaryController.getLeftY(),
-            () -> -primaryController.getLeftX(),
-            () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
-        )
-    );
+     * Use this method to define your button->command mappings. Buttons can be created by instantiating a
+     * {@link GenericHID} or one of its subclasses ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}),
+     * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
+    private void configureButtonBindings() {
+        // Default command, normal field-relative drive
+        sys_drive.setDefaultCommand(
+                DriveCommands.joystickDrive(
+                        sys_drive,
+                        () -> -primaryController.getLeftY(),
+                        () -> -primaryController.getLeftX(),
+                        () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
+                )
+        );
 
-    // Lock to 0° when A button is held
-    primaryController
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                sys_drive,
-                () -> -primaryController.getLeftY(),
-                () -> -primaryController.getLeftX(),
-                () -> Rotation2d.kZero));
+        // Lock to 0° when A button is held
+        primaryController
+                .a()
+                .whileTrue(
+                        DriveCommands.joystickDriveAtAngle(
+                                sys_drive,
+                                () -> -primaryController.getLeftY(),
+                                () -> -primaryController.getLeftX(),
+                                () -> Rotation2d.kZero));
 
-    // Switch to X pattern when X button is pressed
-    primaryController.x().onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
+        // Switch to X pattern when X button is pressed
+        primaryController.x().onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
 
-    // Reset gyro to 0° when B button is pressed
-    primaryController
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        sys_drive.setPose(
-                            new Pose2d(sys_drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    sys_drive)
-                .ignoringDisable(true));
-  }
+        // Reset gyro to 0° when B button is pressed
+        primaryController
+                .b()
+                .onTrue(
+                        Commands.runOnce(
+                                        () ->
+                                                sys_drive.setPose(
+                                                        new Pose2d(sys_drive.getPose().getTranslation(), Rotation2d.kZero)),
+                                        sys_drive)
+                                .ignoringDisable(true));
+    }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
 }
