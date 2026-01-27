@@ -28,6 +28,7 @@ import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -60,14 +61,17 @@ public class RobotContainer {
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
+        sys_vision = new Vision(new VisionIOLimelight());
+
         sys_drive =
             new Drive(
                 new GyroIOPigeon2(),
                 new ModuleIOTalonFX(TunerConstants.FrontLeft),
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
-          sys_vision = new Vision(new VisionIOLimelight());
+                new ModuleIOTalonFX(TunerConstants.BackRight),
+                sys_vision);
+          
           break;
 
       case SIM:
@@ -91,8 +95,11 @@ public class RobotContainer {
             new Pose2d(3, 3, Rotation2d.kZero)
           );
 
+          SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
           SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
           SimulatedArena.getInstance().resetFieldForAuto();
+
+          sys_vision = new Vision(new VisionIOSim(simConfig));
 
           sys_drive =
                     new Drive(
@@ -100,22 +107,25 @@ public class RobotContainer {
                         new ModuleIOSim(simConfig.getModules()[0]),
                         new ModuleIOSim(simConfig.getModules()[1]),
                         new ModuleIOSim(simConfig.getModules()[2]),
-                        new ModuleIOSim(simConfig.getModules()[3])
+                        new ModuleIOSim(simConfig.getModules()[3]),
+                        sys_vision
                       );
 
-          sys_vision = new Vision(new VisionIOSim(simConfig));
+          
 
-        break;
+          break;
 
-            default:
+        default:
+        
+                sys_vision = new Vision(new VisionIO() {});
                 // Replayed robot, disable IO implementations
                 sys_drive = new Drive(
                         new GyroIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {},
-                        new ModuleIO() {});
-                sys_vision = new Vision(new VisionIO() {});
+                        new ModuleIO() {},
+                        sys_vision);
                 break;
         }
 
