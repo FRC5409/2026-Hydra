@@ -19,11 +19,18 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
+
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -34,6 +41,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.units.Units.Meters;
 
+
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
  * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
@@ -43,9 +54,9 @@ public class RobotContainer {
     // Subsystems
     protected final Drive  sys_drive;
     protected final Vision sys_vision;
+    private final Intake sys_intake;
 
     public static SwerveDriveSimulation simConfig;
-
 
     // Controller
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -58,6 +69,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
+        sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -75,6 +87,7 @@ public class RobotContainer {
           break;
 
       case SIM:
+        sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
         final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig.Default()
           .withGyro(COTS.ofPigeon2())
@@ -110,9 +123,6 @@ public class RobotContainer {
                         new ModuleIOSim(simConfig.getModules()[3]),
                         sys_vision
                       );
-
-          
-
           break;
 
         default:
@@ -126,6 +136,8 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         sys_vision);
+                        
+                sys_intake = new Intake(new IntakeIO(){});
                 break;
         }
 
@@ -156,11 +168,31 @@ public class RobotContainer {
      */
     public void updateSim() {
         SimulatedArena.getInstance().simulationPeriodic();
-
         Logger.recordOutput("Simulation/RobotPose", simConfig.getSimulatedDriveTrainPose());
         Logger.recordOutput(
                 "Simulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
     }
+  /**
+   * Use this method to define your button->command mappings. Buttons can be created by
+   * instantiating a {@link GenericHID} or one of its subclasses ({@link
+   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
+   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+   */
+  private void configureButtonBindings() {
+    // Default command, normal field-relative drive
+    drive.setDefaultCommand(
+        DriveCommands.joystickDrive(
+            drive,
+            () -> -primaryController.getLeftY(),
+            () -> -primaryController.getLeftX(),
+            () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
+        )
+    );
+
+    // Switch to X pattern when X button is pressed
+    primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+  }
 
   /**
      * Use this method to define your button->command mappings. Buttons can be created by instantiating a
@@ -178,29 +210,9 @@ public class RobotContainer {
                 )
         );
 
-        // Lock to 0° when A button is held
-        primaryController
-                .a()
-                .whileTrue(
-                        DriveCommands.joystickDriveAtAngle(
-                                sys_drive,
-                                () -> -primaryController.getLeftY(),
-                                () -> -primaryController.getLeftX(),
-                                () -> Rotation2d.kZero));
-
         // Switch to X pattern when X button is pressed
         primaryController.x().onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
 
-        // Reset gyro to 0° when B button is pressed
-        primaryController
-                .b()
-                .onTrue(
-                        Commands.runOnce(
-                                        () ->
-                                                sys_drive.setPose(
-                                                        new Pose2d(sys_drive.getPose().getTranslation(), Rotation2d.kZero)),
-                                        sys_drive)
-                                .ignoringDisable(true));
     }
 
     /**
