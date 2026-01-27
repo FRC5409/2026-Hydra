@@ -18,37 +18,37 @@ public class Serializer extends SubsystemBase{
     public Command setFeederVoltage(double voltage){
         return Commands.runOnce(() -> {
             io.setFeederMotorVoltage(voltage);
-        });
+        }, this);
     }
 
     public Command setIndexerVoltage(double voltage){
         return Commands.runOnce(() -> {
             io.setIndexerMotorVoltage(voltage);
-        });
+        }, this);
     }
 
     public Command stopIndexer() {
         return Commands.runOnce(() -> {
             io.stopIndexerMotor();
-        });
+        }, this);
     }
 
     public Command stopFeeder() {
         return Commands.runOnce(() -> {
             io.stopFeederMotor();
-        });
+        }, this);
     }
 
     public Command zeroIndexerEncoder() {
         return Commands.runOnce(() -> {
             io.zeroIndexerEncoder();
-        });
+        }, this);
     }
 
     public Command zeroFeederEncoder() {
         return Commands.runOnce(() -> {
             io.zeroFeederEncoder();
-        });
+        }, this);
     }
 
     @Override
