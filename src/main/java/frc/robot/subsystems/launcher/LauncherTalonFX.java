@@ -138,8 +138,8 @@ public class LauncherTalonFX implements LauncherIO {
         inputs.hoodVoltage = voltageHood.getValue();
         inputs.launcherCurrent = currentLauncher.getValue();
         inputs.hoodCurrent = currentHood.getValue();
-        inputs.launcherSpeed = speedLauncher.getValue();
-        inputs.hoodSpeed = speedHood.getValue();
+        inputs.launcherSpeedRadians = speedLauncher.getValue();
+        inputs.hoodSpeedRadians = speedHood.getValue();
         inputs.hoodPosition = hoodPosition.getValue();
     }
 }

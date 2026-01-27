@@ -9,7 +9,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
-        import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -19,7 +19,8 @@ public class Launcher extends SubsystemBase{
 
     private static Pose3d launcherMech;
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
-        .getStructTopic("MyPose", Pose3d.struct).publish();
+        .getStructTopic(
+            "MyPose", Pose3d.struct).publish();
     StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("MyPoseArray", Pose3d.struct).publish();
 
@@ -35,7 +36,7 @@ public class Launcher extends SubsystemBase{
     }
 
     public Command launchFuel() {
-        return Commands.runOnce(io::launchFuel);
+        return Commands.runOnce(io::launchFuel, this);
     }
 
     public Command moveHood(Angle angle) {

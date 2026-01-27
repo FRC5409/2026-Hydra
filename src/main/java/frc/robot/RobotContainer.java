@@ -92,7 +92,8 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
-                sys_launcher =  new Launcher(new LauncherSim());
+        sys_launcher =  new Launcher(new LauncherSim());
+        
         break;
 
       default:
@@ -161,7 +162,7 @@ public class RobotContainer {
                 () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
-    primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    // primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
     primaryController
@@ -175,8 +176,9 @@ public class RobotContainer {
                 .ignoringDisable(true));
 
     primaryController.x()
-                     .onTrue(Commands.sequence(Commands.runOnce(sys_launcher::launchFuel, sys_launcher)))
-                     .onFalse(Commands.runOnce(sys_launcher::stop));
+                     .onTrue(sys_launcher.launchFuel())
+                     .onFalse(sys_launcher.stop());
+
   }
 
   /**

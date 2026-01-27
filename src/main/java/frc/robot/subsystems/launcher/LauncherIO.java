@@ -22,8 +22,8 @@ public interface LauncherIO {
         public Voltage         hoodVoltage     = Volts.of(0.0);
         public Current         launcherCurrent = Current.ofBaseUnits(0.0, Amps);
         public Current         hoodCurrent     = Current.ofBaseUnits(0.0, Amps);
-        public AngularVelocity launcherSpeed   = RadiansPerSecond.of(0.0);
-        public AngularVelocity hoodSpeed       = RadiansPerSecond.of(0.0);
+        public AngularVelocity launcherSpeedRadians   = RadiansPerSecond.of(0.0);
+        public AngularVelocity hoodSpeedRadians       = RadiansPerSecond.of(0.0);
 
         public Angle targetHoodPosition = Degrees.of(0.0);
         public Angle hoodPosition       = Degrees.of(0.0);
@@ -42,6 +42,6 @@ public interface LauncherIO {
     }
 
     default void stop() {}
-
+    
     default void updateInputs(LauncherInputs inputs) {}
 }

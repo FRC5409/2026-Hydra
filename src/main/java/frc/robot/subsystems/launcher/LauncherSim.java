@@ -6,9 +6,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.units.Units.*;
@@ -19,12 +16,6 @@ public class LauncherSim implements LauncherIO {
 
     private final FlywheelSim   flywheelSim;
     private final PIDController controller;
-
-    private final Mechanism2d     mech2D;
-    private final MechanismRoot2d root;
-
-    private final MechanismLigament2d stand;
-    private final MechanismLigament2d flywheel;
 
     private final DCMotor motor = DCMotor.getFalcon500Foc(1);
 
@@ -38,33 +29,20 @@ public class LauncherSim implements LauncherIO {
                         GEARING
                 ),
                 motor,
-                0.001
+                0.02
         );
 
         flywheelSim.update(0.01);
         controller = new PIDController(LauncherConstants.kP, LauncherConstants.kI, LauncherConstants.kD);
-        mech2D = new Mechanism2d(5.0, 5.0);
 
-        root = mech2D.getRoot("Bot base", 2, 0);
-
-        stand = root.append(new MechanismLigament2d(
-                "Stand",
-                0.7,
-                90
-        ));
-        flywheel = stand.append(new MechanismLigament2d(
-                "Fly wheel",
-                0.2,
-                90
-        ));
-
-        SmartDashboard.putData("Mech2d", mech2D);
         isRunning = true;
     }
 
     @Override
     public void launchFuel() {
-        flywheelSim.setInputVoltage(6.0);
+        // flywheelSim.setInputVoltage(4.0);
+        flywheelSim.setAngularVelocity(2);
+        
     }
 
     @Override
@@ -100,12 +78,13 @@ public class LauncherSim implements LauncherIO {
         inputs.launcherCurrent = Current.ofBaseUnits(current, Amps);
         inputs.hoodCurrent = Current.ofBaseUnits(0.0, Amps);
 
-        inputs.launcherSpeed = flywheelSim.getAngularVelocity();
-        inputs.hoodSpeed = RadiansPerSecond.of(0.0);
+        inputs.launcherSpeedRadians = flywheelSim.getAngularVelocity();
+        inputs.hoodSpeedRadians = RadiansPerSecond.of(0.0);
 
         inputs.targetHoodPosition = Degrees.of(0.0);
         inputs.hoodPosition = Degrees.of(0.0);
 
-        SmartDashboard.putData("Mech2d", mech2D);
+        SmartDashboard.putNumber("Input volatge", flywheelSim.getInputVoltage());
+        SmartDashboard.putNumber("Angular velocity RPM", flywheelSim.getAngularVelocityRadPerSec());
     }
 }
