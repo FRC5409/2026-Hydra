@@ -27,7 +27,15 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.subsystems.serializer.SerializerIOSim;
 import frc.robot.subsystems.serializer.SerializerIOTalonFX;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Roller;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -38,9 +46,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
+  private final Intake sys_intake;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController primaryController = new CommandXboxController(0);
+  private final CommandXboxController secondaryController = new CommandXboxController(1);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
@@ -49,6 +59,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
+        sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -80,6 +91,7 @@ public class RobotContainer {
         break;
 
       case SIM:
+        sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -91,6 +103,7 @@ public class RobotContainer {
         break;
 
       default:
+        sys_intake = new Intake(new IntakeIO(){});
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -136,25 +149,27 @@ public class RobotContainer {
     drive.setDefaultCommand(
         DriveCommands.joystickDrive(
             drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX()));
+            () -> -primaryController.getLeftY(),
+            () -> -primaryController.getLeftX(),
+            () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
+        )
+    );
 
     // Lock to 0° when A button is held
-    controller
+    primaryController
         .a()
         .whileTrue(
             DriveCommands.joystickDriveAtAngle(
                 drive,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX(),
+                () -> -primaryController.getLeftY(),
+                () -> -primaryController.getLeftX(),
                 () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
-    controller
+    primaryController
         .b()
         .onTrue(
             Commands.runOnce(
@@ -163,6 +178,7 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
+
   }
 
   /**
