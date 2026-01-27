@@ -30,17 +30,18 @@ public class Serializer extends SubsystemBase{
             io.stopMotor(), this);
     }
 
-    public Command setFeederVoltage(double voltage){
+    public Command runFeederVoltage(double voltage){
         return Commands.runOnce(() -> {
             io.setFeederMotorVoltage(voltage);
         });
     }
 
-    public Command setIndexerVoltage(double voltage){
+    public Command runIndexerVoltage(double voltage){
         return Commands.runOnce(() -> {
             io.setIndexerMotorVoltage(voltage);
         });
     }
+
 
     public void periodic() {
         io.updateInputs(inputs);

@@ -20,6 +20,12 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerConstants;
+import frc.robot.subsystems.serializer.SerializerIO;
+import frc.robot.subsystems.serializer.SerializerIOSim;
+import frc.robot.subsystems.serializer.SerializerIOSparkMax;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -33,6 +39,7 @@ public class RobotContainer {
   private final Drive drive;
 
   protected final Launcher sys_launcher;
+  protected final Serializer sys_serializer;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -61,7 +68,14 @@ public class RobotContainer {
                 LauncherConstants.LAUNCHER_SENSOR_ID,
                 LauncherConstants.HOOD_CAN_ID,
                 LauncherConstants.HOOD_SENSOR_ID)
-        );
+            );
+
+        sys_serializer = new Serializer(
+                new SerializerIOSparkMax(
+                    SerializerConstants.ORTONA_INDEXER_MOTOR_CANID, 
+                    SerializerConstants.ORTONA_FEEDER_MOTOR_CANID
+                )
+            );
 
         // The ModuleIOTalonFXS implementation provides an example implementation for
         // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -92,7 +106,9 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
 
-                sys_launcher =  new Launcher(new LauncherSim());
+        sys_launcher =  new Launcher(new LauncherSim());
+
+        sys_serializer = new Serializer(new SerializerIOSim());
         break;
 
       default:
@@ -106,6 +122,7 @@ public class RobotContainer {
                 new ModuleIO() {});
 
         sys_launcher = new Launcher(new LauncherIO() {});
+        sys_serializer = new Serializer(new SerializerIO() {});
 
         break;
     }
@@ -149,34 +166,16 @@ public class RobotContainer {
             () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
         )
     );
-
-    // Lock to 0° when A button is held
-    primaryController
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -primaryController.getLeftY(),
-                () -> -primaryController.getLeftX(),
-                () -> Rotation2d.kZero));
-
-    // Switch to X pattern when X button is pressed
-    primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when B button is pressed
-    primaryController
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
-
+    
     primaryController.x()
                      .onTrue(Commands.sequence(Commands.runOnce(sys_launcher::launchFuel, sys_launcher)))
                      .onFalse(Commands.runOnce(sys_launcher::stop));
+
+    primaryController.y()
+        .onTrue(sys_serializer.runIndexerVoltage(5));
+
+    primaryController.a()
+        .onTrue(sys_serializer.runFeederVoltage(5));
   }
 
   /**
