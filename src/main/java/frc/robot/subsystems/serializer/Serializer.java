@@ -15,21 +15,6 @@ public class Serializer extends SubsystemBase{
         inputs = new SerializerInputsAutoLogged();
     }
 
-    public Command rollToLauncher() {
-        return Commands.runOnce(() ->
-            io.setMotorVoltage(4.0), this); //test value
-    }
-
-    public Command rollToIntake() {
-        return Commands.runOnce(() ->
-            io.setMotorVoltage(-4.0), this); //test value
-    }
-
-    public Command stop() {
-        return Commands.runOnce(() ->
-            io.stopMotor(), this);
-    }
-
     public Command setFeederVoltage(double voltage){
         return Commands.runOnce(() -> {
             io.setFeederMotorVoltage(voltage);
@@ -42,6 +27,31 @@ public class Serializer extends SubsystemBase{
         });
     }
 
+    public Command stopIndexer() {
+        return Commands.runOnce(() -> {
+            io.stopIndexerMotor();
+        });
+    }
+
+    public Command stopFeeder() {
+        return Commands.runOnce(() -> {
+            io.stopFeederMotor();
+        });
+    }
+
+    public Command zeroIndexerEncoder() {
+        return Commands.runOnce(() -> {
+            io.zeroIndexerEncoder();
+        });
+    }
+
+    public Command zeroFeederEncoder() {
+        return Commands.runOnce(() -> {
+            io.zeroFeederEncoder();
+        });
+    }
+
+    @Override
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Serializer", inputs);

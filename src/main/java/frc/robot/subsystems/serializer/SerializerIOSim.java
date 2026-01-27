@@ -4,26 +4,37 @@ import static edu.wpi.first.units.Units.Volts;
 
 public class SerializerIOSim implements SerializerIO {
 
-    private double volts = 0.0;
+    private double indexerVoltage = 0.0;
+    private double feederVoltage = 0.0;
 
     public SerializerIOSim() {}
 
     @Override
-    public void setMotorVoltage(double voltage) {
-        volts = voltage;
+    public void setIndexerMotorVoltage(double voltage) {
+        indexerVoltage = voltage;
     }
 
     @Override
-    public void stopMotor() {
-        volts = 0.0;
+    public void setFeederMotorVoltage(double voltage) {
+        feederVoltage = voltage;
+    }
+
+    @Override
+    public void stopIndexerMotor() {
+        indexerVoltage = 0.0;
+    }
+
+    @Override
+    public void stopFeederMotor() {
+        feederVoltage = 0.0;
     }
 
     @Override
     public void updateInputs(SerializerInputs inputs) {
-        inputs.isFloorMotorConnected = true;
+        inputs.isIndexerMotorConnected = true;
         inputs.isFeederMotorConnected = true;
-        inputs.floorAppliedVoltage = Volts.of(volts);
-        inputs.feederAppliedVoltage = Volts.of(volts);
+        inputs.indexerAppliedVoltage = Volts.of(indexerVoltage);
+        inputs.feederAppliedVoltage = Volts.of(feederVoltage);
     }
 
 
