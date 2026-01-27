@@ -12,6 +12,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
 
 public final class IntakeIOTalonFX implements IntakeIO {
@@ -25,11 +26,13 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal<Temperature> rollerTemperatureSignal;
     private final StatusSignal<Voltage>     rollerVoltageSignal;
     private final StatusSignal<Current>     rollerCurrentSignal;
+    private final StatusSignal<AngularVelocity>       rollerVelocitySignal;
 
     private final StatusSignal<Angle>       extensionPositionSignal;
     private final StatusSignal<Temperature> extensionTemperatureSignal;
     private final StatusSignal<Voltage>     extensionVoltageSignal;
     private final StatusSignal<Current>     extensionCurrentSignal;
+    private final StatusSignal<AngularVelocity>       extensionVelocitySignal;
 
     public IntakeIOTalonFX(int rollerMotorId, int extensionMotorId) {
 
@@ -54,11 +57,13 @@ public final class IntakeIOTalonFX implements IntakeIO {
         extensionTemperatureSignal = extensionMotor.getDeviceTemp();
         extensionVoltageSignal     = extensionMotor.getMotorVoltage();
         extensionCurrentSignal     = extensionMotor.getSupplyCurrent();
+        extensionVelocitySignal    = extensionMotor.getVelocity();
 
         rollerPositionSignal    = rollerMotor.getPosition();
         rollerTemperatureSignal = rollerMotor.getDeviceTemp();
         rollerVoltageSignal     = rollerMotor.getMotorVoltage();
         rollerCurrentSignal     = rollerMotor.getSupplyCurrent();
+        rollerVelocitySignal    = rollerMotor.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
 
@@ -119,11 +124,16 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.extensionCurrent = Amps.of(extensionCurrentSignal.getValueAsDouble());
         inputs.extensionTemp = 0.0;
         inputs.extensionPosition = extensionPositionSignal.getValueAsDouble();
+        inputs.extensionVelocity = MetersPerSecond.of(extensionVelocitySignal.getValueAsDouble());
+        inputs.extensionRunning = Math.abs(extensionVoltageSignal.getValueAsDouble()) > 0.01;
+        inputs.isExtended = inputs.extensionPosition >= Extension.EXTENSION_MAX_DISTANCE.in(Meters) - 0.01;
+        inputs.isRetracted = inputs.extensionPosition <= Extension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
 
         inputs.isRollerConnected = true;
         inputs.rollerVolts = Volts.of(rollerVoltageSignal.getValueAsDouble());
         inputs.rollerCurrent = Amps.of(rollerCurrentSignal.getValueAsDouble());
         inputs.rollerTemp = 0.0;
+        inputs.rollerVelocity = MetersPerSecond.of(rollerVelocitySignal.getValueAsDouble());
 
     }
 }
