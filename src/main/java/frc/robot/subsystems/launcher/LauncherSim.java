@@ -47,7 +47,8 @@ public class LauncherSim implements LauncherIO {
 
     @Override
     public void stop() {
-        flywheelSim.setInputVoltage(0.0);
+        // flywheelSim.setInputVoltage(0.0);
+        flywheelSim.setAngularVelocity(0);
         controller.reset();
         isRunning = false;
     }
