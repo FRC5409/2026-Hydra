@@ -18,8 +18,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.launcher.*;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
@@ -47,8 +45,6 @@ public class RobotContainer {
   private final Drive drive;
   private final Intake sys_intake;
 
-  protected final Launcher sys_launcher;
-
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
   private final CommandXboxController secondaryController = new CommandXboxController(1);
@@ -71,13 +67,6 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.FrontRight),
                 new ModuleIOTalonFX(TunerConstants.BackLeft),
                 new ModuleIOTalonFX(TunerConstants.BackRight));
-
-        sys_launcher = new Launcher(new LauncherTalonFX(
-                LauncherConstants.LAUNCHER_CAN_ID,
-                LauncherConstants.LAUNCHER_SENSOR_ID,
-                LauncherConstants.HOOD_CAN_ID,
-                LauncherConstants.HOOD_SENSOR_ID)
-        );
 
         // The ModuleIOTalonFXS implementation provides an example implementation for
         // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -108,9 +97,6 @@ public class RobotContainer {
                 new ModuleIOSim(TunerConstants.FrontRight),
                 new ModuleIOSim(TunerConstants.BackLeft),
                 new ModuleIOSim(TunerConstants.BackRight));
-
-        sys_launcher =  new Launcher(new LauncherSim());
-        
         break;
 
       default:
@@ -123,9 +109,6 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-
-        sys_launcher = new Launcher(new LauncherIO() {});
-
         break;
     }
 
@@ -180,7 +163,7 @@ public class RobotContainer {
                 () -> Rotation2d.kZero));
 
     // Switch to X pattern when X button is pressed
-    // primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
     // Reset gyro to 0° when B button is pressed
     primaryController
@@ -192,10 +175,6 @@ public class RobotContainer {
                             new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
                     drive)
                 .ignoringDisable(true));
-
-    primaryController.x()
-                     .onTrue(sys_launcher.launchFuel())
-                     .onFalse(sys_launcher.stop());
 
   }
 
