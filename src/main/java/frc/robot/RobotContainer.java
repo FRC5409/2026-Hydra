@@ -72,83 +72,83 @@ public class RobotContainer {
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    switch (Constants.currentMode) {
-      case REAL:
-        sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
-        sys_serializer = new Serializer(new SerializerIOTalonFX(SerializerConstants.INDEXER_ID, SerializerConstants.FEEDER_ID));
-        // Real robot, instantiate hardware IO implementations
-        // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
-        // a CANcoder
-        sys_vision = new Vision(new VisionIOLimelight());
+    /** The container for the robot. Contains subsystems, OI devices, and commands. */
+    public RobotContainer() {
+        switch (Constants.currentMode) {
+                case REAL:
+                        // Real robot, instantiate hardware IO implementations
+                        sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+                        sys_serializer = new Serializer(new SerializerIOTalonFX(SerializerConstants.INDEXER_ID, SerializerConstants.FEEDER_ID));
+                        sys_vision = new Vision(new VisionIOLimelight());
 
-        sys_drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight),
-                sys_vision);
-          
-          break;
-
-      case SIM:
-        sys_intake = new Intake(new IntakeIOSim());
-        sys_serializer = new Serializer(new SerializerIOSim());
-        // Sim robot, instantiate physics sim IO implementations
-        final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig.Default()
-          .withGyro(COTS.ofPigeon2())
-          .withRobotMass(DriveConstants.ROBOT_FULL_MASS)
-          .withTrackLengthTrackWidth(Meters.of(0.578), Meters.of(0.578))
-          .withBumperSize(Meters.of(0.881), Meters.of(0.881))
-          .withSwerveModule(
-            COTS.ofMark4i(
-              DCMotor.getKrakenX60(1),
-              DCMotor.getKrakenX60(1),
-              DriveConstants.WHEEL_COF,
-              1
-            )
-          );
-
-          simConfig = new SwerveDriveSimulation(
-            driveConfig,
-            new Pose2d(3, 3, Rotation2d.kZero)
-          );
-
-          SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
-          SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
-          SimulatedArena.getInstance().resetFieldForAuto();
-
-          sys_vision = new Vision(new VisionIOSim(simConfig));
-
-          sys_drive =
-                    new Drive(
-                        new GyroIOSim(simConfig.getGyroSimulation()),
-                        new ModuleIOSim(simConfig.getModules()[0]),
-                        new ModuleIOSim(simConfig.getModules()[1]),
-                        new ModuleIOSim(simConfig.getModules()[2]),
-                        new ModuleIOSim(simConfig.getModules()[3]),
-                        sys_vision
-                      );
-          break;
-
-        default:
-        
-                sys_vision = new Vision(new VisionIO() {});
-                // Replayed robot, disable IO implementations
-                sys_drive = new Drive(
-                        new GyroIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        sys_vision);
+                        sys_drive =
+                                new Drive(
+                                        new GyroIOPigeon2(),
+                                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                                        new ModuleIOTalonFX(TunerConstants.BackRight),
+                                        sys_vision
+                                );
                         
-                sys_intake = new Intake(new IntakeIO(){});
-                sys_serializer = new Serializer(new SerializerIO() {});
-                break;
+                        break;
+
+                case SIM:
+                        // Sim robot, instantiate physics sim IO implementations
+                        sys_intake = new Intake(new IntakeIOSim());
+                        sys_serializer = new Serializer(new SerializerIOSim());
+                        
+                        final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig.Default()
+                                .withGyro(COTS.ofPigeon2())
+                                .withRobotMass(DriveConstants.ROBOT_FULL_MASS)
+                                .withTrackLengthTrackWidth(Meters.of(0.578), Meters.of(0.578))
+                                .withBumperSize(Meters.of(0.881), Meters.of(0.881))
+                                .withSwerveModule(
+                                        COTS.ofMark4i(
+                                                DCMotor.getKrakenX60(1),
+                                                DCMotor.getKrakenX60(1),
+                                                DriveConstants.WHEEL_COF,
+                                                1
+                                        )
+                                );
+
+                        simConfig = new SwerveDriveSimulation(
+                                driveConfig,
+                                new Pose2d(3, 3, Rotation2d.kZero)
+                        );
+
+                        SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
+                        SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
+                        SimulatedArena.getInstance().resetFieldForAuto();
+
+                        sys_vision = new Vision(new VisionIOSim(simConfig));
+
+                        sys_drive =
+                                new Drive(
+                                        new GyroIOSim(simConfig.getGyroSimulation()),
+                                        new ModuleIOSim(simConfig.getModules()[0]),
+                                        new ModuleIOSim(simConfig.getModules()[1]),
+                                        new ModuleIOSim(simConfig.getModules()[2]),
+                                        new ModuleIOSim(simConfig.getModules()[3]),
+                                        sys_vision
+                                );
+                        break;
+
+                default:
+                
+                        sys_vision = new Vision(new VisionIO() {});
+                        // Replayed robot, disable IO implementations
+                        sys_drive = new Drive(
+                                new GyroIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                new ModuleIO() {},
+                                sys_vision);
+                                
+                        sys_intake = new Intake(new IntakeIO(){});
+                        sys_serializer = new Serializer(new SerializerIO() {});
+                        break;
         }
 
         // Set up auto routines
@@ -172,6 +172,7 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
+    }
 
     /*** Updates sim positions of algae, coral and robot poses
      */
@@ -182,7 +183,7 @@ public class RobotContainer {
                 "Simulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
     }
 
-  /**
+     /**
      * Use this method to define your button->command mappings. Buttons can be created by instantiating a
      * {@link GenericHID} or one of its subclasses ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}),
      * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
