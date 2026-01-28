@@ -36,7 +36,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+//   private final Drive drive;
 
   protected final Launcher sys_launcher;
   protected final Serializer sys_serializer;
@@ -46,7 +46,7 @@ public class RobotContainer {
   private final CommandXboxController secondaryController = new CommandXboxController(1);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+//   private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -55,19 +55,20 @@ public class RobotContainer {
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+        // drive =
+        //     new Drive(
+        //         new GyroIOPigeon2(),
+        //         new ModuleIOTalonFX(TunerConstants.FrontLeft),
+        //         new ModuleIOTalonFX(TunerConstants.FrontRight),
+        //         new ModuleIOTalonFX(TunerConstants.BackLeft),
+        //         new ModuleIOTalonFX(TunerConstants.BackRight));
 
         sys_launcher = new Launcher(new LauncherTalonFX(
-                LauncherConstants.LAUNCHER_CAN_ID,
-                LauncherConstants.LAUNCHER_SENSOR_ID,
-                LauncherConstants.HOOD_CAN_ID,
-                LauncherConstants.HOOD_SENSOR_ID)
+                LauncherConstants.LAUNCHER_CAN_ID
+                // LauncherConstants.LAUNCHER_SENSOR_ID,
+                // LauncherConstants.HOOD_CAN_ID,
+                // LauncherConstants.HOOD_SENSOR_ID)
+                )
             );
 
         sys_serializer = new Serializer(
@@ -98,13 +99,13 @@ public class RobotContainer {
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+        // drive =
+        //     new Drive(
+        //         new GyroIO() {},
+        //         new ModuleIOSim(TunerConstants.FrontLeft),
+        //         new ModuleIOSim(TunerConstants.FrontRight),
+        //         new ModuleIOSim(TunerConstants.BackLeft),
+        //         new ModuleIOSim(TunerConstants.BackRight));
 
         sys_launcher =  new Launcher(new LauncherSim());
 
@@ -113,13 +114,13 @@ public class RobotContainer {
 
       default:
         // Replayed robot, disable IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
+        // drive =
+        //     new Drive(
+        //         new GyroIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {},
+        //         new ModuleIO() {});
 
         sys_launcher = new Launcher(new LauncherIO() {});
         sys_serializer = new Serializer(new SerializerIO() {});
@@ -128,23 +129,23 @@ public class RobotContainer {
     }
 
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    // autoChooser.addOption(
+    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Forward)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Reverse)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -158,24 +159,33 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -primaryController.getLeftY(),
-            () -> -primaryController.getLeftX(),
-            () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
-        )
-    );
+    // drive.setDefaultCommand(
+    //     DriveCommands.joystickDrive(
+    //         drive,
+    //         () -> -primaryController.getLeftY(),
+    //         () -> -primaryController.getLeftX(),
+    //         () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
+    //     )
+    // );
     
     primaryController.x()
-                     .onTrue(Commands.sequence(Commands.runOnce(sys_launcher::launchFuel, sys_launcher)))
-                     .onFalse(Commands.runOnce(sys_launcher::stop));
+                     .onTrue(sys_launcher.runVelocity(1))
+                     .onFalse(sys_launcher.stop());
+
+    // primaryController.x()
+    //     .whileTrue(sys_launcher.runVelocity(1));
 
     primaryController.y()
-        .onTrue(sys_serializer.runIndexerVoltage(5));
+        .onTrue(sys_serializer.runIndexerVoltage(8));
 
     primaryController.a()
         .onTrue(sys_serializer.runFeederVoltage(5));
+    
+    primaryController.povDown()
+        .onTrue(sys_serializer.runFeederVoltage(0));
+
+    primaryController.povUp()
+        .onTrue(sys_serializer.runIndexerVoltage(0));
   }
 
   /**
@@ -183,7 +193,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
+//   public Command getAutonomousCommand() {
+//     return autoChooser.get();
+//   }
 }

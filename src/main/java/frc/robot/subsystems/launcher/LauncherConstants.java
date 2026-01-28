@@ -1,10 +1,10 @@
 package frc.robot.subsystems.launcher;
 
 public class LauncherConstants {
-    public static final int LAUNCHER_CAN_ID    = 5;
     public static final int LAUNCHER_SENSOR_ID = 1;
     public static final int HOOD_CAN_ID        = 1;
     public static final int HOOD_SENSOR_ID     = 1;
+    public static final int LAUNCHER_CAN_ID    = 7;
 
     public static final double kG = 0.0;
     public static final double kS = 0.1;
