@@ -25,6 +25,12 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
+
+import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerConstants;
+import frc.robot.subsystems.serializer.SerializerIO;
+import frc.robot.subsystems.serializer.SerializerIOSim;
+import frc.robot.subsystems.serializer.SerializerIOTalonFX;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
@@ -52,9 +58,10 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
     // Subsystems
-    protected final Drive  sys_drive;
-    protected final Vision sys_vision;
-    private final Intake sys_intake;
+    protected final   Drive  sys_drive;
+    protected final   Vision sys_vision;
+    protected final   Intake sys_intake;
+    protected final   Serializer sys_serializer;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -70,6 +77,7 @@ public class RobotContainer {
     switch (Constants.currentMode) {
       case REAL:
         sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+        sys_serializer = new Serializer(new SerializerIOTalonFX(SerializerConstants.INDEXER_ID, SerializerConstants.FEEDER_ID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -88,6 +96,7 @@ public class RobotContainer {
 
       case SIM:
         sys_intake = new Intake(new IntakeIOSim());
+        sys_serializer = new Serializer(new SerializerIOSim());
         // Sim robot, instantiate physics sim IO implementations
         final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig.Default()
           .withGyro(COTS.ofPigeon2())
@@ -138,6 +147,7 @@ public class RobotContainer {
                         sys_vision);
                         
                 sys_intake = new Intake(new IntakeIO(){});
+                sys_serializer = new Serializer(new SerializerIO() {});
                 break;
         }
 
@@ -162,7 +172,6 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
-    }
 
     /*** Updates sim positions of algae, coral and robot poses
      */
