@@ -198,14 +198,14 @@ public class ModuleIOTalonFX implements ModuleIO {
     var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
 
     // Update drive inputs
-    inputs.driveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
+    inputs.isDriveConnected = driveConnectedDebounce.calculate(driveStatus.isOK());
     inputs.drivePositionRad = Radians.of(Units.rotationsToRadians(drivePosition.getValueAsDouble()));
     inputs.driveVelocityRadPerSec = RadiansPerSecond.of(Units.rotationsToRadians(driveVelocity.getValueAsDouble()));
     inputs.driveAppliedVolts = Volts.of(driveAppliedVolts.getValueAsDouble());
     inputs.driveCurrentAmps = Amps.of(driveCurrent.getValueAsDouble());
 
     // Update turn inputs
-    inputs.turnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
+    inputs.isTurnConnected = turnConnectedDebounce.calculate(turnStatus.isOK());
     inputs.turnEncoderConnected = turnEncoderConnectedDebounce.calculate(turnEncoderStatus.isOK());
     inputs.turnAbsolutePosition = Rotation2d.fromRotations(turnAbsolutePosition.getValueAsDouble());
     inputs.turnPosition = Rotation2d.fromRotations(turnPosition.getValueAsDouble());

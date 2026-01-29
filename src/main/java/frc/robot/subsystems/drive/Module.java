@@ -71,8 +71,8 @@ public class Module {
     }
 
     // Update alerts
-    driveDisconnectedAlert.set(!inputs.driveConnected);
-    turnDisconnectedAlert.set(!inputs.turnConnected);
+    driveDisconnectedAlert.set(!inputs.isDriveConnected);
+    turnDisconnectedAlert.set(!inputs.isTurnConnected);
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
   }
 

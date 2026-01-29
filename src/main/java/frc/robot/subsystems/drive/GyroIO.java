@@ -19,7 +19,7 @@ import org.littletonrobotics.junction.AutoLog;
 public interface GyroIO {
   @AutoLog
   public static class GyroIOInputs {
-    public boolean connected = false;
+    public boolean isConnected = false;
 
     public Rotation2d yawPosition = Rotation2d.kZero;
     public Rotation2d pitchPosition = Rotation2d.kZero;

@@ -60,9 +60,9 @@ public class GyroIOPigeon2 implements GyroIO {
     pitch.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
     roll.setUpdateFrequency(Drive.ODOMETRY_FREQUENCY);
 
-    yawVelocity.setUpdateFrequency(50.0);
-    pitchVelocity.setUpdateFrequency(50.0);
-    rollVelocity.setUpdateFrequency(50.0);
+    yawVelocity.setUpdateFrequency(DriveConstants.ODOMETRY_VELOCITY_UPDATE_FREQUENCE);
+    pitchVelocity.setUpdateFrequency(DriveConstants.ODOMETRY_VELOCITY_UPDATE_FREQUENCE);
+    rollVelocity.setUpdateFrequency(DriveConstants.ODOMETRY_VELOCITY_UPDATE_FREQUENCE);
 
     pigeon.optimizeBusUtilization();
 
@@ -78,7 +78,7 @@ public class GyroIOPigeon2 implements GyroIO {
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected = BaseStatusSignal.refreshAll(yaw, yawVelocity, pitch, pitchVelocity, roll, rollVelocity).equals(StatusCode.OK);
+    inputs.isConnected = BaseStatusSignal.refreshAll(yaw, yawVelocity, pitch, pitchVelocity, roll, rollVelocity).equals(StatusCode.OK);
 
     inputs.yawPosition =    Rotation2d.fromDegrees(yaw.getValueAsDouble());
     inputs.pitchPosition =  Rotation2d.fromDegrees(pitch.getValueAsDouble());

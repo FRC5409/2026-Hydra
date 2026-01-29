@@ -26,13 +26,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 public interface ModuleIO {
   @AutoLog
   public static class ModuleIOInputs {
-    public boolean driveConnected = false;
+    public boolean isDriveConnected = false;
     public Angle drivePositionRad = Radians.of(0.0);
     public AngularVelocity driveVelocityRadPerSec = RadiansPerSecond.of(0.0);
     public Voltage driveAppliedVolts = Volts.of(0.0);
     public Current driveCurrentAmps = Amps.of(0.0);
 
-    public boolean turnConnected = false;
+    public boolean isTurnConnected = false;
     public boolean turnEncoderConnected = false;
     public Rotation2d turnAbsolutePosition = Rotation2d.kZero;
     public Rotation2d turnPosition = Rotation2d.kZero;

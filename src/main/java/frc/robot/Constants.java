@@ -29,7 +29,7 @@ public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public static final boolean TUNING = false;
+  public static final boolean IS_TUNING = false;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -54,7 +54,7 @@ public final class Constants {
     public static final AngularVelocity ANGULAR_VELOCITY_TOLERANCE = DegreesPerSecond.of(0.18);
 
     static {
-        if (TUNING) {
+        if (IS_TUNING) {
             TRANSLATION_TOLERANCE = Centimeters.of(0.00);
             ROTATION_TOLERANCE    = Degrees    .of(0.00);
         } else {

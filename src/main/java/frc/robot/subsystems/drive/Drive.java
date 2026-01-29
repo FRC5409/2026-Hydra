@@ -198,7 +198,7 @@ public class Drive extends SubsystemBase {
       }
 
       // Update gyro angle
-      if (gyroInputs.connected) {
+      if (gyroInputs.isConnected) {
         // Use the real gyro angle
         rawGyroRotation = gyroInputs.odometryYawPositions[i];
       } else {
@@ -214,7 +214,7 @@ public class Drive extends SubsystemBase {
     vision.addPoseEstimate(this);
 
     // Update gyro alert
-    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+    gyroDisconnectedAlert.set(!gyroInputs.isConnected && Constants.currentMode != Mode.SIM);
   }
 
   /**

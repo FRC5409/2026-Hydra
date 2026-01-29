@@ -68,14 +68,14 @@ public class ModuleIOSim implements ModuleIO {
     @Override
     public void updateInputs(ModuleIOInputs inputs) {
         // Update drive inputs
-        inputs.driveConnected = true;
+        inputs.isDriveConnected = true;
         inputs.drivePositionRad = Radians.of(moduleSim.getDriveWheelFinalPosition().in(Radians));
         inputs.driveVelocityRadPerSec = RadiansPerSecond.of(moduleSim.getDriveWheelFinalSpeed().in(RadiansPerSecond));
         inputs.driveAppliedVolts = moduleSim.getDriveMotorAppliedVoltage();
         inputs.driveCurrentAmps = moduleSim.getDriveMotorStatorCurrent();
 
         // Update turn inputs
-        inputs.turnConnected = true;
+        inputs.isTurnConnected = true;
         inputs.turnEncoderConnected = true;
         inputs.turnAbsolutePosition = moduleSim.getSteerAbsoluteFacing();
         inputs.turnPosition = moduleSim.getSteerAbsoluteFacing();
