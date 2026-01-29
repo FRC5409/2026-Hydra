@@ -1,4 +1,4 @@
-package frc.robot.subsystems.Hopper;
+package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -10,6 +10,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.Hopper.HopperInputsAutoLogged;
 
 public class Hopper extends SubsystemBase {
     private final HopperIO io;
