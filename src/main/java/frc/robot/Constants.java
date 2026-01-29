@@ -9,11 +9,13 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -27,7 +29,7 @@ public final class Constants {
   public static final Mode simMode = Mode.SIM;
   public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
 
-  public static final boolean TUNING = true;
+  public static final boolean TUNING = false;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -45,8 +47,11 @@ public final class Constants {
 
     public static final Distance TRANSLATION_TOLERANCE;
     public static final Angle    ROTATION_TOLERANCE   ;
+
     public static final LinearVelocity VELOCITY_TOLERANCE = MetersPerSecond.of(0.18);
     public static final LinearVelocity AUTO_VELOCITY_TOLERANCE = MetersPerSecond.of(0.15);
+    public static final AngularVelocity AUTO_ANGULAR_VELOCITY_TOLERANCE = DegreesPerSecond.of(0.15);
+    public static final AngularVelocity ANGULAR_VELOCITY_TOLERANCE = DegreesPerSecond.of(0.18);
 
     static {
         if (TUNING) {

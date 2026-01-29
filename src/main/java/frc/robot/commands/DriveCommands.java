@@ -17,9 +17,9 @@ import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -31,12 +31,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.AlignHelper;
+import frc.robot.util.ProfiledController;
 
 import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
 
@@ -225,12 +228,12 @@ public class DriveCommands {
 
   @SuppressWarnings("resource")
   public static Command alignToPoint(Drive drive, Supplier<Pose2d> target, Supplier<LinearVelocity> maxVelocity, Supplier<LinearAcceleration> maxAcceleration ){
-    ProfiledPIDController translationController = 
-        new ProfiledPIDController(
-        ANGLE_KP, 
-        0,
-        ANGLE_KD,
-        new Constraints(maxVelocity.get().in(MetersPerSecond), maxAcceleration.get().in(MetersPerSecondPerSecond)));
+    ProfiledController translationController = 
+        new ProfiledController(
+          kAutoAlign.ALIGN_PID,
+          maxVelocity.get().in(MetersPerSecond),
+          maxAcceleration.get().in(MetersPerSecondPerSecond)
+        );
 
     PIDController headingController = 
         new PIDController(
@@ -252,7 +255,7 @@ public class DriveCommands {
       }),
       Commands.run(() -> {
 
-        translationController.setConstraints(new Constraints(maxVelocity.get().in(MetersPerSecond), maxAcceleration.get().in(MetersPerSecondPerSecond)));
+        translationController.setContraints(maxVelocity.get().in(MetersPerSecond), maxAcceleration.get().in(MetersPerSecondPerSecond));
 
         Pose2d robotPose = drive.getPose();
         Pose2d targetPose = target.get();
@@ -312,6 +315,71 @@ public class DriveCommands {
           return distance.lte(kAutoAlign.TRANSLATION_TOLERANCE)
                  && difference.lte(kAutoAlign.ROTATION_TOLERANCE)
                  && robotSpeed.lte(kAutoAlign.VELOCITY_TOLERANCE);
+
+      }
+    ).andThen(
+        Commands.runOnce(() -> {
+          drive.stop();
+          isAligned = true;
+        }, drive)
+    );
+  }
+
+  @SuppressWarnings("resource")
+  public static Command alignToHeading(Drive drive, Supplier<Rotation2d> target){
+
+    PIDController headingController =
+      new PIDController(
+        ANGLE_KP, 
+        0,
+        ANGLE_KD);
+
+    headingController.enableContinuousInput(-Math.PI, Math.PI);
+
+
+    return Commands.sequence(
+      Commands.runOnce(() -> {
+
+        isAligned = false;
+
+        headingController.reset();
+      }),
+      Commands.run(() -> {
+        
+        Rotation2d robotRotation = drive.getRotation();
+        Rotation2d targetRotation = target.get();
+
+        // if (AutoBuilder.shouldFlip()){
+        //   targetRotation = FlippingUtil.flipFieldRotation(targetRotation);
+        // }
+
+        double omega = 
+          headingController.calculate(robotRotation.getRadians(), targetRotation.getRadians());
+
+        drive.runVelocity(drive.getFieldRelativeSpeeds(omega));
+
+        Logger.recordOutput("AutoAlign/TargetRotation", targetRotation);
+        Logger.recordOutput("AutoAlign/OmegaOutput", omega);
+
+      }, drive)
+      
+    ).until(() -> {
+        Rotation2d robotRotation = drive.getRotation();
+        Rotation2d targetRotation = target.get();
+        // if(AutoBuilder.shouldFlip())
+        //     targetRotation =  FlippingUtil.flipFieldRotation(targetRotation);
+
+        Angle difference = AlignHelper.rotationDifference(targetRotation, robotRotation);
+
+        AngularVelocity rotationSpeed = RadiansPerSecond.of(drive.getChassisSpeeds().omegaRadiansPerSecond);
+
+        Logger.recordOutput("AutoAlign/Angle To Alignment [degrees]", difference.in(Degrees));
+        Logger.recordOutput("AutoAlign/Velocity [degrees per s]", rotationSpeed.in(DegreesPerSecond));
+
+        if (DriverStation.isAutonomous())
+          return difference.lte(kAutoAlign.ROTATION_TOLERANCE);
+        else 
+          return difference.lte(kAutoAlign.ROTATION_TOLERANCE);
 
       }
     ).andThen(
