@@ -20,6 +20,9 @@ import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.signals.MagnetHealthValue;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 public interface ModuleIO {
   @AutoLog
   public static class ModuleIOInputs {
@@ -40,6 +43,9 @@ public interface ModuleIO {
     public double[] odometryTimestamps = new double[] {};
     public double[] odometryDrivePositionsRad = new double[] {};
     public Rotation2d[] odometryTurnPositions = new Rotation2d[] {};
+
+    public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
+
   }
 
   /** Updates the set of loggable inputs. */
@@ -56,4 +62,9 @@ public interface ModuleIO {
 
   /** Run the turn motor to the specified rotation. */
   public default void setTurnPosition(Rotation2d rotation) {}
+
+  public default void driveNeutralMode(NeutralModeValue mode) {}
+
+  public default void steerNeutralMode(NeutralModeValue mode) {}
+
 }
