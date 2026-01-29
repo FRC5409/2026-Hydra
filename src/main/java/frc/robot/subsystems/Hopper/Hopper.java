@@ -28,13 +28,13 @@ public class Hopper extends SubsystemBase {
         root.append(slider);
     }
 
-    public Command hopperExtend() {
+    public Command fullExtend() {
         return Commands.runOnce(
             () -> io.setSetpoint(Meters.of(0.3))
         );
     }
 
-    public Command hopperRetract() {
+    public Command fullRetract() {
         return Commands.runOnce(
             () -> io.setSetpoint(Meters.of(0.0))
         );
