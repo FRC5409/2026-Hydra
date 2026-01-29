@@ -7,6 +7,7 @@ import org.littletonrobotics.junction.mechanism.LoggedMechanism2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismLigament2d;
 import org.littletonrobotics.junction.mechanism.LoggedMechanismRoot2d;
 
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -49,6 +50,10 @@ public class Hopper extends SubsystemBase {
         return Commands.runOnce(
             () -> io.stopMotor()
         );
+    }
+
+    public Distance getPosition() {
+        return io.getPosition();
     }
 
     @Override
