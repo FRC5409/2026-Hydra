@@ -1,9 +1,6 @@
 package frc.robot.subsystems.Hopper;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Celsius;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -54,20 +51,20 @@ public class HopperIOTalonFX implements HopperIO {
         m_followerMotorConfig = m_followerMotor.getConfigurator();
 
         m_currentConfig = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(30) //Test value, needs to be tuned (current limit)
+            .withSupplyCurrentLimit(HopperConstants.CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
         m_mainMotorConfig.apply(m_currentConfig);
         m_followerMotorConfig.apply(m_currentConfig);
 
         m_encoderConfigs = new FeedbackConfigs()
-            .withSensorToMechanismRatio(HopperConstants.kGearing); //Test (random placeholder) value, needs to be tuned
+            .withSensorToMechanismRatio(HopperConstants.kGearing);
         m_mainMotorConfig.apply(m_encoderConfigs);
         m_followerMotorConfig.apply(m_encoderConfigs);
 
         m_pidConfig = new Slot0Configs()
-            .withKP(HopperConstants.SIM_PID.kP) //test value
-            .withKI(HopperConstants.SIM_PID.kI)
-            .withKD(HopperConstants.SIM_PID.kD);
+            .withKP(HopperConstants.TALONFX_PID.kP)
+            .withKI(HopperConstants.TALONFX_PID.kI)
+            .withKD(HopperConstants.TALONFX_PID.kD);
 
         m_mainMotorConfig.apply(m_pidConfig);
         m_followerMotorConfig.apply(m_pidConfig);
@@ -142,8 +139,8 @@ public class HopperIOTalonFX implements HopperIO {
             mainDeviceCurrent, 
             mainDeviceTemp
         ).isOK();
-        inputs.mainMotorVoltage = Volts.of(mainDeviceVoltage.getValueAsDouble());
-        inputs.mainMotorCurrent = Amps.of(mainDeviceCurrent.getValueAsDouble());
+        inputs.mainAppliedVoltage = mainDeviceVoltage.getValue();
+        inputs.mainAppliedCurrent = mainDeviceCurrent.getValue();
         inputs.mainMotorTemp = mainDeviceTemp.getValueAsDouble();
         inputs.mainMotorPosition = Meters.of(motorPosition.getValueAsDouble());
         
@@ -152,8 +149,8 @@ public class HopperIOTalonFX implements HopperIO {
             followerDeviceCurrent, 
             followerDeviceTemp
         ).isOK();
-        inputs.followerMotorVoltage = Volts.of(followerDeviceVoltage.getValueAsDouble());
-        inputs.followerMotorCurrent = Amps.of(followerDeviceCurrent.getValueAsDouble());
+        inputs.followerAppliedVoltage = followerDeviceVoltage.getValue();
+        inputs.followerAppliedCurrent = followerDeviceCurrent.getValue();
         inputs.followerMotorTemp = followerDeviceTemp.getValueAsDouble();        
         inputs.followerMotorPosition = Meters.of(motorPosition.getValueAsDouble());
     }

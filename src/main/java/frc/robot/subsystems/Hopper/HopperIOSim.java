@@ -1,8 +1,6 @@
 package frc.robot.subsystems.Hopper;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Celsius;
-import static edu.wpi.first.units.Units.Kelvin;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
@@ -33,7 +31,7 @@ public class HopperIOSim implements HopperIO {
             0.0
             );
 
-        pid = new PIDController(HopperConstants.SIM_PID.kP, HopperConstants.SIM_PID.kI, HopperConstants.SIM_PID.kD); //needs tuning
+        pid = new PIDController(HopperConstants.SIM_PID.kP, HopperConstants.SIM_PID.kI, HopperConstants.SIM_PID.kD);
         running = false;
     }
 
@@ -83,14 +81,14 @@ public class HopperIOSim implements HopperIO {
         hopperSim.update(0.02);
 
         inputs.mainMotorConnection = true;
-        inputs.mainMotorVoltage = Volts.of(volts);
-        inputs.mainMotorCurrent = Amps.of(current);
+        inputs.mainAppliedVoltage = Volts.of(volts);
+        inputs.mainAppliedCurrent = Amps.of(current);
         inputs.mainMotorTemp = 0.0;
         inputs.mainMotorPosition = Meters.of(hopperSim.getPositionMeters());
 
         inputs.followerMotorConnection = true;
-        inputs.followerMotorVoltage = Volts.of(volts);
-        inputs.followerMotorCurrent = Amps.of(current);
+        inputs.followerAppliedVoltage = Volts.of(volts);
+        inputs.followerAppliedCurrent = Amps.of(current);
         inputs.followerMotorTemp = 0.0;
         inputs.followerMotorPosition = Meters.of(hopperSim.getPositionMeters());
     }
