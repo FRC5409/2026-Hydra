@@ -40,12 +40,9 @@ public class Hopper extends SubsystemBase {
         );
     }
 
-    public Command manualExtend() {
-        return Commands.runOnce(() -> io.setMotorVoltage(2), this);
-    }
-
-    public Command manualRetract() {
-        return Commands.runOnce(() -> io.setMotorVoltage(-2), this);
+    /* POSITIVE VOLTAGE EXTENDS AND NEGATIVE VOLTAGE RETRACTS */
+    public Command manualMove(double voltage) {
+        return Commands.runOnce(() -> io.setMotorVoltage(voltage));
     }
 
     public Command stopMotor() {
