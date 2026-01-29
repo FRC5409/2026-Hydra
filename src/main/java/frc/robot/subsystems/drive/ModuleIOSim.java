@@ -13,15 +13,6 @@
 
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.Volts;
-
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.swerve.SwerveModuleConstants;
-import edu.wpi.first.math.MathUtil;
 import static edu.wpi.first.units.Units.*;
 
 import org.ironmaple.simulation.SimulatedArena;
@@ -78,19 +69,19 @@ public class ModuleIOSim implements ModuleIO {
     public void updateInputs(ModuleIOInputs inputs) {
         // Update drive inputs
         inputs.driveConnected = true;
-        inputs.drivePositionRad = moduleSim.getDriveWheelFinalPosition();
-        inputs.driveVelocityRadPerSec = moduleSim.getDriveWheelFinalSpeed().in(RadiansPerSecond);
-        inputs.driveAppliedVolts = moduleSim.getDriveMotorAppliedVoltage().in(Volts);
-        inputs.driveCurrentAmps = Math.abs(moduleSim.getDriveMotorStatorCurrent().in(Amps));
+        inputs.drivePositionRad = Radians.of(moduleSim.getDriveWheelFinalPosition().in(Radians));
+        inputs.driveVelocityRadPerSec = RadiansPerSecond.of(moduleSim.getDriveWheelFinalSpeed().in(RadiansPerSecond));
+        inputs.driveAppliedVolts = moduleSim.getDriveMotorAppliedVoltage();
+        inputs.driveCurrentAmps = moduleSim.getDriveMotorStatorCurrent();
 
         // Update turn inputs
         inputs.turnConnected = true;
         inputs.turnEncoderConnected = true;
         inputs.turnAbsolutePosition = moduleSim.getSteerAbsoluteFacing();
         inputs.turnPosition = moduleSim.getSteerAbsoluteFacing();
-        inputs.turnVelocityRadPerSec = moduleSim.getSteerAbsoluteEncoderSpeed().in(RadiansPerSecond);
-        inputs.turnAppliedVolts = moduleSim.getSteerMotorAppliedVoltage().in(Volts);
-        inputs.turnCurrentAmps = Math.abs(moduleSim.getSteerMotorStatorCurrent().in(Amps));
+        inputs.turnVelocityRadPerSec = RadiansPerSecond.of(moduleSim.getSteerAbsoluteEncoderSpeed().in(RadiansPerSecond));
+        inputs.turnAppliedVolts = moduleSim.getSteerMotorAppliedVoltage();
+        inputs.turnCurrentAmps = moduleSim.getSteerMotorStatorCurrent();
 
         inputs.magnetHealth = MagnetHealthValue.Magnet_Green;
 
