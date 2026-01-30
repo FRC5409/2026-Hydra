@@ -39,7 +39,7 @@ public class Hopper extends SubsystemBase {
     }
 
     /** 
-     * Retracts hopper all the way 
+     * Retracts hopper all the way to 0.0m
      */
     public Command fullRetract() {
         return Commands.runOnce(
