@@ -73,6 +73,7 @@ public class RobotContainer {
     protected final   Vision sys_vision;
     protected final   Intake sys_intake;
     protected final   Serializer sys_serializer;
+    protected final   Hopper sys_hopper;
 
 
     public static SwerveDriveSimulation simConfig;
@@ -92,6 +93,7 @@ public class RobotContainer {
                         sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
                         sys_serializer = new Serializer(new SerializerIOTalonFX(SerializerConstants.INDEXER_ID, SerializerConstants.FEEDER_ID));
                         sys_vision = new Vision(new VisionIOLimelight());
+                        sys_hopper = new Hopper(new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
 
                         sys_drive =
                                 new Drive(
@@ -109,6 +111,7 @@ public class RobotContainer {
                         // Sim robot, instantiate physics sim IO implementations
                         sys_intake = new Intake(new IntakeIOSim());
                         sys_serializer = new Serializer(new SerializerIOSim());
+                        sys_hopper = new Hopper(new HopperIOSim());
                         
                         final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig.Default()
                                 .withGyro(COTS.ofPigeon2())
@@ -160,6 +163,7 @@ public class RobotContainer {
                                 
                         sys_intake = new Intake(new IntakeIO(){});
                         sys_serializer = new Serializer(new SerializerIO() {});
+                        sys_hopper = new Hopper(new HopperIO() {});
                         break;
         }
 
