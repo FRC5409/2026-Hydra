@@ -67,7 +67,7 @@ public class RobotContainer {
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
     public RobotContainer() {
-        switch (Constants.currentMode) {
+        switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
                 sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
@@ -140,33 +140,46 @@ public class RobotContainer {
         }
 
         // Set up auto routines
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-        // Set up SysId routines
-        autoChooser.addOption(
-                "Drive Wheel Radius Characterization",
-                DriveCommands.wheelRadiusCharacterization(sys_drive));
-        autoChooser.addOption(
-                "Drive Simple FF Characterization",
-                DriveCommands.feedforwardCharacterization(sys_drive));
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Forward)",
-                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Quasistatic Reverse)",
-                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Forward)",
-                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        autoChooser.addOption(
-                "Drive SysId (Dynamic Reverse)",
-                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        autoChooser = buildAutoChooser();
 
         // Configure the button bindings
         configureButtonBindings();
     }
 
-    /*** Updates sim positions of algae, coral and robot poses
+    /**
+     * builds the dashboard command chooser ({@link LoggedDashboardChooser}) for picking autonomous routines.
+     *
+     * @return the logged dashboard chooser
+     */
+    private LoggedDashboardChooser<Command> buildAutoChooser() {
+        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>(
+                "Auto Choices", AutoBuilder.buildAutoChooser());
+
+        // Set up SysId routines
+        chooser.addOption(
+                "Drive Wheel Radius Characterization",
+                DriveCommands.wheelRadiusCharacterization(sys_drive));
+        chooser.addOption(
+                "Drive Simple FF Characterization",
+                DriveCommands.feedforwardCharacterization(sys_drive));
+        chooser.addOption(
+                "Drive SysId (Quasistatic Forward)",
+                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        chooser.addOption(
+                "Drive SysId (Quasistatic Reverse)",
+                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        chooser.addOption(
+                "Drive SysId (Dynamic Forward)",
+                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        chooser.addOption(
+                "Drive SysId (Dynamic Reverse)",
+                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+
+        return chooser;
+    }
+
+    /**
+     * Updates sim positions of algae, coral and robot poses
      */
     public void updateSim() {
         SimulatedArena.getInstance().simulationPeriodic();
