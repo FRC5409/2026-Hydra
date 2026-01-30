@@ -31,8 +31,8 @@ public class Robot extends LoggedRobot {
     private       Command        autonomousCommand;
     private final RobotContainer robotContainer;
 
-    private double matchTime = -1;
-
+    // build constants are defined at compile-time, thus IntelliSense thinks "GitDirty" is unreachable.
+    @SuppressWarnings("DataFlowIssue")
     public Robot() {
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -100,8 +100,8 @@ public class Robot extends LoggedRobot {
         // Return to non-RT thread priority (do not modify the first argument)
         Threads.setCurrentThreadPriority(false, 10);
 
-        matchTime = DriverStation.getMatchTime();
-        SmartDashboard.putNumber("Time", matchTime);
+        // put match time in smart dashboard
+        SmartDashboard.putNumber("Time", DriverStation.getMatchTime());
     }
 
     /** This function is called once when the robot is disabled. */
