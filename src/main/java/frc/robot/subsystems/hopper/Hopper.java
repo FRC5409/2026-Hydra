@@ -59,6 +59,10 @@ public class Hopper extends SubsystemBase {
         );
     }
 
+    public Command zeroEncoder() {
+        return Commands.runOnce(() -> io.zeroEncoder(), this);
+    }
+
     public Distance getPosition() {
         return io.getPosition();
     }
