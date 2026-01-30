@@ -1,4 +1,4 @@
-package frc.robot.subsystems.temp;
+package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Kilograms;

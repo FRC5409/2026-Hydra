@@ -24,11 +24,11 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.temp.Hopper;
-import frc.robot.subsystems.temp.HopperConstants;
-import frc.robot.subsystems.temp.HopperIO;
-import frc.robot.subsystems.temp.HopperIOSim;
-import frc.robot.subsystems.temp.HopperIOTalonFX;
+import frc.robot.subsystems.hopper.Hopper;
+import frc.robot.subsystems.hopper.HopperConstants;
+import frc.robot.subsystems.hopper.HopperIO;
+import frc.robot.subsystems.hopper.HopperIOSim;
+import frc.robot.subsystems.hopper.HopperIOTalonFX;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
