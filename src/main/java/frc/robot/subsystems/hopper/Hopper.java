@@ -23,7 +23,7 @@ public class Hopper extends SubsystemBase {
      */
     public Command fullExtend() {
         return Commands.runOnce(
-            () -> io.setSetpoint(Meters.of(HopperConstants.HOPPER_MAX_EXTENSION)), this
+            () -> io.setSetpoint(HopperConstants.HOPPER_MAX_EXTENSION), this
         );
     }
 
@@ -32,7 +32,7 @@ public class Hopper extends SubsystemBase {
      */
     public Command fullRetract() {
         return Commands.runOnce(
-            () -> io.setSetpoint(Meters.of(HopperConstants.HOPPER_MIN_EXTENSION)), this
+            () -> io.setSetpoint(HopperConstants.HOPPER_MIN_EXTENSION), this
         );
     }
 

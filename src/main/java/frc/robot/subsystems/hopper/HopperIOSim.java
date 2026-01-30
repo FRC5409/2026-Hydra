@@ -34,8 +34,8 @@ public class HopperIOSim implements HopperIO {
             HopperConstants.kGearing, 
             HopperConstants.HOPPER_MASS.in(Kilograms), 
             HopperConstants.HOPPER_DRUMRADIUS.in(Meters), 
-            HopperConstants.HOPPER_MIN_EXTENSION, 
-            HopperConstants.HOPPER_MAX_EXTENSION, 
+            HopperConstants.HOPPER_MIN_EXTENSION.in(Meters), 
+            HopperConstants.HOPPER_MAX_EXTENSION.in(Meters), 
             false, 
             0.0
             );
