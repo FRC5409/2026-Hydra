@@ -29,19 +29,27 @@ public class Hopper extends SubsystemBase {
         root.append(slider);
     }
 
+    /** 
+     * Extends hopper 0.3 metres out 
+     */
     public Command fullExtend() {
         return Commands.runOnce(
             () -> io.setSetpoint(Meters.of(0.3))
         );
     }
 
+    /** 
+     * Retracts hopper all the way 
+     */
     public Command fullRetract() {
         return Commands.runOnce(
             () -> io.setSetpoint(Meters.of(0.0))
         );
     }
 
-    /* POSITIVE VOLTAGE EXTENDS AND NEGATIVE VOLTAGE RETRACTS */
+    /** 
+     * Positive voltage extends, Negative voltage retracts (MAX of 0.3m and MIN of 0.0m)
+     */
     public Command manualMove(double voltage) {
         return Commands.runOnce(() -> io.setMotorVoltage(voltage));
     }
