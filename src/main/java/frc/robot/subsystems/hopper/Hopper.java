@@ -11,7 +11,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.Hopper.HopperInputsAutoLogged;
 
 public class Hopper extends SubsystemBase {
     private final HopperIO io;
@@ -34,7 +33,7 @@ public class Hopper extends SubsystemBase {
      */
     public Command fullExtend() {
         return Commands.runOnce(
-            () -> io.setSetpoint(Meters.of(0.3))
+            () -> io.setSetpoint(Meters.of(0.3)), this
         );
     }
 
@@ -43,7 +42,7 @@ public class Hopper extends SubsystemBase {
      */
     public Command fullRetract() {
         return Commands.runOnce(
-            () -> io.setSetpoint(Meters.of(0.0))
+            () -> io.setSetpoint(Meters.of(0.0)), this
         );
     }
 
@@ -51,12 +50,12 @@ public class Hopper extends SubsystemBase {
      * Positive voltage extends, Negative voltage retracts (MAX of 0.3m and MIN of 0.0m)
      */
     public Command manualMove(double voltage) {
-        return Commands.runOnce(() -> io.setMotorVoltage(voltage));
+        return Commands.runOnce(() -> io.setMotorVoltage(voltage), this);
     }
 
     public Command stopMotor() {
         return Commands.runOnce(
-            () -> io.stopMotor()
+            () -> io.stopMotor(), this
         );
     }
 
