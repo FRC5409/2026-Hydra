@@ -1,5 +1,7 @@
 package frc.robot.subsystems.launcher;
 
+import java.util.function.DoubleSupplier;
+
 // import java.lang.System.Logger;
 import org.littletonrobotics.junction.Logger;
 
@@ -46,8 +48,8 @@ public class Launcher extends SubsystemBase{
         );
     }
 
-    public Command setVoltage(double volts) {
-        return Commands.runOnce(() -> io.setVoltage(volts), this);
+    public Command setVoltage(DoubleSupplier volts) {
+        return Commands.runOnce(() -> io.setVoltage(volts.getAsDouble()), this);
     }
 
     public Command runVelocity(double velocity) {

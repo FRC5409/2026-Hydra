@@ -27,6 +27,7 @@ import frc.robot.subsystems.serializer.SerializerIOSim;
 import frc.robot.subsystems.serializer.SerializerIOSparkMax;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -39,7 +40,7 @@ public class RobotContainer {
 //   private final Drive drive;
 
   protected final Launcher sys_launcher;
-  protected final Serializer sys_serializer;
+  // protected final Serializer sys_serializer;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -66,19 +67,19 @@ public class RobotContainer {
         sys_launcher = new Launcher(new LauncherTalonFX(
                 LauncherConstants.LAUNCHER_CAN_ID,
                 LauncherConstants.LAUNCHER_SENSOR_ID,
-                LauncherConstants.HOOD_CAN_ID,
-                LauncherConstants.HOOD_SENSOR_ID,
-                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
-                LauncherConstants.FOLLOWER_LAUNCHER_SENSOR_ID
+                // LauncherConstants.HOOD_CAN_ID,
+                // LauncherConstants.HOOD_SENSOR_ID,
+                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID
+                // LauncherConstants.FOLLOWER_LAUNCHER_SENSOR_ID
                 )
             );
 
-        sys_serializer = new Serializer(
-                new SerializerIOSparkMax(
-                    SerializerConstants.ORTONA_INDEXER_MOTOR_CANID, 
-                    SerializerConstants.ORTONA_FEEDER_MOTOR_CANID
-                )
-            );
+        // sys_serializer = new Serializer(
+        //         new SerializerIOSparkMax(
+        //             SerializerConstants.ORTONA_INDEXER_MOTOR_CANID, 
+        //             SerializerConstants.ORTONA_FEEDER_MOTOR_CANID
+        //         )
+        //     );
 
         // The ModuleIOTalonFXS implementation provides an example implementation for
         // TalonFXS controller connected to a CANdi with a PWM encoder. The
@@ -111,7 +112,7 @@ public class RobotContainer {
 
         sys_launcher =  new Launcher(new LauncherSim());
 
-        sys_serializer = new Serializer(new SerializerIOSim());
+        // sys_serializer = new Serializer(new SerializerIOSim());
         break;
 
       default:
@@ -125,7 +126,7 @@ public class RobotContainer {
         //         new ModuleIO() {});
 
         sys_launcher = new Launcher(new LauncherIO() {});
-        sys_serializer = new Serializer(new SerializerIO() {});
+        // sys_serializer = new Serializer(new SerializerIO() {});
 
         break;
     }
@@ -169,25 +170,33 @@ public class RobotContainer {
     //         () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
     //     )
     // );
+
+    LoggedNetworkNumber voltageSetpoint = new LoggedNetworkNumber("Launcher Voltage Setpoint", 0);
     
-    primaryController.x()
-                     .onTrue(sys_launcher.setVoltage(4))
+    primaryController.povUp()
+                     .onTrue(sys_launcher.setVoltage(voltageSetpoint))
                      .onFalse(sys_launcher.stop());
+
+    primaryController.a()
+                    .onTrue(sys_launcher.runVelocity(0.5));
+
+    primaryController.y()
+                    .onTrue(sys_launcher.runVelocity(0));
 
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));
 
-    primaryController.y()
-        .onTrue(sys_serializer.runIndexerVoltage(8));
+    // primaryController.y()
+    //     .onTrue(sys_serializer.runIndexerVoltage(8));
 
-    primaryController.a()
-        .onTrue(sys_serializer.runFeederVoltage(5));
+    // primaryController.a()
+    //     .onTrue(sys_serializer.runFeederVoltage(5));
     
-    primaryController.povDown()
-        .onTrue(sys_serializer.runFeederVoltage(0));
+    // primaryController.povDown()
+    //     .onTrue(sys_serializer.runFeederVoltage(0));
 
-    primaryController.povUp()
-        .onTrue(sys_serializer.runIndexerVoltage(0));
+    // primaryController.povUp()
+    //     .onTrue(sys_serializer.runIndexerVoltage(0));
   }
 
   /**
