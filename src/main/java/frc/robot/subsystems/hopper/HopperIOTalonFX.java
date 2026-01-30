@@ -35,13 +35,13 @@ public class HopperIOTalonFX implements HopperIO {
 
     private PositionVoltage m_request;
     
-    private StatusSignal<Angle> motorPosition;
-    private StatusSignal<Voltage> mainDeviceVoltage;
-    private StatusSignal<Current> mainDeviceCurrent;
-    private StatusSignal<Temperature> mainDeviceTemp;
-    private StatusSignal<Voltage> followerDeviceVoltage;
-    private StatusSignal<Current> followerDeviceCurrent;
-    private StatusSignal<Temperature> followerDeviceTemp;
+    private final StatusSignal<Angle> motorPosition;
+    private final StatusSignal<Voltage> mainDeviceVoltage;
+    private final StatusSignal<Current> mainDeviceCurrent;
+    private final StatusSignal<Temperature> mainDeviceTemp;
+    private final StatusSignal<Voltage> followerDeviceVoltage;
+    private final StatusSignal<Current> followerDeviceCurrent;
+    private final StatusSignal<Temperature> followerDeviceTemp;
 
     public HopperIOTalonFX(int mainMotorID, int followerMotorID) {
         m_mainMotor = new TalonFX(mainMotorID);
