@@ -94,13 +94,13 @@ public class HopperIOSim implements HopperIO {
         hopperSim.setInputVoltage (volts);
         hopperSim.update(0.02);
 
-        inputs.mainMotorConnection = true;
+        inputs.isMainMotorConnected = true;
         inputs.mainAppliedVoltage = Volts.of(volts);
         inputs.mainAppliedCurrent = Amps.of(current);
         inputs.mainMotorTemp = 0.0;
         inputs.mainMotorPosition = Meters.of(hopperSim.getPositionMeters());
 
-        inputs.followerMotorConnection = true;
+        inputs.isFollowerMotorConnected = true;
         inputs.followerAppliedVoltage = Volts.of(volts);
         inputs.followerAppliedCurrent = Amps.of(current);
         inputs.followerMotorTemp = 0.0;

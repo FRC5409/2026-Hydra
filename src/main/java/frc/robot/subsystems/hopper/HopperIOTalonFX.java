@@ -133,7 +133,7 @@ public class HopperIOTalonFX implements HopperIO {
     @Override
     public void updateInputs(HopperInputs inputs) {
 
-        inputs.mainMotorConnection = BaseStatusSignal.refreshAll(
+        inputs.isMainMotorConnected = BaseStatusSignal.refreshAll(
             motorPosition,
             mainDeviceVoltage, 
             mainDeviceCurrent, 
@@ -144,7 +144,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.mainMotorTemp = mainDeviceTemp.getValueAsDouble();
         inputs.mainMotorPosition = Meters.of(motorPosition.getValueAsDouble());
         
-        inputs.followerMotorConnection = BaseStatusSignal.refreshAll(
+        inputs.isFollowerMotorConnected = BaseStatusSignal.refreshAll(
             followerDeviceVoltage, 
             followerDeviceCurrent, 
             followerDeviceTemp

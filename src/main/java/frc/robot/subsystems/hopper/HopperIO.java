@@ -13,13 +13,13 @@ import edu.wpi.first.units.measure.Voltage;
 public interface HopperIO {
     @AutoLog
     public class HopperInputs {
-        public boolean mainMotorConnection = false;
+        public boolean isMainMotorConnected = false;
         public Current mainAppliedCurrent = Amps.of(0.0);
         public Voltage mainAppliedVoltage = Volts.of(0.0);
         public double mainMotorTemp = 0.0;
         public Distance mainMotorPosition = Meters.of(0.0);
 
-        public boolean followerMotorConnection = false;
+        public boolean isFollowerMotorConnected = false;
         public Current followerAppliedCurrent = Amps.of(0.0);
         public Voltage followerAppliedVoltage = Volts.of(0.0);
         public double followerMotorTemp = 0.0;
