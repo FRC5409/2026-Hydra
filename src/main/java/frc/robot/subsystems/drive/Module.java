@@ -9,6 +9,7 @@ package frc.robot.subsystems.drive;
 
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -16,6 +17,10 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+
+import static edu.wpi.first.units.Units.Radians;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
@@ -66,8 +71,8 @@ public class Module {
     }
 
     // Update alerts
-    driveDisconnectedAlert.set(!inputs.driveConnected);
-    turnDisconnectedAlert.set(!inputs.turnConnected);
+    driveDisconnectedAlert.set(!inputs.isDriveConnected);
+    turnDisconnectedAlert.set(!inputs.isTurnConnected);
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
   }
 
@@ -101,12 +106,12 @@ public class Module {
 
   /** Returns the current drive position of the module in meters. */
   public double getPositionMeters() {
-    return inputs.drivePositionRad * constants.WheelRadius;
+    return inputs.drivePositionRad.in(Radians) * constants.WheelRadius;
   }
 
   /** Returns the current drive velocity of the module in meters per second. */
   public double getVelocityMetersPerSec() {
-    return inputs.driveVelocityRadPerSec * constants.WheelRadius;
+    return inputs.driveVelocityRadPerSec.in(RadiansPerSecond) * constants.WheelRadius;
   }
 
   /** Returns the module position (turn angle and drive position). */
@@ -131,11 +136,19 @@ public class Module {
 
   /** Returns the module position in radians. */
   public double getWheelRadiusCharacterizationPosition() {
-    return inputs.drivePositionRad;
+    return inputs.drivePositionRad.in(Radians);
   }
 
   /** Returns the module velocity in rotations/sec (Phoenix native units). */
   public double getFFCharacterizationVelocity() {
-    return Units.radiansToRotations(inputs.driveVelocityRadPerSec);
+    return Units.radiansToRotations(inputs.driveVelocityRadPerSec.in(RadiansPerSecond));
+  }
+
+  public void driveNeutralMode(NeutralModeValue mode){
+    io.driveNeutralMode(mode);
+  }
+
+  public void steerNeutralMode(NeutralModeValue mode){
+    io.steerNeutralMode(mode);
   }
 }

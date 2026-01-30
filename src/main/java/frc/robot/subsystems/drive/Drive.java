@@ -9,6 +9,7 @@ package frc.robot.subsystems.drive;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.PIDConstants;
@@ -42,6 +43,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -98,17 +100,22 @@ public class Drive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
+  private Vision vision;
+
   public Drive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
       ModuleIO blModuleIO,
-      ModuleIO brModuleIO) {
+      ModuleIO brModuleIO,
+      Vision vision) {
     this.gyroIO = gyroIO;
     modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
     modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
     modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
     modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
+
+    this.vision = vision;
 
     // Usage reporting for swerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -191,7 +198,7 @@ public class Drive extends SubsystemBase {
       }
 
       // Update gyro angle
-      if (gyroInputs.connected) {
+      if (gyroInputs.isConnected) {
         // Use the real gyro angle
         rawGyroRotation = gyroInputs.odometryYawPositions[i];
       } else {
@@ -204,8 +211,10 @@ public class Drive extends SubsystemBase {
       poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
     }
 
+    vision.addPoseEstimate(this);
+
     // Update gyro alert
-    gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+    gyroDisconnectedAlert.set(!gyroInputs.isConnected && Constants.currentMode != Mode.SIM);
   }
 
   /**
@@ -290,7 +299,7 @@ public class Drive extends SubsystemBase {
 
   /** Returns the measured chassis speeds of the robot. */
   @AutoLogOutput(key = "SwerveChassisSpeeds/Measured")
-  private ChassisSpeeds getChassisSpeeds() {
+  public ChassisSpeeds getChassisSpeeds() {
     return kinematics.toChassisSpeeds(getModuleStates());
   }
 
@@ -312,6 +321,30 @@ public class Drive extends SubsystemBase {
     return output;
   }
 
+  // Copied from last year
+  /** Returns the field relative measured chassis speeds of the robot */
+  public ChassisSpeeds getFieldRelativeSpeeds() {
+    ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());
+    Rotation2d robotRotation = getRotation();
+
+    return new ChassisSpeeds(
+      speeds.vxMetersPerSecond * robotRotation.getCos() - speeds.vyMetersPerSecond * robotRotation.getSin(), 
+      speeds.vxMetersPerSecond * robotRotation.getSin() + speeds.vyMetersPerSecond * robotRotation.getCos(), 
+      speeds.omegaRadiansPerSecond
+    );
+  }
+
+  public ChassisSpeeds getFieldRelativeSpeeds(double omegaRadiansPerSecond){
+    ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());
+    Rotation2d robotRotation = getRotation();
+
+    return new ChassisSpeeds(
+      speeds.vxMetersPerSecond * robotRotation.getCos() - speeds.vyMetersPerSecond * robotRotation.getSin(), 
+      speeds.vxMetersPerSecond * robotRotation.getSin() + speeds.vyMetersPerSecond * robotRotation.getCos(), 
+      omegaRadiansPerSecond
+    );
+  }
+
   /** Returns the current odometry pose. */
   @AutoLogOutput(key = "Odometry/Robot")
   public Pose2d getPose() {
@@ -326,6 +359,7 @@ public class Drive extends SubsystemBase {
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+    vision.setRotation(pose.getRotation());
   }
 
   /** Adds a new timestamped vision measurement. */
@@ -355,5 +389,19 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
+  }
+
+  public void brakeMode(){
+    for(Module module: modules){
+      module.driveNeutralMode(NeutralModeValue.Brake);
+      module.steerNeutralMode(NeutralModeValue.Brake);
+    }
+  }
+
+  public void coastMode(){
+    for(Module module: modules){
+      module.driveNeutralMode(NeutralModeValue.Coast);
+      module.steerNeutralMode(NeutralModeValue.Coast);
+    }
   }
 }
