@@ -49,7 +49,7 @@ public class Robot extends LoggedRobot {
                 });
 
         // Set up data receivers & replay source
-        switch (Constants.currentMode) {
+        switch (Constants.CURRENT_MODE) {
             case REAL:
                 // Running on a real robot, log to a USB stick ("/U/logs")
                 Logger.addDataReceiver(new WPILOGWriter());
@@ -123,7 +123,7 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null)
             CommandScheduler.getInstance().schedule(autonomousCommand);
 
-        if (Constants.currentMode == Constants.Mode.SIM)
+        if (Constants.CURRENT_MODE == Constants.Mode.SIM)
             SimulatedArena.getInstance().resetFieldForAuto();
     }
 
@@ -166,7 +166,7 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
-        if (Constants.currentMode == Constants.Mode.SIM)
+        if (Constants.CURRENT_MODE == Constants.Mode.SIM)
             robotContainer.updateSim();
     }
 }
