@@ -15,17 +15,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Hopper extends SubsystemBase {
     private final HopperIO io;
     private final HopperInputsAutoLogged inputs;
-    private final LoggedMechanismRoot2d root;
-    private final LoggedMechanismLigament2d slider;
-    private final LoggedMechanism2d mechanism;
 
     public Hopper(HopperIO io) {
         this.io = io;
         inputs = new HopperInputsAutoLogged();
-        mechanism = new LoggedMechanism2d(2, 2);
-        root = mechanism.getRoot("Hopper", 1, 1);
-        slider = new LoggedMechanismLigament2d("Arm", 0.3, 0);
-        root.append(slider);
     }
 
     /** 
@@ -72,7 +65,5 @@ public class Hopper extends SubsystemBase {
         // This method will be called once per scheduler run
         io.updateInputs(inputs);
         Logger.processInputs("Hopper", inputs);
-        slider.setLength(io.getPosition().in(Meters));
-        Logger.recordOutput("Hopper Slider/Mech", mechanism);
     }
 }
