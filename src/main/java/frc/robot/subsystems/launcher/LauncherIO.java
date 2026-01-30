@@ -19,8 +19,6 @@ public interface LauncherIO {
         public double temperatureLauncher = 0.0;
         public Voltage         launcherVoltage = Volts.of(0.0);
         public Current         launcherCurrent = Current.ofBaseUnits(0.0, Amps);
-        public AngularVelocity launcherSpeed   = RadiansPerSecond.of(0.0);
-        public AngularVelocity hoodSpeed       = RadiansPerSecond.of(0.0);
         public AngularVelocity launcherSpeedRadians   = RadiansPerSecond.of(0.0);
         public double launcherRPM = Units.radiansPerSecondToRotationsPerMinute(launcherSpeedRadians.baseUnitMagnitude());
 

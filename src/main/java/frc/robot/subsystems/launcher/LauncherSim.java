@@ -103,8 +103,10 @@ public class LauncherSim implements LauncherIO {
         inputs.launcherCurrent = Current.ofBaseUnits(current, Amps);
         inputs.hoodCurrent = Current.ofBaseUnits(0.0, Amps);
 
-        inputs.launcherSpeed = flywheelSim.getAngularVelocity();
-        inputs.hoodSpeed = RadiansPerSecond.of(0.0);
+        inputs.launcherSpeedRadians = flywheelSim.getAngularVelocity();
+        inputs.hoodSpeedRadians = RadiansPerSecond.of(0.0);
+
+        inputs.launcherRPM = flywheelSim.getAngularVelocityRPM();
 
         inputs.launcherRPM = flywheelSim.getAngularVelocityRPM();
 
