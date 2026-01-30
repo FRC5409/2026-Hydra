@@ -64,10 +64,12 @@ public class RobotContainer {
         //         new ModuleIOTalonFX(TunerConstants.BackRight));
 
         sys_launcher = new Launcher(new LauncherTalonFX(
-                LauncherConstants.LAUNCHER_CAN_ID
-                // LauncherConstants.LAUNCHER_SENSOR_ID,
-                // LauncherConstants.HOOD_CAN_ID,
-                // LauncherConstants.HOOD_SENSOR_ID)
+                LauncherConstants.LAUNCHER_CAN_ID,
+                LauncherConstants.LAUNCHER_SENSOR_ID,
+                LauncherConstants.HOOD_CAN_ID,
+                LauncherConstants.HOOD_SENSOR_ID,
+                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
+                LauncherConstants.FOLLOWER_LAUNCHER_SENSOR_ID
                 )
             );
 
@@ -169,7 +171,7 @@ public class RobotContainer {
     // );
     
     primaryController.x()
-                     .onTrue(sys_launcher.runVelocity(1))
+                     .onTrue(sys_launcher.setVoltage(4))
                      .onFalse(sys_launcher.stop());
 
     // primaryController.x()

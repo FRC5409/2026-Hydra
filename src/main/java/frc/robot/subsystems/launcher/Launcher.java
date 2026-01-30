@@ -9,7 +9,8 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
-        import edu.wpi.first.wpilibj2.command.Command;
+    import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -34,8 +35,8 @@ public class Launcher extends SubsystemBase{
         return io.getHoodPos();   
     }
 
-    public Command launchFuel() {
-        return Commands.runOnce(io::launchFuel);
+    public Command launchFuel(AngularVelocity robotVelocity, double radiusFlywheel, double distance) {
+        return Commands.runOnce(() -> io.launchFuel(robotVelocity, radiusFlywheel, distance), this);
     }
 
     public Command moveHood(Angle angle) {

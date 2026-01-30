@@ -4,6 +4,8 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
@@ -63,8 +65,9 @@ public class LauncherSim implements LauncherIO {
     }
 
     @Override
-    public void launchFuel() {
-        flywheelSim.setInputVoltage(6.0);
+    public void launchFuel(AngularVelocity robotVelocity, double radiusFlywheel, double distance) {
+        // flywheelSim.setInputVoltage(4.0);
+        // flywheelSim.setAngularVelocity(2);
     }
 
     @Override
@@ -102,6 +105,8 @@ public class LauncherSim implements LauncherIO {
 
         inputs.launcherSpeed = flywheelSim.getAngularVelocity();
         inputs.hoodSpeed = RadiansPerSecond.of(0.0);
+
+        inputs.launcherRPM = flywheelSim.getAngularVelocityRPM();
 
         inputs.targetHoodPosition = Degrees.of(0.0);
         inputs.hoodPosition = Degrees.of(0.0);
