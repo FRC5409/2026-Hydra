@@ -1,5 +1,7 @@
 package frc.robot.subsystems.hopper;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
@@ -39,6 +41,15 @@ public class Hopper extends SubsystemBase {
      */
     public Command manualMove(double voltage) {
         return Commands.runOnce(() -> io.setMotorVoltage(voltage), this);
+    }
+
+    public Command pumpRepeatedly() {
+            return Commands.sequence(
+                Commands.runOnce(() -> io.setSetpoint(HopperConstants.PUMP_EXTENSION), this),
+                Commands.waitUntil(() -> getPosition().isNear(HopperConstants.PUMP_EXTENSION, HopperConstants.TOLERANCE)),
+                Commands.runOnce(() -> io.setSetpoint(HopperConstants.PUMP_RETRACTION), this),
+                Commands.waitUntil(() -> getPosition().isNear(HopperConstants.PUMP_RETRACTION, HopperConstants.TOLERANCE))
+            ).repeatedly();
     }
 
     public Command stopMotor() {
