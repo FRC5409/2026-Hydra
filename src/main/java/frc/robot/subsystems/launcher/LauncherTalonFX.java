@@ -93,7 +93,7 @@ public class LauncherTalonFX implements LauncherIO {
 
         MotorOutputConfigs launcherOutputConfigs = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Coast)
-        .withInverted(InvertedValue.Clockwise_Positive);
+        .withInverted(InvertedValue.CounterClockwise_Positive);
         MotorOutputConfigs launcherFollowerOutputConfigs = new MotorOutputConfigs()
         .withNeutralMode(NeutralModeValue.Coast);
 
@@ -131,7 +131,7 @@ public class LauncherTalonFX implements LauncherIO {
 
     @Override
     public void launchFuel(AngularVelocity robotVelocity, double flyWheelRadius, double distance) {
-        launcherMotor.set(0.1);
+        // launcherMotor.set(0.1);
         // launcherMotor.setControl(velocityVoltage.withVelocity(10));
         SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(LauncherConstants.kS, LauncherConstants.kV, LauncherConstants.kA);
 
