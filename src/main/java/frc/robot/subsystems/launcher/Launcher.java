@@ -3,6 +3,7 @@ package frc.robot.subsystems.launcher;
 import java.util.function.DoubleSupplier;
 
 // import java.lang.System.Logger;
+import edu.wpi.first.units.measure.Distance;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -16,6 +17,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class Launcher extends SubsystemBase{
     private final LauncherIO io;
@@ -40,6 +44,15 @@ public class Launcher extends SubsystemBase{
 
     public Command launchFuel(AngularVelocity robotVelocity, double radiusFlywheel, double distance) {
         return Commands.runOnce(() -> io.launchFuel(robotVelocity, radiusFlywheel, distance), this);
+    }
+
+    public Command launchFuel(Distance distance) {
+        var x = LauncherInterpolator.interpolate(distance);
+
+        Logger.recordOutput("Launcher/targetSpeed", x.speed());
+        Logger.recordOutput("Launcher/targetAngle", x.angle());
+
+        return Commands.runOnce(() -> io.runVelocity(x.speed().in(RotationsPerSecond)), this);
     }
 
     public Command moveHood(Angle angle) {

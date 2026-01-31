@@ -45,7 +45,7 @@ public class LauncherInterpolator {
      *
      * @return {@link LaunchConfig}, containing angular velocity and angle to shoot at
      */
-    public LaunchConfig interpolate(Distance displacement) {
+    public static LaunchConfig interpolate(Distance displacement) {
         Matrix<N2, N1> interpolated = INTERPOLATOR.get(displacement.in(Meters));
 
         return new LaunchConfig(
