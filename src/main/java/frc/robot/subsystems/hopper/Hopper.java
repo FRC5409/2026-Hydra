@@ -45,10 +45,10 @@ public class Hopper extends SubsystemBase {
 
     public Command pumpRepeatedly() {
             return Commands.sequence(
-                Commands.runOnce(() -> io.setSetpoint(HopperConstants.PUMP_EXTENSION), this),
-                Commands.waitUntil(() -> getPosition().isNear(HopperConstants.PUMP_EXTENSION, HopperConstants.TOLERANCE)),
-                Commands.runOnce(() -> io.setSetpoint(HopperConstants.PUMP_RETRACTION), this),
-                Commands.waitUntil(() -> getPosition().isNear(HopperConstants.PUMP_RETRACTION, HopperConstants.TOLERANCE))
+                Commands.runOnce(() -> io.setSetpoint(HopperConstants.PUMP_EXTENSION_POINT), this),
+                Commands.waitUntil(() -> getPosition().isNear(HopperConstants.PUMP_EXTENSION_POINT, HopperConstants.TOLERANCE)),
+                Commands.runOnce(() -> io.setSetpoint(HopperConstants.PUMP_RETRACTION_POINT), this),
+                Commands.waitUntil(() -> getPosition().isNear(HopperConstants.PUMP_RETRACTION_POINT, HopperConstants.TOLERANCE))
             ).repeatedly();
     }
 

@@ -30,7 +30,7 @@ public final class HopperConstants {
     public static final Distance HOPPER_MIN_EXTENSION = Meters.of(0.0);
     public static final Distance HOPPER_MAX_EXTENSION = Meters.of(0.3);
 
-    public static final Distance PUMP_EXTENSION = Meters.of(0.25);
-    public static final Distance PUMP_RETRACTION = Meters.of(0.1);
+    public static final Distance PUMP_EXTENSION_POINT = Meters.of(0.25);
+    public static final Distance PUMP_RETRACTION_POINT = Meters.of(0.1);
     public static final Distance TOLERANCE = Meters.of(0.02);
 }
