@@ -26,7 +26,6 @@ import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.subsystems.serializer.SerializerIOSim;
 import frc.robot.subsystems.serializer.SerializerIOSparkMax;
 
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
@@ -172,16 +171,21 @@ public class RobotContainer {
     // );
 
     LoggedNetworkNumber voltageSetpoint = new LoggedNetworkNumber("Launcher Voltage Setpoint", 0);
+    LoggedNetworkNumber velocitySetpoint = new LoggedNetworkNumber("Launcher Velocity Setpoint", 0);
+
     
     primaryController.povUp()
                      .onTrue(sys_launcher.setVoltage(voltageSetpoint))
                      .onFalse(sys_launcher.stop());
 
     primaryController.a()
-                    .onTrue(sys_launcher.runVelocity(0.5));
+                    .onTrue(sys_launcher.runVelocity(20));
 
     primaryController.y()
-                    .onTrue(sys_launcher.runVelocity(0));
+                    .onTrue(sys_launcher.stop());
+
+    primaryController.x()
+                    .onTrue(sys_launcher.runVelocity(velocitySetpoint));
 
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));

@@ -37,6 +37,8 @@ public interface LauncherIO {
         public AngularVelocity hoodSpeedRadians       = RadiansPerSecond.of(0.0);
         public Angle hoodPosition       = Degrees.of(0.0);
         public Angle targetHoodPosition = Degrees.of(0.0);
+
+        public double velocitySetpoint = 0.0;
     }
 
     default void setVoltage(double volts) {}

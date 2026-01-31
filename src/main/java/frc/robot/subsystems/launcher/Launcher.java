@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -52,8 +53,17 @@ public class Launcher extends SubsystemBase{
         return Commands.runOnce(() -> io.setVoltage(volts.getAsDouble()), this);
     }
 
+    public Command runVelocity(DoubleSupplier velocity) {
+        return Commands.runOnce(() -> io.runVelocity(velocity.getAsDouble()));
+    }
     public Command runVelocity(double velocity) {
         return Commands.runOnce(() -> io.runVelocity(velocity));
+    }
+
+    public Command runVelocityRun(DoubleSupplier velocity){
+        return Commands.run(
+            () -> io.runVelocity(velocity.getAsDouble()), 
+        this);
     }
 
     public Command stop() {
@@ -65,6 +75,8 @@ public class Launcher extends SubsystemBase{
         io.updateInputs(inputs);
         Logger.processInputs("Launcher", inputs);
         Logger.recordOutput("Launcher Mech", launcherMech);
+
+        SmartDashboard.putData("Launcher/PID", LauncherConstants.launcherPID);
 
         launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
 
