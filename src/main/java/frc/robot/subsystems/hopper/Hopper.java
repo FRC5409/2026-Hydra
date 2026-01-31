@@ -1,7 +1,5 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
