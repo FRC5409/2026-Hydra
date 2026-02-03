@@ -1,9 +1,8 @@
 package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.intake.IntakeInputsAutoLogged;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import edu.wpi.first.wpilibj2.command.Commands;
-import static edu.wpi.first.units.Units.Meters;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -32,13 +31,13 @@ public class Intake extends SubsystemBase {
 
     public Command extendCommand() {
 
-         return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(0.5)), this);
+         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE), this);
 
     }
 
     public Command retractCommand() {
 
-        return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(0.0)), this);
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
 
     }
 
