@@ -4,6 +4,7 @@ import java.util.function.DoubleSupplier;
 
 // import java.lang.System.Logger;
 import edu.wpi.first.units.measure.Distance;
+// import java.lang.System.Logger;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -14,6 +15,7 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,7 +29,8 @@ public class Launcher extends SubsystemBase{
 
     private static Pose3d launcherMech;
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
-        .getStructTopic("MyPose", Pose3d.struct).publish();
+        .getStructTopic(
+            "MyPose", Pose3d.struct).publish();
     StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("MyPoseArray", Pose3d.struct).publish();
 
@@ -40,10 +43,6 @@ public class Launcher extends SubsystemBase{
 
     public Angle getHoodPos() {
         return io.getHoodPos();   
-    }
-
-    public Command launchFuel(AngularVelocity robotVelocity, double radiusFlywheel, double distance) {
-        return Commands.runOnce(() -> io.launchFuel(robotVelocity, radiusFlywheel, distance), this);
     }
 
     public Command launchFuel(Distance distance) {
@@ -62,21 +61,12 @@ public class Launcher extends SubsystemBase{
         );
     }
 
-    public Command setVoltage(DoubleSupplier volts) {
-        return Commands.runOnce(() -> io.setVoltage(volts.getAsDouble()), this);
+    public Command setVoltage(double volts) {
+        return Commands.runOnce(() -> io.setVoltage(volts), this);
     }
 
-    public Command runVelocity(DoubleSupplier velocity) {
-        return Commands.runOnce(() -> io.runVelocity(velocity.getAsDouble()));
-    }
-    public Command runVelocity(double velocity) {
-        return Commands.runOnce(() -> io.runVelocity(velocity));
-    }
-
-    public Command runVelocityRun(DoubleSupplier velocity){
-        return Commands.run(
-            () -> io.runVelocity(velocity.getAsDouble()), 
-        this);
+    public Command runRPS(double velocity) {
+        return Commands.runOnce(() -> io.runRPS(velocity));
     }
 
     public Command stop() {

@@ -14,6 +14,26 @@ import frc.robot.subsystems.launcher.*;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import static edu.wpi.first.units.Units.Centimeter;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.commands.DriveCommands;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.GyroIOPigeon2;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
+import frc.robot.subsystems.drive.ModuleIOTalonFX;
+// import frc.robot.subsystems.intake.Intake;
+// import frc.robot.subsystems.intake.IntakeIO;
+// import frc.robot.subsystems.intake.IntakeIOSim;
+// import frc.robot.subsystems.intake.IntakeIOTalonFX;
+// import frc.robot.subsystems.intake.IntakeConstants.Extension;
+// import frc.robot.subsystems.intake.IntakeConstants.Roller;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -23,10 +43,10 @@ import static edu.wpi.first.units.Units.Centimeter;
  */
 public class RobotContainer {
   // Subsystems
-//   private final Drive drive;
+  private final Drive drive;
+  // private final Intake sys_intake;
 
   protected final Launcher sys_launcher;
-  // protected final Serializer sys_serializer;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -39,6 +59,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
+        // sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -67,6 +88,14 @@ public class RobotContainer {
         //         )
         //     );
 
+        sys_launcher = new Launcher(new LauncherTalonFX(
+                LauncherConstants.LAUNCHER_CAN_ID,
+                LauncherConstants.LAUNCHER_SENSOR_ID,
+                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
+                LauncherConstants.HOOD_CAN_ID,
+                LauncherConstants.HOOD_SENSOR_ID)
+        );
+
         // The ModuleIOTalonFXS implementation provides an example implementation for
         // TalonFXS controller connected to a CANdi with a PWM encoder. The
         // implementations
@@ -87,32 +116,32 @@ public class RobotContainer {
         break;
 
       case SIM:
+        // sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
-        // drive =
-        //     new Drive(
-        //         new GyroIO() {},
-        //         new ModuleIOSim(TunerConstants.FrontLeft),
-        //         new ModuleIOSim(TunerConstants.FrontRight),
-        //         new ModuleIOSim(TunerConstants.BackLeft),
-        //         new ModuleIOSim(TunerConstants.BackRight));
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
 
         sys_launcher =  new Launcher(new LauncherSim());
-
-        // sys_serializer = new Serializer(new SerializerIOSim());
+        
         break;
 
       default:
+        // sys_intake = new Intake(new IntakeIO(){});
         // Replayed robot, disable IO implementations
-        // drive =
-        //     new Drive(
-        //         new GyroIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {});
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
 
         sys_launcher = new Launcher(new LauncherIO() {});
-        // sys_serializer = new Serializer(new SerializerIO() {});
 
         break;
     }
@@ -195,7 +224,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-//   public Command getAutonomousCommand() {
-//     return autoChooser.get();
-//   }
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
+  }
 }
