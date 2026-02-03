@@ -1,7 +1,7 @@
 package frc.robot.subsystems.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.intake.IntakeInputsAutoLogged;
+// import frc.robot.subsystems.intake.IntakeInputsAutoLogged;
 import edu.wpi.first.wpilibj2.command.Commands;
 import static edu.wpi.first.units.Units.Meters;
 import org.littletonrobotics.junction.Logger;
@@ -9,12 +9,12 @@ import org.littletonrobotics.junction.Logger;
 public class Intake extends SubsystemBase {
 
     private final IntakeIO intakeIO;
-    private final IntakeInputsAutoLogged inputs;
+    // private final IntakeInputsAutoLogged inputs;
     
     public Intake(IntakeIO intakeIO) {
 
         this.intakeIO = intakeIO;
-        inputs = new IntakeInputsAutoLogged();
+        // inputs = new IntakeInputsAutoLogged();
 
     }
 
@@ -45,8 +45,8 @@ public class Intake extends SubsystemBase {
     @Override
     public void periodic() {
 
-        intakeIO.updateInputs(inputs);
-        Logger.processInputs("Intake", inputs);
+        // intakeIO.updateInputs(inputs);
+        // Logger.processInputs("Intake", inputs);
 
     }
 }

@@ -26,12 +26,12 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
-import frc.robot.subsystems.intake.IntakeConstants.Roller;
+// import frc.robot.subsystems.intake.Intake;
+// import frc.robot.subsystems.intake.IntakeIO;
+// import frc.robot.subsystems.intake.IntakeIOSim;
+// import frc.robot.subsystems.intake.IntakeIOTalonFX;
+// import frc.robot.subsystems.intake.IntakeConstants.Extension;
+// import frc.robot.subsystems.intake.IntakeConstants.Roller;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
@@ -45,7 +45,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
-  private final Intake sys_intake;
+  // private final Intake sys_intake;
 
   protected final Launcher sys_launcher;
 
@@ -60,7 +60,7 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
-        sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+        // sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -75,6 +75,7 @@ public class RobotContainer {
         sys_launcher = new Launcher(new LauncherTalonFX(
                 LauncherConstants.LAUNCHER_CAN_ID,
                 LauncherConstants.LAUNCHER_SENSOR_ID,
+                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
                 LauncherConstants.HOOD_CAN_ID,
                 LauncherConstants.HOOD_SENSOR_ID)
         );
@@ -99,7 +100,7 @@ public class RobotContainer {
         break;
 
       case SIM:
-        sys_intake = new Intake(new IntakeIOSim());
+        // sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
         drive =
             new Drive(
@@ -114,7 +115,7 @@ public class RobotContainer {
         break;
 
       default:
-        sys_intake = new Intake(new IntakeIO(){});
+        // sys_intake = new Intake(new IntakeIO(){});
         // Replayed robot, disable IO implementations
         drive =
             new Drive(
@@ -182,21 +183,26 @@ public class RobotContainer {
     // Switch to X pattern when X button is pressed
     // primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
-    // Reset gyro to 0° when B button is pressed
-    primaryController
-        .b()
-        .onTrue(
-            Commands.runOnce(
-                    () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
-                    drive)
-                .ignoringDisable(true));
+    primaryController.a()
+                    .onTrue(sys_launcher.runRPS(5));
 
-    primaryController.x()
-                     .onTrue(sys_launcher.launchFuel())
-                     .onFalse(sys_launcher.stop());
+    primaryController.y()
+                    .onTrue(sys_launcher.runRPS(0));
 
+    // primaryController.x()
+    //     .whileTrue(sys_launcher.runRPM(1));
+
+    // primaryController.y()
+    //     .onTrue(sys_serializer.runIndexerVoltage(8));
+
+    // primaryController.a()
+    //     .onTrue(sys_serializer.runFeederVoltage(5));
+    
+    // primaryController.povDown()
+    //     .onTrue(sys_serializer.runFeederVoltage(0));
+
+    // primaryController.povUp()
+    //     .onTrue(sys_serializer.runIndexerVoltage(0));
   }
 
   /**
