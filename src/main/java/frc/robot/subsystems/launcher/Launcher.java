@@ -1,6 +1,9 @@
 package frc.robot.subsystems.launcher;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 
 // import java.lang.System.Logger;
 import edu.wpi.first.units.measure.Distance;
@@ -12,14 +15,12 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase{
     private final LauncherIO io;
@@ -36,24 +37,33 @@ public class Launcher extends SubsystemBase{
         inputs = new LauncherInputsAutoLogged();
 
         launcherMech = new Pose3d();
+
+        // create the logged fields
+        logInterpolation(Meters.of(0), null);
     }
 
     public Angle getHoodPos() {
-        return io.getHoodPos();   
+        return io.getHoodPos();
     }
 
-    public Command launchFuel(AngularVelocity robotVelocity, double radiusFlywheel, double distance) {
-        return Commands.runOnce(() -> io.launchFuel(robotVelocity, radiusFlywheel, distance), this);
+    public Command launchFuel(Supplier<Distance> distance) {
+        // ptr. to config; anon. fn. req. stable addr.
+        AtomicReference<Optional<LauncherInterpolator.LaunchConfig>> config = new AtomicReference<>(Optional.empty());
+        return Commands.runOnce(() -> {
+            System.out.println("interpolating for distance " + distance);
+            LauncherInterpolator.LaunchConfig c = LauncherInterpolator.interpolate(distance.get());
+            logInterpolation(distance.get(), c);
+            config.set(Optional.of(c)); // update ptr. for use in next cmd.
+        }).andThen(runVelocity(config.get()
+                                     .map(c -> c.speed().in(RotationsPerSecond))
+                                     .orElse(0.0)));
     }
 
-    public Command launchFuel(Distance distance) {
-        var x = LauncherInterpolator.interpolate(distance);
-
+    private void logInterpolation(Distance distance, LauncherInterpolator.LaunchConfig config) {
         Logger.recordOutput("Launcher/TargetDistance", distance);
-        Logger.recordOutput("Launcher/TargetSpeed", x.speed());
-        Logger.recordOutput("Launcher/TargetAngle", x.angle());
-
-        return Commands.runOnce(() -> io.runVelocity(-x.speed().in(RotationsPerSecond)), this);
+        Logger.recordOutput("Launcher/DidInterpolationSucceed", config != null);
+        Logger.recordOutput("Launcher/TargetSpeed", config == null ? RotationsPerSecond.of(0) : config.speed());
+        Logger.recordOutput("Launcher/TargetAngle", config == null ? Radians.of(0) : config.angle());
     }
 
     public Command moveHood(Angle angle) {
@@ -67,17 +77,9 @@ public class Launcher extends SubsystemBase{
         return Commands.runOnce(() -> io.setVoltage(volts.getAsDouble()), this);
     }
 
-    public Command runVelocity(DoubleSupplier velocity) {
-        return Commands.runOnce(() -> io.runVelocity(velocity.getAsDouble()));
-    }
     public Command runVelocity(double velocity) {
-        return Commands.runOnce(() -> io.runVelocity(velocity));
-    }
-
-    public Command runVelocityRun(DoubleSupplier velocity){
-        return Commands.run(
-            () -> io.runVelocity(velocity.getAsDouble()), 
-        this);
+        System.out.println("velocity = " + velocity);
+        return Commands.runOnce(() -> io.runVelocity(velocity), this);
     }
 
     public Command stop() {
@@ -95,6 +97,6 @@ public class Launcher extends SubsystemBase{
         launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
 
         publisher.set(launcherMech);
-        arrayPublisher.set(new Pose3d[] {launcherMech, launcherMech});   
+        arrayPublisher.set(new Pose3d[] {launcherMech, launcherMech});
     }
 }

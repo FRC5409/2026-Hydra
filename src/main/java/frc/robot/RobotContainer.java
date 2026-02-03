@@ -173,10 +173,10 @@ public class RobotContainer {
                     .onTrue(sys_launcher.stop());
 
     primaryController.x()
-                    .onTrue(sys_launcher.launchFuel(Centimeter.of(640)));
+                    .onTrue(sys_launcher.launchFuel(() -> Centimeter.of(640)));
 
       SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
-      SmartDashboard.putData("LAUNCH FUEL", sys_launcher.launchFuel(
+      SmartDashboard.putData("LAUNCH FUEL", sys_launcher.launchFuel(() ->
               Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
 
     // primaryController.x()
