@@ -10,11 +10,18 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.launcher.*;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-import static edu.wpi.first.units.Units.*;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
+
+import static edu.wpi.first.units.Units.Centimeter;
+import static edu.wpi.first.units.Units.Meters;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -176,8 +183,19 @@ public class RobotContainer {
                     .onTrue(sys_launcher.launchFuel(() -> Centimeter.of(640)));
 
       SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
-      SmartDashboard.putData("LAUNCH FUEL", sys_launcher.launchFuel(() ->
-              Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
+      SmartDashboard.putData("LAUNCH FUEL", sys_launcher.launchFuel(
+              () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
+
+      // sequentially run every distance from 0.5 m to 10.0 m
+      SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(
+              DoubleStream.iterate(0, d -> d + 0.5)
+                          .limit((int)(10 / 0.5) + 1)
+                          .boxed()
+                          .flatMap(d -> Stream.of(
+                                  sys_launcher.launchFuel(() -> Meters.of(d)),
+                                  new WaitCommand(0.5)))
+                          .toArray(Command[]::new)
+      ));
 
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));

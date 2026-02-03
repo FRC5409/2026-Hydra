@@ -50,7 +50,6 @@ public class Launcher extends SubsystemBase{
         // ptr. to config; anon. fn. req. stable addr.
         AtomicReference<Optional<LauncherInterpolator.LaunchConfig>> config = new AtomicReference<>(Optional.empty());
         return Commands.runOnce(() -> {
-            System.out.println("interpolating for distance " + distance);
             LauncherInterpolator.LaunchConfig c = LauncherInterpolator.interpolate(distance.get());
             logInterpolation(distance.get(), c);
             config.set(Optional.of(c)); // update ptr. for use in next cmd.
