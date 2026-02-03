@@ -49,8 +49,9 @@ public class Launcher extends SubsystemBase{
     public Command launchFuel(Distance distance) {
         var x = LauncherInterpolator.interpolate(distance);
 
-        Logger.recordOutput("Launcher/targetSpeed", x.speed());
-        Logger.recordOutput("Launcher/targetAngle", x.angle());
+        Logger.recordOutput("Launcher/TargetDistance", distance);
+        Logger.recordOutput("Launcher/TargetSpeed", x.speed());
+        Logger.recordOutput("Launcher/TargetAngle", x.angle());
 
         return Commands.runOnce(() -> io.runVelocity(-x.speed().in(RotationsPerSecond)), this);
     }

@@ -9,11 +9,12 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.launcher.*;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-import static edu.wpi.first.units.Units.Centimeter;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -62,7 +63,7 @@ public class RobotContainer {
 
         // sys_serializer = new Serializer(
         //         new SerializerIOSparkMax(
-        //             SerializerConstants.ORTONA_INDEXER_MOTOR_CANID, 
+        //             SerializerConstants.ORTONA_INDEXER_MOTOR_CANID,
         //             SerializerConstants.ORTONA_FEEDER_MOTOR_CANID
         //         )
         //     );
@@ -160,7 +161,7 @@ public class RobotContainer {
     LoggedNetworkNumber voltageSetpoint = new LoggedNetworkNumber("Launcher Voltage Setpoint", 0);
     LoggedNetworkNumber velocitySetpoint = new LoggedNetworkNumber("Launcher Velocity Setpoint", 0);
 
-    
+
     primaryController.povUp()
                      .onTrue(sys_launcher.setVoltage(voltageSetpoint))
                      .onFalse(sys_launcher.stop());
@@ -174,6 +175,10 @@ public class RobotContainer {
     primaryController.x()
                     .onTrue(sys_launcher.launchFuel(Centimeter.of(640)));
 
+      SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
+      SmartDashboard.putData("LAUNCH FUEL", sys_launcher.launchFuel(
+              Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
+
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));
 
@@ -182,7 +187,7 @@ public class RobotContainer {
 
     // primaryController.a()
     //     .onTrue(sys_serializer.runFeederVoltage(5));
-    
+
     // primaryController.povDown()
     //     .onTrue(sys_serializer.runFeederVoltage(0));
 
