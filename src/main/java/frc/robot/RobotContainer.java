@@ -25,15 +25,8 @@ import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-// import frc.robot.subsystems.intake.Intake;
-// import frc.robot.subsystems.intake.IntakeIO;
-// import frc.robot.subsystems.intake.IntakeIOSim;
-// import frc.robot.subsystems.intake.IntakeIOTalonFX;
-// import frc.robot.subsystems.intake.IntakeConstants.Extension;
-// import frc.robot.subsystems.intake.IntakeConstants.Roller;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -63,21 +56,20 @@ public class RobotContainer {
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
-        // drive =
-        //     new Drive(
-        //         new GyroIOPigeon2(),
-        //         new ModuleIOTalonFX(TunerConstants.FrontLeft),
-        //         new ModuleIOTalonFX(TunerConstants.FrontRight),
-        //         new ModuleIOTalonFX(TunerConstants.BackLeft),
-        //         new ModuleIOTalonFX(TunerConstants.BackRight));
+        drive =
+            new Drive(
+                new GyroIOPigeon2(),
+                new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                new ModuleIOTalonFX(TunerConstants.FrontRight),
+                new ModuleIOTalonFX(TunerConstants.BackLeft),
+                new ModuleIOTalonFX(TunerConstants.BackRight));
 
         sys_launcher = new Launcher(new LauncherTalonFX(
                 LauncherConstants.LAUNCHER_CAN_ID,
                 LauncherConstants.LAUNCHER_SENSOR_ID,
-                // LauncherConstants.HOOD_CAN_ID,
-                // LauncherConstants.HOOD_SENSOR_ID,
-                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID
-                // LauncherConstants.FOLLOWER_LAUNCHER_SENSOR_ID
+                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
+                LauncherConstants.HOOD_CAN_ID,
+                LauncherConstants.HOOD_SENSOR_ID
                 )
             );
 
@@ -88,14 +80,6 @@ public class RobotContainer {
         //         )
         //     );
 
-        sys_launcher = new Launcher(new LauncherTalonFX(
-                LauncherConstants.LAUNCHER_CAN_ID,
-                LauncherConstants.LAUNCHER_SENSOR_ID,
-                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
-                LauncherConstants.HOOD_CAN_ID,
-                LauncherConstants.HOOD_SENSOR_ID)
-        );
-
         // The ModuleIOTalonFXS implementation provides an example implementation for
         // TalonFXS controller connected to a CANdi with a PWM encoder. The
         // implementations
@@ -105,14 +89,6 @@ public class RobotContainer {
         // arrangements.
         // Please see the AdvantageKit template documentation for more information:
         // https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations
-        //
-        // drive =
-        // new Drive(
-        // new GyroIOPigeon2(),
-        // new ModuleIOTalonFXS(TunerConstants.FrontLeft),
-        // new ModuleIOTalonFXS(TunerConstants.FrontRight),
-        // new ModuleIOTalonFXS(TunerConstants.BackLeft),
-        // new ModuleIOTalonFXS(TunerConstants.BackRight));
         break;
 
       case SIM:
@@ -187,15 +163,13 @@ public class RobotContainer {
     // );
 
     LoggedNetworkNumber voltageSetpoint = new LoggedNetworkNumber("Launcher Voltage Setpoint", 0);
-    LoggedNetworkNumber velocitySetpoint = new LoggedNetworkNumber("Launcher Velocity Setpoint", 0);
-
     
     primaryController.povUp()
-                     .onTrue(sys_launcher.setVoltage(voltageSetpoint))
+                     .onTrue(sys_launcher.setVoltage(voltageSetpoint.getAsDouble()))
                      .onFalse(sys_launcher.stop());
 
     primaryController.a()
-                    .onTrue(sys_launcher.runVelocity(20));
+                    .onTrue(sys_launcher.runRPS(20));
 
     primaryController.y()
                     .onTrue(sys_launcher.stop());
@@ -224,7 +198,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-  public Command getAutonomousCommand() {
-    return autoChooser.get();
-  }
+  // public Command getAutonomousCommand() {
+  //   return autoChooser.get();
+  // }
 }

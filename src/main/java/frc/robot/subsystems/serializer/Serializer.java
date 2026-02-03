@@ -8,11 +8,11 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Serializer extends SubsystemBase{
     private SerializerIO io;
-    private final SerializerInputsAutoLogged inputs;
+    // private final SerializerInputsAutoLogged inputs;
 
     public Serializer(SerializerIO io) {
         this.io = io;
-        inputs = new SerializerInputsAutoLogged();
+        // inputs = new SerializerInputsAutoLogged();
     }
 
     public Command feedToLauncher() {
@@ -44,8 +44,8 @@ public class Serializer extends SubsystemBase{
 
 
     public void periodic() {
-        io.updateInputs(inputs);
-        Logger.processInputs("Serializer", inputs);
+        // io.updateInputs(inputs);
+        // Logger.processInputs("Serializer", inputs);
     }
 
 

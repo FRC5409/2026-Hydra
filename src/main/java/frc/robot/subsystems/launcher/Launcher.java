@@ -13,14 +13,11 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class Launcher extends SubsystemBase{
@@ -51,7 +48,7 @@ public class Launcher extends SubsystemBase{
         Logger.recordOutput("Launcher/targetSpeed", x.speed());
         Logger.recordOutput("Launcher/targetAngle", x.angle());
 
-        return Commands.runOnce(() -> io.runVelocity(-x.speed().in(RotationsPerSecond)), this);
+        return Commands.runOnce(() -> io.runRPS(-x.speed().in(RotationsPerSecond)), this);
     }
 
     public Command moveHood(Angle angle) {
@@ -79,7 +76,7 @@ public class Launcher extends SubsystemBase{
         Logger.processInputs("Launcher", inputs);
         Logger.recordOutput("Launcher Mech", launcherMech);
 
-        SmartDashboard.putData("Launcher/PID", LauncherConstants.launcherPID);
+        SmartDashboard.putData("Launcher/PID", LauncherConstants.PID);
 
         launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
 
