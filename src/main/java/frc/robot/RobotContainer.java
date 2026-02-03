@@ -154,6 +154,7 @@ public class RobotContainer {
                 sys_hopper = new Hopper(new HopperIO() {});
                 sys_intake = new Intake(new IntakeIO() {});
                 sys_serializer = new Serializer(new SerializerIO() {});
+                sys_elevator = new Elevator(new ElevatorIO() {});
             }
         }
 
@@ -230,8 +231,8 @@ public class RobotContainer {
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
     
-    primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
-    primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
+        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
+        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
     }
 
     /**

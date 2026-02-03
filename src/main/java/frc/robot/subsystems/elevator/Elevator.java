@@ -23,7 +23,7 @@ public class Elevator extends SubsystemBase{
     private static Pose3d elevatorPoseStage2;
 
     // Setup alerts for elevator motors connection
-    private final Alert leftElevatorAlert  = new Alert("The Left Elevator Motor is Disconnected " + ElevatorConstants.MAIN_MOTOR_ID, AlertType.kError);
+    private final Alert ElevatorAlert  = new Alert("The Left Elevator Motor is Disconnected " + ElevatorConstants.MAIN_MOTOR_ID, AlertType.kError);
 
     public Elevator(ElevatorIO io) {
         this.io = io;
