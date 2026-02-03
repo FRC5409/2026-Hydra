@@ -52,7 +52,7 @@ public class Launcher extends SubsystemBase{
         Logger.recordOutput("Launcher/targetSpeed", x.speed());
         Logger.recordOutput("Launcher/targetAngle", x.angle());
 
-        return Commands.runOnce(() -> io.runVelocity(x.speed().in(RotationsPerSecond)), this);
+        return Commands.runOnce(() -> io.runVelocity(-x.speed().in(RotationsPerSecond)), this);
     }
 
     public Command moveHood(Angle angle) {

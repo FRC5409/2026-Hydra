@@ -18,5 +18,5 @@ public class LauncherConstants {
     public static final double kD = 0.0;
     public static final double kA = 0.0;
 
-    public static final PIDController launcherPID = new PIDController(0, 0, 0);
+    public static final PIDController launcherPID = new PIDController(0.05, 0, 0);
 }

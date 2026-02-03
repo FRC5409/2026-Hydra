@@ -26,6 +26,8 @@ import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.subsystems.serializer.SerializerIOSim;
 import frc.robot.subsystems.serializer.SerializerIOSparkMax;
 
+import static edu.wpi.first.units.Units.Centimeter;
+
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /**
@@ -185,7 +187,7 @@ public class RobotContainer {
                     .onTrue(sys_launcher.stop());
 
     primaryController.x()
-                    .onTrue(sys_launcher.runVelocity(velocitySetpoint));
+                    .onTrue(sys_launcher.launchFuel(Centimeter.of(640)));
 
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));
