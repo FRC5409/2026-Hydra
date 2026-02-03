@@ -7,14 +7,13 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.subsystems.launcher.*;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
+import static edu.wpi.first.units.Units.Centimeter;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -54,7 +53,7 @@ public class RobotContainer {
   private final CommandXboxController secondaryController = new CommandXboxController(1);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
+//   private final LoggedDashboardChooser<Command> autoChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -64,13 +63,30 @@ public class RobotContainer {
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+        // drive =
+        //     new Drive(
+        //         new GyroIOPigeon2(),
+        //         new ModuleIOTalonFX(TunerConstants.FrontLeft),
+        //         new ModuleIOTalonFX(TunerConstants.FrontRight),
+        //         new ModuleIOTalonFX(TunerConstants.BackLeft),
+        //         new ModuleIOTalonFX(TunerConstants.BackRight));
+
+        sys_launcher = new Launcher(new LauncherTalonFX(
+                LauncherConstants.LAUNCHER_CAN_ID,
+                LauncherConstants.LAUNCHER_SENSOR_ID,
+                // LauncherConstants.HOOD_CAN_ID,
+                // LauncherConstants.HOOD_SENSOR_ID,
+                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID
+                // LauncherConstants.FOLLOWER_LAUNCHER_SENSOR_ID
+                )
+            );
+
+        // sys_serializer = new Serializer(
+        //         new SerializerIOSparkMax(
+        //             SerializerConstants.ORTONA_INDEXER_MOTOR_CANID, 
+        //             SerializerConstants.ORTONA_FEEDER_MOTOR_CANID
+        //         )
+        //     );
 
         sys_launcher = new Launcher(new LauncherTalonFX(
                 LauncherConstants.LAUNCHER_CAN_ID,
@@ -131,23 +147,23 @@ public class RobotContainer {
     }
 
     // Set up auto routines
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
-    autoChooser.addOption(
-        "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    autoChooser.addOption(
-        "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
+    // autoChooser.addOption(
+    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Forward)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Quasistatic Reverse)",
+    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    // autoChooser.addOption(
+    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Configure the button bindings
     configureButtonBindings();
@@ -161,36 +177,34 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // Default command, normal field-relative drive
-    drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
-            drive,
-            () -> -primaryController.getLeftY(),
-            () -> -primaryController.getLeftX(),
-            () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
-        )
-    );
+    // drive.setDefaultCommand(
+    //     DriveCommands.joystickDrive(
+    //         drive,
+    //         () -> -primaryController.getLeftY(),
+    //         () -> -primaryController.getLeftX(),
+    //         () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
+    //     )
+    // );
 
-    // Lock to 0° when A button is held
-    primaryController
-        .a()
-        .whileTrue(
-            DriveCommands.joystickDriveAtAngle(
-                drive,
-                () -> -primaryController.getLeftY(),
-                () -> -primaryController.getLeftX(),
-                () -> Rotation2d.kZero));
+    LoggedNetworkNumber voltageSetpoint = new LoggedNetworkNumber("Launcher Voltage Setpoint", 0);
+    LoggedNetworkNumber velocitySetpoint = new LoggedNetworkNumber("Launcher Velocity Setpoint", 0);
 
-    // Switch to X pattern when X button is pressed
-    // primaryController.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+    
+    primaryController.povUp()
+                     .onTrue(sys_launcher.setVoltage(voltageSetpoint))
+                     .onFalse(sys_launcher.stop());
 
     primaryController.a()
-                    .onTrue(sys_launcher.runRPS(5));
+                    .onTrue(sys_launcher.runVelocity(20));
 
     primaryController.y()
-                    .onTrue(sys_launcher.runRPS(0));
+                    .onTrue(sys_launcher.stop());
+
+    primaryController.x()
+                    .onTrue(sys_launcher.launchFuel(Centimeter.of(640)));
 
     // primaryController.x()
-    //     .whileTrue(sys_launcher.runRPM(1));
+    //     .whileTrue(sys_launcher.runVelocity(1));
 
     // primaryController.y()
     //     .onTrue(sys_serializer.runIndexerVoltage(8));
