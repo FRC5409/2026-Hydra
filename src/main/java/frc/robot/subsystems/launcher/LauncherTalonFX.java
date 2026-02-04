@@ -18,7 +18,6 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 
@@ -154,18 +153,6 @@ public class LauncherTalonFX implements LauncherIO {
         );
 
         // Logger.recordOutput("Launcher/velocityVoltage", velocityVoltage.Velocity);
-    }
-
-    @Override
-    public void launchFuel(Distance distance) {
-        // SimpleMotorFeedforward feedForward = new SimpleMotorFeedforward(LauncherConstants.kS, LauncherConstants.kV, LauncherConstants.kA);
-
-        // double tagrgetVelocityRadPerSec = Math.sqrt((distance * 9.81) / Math.sin(2 * 45));
-
-        // double voltage = feedForward.calculate(tagrgetVelocityRadPerSec);
-
-        // launcherMotor.setVoltage(voltage);
-        
     }
 
     // @Override

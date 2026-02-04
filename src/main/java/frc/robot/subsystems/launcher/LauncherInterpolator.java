@@ -58,24 +58,31 @@ public class LauncherInterpolator {
         // ==== TESTING DATA FOR PROTOTYPE LAUNCHER ====
 
         // first test, hit ground
-        addData(Degrees.of(60), RotationsPerSecond.of(50),
-                Meters.of(3.9), Meters.of(4.0), Meters.of(4.05));
+//        addData(Degrees.of(60), RotationsPerSecond.of(50),
+//                Meters.of(3.9), Meters.of(4.0), Meters.of(4.05));
+//
+//        // testing based on x-position of initial landing
+//        addData(Degrees.of(60), RotationsPerSecond.of(65),
+//                Meters.of(5.33), Meters.of(5.33), Meters.of(5.5));
+//
+//        addData(Degrees.of(60), RotationsPerSecond.of(70),
+//                Meters.of(5.5), Meters.of(5.5), Meters.of(5.35));
+//
+//        addData(Degrees.of(75), RotationsPerSecond.of(70),
+//                Meters.of(4.7), Meters.of(5.3), Meters.of(5.3));
+//
+//        addData(Degrees.of(75), RotationsPerSecond.of(80),
+//                Meters.of(6.2), Meters.of(4.8), Meters.of(5.2));
+//
+//        addData(Degrees.of(75), RotationsPerSecond.of(85),
+//                Meters.of(6.5), Meters.of(6.4), Meters.of(6.2));
 
-        // testing based on x-position of initial landing
-        addData(Degrees.of(60), RotationsPerSecond.of(65),
-                Meters.of(5.33), Meters.of(5.33), Meters.of(5.5));
-
-        addData(Degrees.of(60), RotationsPerSecond.of(70),
-                Meters.of(5.5), Meters.of(5.5), Meters.of(5.35));
-
-        addData(Degrees.of(75), RotationsPerSecond.of(70),
-                Meters.of(4.7), Meters.of(5.3), Meters.of(5.3));
-
-        addData(Degrees.of(75), RotationsPerSecond.of(80),
-                Meters.of(6.2), Meters.of(4.8), Meters.of(5.2));
-
-        addData(Degrees.of(75), RotationsPerSecond.of(85),
-                Meters.of(6.5), Meters.of(6.4), Meters.of(6.2));
+        addData(Degrees.of(75), RotationsPerSecond.of(50), Meters.of(2.30));
+        addData(Degrees.of(75), RotationsPerSecond.of(60), Meters.of(3.60));
+        addData(Degrees.of(75), RotationsPerSecond.of(70), Meters.of(4.75));
+        addData(Degrees.of(75), RotationsPerSecond.of(80), Meters.of(6.25));
+        addData(Degrees.of(75), RotationsPerSecond.of(90), Meters.of(7.68));
+        addData(Degrees.of(75), RotationsPerSecond.of(100), Meters.of(9.40));
     }
 
     public record LaunchConfig(Angle angle, AngularVelocity speed) {}

@@ -4,7 +4,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -44,8 +43,6 @@ public interface LauncherIO {
     default void setVoltage(double volts) {}
 
     default void runVelocity(double velocity) {}
-
-    default void launchFuel(Distance distance) {}
 
     default void setHoodPos(Angle pos) {}
 
