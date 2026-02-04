@@ -185,6 +185,8 @@ public class RobotContainer {
       SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
               () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
 
+      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stop());
+
       // launch fuel w speed
       SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
       SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
