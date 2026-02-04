@@ -142,7 +142,7 @@ public class LauncherTalonFX implements LauncherIO {
     }
 
     @Override
-    public void runRPS(double velocity) {
+    public void runVelocity(double velocity) {
         this.velocitySetpoint = velocity;
         VelocityVoltage velocityVoltage = new VelocityVoltage(velocity)
                                          .withSlot(0)

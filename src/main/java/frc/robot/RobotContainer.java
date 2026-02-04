@@ -20,8 +20,7 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-import static edu.wpi.first.units.Units.Centimeter;
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -172,7 +171,7 @@ public class RobotContainer {
                      .onFalse(sys_launcher.stop());
 
     primaryController.a()
-                    .onTrue(sys_launcher.runVelocity(20));
+                    .onTrue(sys_launcher.runVelocity(RotationsPerSecond.of(20)));
 
     primaryController.y()
                     .onTrue(sys_launcher.stop());
@@ -180,9 +179,15 @@ public class RobotContainer {
     primaryController.x()
                     .onTrue(sys_launcher.launchFuel(() -> Centimeter.of(640)));
 
+      // launch fuel w distance
       SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
-      SmartDashboard.putData("LAUNCH FUEL", sys_launcher.launchFuel(
+      SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
               () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
+
+      // launch fuel w speed
+      SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
+      SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
+              () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
       // sequentially run every distance from 0.5 m to 10.0 m
       SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(
