@@ -1,5 +1,6 @@
 package frc.robot.subsystems.intake;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,6 +56,25 @@ public class Intake extends SubsystemBase {
             } catch (Exception ex) {
                 try { intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE); } catch (Exception ignore) {}
                 return TestResult.fail("Exception during extension check: " + ex.getMessage());
+            }
+        });
+
+        Checkmate.register("Intake roller", () -> {
+            try {
+                intakeIO.setRollerVoltage(6.0);
+                Thread.sleep(1000);
+                intakeIO.updateInputs(inputs);
+                double current = inputs.rollerCurrent.in(Amps);
+
+                if (Math.abs(current) < 100) {
+                    return TestResult.fail("Intake roller failed to spin up, velocity: " + current);
+                }
+
+                intakeIO.setRollerVoltage(0.0);
+                return TestResult.success("Intake roller ok, velocity: " + current);
+            } catch (Exception ex) {
+                try { intakeIO.setRollerVoltage(0.0); } catch (Exception ignore) {}
+                return TestResult.fail("Exception during intake roller check: " + ex.getMessage());
             }
         });
     }
