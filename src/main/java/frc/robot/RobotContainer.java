@@ -14,6 +14,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.GyroIO;
+import frc.robot.subsystems.drive.ModuleIO;
+import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.launcher.*;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
@@ -31,7 +36,8 @@ import static edu.wpi.first.units.Units.Meters;
  */
 public class RobotContainer {
   // Subsystems
-//   private final Drive drive;
+  private final Drive drive;
+  // private final Intake sys_intake;
 
   protected final Launcher sys_launcher;
   // protected final Serializer sys_serializer;
@@ -70,7 +76,7 @@ public class RobotContainer {
 
         // sys_serializer = new Serializer(
         //         new SerializerIOSparkMax(
-        //             SerializerConstants.ORTONA_INDEXER_MOTOR_CANID,
+        //             SerializerConstants.ORTONA_INDEXER_MOTOR_CANID, 
         //             SerializerConstants.ORTONA_FEEDER_MOTOR_CANID
         //         )
         //     );
@@ -95,32 +101,32 @@ public class RobotContainer {
         break;
 
       case SIM:
+        // sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
-        // drive =
-        //     new Drive(
-        //         new GyroIO() {},
-        //         new ModuleIOSim(TunerConstants.FrontLeft),
-        //         new ModuleIOSim(TunerConstants.FrontRight),
-        //         new ModuleIOSim(TunerConstants.BackLeft),
-        //         new ModuleIOSim(TunerConstants.BackRight));
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIOSim(TunerConstants.FrontLeft),
+                new ModuleIOSim(TunerConstants.FrontRight),
+                new ModuleIOSim(TunerConstants.BackLeft),
+                new ModuleIOSim(TunerConstants.BackRight));
 
         sys_launcher =  new Launcher(new LauncherSim());
 
-        // sys_serializer = new Serializer(new SerializerIOSim());
         break;
 
       default:
+        // sys_intake = new Intake(new IntakeIO(){});
         // Replayed robot, disable IO implementations
-        // drive =
-        //     new Drive(
-        //         new GyroIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {},
-        //         new ModuleIO() {});
+        drive =
+            new Drive(
+                new GyroIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {},
+                new ModuleIO() {});
 
         sys_launcher = new Launcher(new LauncherIO() {});
-        // sys_serializer = new Serializer(new SerializerIO() {});
 
         break;
     }
@@ -168,7 +174,7 @@ public class RobotContainer {
     LoggedNetworkNumber voltageSetpoint = new LoggedNetworkNumber("Launcher Voltage Setpoint", 0);
     LoggedNetworkNumber velocitySetpoint = new LoggedNetworkNumber("Launcher Velocity Setpoint", 0);
 
-
+    
     primaryController.povUp()
                      .onTrue(sys_launcher.setVoltage(voltageSetpoint))
                      .onFalse(sys_launcher.stop());
@@ -218,7 +224,7 @@ public class RobotContainer {
    *
    * @return the command to run in autonomous
    */
-//   public Command getAutonomousCommand() {
-//     return autoChooser.get();
-//   }
+  public Command getAutonomousCommand() {
+    return autoChooser.get();
+  }
 }

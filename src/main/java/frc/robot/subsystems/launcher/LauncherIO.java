@@ -5,6 +5,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -23,7 +24,7 @@ public interface LauncherIO {
         public double launcherRPM = Units.radiansPerSecondToRotationsPerMinute(launcherSpeedRadians.baseUnitMagnitude());
 
         public boolean isLauncherFollowerConnected = false;
-        public double temperatureFollowerLauncher = 0.0;
+        public double launcherFollowerTemperature = 0.0;
         public Voltage         launcherFollowerVoltage = Volts.of(0.0);
         public Current         launcherFollowerCurrent = Current.ofBaseUnits(0.0, Amps);
         public AngularVelocity launcherFollowerSpeedRadians   = RadiansPerSecond.of(0.0);
@@ -43,17 +44,15 @@ public interface LauncherIO {
 
     default void setVoltage(double volts) {}
 
-    default void runVelocity(double velocity) {}
+    default void runRPS(double velocity) {}
 
-    default void launchFuel(AngularVelocity robotVelocity, double radiusFlywheel, double distance) {}
+    default void launchFuel(Distance distance) {}
 
     default void setHoodPos(Angle pos) {}
 
-    default Angle getHoodPos() {
-        return Degrees.of(0);
-    }
+    default Angle getHoodPos() {return Degrees.of(0);}
 
     default void stop() {}
-
+    
     default void updateInputs(LauncherInputs inputs) {}
 }
