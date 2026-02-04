@@ -61,9 +61,10 @@ public class RobotContainer {
         sys_launcher = new Launcher(new LauncherTalonFX(
                 LauncherConstants.LAUNCHER_CAN_ID,
                 LauncherConstants.LAUNCHER_SENSOR_ID,
-                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
-                LauncherConstants.HOOD_CAN_ID,
-                LauncherConstants.HOOD_SENSOR_ID));
+                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID
+                // LauncherConstants.HOOD_CAN_ID,
+                // LauncherConstants.HOOD_SENSOR_ID)
+                ));
 
         // sys_serializer = new Serializer(
         //         new SerializerIOSparkMax(
