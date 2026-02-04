@@ -10,6 +10,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -35,6 +36,8 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.util.FieldConstants.Hub;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -60,8 +63,8 @@ public class RobotContainer {
     public static SwerveDriveSimulation simConfig;
 
     private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
-    private ClimbingPositions selectedClimbingPosition = ClimbingPositions.RIGHT;
-    private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
+    private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
+    private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -221,20 +224,26 @@ public class RobotContainer {
 
         primaryController.rightBumper()
                          .whileTrue(
-                                DriveCommands.alignToHeading(
-                                        sys_drive, 
-                                        () -> DriveCommands.getRotation2d(sys_drive, kAutoAlign.HUB_POSE)
+                              DriveCommands.alignToHeading(
+                                sys_drive, 
+                                () -> DriveCommands.getRotation2d(
+                                  sys_drive, 
+                                  new Pose2d(
+                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+                                    Rotation2d.kZero
+                                  )
                                 )
+                              )
                          );
 
         primaryController.leftBumper()
                         .whileTrue(
-                                DriveCommands.joystickDriveAtAngle(
-                                        sys_drive,
-                                        () -> -primaryController.getLeftY(),
-                                        () -> -primaryController.getLeftX(),
-                                        () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
-                                )
+                          DriveCommands.joystickDriveAtAngle(
+                            sys_drive,
+                            () -> -primaryController.getLeftY(),
+                            () -> -primaryController.getLeftX(),
+                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
+                          )
                         );
 
         primaryController.x()
@@ -276,13 +285,17 @@ public class RobotContainer {
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
         return Commands.runOnce(
                 () -> {
-                        if (climbingPosition == climbingPosition.LEFT)
-                          selectedClimbingPosition = climbingPosition.LEFT_PREP;
+                        if (climbingPosition == ClimbingPositions.LEFT)
+                          selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
                         else
-                          selectedClimibingPrepPosition = climbingPosition.RIGHT_PREP;
+                          selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
                           
-                        Logger.recordOutput("Climber Position", climbingPosition);
+                        Logger.recordOutput("Climbing Position", climbingPosition);
+
                         selectedClimbingPosition = climbingPosition; 
+                        
+                        Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
+
                 }
         );
     };
@@ -291,7 +304,11 @@ public class RobotContainer {
         return Commands.runOnce(
                 () -> {
                         Logger.recordOutput("Passing Position", passingPosition);
+
                         selectedPassingPosition = passingPosition;
+
+                        Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
+
                 }
         );
     }
