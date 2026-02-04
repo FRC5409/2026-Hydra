@@ -1,11 +1,15 @@
 package frc.robot.subsystems.hopper;
 
+import static edu.wpi.first.units.Units.Meters;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Checkmate;
+import frc.robot.utils.Checkmate.TestResult;
 
 public class Hopper extends SubsystemBase {
     private final HopperIO io;
@@ -14,6 +18,21 @@ public class Hopper extends SubsystemBase {
     public Hopper(HopperIO io) {
         this.io = io;
         inputs = new HopperInputsAutoLogged();
+
+        Checkmate.register("Hopper extends fully", () -> {
+            Command cmd = this.fullExtend();
+            cmd.initialize();
+            cmd.execute();
+            double extensionLength = this.getPosition().in(Meters);
+            if (extensionLength == 0.3) {
+                return TestResult.success();
+            } else if (extensionLength== 0.0) {
+                return TestResult.fail("Hopper did not start! " + 
+                                (inputs.isMainMotorConnected ? "(Motor connected)" : "(Motor not connected)"));
+            } else {
+                return TestResult.fail("Hopper not extending fully! Current Position: " + io.getPosition());
+            }
+        });
     }
 
     /** 
