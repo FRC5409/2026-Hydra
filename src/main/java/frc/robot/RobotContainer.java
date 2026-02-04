@@ -189,6 +189,8 @@ public class RobotContainer {
       SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
               () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
+      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stop());
+
       // sequentially run every distance from 0.5 m to 10.0 m
       SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(
               DoubleStream.iterate(0, d -> d + 0.5)
