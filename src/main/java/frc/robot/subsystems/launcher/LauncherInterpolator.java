@@ -34,7 +34,7 @@ public class LauncherInterpolator {
         Matrix<N2, N1> matrix = new Matrix<>(N2.instance, N1.instance);
         matrix.set(0, 0, angle.in(Radians));
         matrix.set(1, 0, speed.in(RotationsPerSecond));
-        Arrays.stream(trials).forEach(d -> INTERPOLATOR.put(d.in(Meters), matrix));
+        INTERPOLATOR.put(Arrays.stream(trials).mapToDouble(d -> d.in(Meters)).average().orElseThrow(), matrix);
     }
 
     /**
