@@ -18,7 +18,6 @@ public class IntakeIOSim implements IntakeIO {
 
     public IntakeIOSim() {
       
-      // Ensure simulator has a battery voltage available
       RoboRioSim.setVInVoltage(12.0);
 
       extensionSim = new ElevatorSim(
@@ -79,7 +78,7 @@ public class IntakeIOSim implements IntakeIO {
 
         if (running) {
             double pidOut = pid.calculate(extensionSim.getPositionMeters());
-            // use RoboRioSim voltage if available, otherwise fallback to 12V
+
             double maxV = Math.max(12.0, RoboRioSim.getVInVoltage());
             volts = MathUtil.clamp(pidOut * 12.0, -maxV, maxV);
         }

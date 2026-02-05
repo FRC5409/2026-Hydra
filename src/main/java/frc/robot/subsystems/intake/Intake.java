@@ -11,10 +11,6 @@ import frc.robot.utils.Checkmate.TestResult;
 import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
 
-/**
- * Intake subsystem: provides extend/retract commands and a Checkmate test that
- * verifies the extension position reaches the configured setpoints.
- */
 public class Intake extends SubsystemBase {
 
     private final IntakeIO intakeIO;
