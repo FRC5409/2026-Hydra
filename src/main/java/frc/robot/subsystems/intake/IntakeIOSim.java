@@ -24,7 +24,7 @@ public class IntakeIOSim implements IntakeIO {
             DCMotor.getKrakenX44(1), 
             Extension.GEARING, 
             Extension.INTAKE_MASS.in(Kilograms), 
-              0.0,
+              0.5,
             Extension.EXTENSION_MIN_DISTANCE.in(Meters), 
             Extension.EXTENSION_MAX_DISTANCE.in(Meters), 
             false, 

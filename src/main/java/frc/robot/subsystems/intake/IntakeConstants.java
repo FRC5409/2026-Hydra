@@ -14,7 +14,7 @@ public final class IntakeConstants {
 		public static final int MOTORID = 15;
 
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
-		public static final Distance EXTENSION_DISTANCE = Meters.of(0.279146); //Needs confirmation from Design for exact extension distance
+		public static final Distance EXTENSION_DISTANCE = Meters.of(0.222); //Needs confirmation from Design for exact extension distance
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146); //Needs confirmation from Design for exact extension distance
 
 
