@@ -1,7 +1,5 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.Meters;
-
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.Distance;
@@ -23,14 +21,29 @@ public class Hopper extends SubsystemBase {
             Command cmd = this.fullExtend();
             cmd.initialize();
             cmd.execute();
-            double extensionLength = this.getPosition().in(Meters);
-            if (extensionLength == 0.3) {
+            Distance extensionLength = this.getPosition();
+            if (extensionLength.isNear(HopperConstants.HOPPER_MAX_EXTENSION, 0)) {
                 return TestResult.success();
-            } else if (extensionLength== 0.0) {
+            } else if (extensionLength.isNear(HopperConstants.HOPPER_MIN_EXTENSION, 0)) {
                 return TestResult.fail("Hopper did not start! " + 
                                 (inputs.isMainMotorConnected ? "(Motor connected)" : "(Motor not connected)"));
             } else {
                 return TestResult.fail("Hopper not extending fully! Current Position: " + io.getPosition());
+            }
+        });
+
+        Checkmate.register("Hopper retracts fully", () -> {
+            Command cmd = this.fullRetract();
+            cmd.initialize();
+            cmd.execute();
+            Distance extensionLength = this.getPosition();
+            if (extensionLength.isNear(HopperConstants.HOPPER_MIN_EXTENSION, 0)) {
+                return TestResult.success();
+            } else if (extensionLength.isNear(HopperConstants.HOPPER_MAX_EXTENSION,0)) {
+                return TestResult.fail("Hopper did not start! " + 
+                            (inputs.isMainMotorConnected ? "(Motor connected)" : "(Motor not connected)"));
+            } else {
+                return TestResult.fail("Hopper not retracting fully! Current Position: " + io.getPosition());
             }
         });
     }
