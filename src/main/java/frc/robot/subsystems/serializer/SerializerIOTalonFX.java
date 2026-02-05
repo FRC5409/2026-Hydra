@@ -117,6 +117,16 @@ public class SerializerIOTalonFX implements SerializerIO {
     }
 
     @Override
+    public AngularVelocity getIndexerVelocity() {
+        return indexerDeviceVelocity.getValue();
+    }
+
+    @Override
+    public AngularVelocity getFeederVelocity() {
+        return feederDeviceVelocity.getValue();
+    }
+
+    @Override
     public void updateInputs(SerializerInputs inputs) {
         inputs.isIndexerMotorConnected = BaseStatusSignal.refreshAll(
             indexerDevicePosition,

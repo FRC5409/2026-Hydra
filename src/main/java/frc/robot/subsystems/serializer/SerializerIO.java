@@ -41,4 +41,7 @@ public interface SerializerIO {
 
     public default void zeroIndexerEncoder() {}
     public default void zeroFeederEncoder() {}
+    
+    public default AngularVelocity getIndexerVelocity() {return DegreesPerSecond.of(0);}
+    public default AngularVelocity getFeederVelocity() {return DegreesPerSecond.of(0);}
 }

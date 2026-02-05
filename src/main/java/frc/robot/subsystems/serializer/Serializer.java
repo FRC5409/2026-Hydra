@@ -2,6 +2,7 @@ package frc.robot.subsystems.serializer;
 
 import org.littletonrobotics.junction.Logger;
 
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -49,6 +50,14 @@ public class Serializer extends SubsystemBase{
         return Commands.runOnce(() -> {
             io.zeroFeederEncoder();
         }, this);
+    }
+
+    public AngularVelocity getIndexerVelocity() {
+        return io.getIndexerVelocity();
+    }
+
+    public AngularVelocity getFeederVelocity() {
+        return io.getFeederVelocity();
     }
 
     @Override
