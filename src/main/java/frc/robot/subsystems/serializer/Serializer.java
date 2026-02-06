@@ -1,6 +1,6 @@
 package frc.robot.subsystems.serializer;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import org.littletonrobotics.junction.Logger;
 
@@ -23,9 +23,9 @@ public class Serializer extends SubsystemBase{
             Command cmd = this.setIndexerVoltage(2);
             cmd.initialize();
             cmd.execute();
-            if(this.getIndexerVelocity().in(DegreesPerSecond) > 0) {
+            if(this.getIndexerVelocity().in(RotationsPerSecond) > 0) {
                 return TestResult.success("Indexer spins the right way");
-            } else if (this.getIndexerVelocity().in(DegreesPerSecond) < 0) {
+            } else if (this.getIndexerVelocity().in(RotationsPerSecond) < 0) {
                 return TestResult.fail("Indexer spins the wrong way");
             } else {
                 return TestResult.fail("Indexer is not spinning!");
@@ -36,9 +36,9 @@ public class Serializer extends SubsystemBase{
             Command cmd = this.setFeederVoltage(2);
             cmd.initialize();
             cmd.execute();
-            if(this.getFeederVelocity().in(DegreesPerSecond) > 0) {
+            if(this.getFeederVelocity().in(RotationsPerSecond) > 0) {
                 return TestResult.success("Feeder spins the right way");
-            } else if (this.getFeederVelocity().in(DegreesPerSecond) < 0) {
+            } else if (this.getFeederVelocity().in(RotationsPerSecond) < 0) {
                 return TestResult.fail("Feeder spins the wrong way");
             } else {
                 return TestResult.fail("Feeder is not spinning!");

@@ -1,6 +1,6 @@
 package frc.robot.subsystems.serializer;
 
-import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -34,12 +34,12 @@ public class SerializerIOSim implements SerializerIO {
 
     @Override
     public AngularVelocity getIndexerVelocity() {
-        return DegreesPerSecond.of(indexerVoltage);
+        return RotationsPerSecond.of(indexerVoltage);
     }
 
     @Override
     public AngularVelocity getFeederVelocity() {
-        return DegreesPerSecond.of(feederVoltage);
+        return RotationsPerSecond.of(feederVoltage);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class SerializerIOSim implements SerializerIO {
         inputs.isFeederMotorConnected = true;
         inputs.indexerAppliedVoltage = Volts.of(indexerVoltage);
         inputs.feederAppliedVoltage = Volts.of(feederVoltage);
-        inputs.indexerMotorVelocity = DegreesPerSecond.of(indexerVoltage); 
-        inputs.feederMotorVelocity = DegreesPerSecond.of(feederVoltage);
+        inputs.indexerMotorVelocity = RotationsPerSecond.of(indexerVoltage); 
+        inputs.feederMotorVelocity = RotationsPerSecond.of(feederVoltage);
     }
 
 

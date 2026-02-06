@@ -5,6 +5,7 @@ import org.littletonrobotics.junction.AutoLog;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Angle;
@@ -21,14 +22,14 @@ public interface SerializerIO {
         public Current indexerAppliedCurrent = Amps.of(0.0);
         public double indexerMotorTemperature = 0.0;
         public Angle indexerMotorPosition = Degrees.of(0.0);
-        public AngularVelocity indexerMotorVelocity = DegreesPerSecond.of(0.0);
+        public AngularVelocity indexerMotorVelocity = RotationsPerSecond.of(0.0);
         
         public boolean isFeederMotorConnected = false;
         public Voltage feederAppliedVoltage = Volts.of(0.0);
         public Current feederAppliedCurrent = Amps.of(0.0);
         public double feederMotorTemperature = 0.0;
         public Angle feederMotorPosition = Degrees.of(0.0);
-        public AngularVelocity feederMotorVelocity = DegreesPerSecond.of(0.0);
+        public AngularVelocity feederMotorVelocity = RotationsPerSecond.of(0.0);
     }
 
     public default void updateInputs(SerializerInputs inputs) {}
@@ -42,6 +43,6 @@ public interface SerializerIO {
     public default void zeroIndexerEncoder() {}
     public default void zeroFeederEncoder() {}
     
-    public default AngularVelocity getIndexerVelocity() {return DegreesPerSecond.of(0);}
-    public default AngularVelocity getFeederVelocity() {return DegreesPerSecond.of(0);}
+    public default AngularVelocity getIndexerVelocity() {return RotationsPerSecond.of(0);}
+    public default AngularVelocity getFeederVelocity() {return RotationsPerSecond.of(0);}
 }
