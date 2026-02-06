@@ -21,34 +21,56 @@ public class Intake extends SubsystemBase {
         this.inputs = new IntakeInputsAutoLogged();
 
         Checkmate.register("Extension extend-retract", () -> {
-            try {
+                    final double extendTarget = Extension.EXTENSION_DISTANCE.in(Meters);
+                    final double retractTarget = Extension.EXTENSION_MIN_DISTANCE.in(Meters);
+                    final double timeoutSec = 5.0; 
+                    final long sleepMs = 20;
 
-                intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
-                Thread.sleep(1500);
-                intakeIO.updateInputs(inputs);
-                double posExtend = inputs.extensionPosition;
+                    try {
 
-                if (posExtend < Extension.EXTENSION_DISTANCE.in(Meters) * 0.9) {
-                    return TestResult.fail("Extension failed to extend, position: " + posExtend);
-                }
+                        intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
 
-                intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
-                Thread.sleep(1500);
-                intakeIO.updateInputs(inputs);
-                double posRetract = inputs.extensionPosition;
+                        double elapsed = 0.0;
+                        while (elapsed < timeoutSec) {
 
-                if (posRetract > Extension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.05) {
-                    return TestResult.fail("Extension failed to retract, position: " + posRetract);
-                }
+                            intakeIO.updateInputs(inputs);
+                            if (inputs.extensionPosition >= extendTarget - 0.02) { 
+                                break;
+                            }
+                            Thread.sleep(sleepMs);
+                            elapsed += sleepMs / 1000.0;
+                        }
 
-                return TestResult.success(
-                    String.format("Extension ok (extend=%.3f retract=%.3f)", posExtend, posRetract));
+                        if (inputs.extensionPosition < extendTarget - 0.02) {
+                            return TestResult.fail(String.format("Extension failed to extend (pos=%.3f target=%.3f)", inputs.extensionPosition, extendTarget));
+                        }
 
-            } catch (Exception ex) {
-                try { intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE); } catch (Exception ignore) {}
-                return TestResult.fail("Exception during extension check: " + ex.getMessage());
-            }
-        });
+                        intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
+
+                        elapsed = 0.0;
+                        while (elapsed < timeoutSec) {
+                            intakeIO.updateInputs(inputs);
+                            if (inputs.extensionPosition <= retractTarget + 0.02) {
+                                break;
+                            }
+                            Thread.sleep(sleepMs);
+                            elapsed += sleepMs / 1000.0;
+                        }
+
+                        if (inputs.extensionPosition > retractTarget + 0.02) {
+                            return TestResult.fail(String.format("Extension failed to retract (pos=%.3f target=%.3f)", inputs.extensionPosition, retractTarget));
+                        }
+
+                        return TestResult.success(String.format("Extension ok (extend=%.3f retract=%.3f)", extendTarget, retractTarget));
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        try { intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE); } catch (Exception ignore) {}
+                        return TestResult.fail("Interrupted during extension check");
+                    } catch (Exception ex) {
+                        try { intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE); } catch (Exception ignore) {}
+                        return TestResult.fail("Exception during extension check: " + ex.getMessage());
+                    }
+                });
 
         Checkmate.register("Intake roller", () -> {
             try {
