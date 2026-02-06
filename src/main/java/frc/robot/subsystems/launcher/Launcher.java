@@ -1,10 +1,6 @@
 package frc.robot.subsystems.launcher;
 
-import java.util.function.DoubleSupplier;
-
-// import java.lang.System.Logger;
 import edu.wpi.first.units.measure.Distance;
-// import java.lang.System.Logger;
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -38,8 +34,18 @@ public class Launcher extends SubsystemBase{
         launcherMech = new Pose3d();
     }
 
-    public Angle getHoodPos() {
-        return io.getHoodPos();   
+    // Voltage
+    public Command launcherSetVoltage(double volts) {
+        return Commands.runOnce(() -> io.launcherSetVoltage(volts), this);
+    }
+
+    public Command hoodSetVoltage(double volts) {
+        return Commands.runOnce(() -> io.hoodSetVoltage(volts), this);
+    }
+
+    // Run system
+    public Command runRPS(double velocity) {
+        return Commands.runOnce(() -> io.runRPS(velocity));
     }
 
     public Command launchFuel(Distance distance) {
@@ -58,16 +64,18 @@ public class Launcher extends SubsystemBase{
         );
     }
 
-    public Command setVoltage(double volts) {
-        return Commands.runOnce(() -> io.setVoltage(volts), this);
+    // Getter
+    public Angle getHoodPos() {
+        return io.getHoodPos();   
     }
 
-    public Command runRPS(double velocity) {
-        return Commands.runOnce(() -> io.runRPS(velocity));
+    // Stops
+    public Command stopLauncher() {
+        return Commands.runOnce(io::stopLauncher, this);
     }
 
-    public Command stop() {
-        return Commands.runOnce(io::stop, this);
+    public Command stopHood() {
+        return Commands.runOnce(io::stopHood, this);
     }
 
     @Override
@@ -76,7 +84,7 @@ public class Launcher extends SubsystemBase{
         Logger.processInputs("Launcher", inputs);
         Logger.recordOutput("Launcher Mech", launcherMech);
 
-        SmartDashboard.putData("Launcher/PID", LauncherConstants.PID);
+        SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
 
         launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
 

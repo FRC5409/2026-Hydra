@@ -65,11 +65,11 @@ public class RobotContainer {
                 new ModuleIOTalonFX(TunerConstants.BackRight));
 
         sys_launcher = new Launcher(new LauncherTalonFX(
-                LauncherConstants.LAUNCHER_CAN_ID,
-                LauncherConstants.LAUNCHER_SENSOR_ID,
-                LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
-                LauncherConstants.HOOD_CAN_ID,
-                LauncherConstants.HOOD_SENSOR_ID
+                LauncherConstants.Launcher.LAUNCHER_CAN_ID,
+                LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
+                LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
+                LauncherConstants.Hood.HOOD_CAN_ID,
+                LauncherConstants.Hood.HOOD_SENSOR_ID
                 )
             );
 
@@ -165,14 +165,14 @@ public class RobotContainer {
     LoggedNetworkNumber voltageSetpoint = new LoggedNetworkNumber("Launcher Voltage Setpoint", 0);
     
     primaryController.povUp()
-                     .onTrue(sys_launcher.setVoltage(voltageSetpoint.getAsDouble()))
-                     .onFalse(sys_launcher.stop());
+                     .onTrue(sys_launcher.launcherSetVoltage(voltageSetpoint.getAsDouble()))
+                     .onFalse(sys_launcher.stopLauncher());
 
     primaryController.a()
                     .onTrue(sys_launcher.runRPS(20));
 
     primaryController.y()
-                    .onTrue(sys_launcher.stop());
+                    .onTrue(sys_launcher.stopLauncher());
 
     primaryController.x()
                     .onTrue(sys_launcher.launchFuel(Centimeter.of(640)));

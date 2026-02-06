@@ -41,17 +41,24 @@ public interface LauncherIO {
         public double velocitySetpoint = 0.0;
     }
 
-    default void setVoltage(double volts) {}
+    // Launcher
+    default void launcherSetVoltage(double volts) {}
 
     default void runRPS(double velocity) {}
 
     default void launchFuel(Distance distance) {}
 
+    default void stopLauncher() {}
+
+    // Hood
+    default void hoodSetVoltage(double volts) {}
+
     default void setHoodPos(Angle pos) {}
 
     default Angle getHoodPos() {return Degrees.of(0);}
 
-    default void stop() {}
-    
+    default void stopHood() {}
+
+    // Shared 
     default void updateInputs(LauncherInputs inputs) {}
 }

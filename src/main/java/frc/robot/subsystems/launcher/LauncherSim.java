@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.units.measure.Distance;
@@ -34,7 +35,7 @@ public class LauncherSim implements LauncherIO {
         );
 
         flywheelSim.update(0.01);
-        controller = new PIDController(LauncherConstants.PID.getP(), LauncherConstants.PID.getI(), LauncherConstants.PID.getD());
+        controller = new PIDController(LauncherConstants.Launcher.PID.getP(), LauncherConstants.Launcher.PID.getI(), LauncherConstants.Launcher.PID.getD());
         // mech2D = new Mechanism2d(5.0, 5.0);
 
         isRunning = true;
@@ -48,7 +49,7 @@ public class LauncherSim implements LauncherIO {
     }
 
     @Override
-    public void stop() {
+    public void stopLauncher() {
         // flywheelSim.setInputVoltage(0.0);
         flywheelSim.setAngularVelocity(0);
         controller.reset();
