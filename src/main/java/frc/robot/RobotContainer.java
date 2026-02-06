@@ -25,14 +25,6 @@ import frc.robot.Constants.kBump;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.hopper.*;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
-import frc.robot.subsystems.intake.IntakeConstants.Roller;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -58,9 +50,6 @@ public class RobotContainer {
     // Subsystems
     protected final Drive      sys_drive;
     protected final Vision     sys_vision;
-    protected final Intake     sys_intake;
-    protected final Serializer sys_serializer;
-    protected final Hopper     sys_hopper;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -82,11 +71,6 @@ public class RobotContainer {
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
-                sys_hopper = new Hopper(
-                        new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
-                sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
-                sys_serializer = new Serializer(
-                        new SerializerIOTalonFX(SerializerConstants.INDEXER_ID, SerializerConstants.FEEDER_ID));
                 sys_vision = new Vision(new VisionIOLimelight());
 
                 sys_drive = new Drive(
@@ -100,9 +84,6 @@ public class RobotContainer {
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
-                sys_hopper = new Hopper(new HopperIOSim());
-                sys_intake = new Intake(new IntakeIOSim());
-                sys_serializer = new Serializer(new SerializerIOSim());
 
                 final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
                         .Default()
@@ -149,9 +130,6 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         sys_vision);
-                sys_hopper = new Hopper(new HopperIO() {});
-                sys_intake = new Intake(new IntakeIO() {});
-                sys_serializer = new Serializer(new SerializerIO() {});
             }
         }
 
@@ -218,6 +196,13 @@ public class RobotContainer {
                         () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
                 )
         );
+
+        primaryController.start()
+            .and(primaryController.back())
+            .onTrue(
+                Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0,0,Rotation2d.k180deg)))
+                    .ignoringDisable(true)
+            );
 
         // Switch to X pattern when X button is pressed
         primaryController.x()

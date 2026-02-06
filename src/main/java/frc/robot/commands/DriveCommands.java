@@ -51,6 +51,7 @@ import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.FlippingUtil;
@@ -66,7 +67,7 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec  Last year -> 1.0
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
-  private static double speedModifier = 1.0;
+  private static LoggedNetworkNumber speedModifier = new LoggedNetworkNumber("Speed Modifier", 1.0);
   private static boolean isAligned = false;
 
   private DriveCommands() {}
@@ -89,7 +90,7 @@ public class DriveCommands {
   public static Command setSpeedHigh(Drive drive) {
     return Commands.run(
             () -> {
-              speedModifier = 1.0;
+              speedModifier.set(1.0);
             });
   }
 
@@ -97,16 +98,16 @@ public class DriveCommands {
   public static Command setSpeedLow(Drive drive) {
     return Commands.run(
             () -> {
-              speedModifier = 0.5;
+              speedModifier.set(0.5);
             });
     }
 
   public static void setSpeed(double speed){
-    speedModifier = speed;
+    speedModifier.set(speed);
   }
 
   public static double getSpeed(){
-    return speedModifier;
+    return speedModifier.get();
   }
 
   public static boolean isAligned(){
@@ -138,9 +139,9 @@ public class DriveCommands {
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds = new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier,
-                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier,
-                  omega * drive.getMaxAngularSpeedRadPerSec() * speedModifier);
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
+                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
+                  omega * drive.getMaxAngularSpeedRadPerSec() * speedModifier.get());
 
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
@@ -196,8 +197,8 @@ public class DriveCommands {
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
-                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier,
-                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier,
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                       omega);
               boolean isFlipped =
                   DriverStation.getAlliance().isPresent()
