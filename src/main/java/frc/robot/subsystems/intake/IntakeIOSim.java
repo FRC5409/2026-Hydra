@@ -77,10 +77,11 @@ public class IntakeIOSim implements IntakeIO {
         double volts = 0.0;
 
         if (running) {
-            double pidOut = pid.calculate(extensionSim.getPositionMeters());
 
+            double pidOut = pid.calculate(extensionSim.getPositionMeters());
             double maxV = Math.max(12.0, RoboRioSim.getVInVoltage());
             volts = MathUtil.clamp(pidOut * 12.0, -maxV, maxV);
+            
         }
 
       extensionSim.setInputVoltage(volts);

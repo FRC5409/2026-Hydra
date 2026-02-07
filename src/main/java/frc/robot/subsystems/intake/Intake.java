@@ -97,24 +97,34 @@ public class Intake extends SubsystemBase {
     }
 
     public Command intakeCommand(double voltage) {
+
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage), this);
+
     }
 
     public Command brakemodeCommand() {
+
         return Commands.runOnce(() -> intakeIO.brakeMode(), this);
+
     }
 
     public Command extendCommand() {
+
          return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE), this);
+
     }
 
     public Command retractCommand() {
+
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
+
     }
 
     @Override
     public void periodic() {
+
         intakeIO.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
+        
     }
 }
