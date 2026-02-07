@@ -57,7 +57,7 @@ public class Launcher extends SubsystemBase{
         return Commands.runOnce(() -> io.runRPS(-x.speed().in(RotationsPerSecond)), this);
     }
 
-    public Command moveHood(Angle angle) {
+    public Command setHoodPos(Angle angle) {
         return Commands.sequence(
             Commands.runOnce(() -> io.setHoodPos(angle), this),
             Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 1.0))

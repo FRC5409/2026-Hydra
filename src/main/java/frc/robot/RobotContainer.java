@@ -14,6 +14,8 @@ import frc.robot.subsystems.launcher.*;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import static edu.wpi.first.units.Units.Centimeter;
+import static edu.wpi.first.units.Units.Degrees;
+
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -176,6 +178,9 @@ public class RobotContainer {
 
     primaryController.x()
                     .onTrue(sys_launcher.launchFuel(Centimeter.of(640)));
+
+    primaryController.b()
+                    .onTrue(sys_launcher.setHoodPos(Degrees.of(5)));
 
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));
