@@ -24,7 +24,7 @@ public class IntakeIOSim implements IntakeIO {
             DCMotor.getKrakenX44(1), 
             Extension.GEARING, 
             Extension.INTAKE_MASS.in(Kilograms), 
-              0.5,
+              0.1,
             Extension.EXTENSION_MIN_DISTANCE.in(Meters), 
             Extension.EXTENSION_MAX_DISTANCE.in(Meters), 
             false, 
@@ -103,5 +103,6 @@ public class IntakeIOSim implements IntakeIO {
 
       inputs.isRollerConnected = true;
       inputs.isExtensionConnected = true;
+
     }
 }

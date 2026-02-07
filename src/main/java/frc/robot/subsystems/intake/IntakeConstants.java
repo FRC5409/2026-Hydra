@@ -19,7 +19,7 @@ public final class IntakeConstants {
 
 
 		public static final PIDConstants TALONFX_PID = new PIDConstants(1.0, 0.01, 0.0);
-		public static final PIDConstants SIM_PID = new PIDConstants(1.0, 0.0, 0.0);
+		public static final PIDConstants SIM_PID = new PIDConstants(1.5, 0.14, 0.0);
 		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
 		public static final Current MAX_CURRENT = Amps.of(30.0);
 		public static final double GEARING = 10.0/1.0;

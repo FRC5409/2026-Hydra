@@ -34,6 +34,7 @@ public interface IntakeIO {
         public boolean isRetracted = true;
 
     }
+    
     public default void setExtensionVoltage(double voltage) {}
 
     public default void setRollerVoltage(double voltage) {}

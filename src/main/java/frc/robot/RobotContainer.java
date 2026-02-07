@@ -218,6 +218,9 @@ public class RobotContainer {
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
+        primaryController.button(1)
+                         .onTrue(Commands.runOnce(sys_intake::extendCommand, sys_intake));
+
     }
 
     /**
