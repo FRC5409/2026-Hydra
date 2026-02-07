@@ -22,28 +22,16 @@ public interface SerializerIO {
         public double indexerMotorTemperature = 0.0;
         public Angle indexerMotorPosition = Degrees.of(0.0);
         public AngularVelocity indexerMotorVelocity = RotationsPerSecond.of(0.0);
-        
-        public boolean isFeederMotorConnected = false;
-        public Voltage feederAppliedVoltage = Volts.of(0.0);
-        public Current feederAppliedCurrent = Amps.of(0.0);
-        public double feederMotorTemperature = 0.0;
-        public Angle feederMotorPosition = Degrees.of(0.0);
-        public AngularVelocity feederMotorVelocity = RotationsPerSecond.of(0.0);
     }
 
     public default void updateInputs(SerializerInputs inputs) {}
 
     public default void setIndexerMotorVoltage(double voltage) {}
-    public default void setFeederMotorVoltage(double voltage) {}
 
-    public default void runFeederRPS(double velocity) {}
 
     public default void stopIndexerMotor() {}
-    public default void stopFeederMotor() {}
 
     public default void zeroIndexerEncoder() {}
-    public default void zeroFeederEncoder() {}
     
     public default AngularVelocity getIndexerVelocity() {return RotationsPerSecond.of(0);}
-    public default AngularVelocity getFeederVelocity() {return RotationsPerSecond.of(0);}
 }

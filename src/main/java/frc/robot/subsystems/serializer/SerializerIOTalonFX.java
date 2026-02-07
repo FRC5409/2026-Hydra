@@ -20,12 +20,9 @@ import edu.wpi.first.units.measure.Voltage;
 public class SerializerIOTalonFX implements SerializerIO {
     
     private TalonFX indexerMotor;
-    private TalonFX feederMotor;
 
     private TalonFXConfigurator indexerMotorConfig;
-    private TalonFXConfigurator feederMotorConfig;
     private CurrentLimitsConfigs currentConfigs;
-    private Slot0Configs feederPidConfigs;
 
     private StatusSignal<AngularVelocity> indexerDeviceVelocity;
     private StatusSignal<Angle> indexerDevicePosition;
@@ -33,40 +30,22 @@ public class SerializerIOTalonFX implements SerializerIO {
     private StatusSignal<Current> indexerDeviceCurrent;
     private StatusSignal<Temperature> indexerDeviceTemp;
 
-    private StatusSignal<AngularVelocity> feederDeviceVelocity;
-    private StatusSignal<Angle> feederDevicePosition;
-    private StatusSignal<Voltage> feederDeviceVoltage;
-    private StatusSignal<Current> feederDeviceCurrent;
-    private StatusSignal<Temperature> feederDeviceTemp;
+    
 
 
-    public SerializerIOTalonFX(int indexerID, int feederID) {
+    public SerializerIOTalonFX(int indexerID) {
         indexerMotor = new TalonFX(indexerID);
-        feederMotor = new TalonFX(feederID);
 
         indexerMotorConfig = indexerMotor.getConfigurator();
-        feederMotorConfig = feederMotor.getConfigurator();
 
         currentConfigs = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(SerializerConstants.TALON_FX_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
         indexerMotorConfig.apply(currentConfigs);
-        feederMotorConfig.apply(currentConfigs);
-
-        feederPidConfigs = new Slot0Configs()
-            .withKP(SerializerConstants.FeederConstants.TALONFX_PID.kP)
-            .withKI(SerializerConstants.FeederConstants.TALONFX_PID.kI)
-            .withKD(SerializerConstants.FeederConstants.TALONFX_PID.kD)
-            .withKG(SerializerConstants.FeederConstants.kG)
-            .withKS(SerializerConstants.FeederConstants.kS)
-            .withKV(SerializerConstants.FeederConstants.kV);
-        feederMotorConfig.apply(feederPidConfigs);
 
         indexerMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
-        feederMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
 
         indexerMotor.setNeutralMode(NeutralModeValue.Brake);
-        feederMotor.setNeutralMode(NeutralModeValue.Brake);
 
         indexerDeviceVelocity = indexerMotor.getVelocity();
         indexerDevicePosition = indexerMotor.getPosition();
@@ -74,29 +53,16 @@ public class SerializerIOTalonFX implements SerializerIO {
         indexerDeviceCurrent = indexerMotor.getSupplyCurrent();
         indexerDeviceTemp = indexerMotor.getDeviceTemp();
 
-        feederDeviceVelocity = feederMotor.getVelocity();
-        feederDevicePosition = feederMotor.getPosition();
-        feederDeviceVoltage = feederMotor.getMotorVoltage();
-        feederDeviceCurrent = feederMotor.getSupplyCurrent();
-        feederDeviceTemp = feederMotor.getDeviceTemp();
-
         BaseStatusSignal.setUpdateFrequencyForAll(
             50,
             indexerDevicePosition,
             indexerDeviceVelocity,
             indexerDeviceVoltage,
             indexerDeviceCurrent,
-            indexerDeviceTemp,
-            
-            feederDevicePosition,
-            feederDeviceVelocity,
-            feederDeviceVoltage,
-            feederDeviceCurrent,
-            feederDeviceTemp
+            indexerDeviceTemp
         );
 
         indexerMotor.optimizeBusUtilization();
-        feederMotor.optimizeBusUtilization();
     }
 
     @Override
@@ -105,26 +71,8 @@ public class SerializerIOTalonFX implements SerializerIO {
     }
 
     @Override
-    public void setFeederMotorVoltage(double voltage) {
-        feederMotor.setVoltage(voltage);
-    }
-
-    @Override
-    public void runFeederRPS(double velocity) {
-        VelocityVoltage velocityVoltage = new VelocityVoltage(velocity)
-                                        .withSlot(0)
-                                        .withFeedForward(0);
-        feederMotor.setControl(velocityVoltage);
-    }
-
-    @Override
     public void stopIndexerMotor() {
         indexerMotor.stopMotor();
-    }
-
-    @Override
-    public void stopFeederMotor() {
-        feederMotor.stopMotor();
     }
 
     @Override
@@ -133,18 +81,8 @@ public class SerializerIOTalonFX implements SerializerIO {
     }
 
     @Override
-    public void zeroFeederEncoder() {
-        feederMotor.setPosition(0);
-    }
-
-    @Override
     public AngularVelocity getIndexerVelocity() {
         return indexerDeviceVelocity.getValue();
-    }
-
-    @Override
-    public AngularVelocity getFeederVelocity() {
-        return feederDeviceVelocity.getValue();
     }
 
     @Override
@@ -161,20 +99,6 @@ public class SerializerIOTalonFX implements SerializerIO {
         inputs.indexerAppliedVoltage = indexerDeviceVoltage.getValue();
         inputs.indexerAppliedCurrent = indexerDeviceCurrent.getValue();
         inputs.indexerMotorTemperature = indexerDeviceTemp.getValueAsDouble();
-
-        
-        inputs.isFeederMotorConnected = BaseStatusSignal.refreshAll(
-            feederDevicePosition,
-            feederDeviceVelocity,
-            feederDeviceVoltage,
-            feederDeviceCurrent,
-            feederDeviceTemp
-        ).isOK();
-        inputs.feederMotorPosition = feederDevicePosition.getValue();
-        inputs.feederMotorVelocity = feederDeviceVelocity.getValue();
-        inputs.feederAppliedVoltage = feederDeviceVoltage.getValue();
-        inputs.feederAppliedCurrent = feederDeviceCurrent.getValue();
-        inputs.feederMotorTemperature = feederDeviceTemp.getValueAsDouble();
     }
 
 }

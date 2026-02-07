@@ -32,26 +32,10 @@ public class Serializer extends SubsystemBase{
             }
         });
 
-        Checkmate.register("Feeder spins", () -> {
-            Command cmd = this.setFeederVoltage(2);
-            cmd.initialize();
-            cmd.execute();
-            if(this.getFeederVelocity().in(RotationsPerSecond) > 0) {
-                return TestResult.success("Feeder spins the right way");
-            } else if (this.getFeederVelocity().in(RotationsPerSecond) < 0) {
-                return TestResult.fail("Feeder spins the wrong way");
-            } else {
-                return TestResult.fail("Feeder is not spinning!");
-            }
-        });
 
     }
 
-    public Command setFeederVoltage(double voltage){
-        return Commands.runOnce(() -> {
-            io.setFeederMotorVoltage(voltage);
-        }, this);
-    }
+    
 
     public Command setIndexerVoltage(double voltage){
         return Commands.runOnce(() -> {
@@ -59,9 +43,7 @@ public class Serializer extends SubsystemBase{
         }, this);
     }
 
-    public Command runFeederRPS(double RPS) {
-        return Commands.runOnce(() -> io.runFeederRPS(RPS));
-    }
+    
 
     public Command stopIndexer() {
         return Commands.runOnce(() -> {
@@ -69,11 +51,7 @@ public class Serializer extends SubsystemBase{
         }, this);
     }
 
-    public Command stopFeeder() {
-        return Commands.runOnce(() -> {
-            io.stopFeederMotor();
-        }, this);
-    }
+    
 
     public Command zeroIndexerEncoder() {
         return Commands.runOnce(() -> {
@@ -81,19 +59,12 @@ public class Serializer extends SubsystemBase{
         }, this);
     }
 
-    public Command zeroFeederEncoder() {
-        return Commands.runOnce(() -> {
-            io.zeroFeederEncoder();
-        }, this);
-    }
 
     public AngularVelocity getIndexerVelocity() {
         return io.getIndexerVelocity();
     }
 
-    public AngularVelocity getFeederVelocity() {
-        return io.getFeederVelocity();
-    }
+    
 
     @Override
     public void periodic() {
