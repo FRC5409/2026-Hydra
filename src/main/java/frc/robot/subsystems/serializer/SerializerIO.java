@@ -14,14 +14,17 @@ import edu.wpi.first.units.measure.Voltage;
 
 
 public interface SerializerIO {
+
     @AutoLog
     public class SerializerInputs {
+
         public boolean isIndexerMotorConnected = false;
         public Voltage indexerAppliedVoltage = Volts.of(0.0);
         public Current indexerAppliedCurrent = Amps.of(0.0);
         public double indexerMotorTemperature = 0.0;
         public Angle indexerMotorPosition = Degrees.of(0.0);
         public AngularVelocity indexerMotorVelocity = RotationsPerSecond.of(0.0);
+        
     }
 
     public default void updateInputs(SerializerInputs inputs) {}
