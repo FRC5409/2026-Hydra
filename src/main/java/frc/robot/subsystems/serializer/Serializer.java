@@ -59,6 +59,10 @@ public class Serializer extends SubsystemBase{
         }, this);
     }
 
+    public Command runFeederRPS(double RPS) {
+        return Commands.runOnce(() -> io.runFeederRPS(RPS));
+    }
+
     public Command stopIndexer() {
         return Commands.runOnce(() -> {
             io.stopIndexerMotor();

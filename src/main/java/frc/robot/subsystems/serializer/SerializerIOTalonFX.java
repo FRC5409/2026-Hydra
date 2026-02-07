@@ -4,7 +4,9 @@ import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -23,6 +25,7 @@ public class SerializerIOTalonFX implements SerializerIO {
     private TalonFXConfigurator indexerMotorConfig;
     private TalonFXConfigurator feederMotorConfig;
     private CurrentLimitsConfigs currentConfigs;
+    private Slot0Configs feederPidConfigs;
 
     private StatusSignal<AngularVelocity> indexerDeviceVelocity;
     private StatusSignal<Angle> indexerDevicePosition;
@@ -43,11 +46,21 @@ public class SerializerIOTalonFX implements SerializerIO {
 
         indexerMotorConfig = indexerMotor.getConfigurator();
         feederMotorConfig = feederMotor.getConfigurator();
+
         currentConfigs = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(SerializerConstants.TALON_FX_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
         indexerMotorConfig.apply(currentConfigs);
         feederMotorConfig.apply(currentConfigs);
+
+        feederPidConfigs = new Slot0Configs()
+            .withKP(SerializerConstants.FeederConstants.TALONFX_PID.kP)
+            .withKI(SerializerConstants.FeederConstants.TALONFX_PID.kI)
+            .withKD(SerializerConstants.FeederConstants.TALONFX_PID.kD)
+            .withKG(SerializerConstants.FeederConstants.kG)
+            .withKS(SerializerConstants.FeederConstants.kS)
+            .withKV(SerializerConstants.FeederConstants.kV);
+        feederMotorConfig.apply(feederPidConfigs);
 
         indexerMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
         feederMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
@@ -94,6 +107,14 @@ public class SerializerIOTalonFX implements SerializerIO {
     @Override
     public void setFeederMotorVoltage(double voltage) {
         feederMotor.setVoltage(voltage);
+    }
+
+    @Override
+    public void runFeederRPS(double velocity) {
+        VelocityVoltage velocityVoltage = new VelocityVoltage(velocity)
+                                        .withSlot(0)
+                                        .withFeedForward(0);
+        feederMotor.setControl(velocityVoltage);
     }
 
     @Override

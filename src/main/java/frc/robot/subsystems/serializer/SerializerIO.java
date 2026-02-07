@@ -36,6 +36,8 @@ public interface SerializerIO {
     public default void setIndexerMotorVoltage(double voltage) {}
     public default void setFeederMotorVoltage(double voltage) {}
 
+    public default void runFeederRPS(double velocity) {}
+
     public default void stopIndexerMotor() {}
     public default void stopFeederMotor() {}
 
