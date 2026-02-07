@@ -24,11 +24,16 @@ public interface FeederIO {
     }
 
     public default void updateInputs(FeederInputs inputs) {}
-    public default void setFeederMotorVoltage(double voltage) {}
-     public default void runFeederRPS(double velocity) {}
-     public default void stopFeederMotor() {}
+
+    public default void setMotorVoltage(double voltage) {}
+
+     public default void runRPS(double velocity) {}
+
+     public default void stopMotor() {}
+
      public default void zeroFeederEncoder() {}
-     public default AngularVelocity getFeederVelocity() {return RotationsPerSecond.of(0);}
+     
+     public default AngularVelocity getVelocityRPS() {return RotationsPerSecond.of(0);}
 
      
 }

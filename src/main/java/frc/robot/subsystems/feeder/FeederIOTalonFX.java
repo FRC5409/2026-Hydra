@@ -16,8 +16,6 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.serializer.SerializerConstants;
-import frc.robot.subsystems.serializer.SerializerIO.SerializerInputs;
 
 public class FeederIOTalonFX implements FeederIO {
     
@@ -74,12 +72,12 @@ public class FeederIOTalonFX implements FeederIO {
 
 
     @Override
-    public void setFeederMotorVoltage(double voltage) {
+    public void setMotorVoltage(double voltage) {
         feederMotor.setVoltage(voltage);
     }
 
     @Override
-    public void runFeederRPS(double velocity) {
+    public void runRPS(double velocity) {
         VelocityVoltage velocityVoltage = new VelocityVoltage(velocity)
                                         .withSlot(0)
                                         .withFeedForward(0);
@@ -88,7 +86,7 @@ public class FeederIOTalonFX implements FeederIO {
 
 
     @Override
-    public void stopFeederMotor() {
+    public void stopMotor() {
         feederMotor.stopMotor();
     }
 
@@ -98,7 +96,7 @@ public class FeederIOTalonFX implements FeederIO {
     }
 
     @Override
-    public AngularVelocity getFeederVelocity() {
+    public AngularVelocity getVelocityRPS() {
         return feederDeviceVelocity.getValue();
     }
 

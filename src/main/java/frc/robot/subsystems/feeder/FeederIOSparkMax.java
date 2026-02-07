@@ -28,7 +28,7 @@ public class FeederIOSparkMax implements FeederIO {
     }
 
     @Override
-    public void setFeederMotorVoltage(double voltage) {
+    public void setMotorVoltage(double voltage) {
         feederMotor.setVoltage(voltage);
     }
 

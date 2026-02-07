@@ -12,8 +12,10 @@ import frc.robot.utils.Checkmate;
 import frc.robot.utils.Checkmate.TestResult;
 
 public class Feeder extends SubsystemBase {
+
     private FeederInputsAutoLogged inputs;
     private FeederIO io;
+    
     public Feeder(FeederIO io) {
         this.io = io;
         inputs = new FeederInputsAutoLogged();
@@ -34,17 +36,17 @@ public class Feeder extends SubsystemBase {
 
     public Command setFeederVoltage(double voltage){
         return Commands.runOnce(() -> {
-            io.setFeederMotorVoltage(voltage);
+            io.setMotorVoltage(voltage);
         }, this);
     }
 
     public Command runFeederRPS(double RPS) {
-        return Commands.runOnce(() -> io.runFeederRPS(RPS));
+        return Commands.runOnce(() -> io.runRPS(RPS));
     }
 
     public Command stopFeeder() {
         return Commands.runOnce(() -> {
-            io.stopFeederMotor();
+            io.stopMotor();
         }, this);
     }
 
@@ -55,7 +57,7 @@ public class Feeder extends SubsystemBase {
     }
 
     public AngularVelocity getFeederVelocity() {
-        return io.getFeederVelocity();
+        return io.getVelocityRPS();
     }
 
     @Override

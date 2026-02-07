@@ -1,5 +1,6 @@
 package frc.robot.subsystems.feeder;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -9,12 +10,10 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
-import frc.robot.subsystems.serializer.SerializerConstants;
-import frc.robot.subsystems.serializer.SerializerIO.SerializerInputs;
 
 public class FeederIOSim implements FeederIO {
-    private double feederVoltage = 0.0;
-    private double feederCurrent = 0.0;
+    private double simVoltage = 0.0;
+    private double simCurrent = 0.0;
     private final FlywheelSim feederSim;
     private final DCMotor motor = DCMotor.getKrakenX44(1);
     private final PIDController controller;
@@ -43,23 +42,25 @@ public class FeederIOSim implements FeederIO {
     }
 
     @Override
-    public void setFeederMotorVoltage(double voltage) {
-        feederVoltage = voltage;
+    public void setMotorVoltage(double voltage) {
+        simVoltage = voltage;
     }
 
     @Override
-    public void runFeederRPS(double velocity) {
+    public void runRPS(double velocity) {
         setAngularVelocity(velocity);
     }
 
     @Override
-    public void stopFeederMotor() {
+    public void stopMotor() {
         //feederVoltage = 0.0;
         setAngularVelocity(0);
+        controller.reset();
     }
 
     @Override
-    public AngularVelocity getFeederVelocity() {
+    public AngularVelocity getVelocityRPS() {
+        //return RotationsPerSecond.of(feederVoltage);
         return RotationsPerSecond.of(feederSim.getAngularVelocityRPM()/60);
     }
 
@@ -67,18 +68,19 @@ public class FeederIOSim implements FeederIO {
     @Override
     public void updateInputs(FeederInputs inputs) {
         if (running) {
-            feederVoltage = MathUtil.clamp(
+            simVoltage = MathUtil.clamp(
                     controller.calculate(feederSim.getAngularVelocityRPM()),
-                    12,
-                    -12
+                    -12,
+                    12
             );
 
-            feederCurrent = feederSim.getCurrentDrawAmps();
+            simCurrent = feederSim.getCurrentDrawAmps();
         }
 
         inputs.isFeederMotorConnected = true;
-        inputs.feederAppliedVoltage = Volts.of(feederVoltage);
-        inputs.feederMotorVelocity = getFeederVelocity();
+        inputs.feederAppliedVoltage = Volts.of(simVoltage);
+        inputs.feederMotorVelocity = getVelocityRPS();
+        inputs.feederAppliedCurrent = Amps.of(simCurrent);
     }
 
 }
