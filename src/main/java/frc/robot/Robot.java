@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.vision.VisionIOLimelight;
+// import frc.robot.subsystems.vision.VisionIOLimelight;
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -78,7 +78,7 @@ public class Robot extends LoggedRobot {
         robotContainer = new RobotContainer();
 
         // forward limelight ports
-        VisionIOLimelight.forwardLimelightPorts();
+        // VisionIOLimelight.forwardLimelightPorts();
 
         SignalLogger.enableAutoLogging(false);
     }
@@ -117,7 +117,7 @@ public class Robot extends LoggedRobot {
     public void autonomousInit() {
         CommandScheduler.getInstance().clearComposedCommands();
 
-        autonomousCommand = robotContainer.getAutonomousCommand();
+        //autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
         if (autonomousCommand != null)
@@ -141,7 +141,7 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
-        robotContainer.sys_drive.brakeMode();
+        //robotContainer.sys_drive.brakeMode();
     }
 
     /** This function is called periodically during operator control. */
@@ -166,7 +166,7 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
-        if (Constants.CURRENT_MODE == Constants.Mode.SIM)
-            robotContainer.updateSim();
+        // if (Constants.CURRENT_MODE == Constants.Mode.SIM)
+        //     robotContainer.updateSim();
     }
 }

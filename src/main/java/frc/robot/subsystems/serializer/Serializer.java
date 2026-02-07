@@ -18,13 +18,13 @@ public class Serializer extends SubsystemBase{
     public Command setFeederVoltage(double voltage){
         return Commands.runOnce(() -> {
             io.setFeederMotorVoltage(voltage);
-        }, this);
+        });
     }
 
     public Command setIndexerVoltage(double voltage){
         return Commands.runOnce(() -> {
             io.setIndexerMotorVoltage(voltage);
-        }, this);
+        });
     }
 
     public Command stopIndexer() {

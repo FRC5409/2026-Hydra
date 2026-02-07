@@ -16,28 +16,29 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.ClimbingPositions;
-import frc.robot.Constants.PassingPositions;
-import frc.robot.Constants.kAutoAlign;
-import frc.robot.Constants.kBump;
-import frc.robot.commands.DriveCommands;
+// import frc.robot.Constants.ClimbingPositions;
+// import frc.robot.Constants.PassingPositions;
+// import frc.robot.Constants.kAutoAlign;
+// import frc.robot.Constants.kBump;
+//import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.hopper.*;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
-import frc.robot.subsystems.intake.IntakeConstants.Roller;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
+// import frc.robot.subsystems.drive.*;
+// import frc.robot.subsystems.hopper.*;
+// import frc.robot.subsystems.intake.Intake;
+// import frc.robot.subsystems.intake.IntakeConstants.Extension;
+// import frc.robot.subsystems.intake.IntakeConstants.Roller;
+// import frc.robot.subsystems.intake.IntakeIO;
+// import frc.robot.subsystems.intake.IntakeIOSim;
+// import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.serializer.*;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOSim;
-import frc.robot.util.FieldConstants.Hub;
+// import frc.robot.subsystems.vision.Vision;
+// import frc.robot.subsystems.vision.VisionIO;
+// import frc.robot.subsystems.vision.VisionIOLimelight;
+// import frc.robot.subsystems.vision.VisionIOSim;
+// import frc.robot.util.FieldConstants.Hub;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -46,6 +47,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -56,24 +58,24 @@ import static edu.wpi.first.units.Units.Meters;
  */
 public class RobotContainer {
     // Subsystems
-    protected final Drive      sys_drive;
-    protected final Vision     sys_vision;
-    protected final Intake     sys_intake;
+//     protected final Drive      sys_drive;
+//     protected final Vision     sys_vision;
+//     protected final Intake     sys_intake;
     protected final Serializer sys_serializer;
-    protected final Hopper     sys_hopper;
+//     protected final Hopper     sys_hopper;
 
-    public static SwerveDriveSimulation simConfig;
+//     public static SwerveDriveSimulation simConfig;
 
-    private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
-    private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
-    private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
+//     private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
+//     private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
+//     private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
     private final CommandXboxController secondaryController = new CommandXboxController(1);
 
     // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+//     private final LoggedDashboardChooser<Command> autoChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -82,81 +84,81 @@ public class RobotContainer {
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
-                sys_hopper = new Hopper(
-                        new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
-                sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+                // sys_hopper = new Hopper(
+                //         new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
+                // sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
                 sys_serializer = new Serializer(
                         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID, SerializerConstants.FEEDER_ID));
-                sys_vision = new Vision(new VisionIOLimelight());
+                // sys_vision = new Vision(new VisionIOLimelight());
 
-                sys_drive = new Drive(
-                        new GyroIOPigeon2(),
-                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                        new ModuleIOTalonFX(TunerConstants.FrontRight),
-                        new ModuleIOTalonFX(TunerConstants.BackLeft),
-                        new ModuleIOTalonFX(TunerConstants.BackRight),
-                        sys_vision
-                );
+                // sys_drive = new Drive(
+                //         new GyroIOPigeon2(),
+                //         new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                //         new ModuleIOTalonFX(TunerConstants.FrontRight),
+                //         new ModuleIOTalonFX(TunerConstants.BackLeft),
+                //         new ModuleIOTalonFX(TunerConstants.BackRight),
+                //         sys_vision
+                // );
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
-                sys_hopper = new Hopper(new HopperIOSim());
-                sys_intake = new Intake(new IntakeIOSim());
+                // sys_hopper = new Hopper(new HopperIOSim());
+                // sys_intake = new Intake(new IntakeIOSim());
                 sys_serializer = new Serializer(new SerializerIOSim());
 
-                final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
-                        .Default()
-                        .withGyro(COTS.ofPigeon2())
-                        .withRobotMass(DriveConstants.ROBOT_FULL_MASS)
-                        .withTrackLengthTrackWidth(Meters.of(0.578), Meters.of(0.578))
-                        .withBumperSize(Meters.of(0.881), Meters.of(0.881))
-                        .withSwerveModule(
-                                COTS.ofMark4i(
-                                        DCMotor.getKrakenX60(1),
-                                        DCMotor.getKrakenX60(1),
-                                        DriveConstants.WHEEL_COF,
-                                        1
-                                )
-                        );
+                // final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
+                //         .Default()
+                //         .withGyro(COTS.ofPigeon2())
+                //         .withRobotMass(DriveConstants.ROBOT_FULL_MASS)
+                //         .withTrackLengthTrackWidth(Meters.of(0.578), Meters.of(0.578))
+                //         .withBumperSize(Meters.of(0.881), Meters.of(0.881))
+                //         .withSwerveModule(
+                //                 COTS.ofMark4i(
+                //                         DCMotor.getKrakenX60(1),
+                //                         DCMotor.getKrakenX60(1),
+                //                         DriveConstants.WHEEL_COF,
+                //                         1
+                //                 )
+                //         );
 
-                simConfig = new SwerveDriveSimulation(
-                        driveConfig,
-                        new Pose2d(3, 3, Rotation2d.kZero)
-                );
+                // simConfig = new SwerveDriveSimulation(
+                //         driveConfig,
+                //         new Pose2d(3, 3, Rotation2d.kZero)
+                // );
 
-                SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
-                SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
-                SimulatedArena.getInstance().resetFieldForAuto();
+                // SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
+                // SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
+                // SimulatedArena.getInstance().resetFieldForAuto();
 
-                sys_vision = new Vision(new VisionIOSim(simConfig));
+                // sys_vision = new Vision(new VisionIOSim(simConfig));
 
-                sys_drive = new Drive(
-                        new GyroIOSim(simConfig.getGyroSimulation()),
-                        new ModuleIOSim(simConfig.getModules()[0]),
-                        new ModuleIOSim(simConfig.getModules()[1]),
-                        new ModuleIOSim(simConfig.getModules()[2]),
-                        new ModuleIOSim(simConfig.getModules()[3]),
-                        sys_vision
-                );
+                // sys_drive = new Drive(
+                //         new GyroIOSim(simConfig.getGyroSimulation()),
+                //         new ModuleIOSim(simConfig.getModules()[0]),
+                //         new ModuleIOSim(simConfig.getModules()[1]),
+                //         new ModuleIOSim(simConfig.getModules()[2]),
+                //         new ModuleIOSim(simConfig.getModules()[3]),
+                //         sys_vision
+                // );
             }
             // Replayed robot, disable IO implementations
             default -> {
-                sys_vision = new Vision(new VisionIO() {});
-                sys_drive = new Drive(
-                        new GyroIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        sys_vision);
-                sys_hopper = new Hopper(new HopperIO() {});
-                sys_intake = new Intake(new IntakeIO() {});
+                // sys_vision = new Vision(new VisionIO() {});
+                // sys_drive = new Drive(
+                //         new GyroIO() {},
+                //         new ModuleIO() {},
+                //         new ModuleIO() {},
+                //         new ModuleIO() {},
+                //         new ModuleIO() {},
+                //         sys_vision);
+                // sys_hopper = new Hopper(new HopperIO() {});
+                // sys_intake = new Intake(new IntakeIO() {});
                 sys_serializer = new Serializer(new SerializerIO() {});
             }
         }
 
         // Set up auto routines
-        autoChooser = buildAutoChooser();
+        //autoChooser = buildAutoChooser();
 
         // Configure the button bindings
         configureButtonBindings();
@@ -167,41 +169,41 @@ public class RobotContainer {
      *
      * @return the logged dashboard chooser
      */
-    private LoggedDashboardChooser<Command> buildAutoChooser() {
-        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>(
-                "Auto Choices", AutoBuilder.buildAutoChooser());
+//     private LoggedDashboardChooser<Command> buildAutoChooser() {
+//         LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>(
+//                 "Auto Choices", AutoBuilder.buildAutoChooser());
 
-        // Set up SysId routines
-        chooser.addOption(
-                "Drive Wheel Radius Characterization",
-                DriveCommands.wheelRadiusCharacterization(sys_drive));
-        chooser.addOption(
-                "Drive Simple FF Characterization",
-                DriveCommands.feedforwardCharacterization(sys_drive));
-        chooser.addOption(
-                "Drive SysId (Quasistatic Forward)",
-                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        chooser.addOption(
-                "Drive SysId (Quasistatic Reverse)",
-                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        chooser.addOption(
-                "Drive SysId (Dynamic Forward)",
-                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        chooser.addOption(
-                "Drive SysId (Dynamic Reverse)",
-                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+//         // Set up SysId routines
+//         chooser.addOption(
+//                 "Drive Wheel Radius Characterization",
+//                 DriveCommands.wheelRadiusCharacterization(sys_drive));
+//         chooser.addOption(
+//                 "Drive Simple FF Characterization",
+//                 DriveCommands.feedforwardCharacterization(sys_drive));
+//         chooser.addOption(
+//                 "Drive SysId (Quasistatic Forward)",
+//                 sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//         chooser.addOption(
+//                 "Drive SysId (Quasistatic Reverse)",
+//                 sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//         chooser.addOption(
+//                 "Drive SysId (Dynamic Forward)",
+//                 sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+//         chooser.addOption(
+//                 "Drive SysId (Dynamic Reverse)",
+//                 sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-        return chooser;
-    }
+//         return chooser;
+//     }
 
     /**
      * Updates sim positions of algae, coral and robot poses
      */
-    public void updateSim() {
-        SimulatedArena.getInstance().simulationPeriodic();
-        Logger.recordOutput("Simulation/RobotPose", simConfig.getSimulatedDriveTrainPose());
-        Logger.recordOutput("Simulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
-    }
+//     public void updateSim() {
+//         SimulatedArena.getInstance().simulationPeriodic();
+//         Logger.recordOutput("Simulation/RobotPose", simConfig.getSimulatedDriveTrainPose());
+//         Logger.recordOutput("Simulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
+//     }
 
     /**
      * Use this method to define your button->command mappings. Buttons can be created by instantiating a
@@ -209,122 +211,198 @@ public class RobotContainer {
      * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        // Default command, normal field-relative drive
-        sys_drive.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        sys_drive,
-                        () -> -primaryController.getLeftY(),
-                        () -> -primaryController.getLeftX(),
-                        () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
-                )
-        );
+        // primaryController.a()
+        // .onTrue(
+        //         new ParallelCommandGroup(
+        //                 sys_serializer.setIndexerVoltage(2),
+        //                 sys_serializer.setFeederVoltage(2)
+        //         ))
+        // .onFalse(
+        //         new ParallelCommandGroup(
+        //                 sys_serializer.stopIndexer(),
+        //                 sys_serializer.stopFeeder()
+        //         )
+        // );
 
-        // Switch to X pattern when X button is pressed
-        primaryController.x()
-                         .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
-
-        // Switch To Bump Speed Modifier
         primaryController.a()
-                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
-                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+                .onTrue(
+                        Commands.parallel(
+                                sys_serializer.setFeederVoltage(4),
+                                sys_serializer.setIndexerVoltage(4)
+                        )
+                        
+                )
+                .onFalse(
+                        Commands.parallel(
+                                sys_serializer.setFeederVoltage(0),
+                                sys_serializer.setIndexerVoltage(0)
+                        )
+                );
 
-        primaryController.rightBumper()
-                         .whileTrue(
-                              DriveCommands.alignToHeading(
-                                sys_drive, 
-                                () -> DriveCommands.getRotation2d(
-                                  sys_drive, 
-                                  new Pose2d(
-                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
-                                    Rotation2d.kZero
-                                  )
-                                )
-                              )
-                         );
+        
+        // primaryController.y()
+        //         .onTrue(
+        //                 sys_serializer.setFeederVoltage(10)
+        //         )
+        //         .onFalse(
+        //                 sys_serializer.setFeederVoltage(0)
+        //         );
+        // primaryController.a()
+        //         .onTrue(
+        //                 sys_serializer.setIndexerVoltage(10)
+        //         )
+        //         .onFalse(
+        //                 sys_serializer.setIndexerVoltage(0)
+        //         );
 
-        primaryController.leftBumper()
-                        .whileTrue(
-                          DriveCommands.joystickDriveAtAngle(
-                            sys_drive,
-                            () -> -primaryController.getLeftY(),
-                            () -> -primaryController.getLeftX(),
-                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
-                          )
-                        );
 
-        primaryController.x()
-                        .whileTrue(
-                            Commands.sequence(
-                              DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimibingPrepPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+        primaryController.povUp()
+                .onTrue(
+                        sys_serializer.setFeederVoltage(4)
+                )
+                .onFalse(
+                        sys_serializer.setFeederVoltage(0)
+                );
 
-                              ),
-                              DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimbingPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-                              )
-                            )
-                        );
+        primaryController.povDown()
+                .onTrue(
+                        sys_serializer.setFeederVoltage(-4)
+                )
+                .onFalse(
+                        sys_serializer.setFeederVoltage(0)
+                );
 
-        secondaryController.x()
-                        .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
-        secondaryController.b()
-                        .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
-        secondaryController.a()
-                        .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
+        primaryController.povLeft()
+                .onTrue(
+                        sys_serializer.setIndexerVoltage(-4)
+                )
+                .onFalse(
+                        sys_serializer.setIndexerVoltage(0)
+                );
+        
+        primaryController.povRight()
+                .onTrue(
+                        sys_serializer.setIndexerVoltage(4)
+                )
+                .onFalse(
+                        sys_serializer.setIndexerVoltage(0)
+                );
+        // Default command, normal field-relative drive
+        // sys_drive.setDefaultCommand(
+        //         DriveCommands.joystickDrive(
+        //                 sys_drive,
+        //                 () -> -primaryController.getLeftY(),
+        //                 () -> -primaryController.getLeftX(),
+        //                 () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
+        //         )
+        // );
 
-        secondaryController.povLeft()
-                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
-        secondaryController.povRight()
-                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+        // // Switch to X pattern when X button is pressed
+        // primaryController.x()
+        //                  .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
+
+        // // Switch To Bump Speed Modifier
+        // primaryController.a()
+        //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+        //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+
+        // primaryController.rightBumper()
+        //                  .whileTrue(
+        //                       DriveCommands.alignToHeading(
+        //                         sys_drive, 
+        //                         () -> DriveCommands.getRotation2d(
+        //                           sys_drive, 
+        //                           new Pose2d(
+        //                             new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+        //                             Rotation2d.kZero
+        //                           )
+        //                         )
+        //                       )
+        //                  );
+
+        // primaryController.leftBumper()
+        //                 .whileTrue(
+        //                   DriveCommands.joystickDriveAtAngle(
+        //                     sys_drive,
+        //                     () -> -primaryController.getLeftY(),
+        //                     () -> -primaryController.getLeftX(),
+        //                     () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
+        //                   )
+        //                 );
+
+        // primaryController.x()
+        //                 .whileTrue(
+        //                     Commands.sequence(
+        //                       DriveCommands.alignToPoint(
+        //                         sys_drive, 
+        //                         () -> selectedClimibingPrepPosition.pose, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+        //                         kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+        //                         kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+        //                         kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+
+        //                       ),
+        //                       DriveCommands.alignToPoint(
+        //                         sys_drive, 
+        //                         () -> selectedClimbingPosition.pose, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+        //                       )
+        //                     )
+        //                 );
+
+        // secondaryController.x()
+        //                 .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
+        // secondaryController.b()
+        //                 .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
+        // secondaryController.a()
+        //                 .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
+
+        // secondaryController.povLeft()
+        //                 .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
+        // secondaryController.povRight()
+        //                 .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
   
     }
 
-    private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
-        return Commands.runOnce(
-                () -> {
-                        if (climbingPosition == ClimbingPositions.LEFT)
-                          selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
-                        else
-                          selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
+//     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
+//         return Commands.runOnce(
+//                 () -> {
+//                         if (climbingPosition == ClimbingPositions.LEFT)
+//                           selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
+//                         else
+//                           selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
                           
-                        Logger.recordOutput("Climbing Position", climbingPosition);
+//                         Logger.recordOutput("Climbing Position", climbingPosition);
 
-                        selectedClimbingPosition = climbingPosition; 
+//                         selectedClimbingPosition = climbingPosition; 
                         
-                        Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
+//                         Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
 
-                }
-        );
-    };
+//                 }
+//         );
+//     };
 
-    private Command prepPassingPositionCommand(PassingPositions passingPosition){
-        return Commands.runOnce(
-                () -> {
-                        Logger.recordOutput("Passing Position", passingPosition);
+//     private Command prepPassingPositionCommand(PassingPositions passingPosition){
+//         return Commands.runOnce(
+//                 () -> {
+//                         Logger.recordOutput("Passing Position", passingPosition);
 
-                        selectedPassingPosition = passingPosition;
+//                         selectedPassingPosition = passingPosition;
 
-                        Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
+//                         Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
 
-                }
-        );
-    }
+//                 }
+//         );
+//     }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
      * @return the command to run in autonomous
      */
-    public Command getAutonomousCommand() {
-        return autoChooser.get();
-    }
+//     public Command getAutonomousCommand() {
+//         return autoChooser.get();
+//     }
 }
