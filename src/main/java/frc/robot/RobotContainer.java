@@ -15,6 +15,13 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.FieldConstants.Hub;
+import frc.robot.util.LimelightHelpers;
+
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.stream.DoubleStream;
@@ -35,6 +42,7 @@ public class RobotContainer {
 
   protected final Launcher sys_launcher;
   // protected final Serializer sys_serializer;
+  protected final Vision sys_vision;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -65,6 +73,8 @@ public class RobotContainer {
                 // LauncherConstants.HOOD_CAN_ID,
                 // LauncherConstants.HOOD_SENSOR_ID)
                 ));
+
+        sys_vision = new Vision(new VisionIOLimelight());
 
         // sys_serializer = new Serializer(
         //         new SerializerIOSparkMax(
@@ -104,6 +114,7 @@ public class RobotContainer {
 //                new ModuleIOSim(TunerConstants.BackRight));
 
         sys_launcher =  new Launcher(new LauncherSim());
+        sys_vision = new Vision(new VisionIO() {});
 
         break;
 
@@ -119,6 +130,7 @@ public class RobotContainer {
 //                new ModuleIO() {});
 
         sys_launcher = new Launcher(new LauncherIO() {});
+        sys_vision = new Vision(new VisionIO() {});
 
         break;
     }
@@ -174,6 +186,7 @@ public class RobotContainer {
     primaryController.a()
                     .onTrue(sys_launcher.runVelocity(RotationsPerSecond.of(20)));
 
+                    
     primaryController.y()
                     .onTrue(sys_launcher.stop());
 
@@ -204,6 +217,13 @@ public class RobotContainer {
                                   new WaitCommand(0.5)))
                           .toArray(Command[]::new)
       ));
+
+       // score fuel in hub by using odometry
+       var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
+       Logger.recordOutput("Vision/Estimate", pose);
+        SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
+                () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
+
 
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));

@@ -12,7 +12,7 @@ public class LauncherConstants {
     public static final int HOOD_CAN_ID     = 1;
     public static final int HOOD_SENSOR_ID  = 1;
 
-    public static final int SUPPLY_CURRENT_LIMIT = 30;
+    public static final int SUPPLY_CURRENT_LIMIT = 60;
 
     public static final double kG = 0.0;
     public static final double kS = 0.1;
