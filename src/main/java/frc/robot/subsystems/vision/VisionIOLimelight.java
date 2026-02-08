@@ -125,7 +125,7 @@ public class VisionIOLimelight implements VisionIO {
 
         if (Vision.ALLOW_FUSED_GYRO_ESTIMATIONS &&
             DriverStation.isEnabled() && // enabled
-            LimelightHelpers.getTA(Vision.PRIMARY_CAM_NAME) >= 1.5 && // confident tag
+            LimelightHelpers.getTA(Vision.PRIMARY_CAM_NAME) >= 0.25 && // confident tag
             Math.abs(speeds.vxMetersPerSecond) < 0.1 && // bot not moving
             Math.abs(speeds.vyMetersPerSecond) < 0.1 &&
             Math.abs(speeds.omegaRadiansPerSecond) < 0.1) {
@@ -133,8 +133,10 @@ public class VisionIOLimelight implements VisionIO {
             // ...and get estimate for bot pose in FUSED mode
             yaw = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose.getRotation();
             logGryoMode(IMUMode.FUSED);
+            LimelightHelpers.SetIMUMode(Vision.PRIMARY_CAM_NAME, IMUMode.FUSED.ID);
         } else {
             logGryoMode(IMUMode.EXTERNAL);
+            LimelightHelpers.SetIMUMode(Vision.PRIMARY_CAM_NAME, IMUMode.EXTERNAL.ID);
         }
 
         LimelightHelpers.SetRobotOrientation(
