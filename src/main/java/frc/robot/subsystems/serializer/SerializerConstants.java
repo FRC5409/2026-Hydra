@@ -1,19 +1,13 @@
 package frc.robot.subsystems.serializer;
 
 import static edu.wpi.first.units.Units.Amps;
-
-import com.pathplanner.lib.config.PIDConstants;
-import com.revrobotics.spark.config.FeedForwardConfig;
-
 import edu.wpi.first.units.measure.Current;
-
 
 public final class SerializerConstants {
     
     public static final Current ORTONA_SPARK_MAX_CURRENT_LIMIT = Amps.of(30);
     public static final boolean ORTONA_INDEXER_MOTOR_INVERTED = false;
      
-
     public static final Current TALON_FX_CURRENT_LIMIT = Amps.of(30);
     public static final int INDEXER_ID = 1;
     

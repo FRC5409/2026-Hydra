@@ -11,13 +11,12 @@ import edu.wpi.first.wpilibj.RobotController;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Volts;
 
-/**
- * Indexer for Ortona
- */
 public class SerializerIOSparkMax implements SerializerIO {
+
     private final SparkMax indexerMotor;
 
     public SerializerIOSparkMax(int indexerMotorID) {
+
         indexerMotor = new SparkMax(indexerMotorID, MotorType.kBrushless);
         SparkMaxConfig indexerMotorConfig = new SparkMaxConfig();
 
@@ -26,16 +25,20 @@ public class SerializerIOSparkMax implements SerializerIO {
         indexerMotorConfig.inverted(SerializerConstants.ORTONA_INDEXER_MOTOR_INVERTED);
 
         indexerMotor.configure(indexerMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
     }
 
     @Override
     public void setIndexerMotorVoltage(double voltage) {
+
         indexerMotor.setVoltage(voltage);
+
     }
 
 
     @Override
     public void updateInputs(SerializerInputs inputs) {
+
         inputs.isIndexerMotorConnected = !(indexerMotor.getFaults().motorType || indexerMotor.getFaults().can);
         inputs.indexerAppliedVoltage = Volts.of(indexerMotor.get() * RobotController.getBatteryVoltage());
         inputs.indexerAppliedCurrent = Amps.of(indexerMotor.getOutputCurrent());
