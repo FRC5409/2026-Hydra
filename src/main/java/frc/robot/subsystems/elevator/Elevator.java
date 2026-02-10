@@ -81,13 +81,11 @@ public class Elevator extends SubsystemBase{
         io.updateInputs(inputs);
         Logger.processInputs("Elevator", inputs);
         Logger.recordOutput("Components/Elevator", elevatorPose);
-        Logger.recordOutput("Components/Elevator Stage 2", elevatorPoseStage2);
 
         //Alert if motors are disconnected
         ElevatorAlert.set(!inputs.mainMotorConnection);
 
         elevatorPose = new Pose3d(0,0,inputs.mainMotorPosition, new Rotation3d());
-        elevatorPoseStage2 = new Pose3d(0,0,2*inputs.mainMotorPosition, new Rotation3d());
     }
 
     /**
