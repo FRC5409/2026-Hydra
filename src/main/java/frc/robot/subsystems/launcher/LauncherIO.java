@@ -59,6 +59,9 @@ public interface LauncherIO {
 
     default void stopHood() {}
 
+    // Ultrasonic sensor
+    default double getDistance() {return 0.0;}
+
     // Shared 
     default void updateInputs(LauncherInputs inputs) {}
 }

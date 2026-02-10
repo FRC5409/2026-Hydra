@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.Degrees;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalOutput;
 
 public class LauncherConstants {
     public static class Launcher {
@@ -46,6 +48,11 @@ public class LauncherConstants {
         public static final Angle MIN_ANGLE = Degrees.of(0);
         public static final Angle MAX_ANGLE = Degrees.of(30);
 
-        public static final PIDController PID = new PIDController(0.0, 0.0, 0.0);
+        public static final PIDController PID = new PIDController(120.0, 0.0, 0.0075);
+    }
+
+    public static class Ultrasonic {
+        public static DigitalOutput DIGITAL_OUPTPUT = new DigitalOutput(0);
+        public static DigitalInput DIGITAL_INPUT = new DigitalInput(0);
     }
 }

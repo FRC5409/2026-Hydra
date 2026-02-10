@@ -71,7 +71,9 @@ public class RobotContainer {
                 LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
                 LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
                 LauncherConstants.Hood.HOOD_CAN_ID,
-                LauncherConstants.Hood.HOOD_SENSOR_ID
+                LauncherConstants.Hood.HOOD_SENSOR_ID,
+                LauncherConstants.Ultrasonic.DIGITAL_OUPTPUT,
+                LauncherConstants.Ultrasonic.DIGITAL_INPUT
                 )
             );
 
@@ -179,8 +181,11 @@ public class RobotContainer {
     primaryController.x()
                     .onTrue(sys_launcher.launchFuel(Centimeter.of(640)));
 
-    primaryController.b()
-                    .onTrue(sys_launcher.setHoodPos(Degrees.of(5)));
+    primaryController.povRight()
+                    .onTrue(sys_launcher.setHoodPos(Degrees.of(30)));
+
+    primaryController.povLeft()
+                    .onFalse(sys_launcher.setHoodPos(Degrees.of(0)));
 
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));

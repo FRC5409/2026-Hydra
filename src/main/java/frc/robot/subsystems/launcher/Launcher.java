@@ -58,15 +58,25 @@ public class Launcher extends SubsystemBase{
     }
 
     public Command setHoodPos(Angle angle) {
+        Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
+        Logger.recordOutput("Hood/hoodPosition", inputs.hoodPosition);
+
+        // return Commands.runOnce(() -> io.setHoodPos(angle));
+
         return Commands.sequence(
-            Commands.runOnce(() -> io.setHoodPos(angle), this),
-            Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 1.0))
+            Commands.runOnce(() -> io.setHoodPos(angle)),
+            Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
+            )
         );
     }
 
-    // Getter
+    // Getters
     public Angle getHoodPos() {
-        return io.getHoodPos();   
+        return io.getHoodPos();
+    }
+
+    public double getDistance() {
+        return io.getDistance();
     }
 
     // Stops

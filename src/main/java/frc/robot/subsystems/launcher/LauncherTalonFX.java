@@ -11,7 +11,11 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DigitalOutput;
+import edu.wpi.first.wpilibj.Ultrasonic;
 
 public class LauncherTalonFX implements LauncherIO {
     // Motors and sensors
@@ -22,6 +26,9 @@ public class LauncherTalonFX implements LauncherIO {
     private final CANcoder launcherSensor;
 
     private final TalonFX launcherFollowerMotor;
+
+    private final Ultrasonic ultrasonic;
+    private final MedianFilter medianFilter;
 
     // IOs
     private final StatusSignal<Temperature>     temperatureLauncher;
@@ -43,7 +50,7 @@ public class LauncherTalonFX implements LauncherIO {
     // This thing
     private double velocitySetpoint;
 
-    public LauncherTalonFX(int launcherCanID, int launcherSensorID, int launcherFollowerCanID, int hoodCanID, int hoodSensorID) {
+    public LauncherTalonFX(int launcherCanID, int launcherSensorID, int launcherFollowerCanID, int hoodCanID, int hoodSensorID, DigitalOutput pingChannel, DigitalInput echoChannel) {
         // Motors and sensors
         hoodMotor = new TalonFX(hoodCanID);
         hoodSensor = new CANcoder(hoodSensorID);
@@ -52,6 +59,9 @@ public class LauncherTalonFX implements LauncherIO {
         launcherSensor = new CANcoder(launcherSensorID);
 
         launcherFollowerMotor = new TalonFX(launcherFollowerCanID);
+
+        ultrasonic = new Ultrasonic(pingChannel, echoChannel);
+        medianFilter = new MedianFilter(0);
 
         // IOs
         temperatureLauncher = launcherMotor.getDeviceTemp();
@@ -192,10 +202,15 @@ public class LauncherTalonFX implements LauncherIO {
         }
     }
 
-    // Getter
+    // Gettes
     @Override
     public Angle getHoodPos() {
         return hoodMotor.getPosition().getValue();
+    }
+
+    @Override
+    public double getDistance() {
+        return medianFilter.calculate(ultrasonic.getRangeInches());
     }
 
     // Stops
