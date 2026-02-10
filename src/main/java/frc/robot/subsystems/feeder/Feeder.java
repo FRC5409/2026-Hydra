@@ -41,7 +41,9 @@ public class Feeder extends SubsystemBase {
     }
 
     public Command runFeederRPS(double RPS) {
-        return Commands.runOnce(() -> io.runRPS(RPS));
+        return Commands.runOnce(() -> {
+            io.runRPS(RPS);
+        }, this);
     }
 
     public Command stopFeeder() {
