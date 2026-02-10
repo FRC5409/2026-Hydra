@@ -9,8 +9,19 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.FieldConstants.Hub;
+import frc.robot.util.LimelightHelpers;
+
+import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import static edu.wpi.first.units.Units.Centimeter;
@@ -30,6 +41,11 @@ import frc.robot.subsystems.drive.ModuleIOTalonFX;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
+
+import static edu.wpi.first.units.Units.*;
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -38,10 +54,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+//  private final Drive drive;
   // private final Intake sys_intake;
 
   protected final Launcher sys_launcher;
+  // protected final Serializer sys_serializer;
+  protected final Vision sys_vision;
 
   // Controller
   private final CommandXboxController primaryController = new CommandXboxController(0);
@@ -54,7 +72,6 @@ public class RobotContainer {
   public RobotContainer() {
     switch (Constants.currentMode) {
       case REAL:
-        // sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
         // Real robot, instantiate hardware IO implementations
         // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
         // a CANcoder
@@ -98,30 +115,32 @@ public class RobotContainer {
       case SIM:
         // sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIOSim(TunerConstants.FrontLeft),
-                new ModuleIOSim(TunerConstants.FrontRight),
-                new ModuleIOSim(TunerConstants.BackLeft),
-                new ModuleIOSim(TunerConstants.BackRight));
+//        drive =
+//            new Drive(
+//                new GyroIO() {},
+//                new ModuleIOSim(TunerConstants.FrontLeft),
+//                new ModuleIOSim(TunerConstants.FrontRight),
+//                new ModuleIOSim(TunerConstants.BackLeft),
+//                new ModuleIOSim(TunerConstants.BackRight));
 
         sys_launcher =  new Launcher(new LauncherSim());
-        
+        sys_vision = new Vision(new VisionIO() {});
+
         break;
 
       default:
         // sys_intake = new Intake(new IntakeIO(){});
         // Replayed robot, disable IO implementations
-        drive =
-            new Drive(
-                new GyroIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {},
-                new ModuleIO() {});
+//        drive =
+//            new Drive(
+//                new GyroIO() {},
+//                new ModuleIO() {},
+//                new ModuleIO() {},
+//                new ModuleIO() {},
+//                new ModuleIO() {});
 
         sys_launcher = new Launcher(new LauncherIO() {});
+        sys_vision = new Vision(new VisionIO() {});
 
         break;
     }
@@ -175,11 +194,44 @@ public class RobotContainer {
     primaryController.a()
                     .onTrue(sys_launcher.runRPS(20));
 
+                    
     primaryController.y()
                     .onTrue(sys_launcher.stopLauncher());
 
     primaryController.x()
-                    .onTrue(sys_launcher.launchFuel(Centimeter.of(640)));
+                    .onTrue(sys_launcher.launchFuel(() -> Centimeter.of(640)));
+
+      // launch fuel w distance
+      SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
+      SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
+              () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
+
+      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stop());
+
+      // launch fuel w speed
+      SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
+      SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
+              () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
+
+      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stop());
+
+      // sequentially run every distance from 0.5 m to 10.0 m
+      SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(
+              DoubleStream.iterate(0, d -> d + 0.5)
+                          .limit((int)(10 / 0.5) + 1)
+                          .boxed()
+                          .flatMap(d -> Stream.of(
+                                  sys_launcher.launchFuel(() -> Meters.of(d)),
+                                  new WaitCommand(0.5)))
+                          .toArray(Command[]::new)
+      ));
+
+       // score fuel in hub by using odometry
+       var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
+       Logger.recordOutput("Vision/Estimate", pose);
+        SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
+                () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
+
 
     primaryController.povRight()
                     .onTrue(sys_launcher.setHoodPos(Degrees.of(30)));
@@ -195,7 +247,7 @@ public class RobotContainer {
 
     // primaryController.a()
     //     .onTrue(sys_serializer.runFeederVoltage(5));
-    
+
     // primaryController.povDown()
     //     .onTrue(sys_serializer.runFeederVoltage(0));
 
@@ -211,4 +263,12 @@ public class RobotContainer {
   // public Command getAutonomousCommand() {
   //   return autoChooser.get();
   // }
+//  /**
+//   * Use this to pass the autonomous command to the main {@link Robot} class.
+//   *
+//   * @return the command to run in autonomous
+//   */
+//  public Command getAutonomousCommand() {
+//    return autoChooser.get();
+//  }
 }

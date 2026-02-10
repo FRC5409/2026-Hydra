@@ -2,7 +2,11 @@ package frc.robot.subsystems.launcher;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.*;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
+import com.ctre.phoenix6.configs.MotorOutputConfigs;
+import com.ctre.phoenix6.configs.Slot0Configs;
+import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -41,11 +45,11 @@ public class LauncherTalonFX implements LauncherIO {
     private final StatusSignal<Current> currentLauncherFollower;
     private final StatusSignal<AngularVelocity> speedLauncherFollower;
 
-    private final StatusSignal<Temperature>     temperatureHood;
-    private final StatusSignal<Voltage>         voltageHood;
-    private final StatusSignal<Current>         currentHood;
-    private final StatusSignal<AngularVelocity> speedHood;
-    private final StatusSignal<Angle>           hoodPosition;
+    // private final StatusSignal<Temperature>     temperatureHood;
+    // private final StatusSignal<Voltage>         voltageHood;
+    // private final StatusSignal<Current>         currentHood;
+    // private final StatusSignal<AngularVelocity> speedHood;
+    // private final StatusSignal<Angle>           hoodPosition;
 
     // This thing
     private double velocitySetpoint;
@@ -90,20 +94,20 @@ public class LauncherTalonFX implements LauncherIO {
                 temperatureLauncherFollower,
                 voltageLauncherFollower,
                 currentLauncherFollower,
-                speedLauncherFollower,
+                speedLauncherFollower
 
-                temperatureHood,
-                voltageHood,
-                currentHood,
-                speedHood,
-                hoodPosition
+                // temperatureHood,
+                // voltageHood,
+                // currentHood,
+                // speedHood,
+                // hoodPosition
         );
 
         // Configurators
         TalonFXConfigurator launcherConfigurator = launcherMotor.getConfigurator();
         TalonFXConfigurator launcherFollowerConfigurator = launcherMotor.getConfigurator();
 
-        TalonFXConfigurator hoodConfigurator = hoodMotor.getConfigurator();
+        // TalonFXConfigurator hoodConfigurator = hoodMotor.getConfigurator();
 
         // Slot configs
         Slot0Configs launcherSlotConfigs = new Slot0Configs()
@@ -238,12 +242,13 @@ public class LauncherTalonFX implements LauncherIO {
                 speedLauncherFollower
         ).isOK();
 
-        inputs.isHoodConnected = BaseStatusSignal.refreshAll(
-                voltageHood,
-                currentHood,
-                temperatureHood,
-                speedHood
-        ).isOK();
+        // inputs.isHoodConnected = BaseStatusSignal.refreshAll(
+        //         voltageHood,
+        //         currentHood,
+        //         temperatureHood,
+        //         speedHood
+        // ).isOK();
+        inputs.isHoodConnected = false;
 
         // Launcher
         inputs.temperatureLauncher = temperatureLauncher.getValueAsDouble();

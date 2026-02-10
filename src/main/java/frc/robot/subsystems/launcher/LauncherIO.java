@@ -44,9 +44,7 @@ public interface LauncherIO {
     // Launcher
     default void launcherSetVoltage(double volts) {}
 
-    default void runRPS(double velocity) {}
-
-    default void launchFuel(Distance distance) {}
+    default void runVelocity(double velocity) {}
 
     default void stopLauncher() {}
 

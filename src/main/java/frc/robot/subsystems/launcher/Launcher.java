@@ -1,5 +1,12 @@
 package frc.robot.subsystems.launcher;
 
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
+// import java.lang.System.Logger;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import org.littletonrobotics.junction.Logger;
 
@@ -22,8 +29,7 @@ public class Launcher extends SubsystemBase{
 
     private static Pose3d launcherMech;
     StructPublisher<Pose3d> publisher = NetworkTableInstance.getDefault()
-        .getStructTopic(
-            "MyPose", Pose3d.struct).publish();
+        .getStructTopic("MyPose", Pose3d.struct).publish();
     StructArrayPublisher<Pose3d> arrayPublisher = NetworkTableInstance.getDefault()
         .getStructArrayTopic("MyPoseArray", Pose3d.struct).publish();
 
@@ -32,6 +38,9 @@ public class Launcher extends SubsystemBase{
         inputs = new LauncherInputsAutoLogged();
 
         launcherMech = new Pose3d();
+
+        // create the logged fields
+        logInterpolation(Meters.of(0), null);
     }
 
     // Voltage
@@ -48,13 +57,25 @@ public class Launcher extends SubsystemBase{
         return Commands.runOnce(() -> io.runRPS(velocity));
     }
 
-    public Command launchFuel(Distance distance) {
-        var x = LauncherInterpolator.interpolate(distance);
+    public Command launchFuel(Supplier<Distance> distance) {
+        // ptr. to config; anon. fn. req. stable addr.
+        AtomicReference<Optional<LauncherInterpolator.LaunchConfig>> config = new AtomicReference<>(Optional.empty());
+        return Commands.runOnce(() -> {
+            LauncherInterpolator.LaunchConfig c = LauncherInterpolator.interpolate(distance.get());
+            logInterpolation(distance.get(), c);
+            config.set(Optional.of(c)); // update ptr. for use in next cmd.
+        }).andThen(runVelocity(RotationsPerSecond.of(
+                config.get()
+                      .map(c -> c.speed().in(RotationsPerSecond))
+                      .orElse(0.0)
+        )));
+    }
 
-        Logger.recordOutput("Launcher/targetSpeed", x.speed());
-        Logger.recordOutput("Launcher/targetAngle", x.angle());
-
-        return Commands.runOnce(() -> io.runRPS(-x.speed().in(RotationsPerSecond)), this);
+    private void logInterpolation(Distance distance, LauncherInterpolator.LaunchConfig config) {
+        Logger.recordOutput("Launcher/TargetDistance", distance);
+        Logger.recordOutput("Launcher/DidInterpolationSucceed", config != null);
+        Logger.recordOutput("Launcher/TargetSpeed", config == null ? RotationsPerSecond.of(0) : config.speed());
+        Logger.recordOutput("Launcher/TargetAngle", config == null ? Radians.of(0) : config.angle());
     }
 
     public Command setHoodPos(Angle angle) {
@@ -99,6 +120,6 @@ public class Launcher extends SubsystemBase{
         launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
 
         publisher.set(launcherMech);
-        arrayPublisher.set(new Pose3d[] {launcherMech, launcherMech});   
+        arrayPublisher.set(new Pose3d[] {launcherMech, launcherMech});
     }
 }
