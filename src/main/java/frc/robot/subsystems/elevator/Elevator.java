@@ -20,7 +20,6 @@ public class Elevator extends SubsystemBase{
     private final ElevatorInputsAutoLogged inputs;
 
     private static Pose3d elevatorPose;
-    private static Pose3d elevatorPoseStage2;
 
     // Setup alerts for elevator motors connection
     private final Alert ElevatorAlert  = new Alert("The Left Elevator Motor is Disconnected " + ElevatorConstants.MAIN_MOTOR_ID, AlertType.kError);
@@ -30,7 +29,6 @@ public class Elevator extends SubsystemBase{
         inputs = new ElevatorInputsAutoLogged();
 
         elevatorPose = new Pose3d();
-        elevatorPoseStage2 = new Pose3d();
     }
 
     /**
@@ -86,13 +84,5 @@ public class Elevator extends SubsystemBase{
         ElevatorAlert.set(!inputs.mainMotorConnection);
 
         elevatorPose = new Pose3d(0,0,inputs.mainMotorPosition, new Rotation3d());
-    }
-
-    /**
-     * Gets the stage 2 pose of the elevator
-     * @return the pose3d of stage 2 elevator
-     */
-    public static Pose3d getElevatorStage2Pose3dPose() {
-        return elevatorPoseStage2;
     }
 }
