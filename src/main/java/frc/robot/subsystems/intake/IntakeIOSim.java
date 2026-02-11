@@ -64,6 +64,12 @@ public class IntakeIOSim implements IntakeIO {
     } 
 
     @Override
+    public void stopMotor() {
+      running = false;
+      rollerVoltage = 0.0;
+    }
+
+    @Override
     public void updateInputs(IntakeInputs inputs) {
 
         double volts = 0.0;

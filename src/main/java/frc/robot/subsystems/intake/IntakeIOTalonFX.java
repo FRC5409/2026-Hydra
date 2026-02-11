@@ -111,6 +111,11 @@ public final class IntakeIOTalonFX implements IntakeIO {
         extensionMotor.setNeutralMode(NeutralModeValue.Brake);
     }   
 
+    public void stopMotor() {
+        rollerMotor.set(0.0);
+        extensionMotor.set(0.0);
+    }
+
     @Override
     public void updateInputs(IntakeIO.IntakeInputs inputs) {
 
