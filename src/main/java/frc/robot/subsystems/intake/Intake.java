@@ -130,6 +130,10 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
     }
 
+    public Command stopMotorCommand() {
+        return Commands.runOnce(() -> intakeIO.stopMotor(), this);
+    }
+
     @Override
     public void periodic() {
 
