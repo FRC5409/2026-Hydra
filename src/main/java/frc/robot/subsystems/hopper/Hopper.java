@@ -1,4 +1,8 @@
+//TO DO: CONVERT METERS TO INCHES IN SIM AND TALONFX + ROTATION CONVERTER
+
 package frc.robot.subsystems.hopper;
+
+import static edu.wpi.first.units.Units.Meters;
 
 import org.littletonrobotics.junction.Logger;
 
