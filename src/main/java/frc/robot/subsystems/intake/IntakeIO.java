@@ -42,9 +42,7 @@ public interface IntakeIO {
     public default void updateInputs(IntakeInputs inputs) {}
 
     public default Current getMotorCurrent() {
-
         return Amps.of(0.0);
-
     }
 
     public default void setSetpoint(Distance position) {}

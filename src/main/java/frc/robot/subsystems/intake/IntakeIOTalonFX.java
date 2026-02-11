@@ -55,8 +55,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
             .withKP(Extension.TALONFX_PID.kP)
             .withKI(Extension.TALONFX_PID.kI)
             .withKD(Extension.TALONFX_PID.kD);
-
-        
             
         extensionMotor.getConfigurator().apply(extensionConfigurator);
 
@@ -92,35 +90,25 @@ public final class IntakeIOTalonFX implements IntakeIO {
     }
 
     public void setRollerVoltage(double voltage) {
-
         rollerMotor.setVoltage(voltage);
-
     }
 
     public void setExtensionVoltage(double voltage) {
-
         extensionMotor.setVoltage(voltage);
-
     }
 
     public void setSetpoint(Distance position) {
-
         extensionMotor.setControl(positionControl.withPosition(position.in(Meters)));
-
     }
 
     public void coastMode() {
-
         rollerMotor.setNeutralMode(NeutralModeValue.Coast);
         extensionMotor.setNeutralMode(NeutralModeValue.Coast);
-
     }
 
     public void brakeMode() {
-
         rollerMotor.setNeutralMode(NeutralModeValue.Brake);
         extensionMotor.setNeutralMode(NeutralModeValue.Brake);
-
     }   
 
     @Override

@@ -1,5 +1,4 @@
 package frc.robot.subsystems.intake;
-
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
@@ -16,7 +15,6 @@ public final class IntakeConstants {
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
 		public static final Distance EXTENSION_DISTANCE = Meters.of(0.222); //Needs confirmation from Design for exact extension distance
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146); //Needs confirmation from Design for exact extension distance
-
 
 		public static final PIDConstants TALONFX_PID = new PIDConstants(1.0, 0.0, 0.0);
 		public static final PIDConstants SIM_PID = new PIDConstants(1.5, 0.14, 0.0);

@@ -43,32 +43,24 @@ public class IntakeIOSim implements IntakeIO {
 
     @Override
     public void setExtensionVoltage(double voltage) {
-
       extensionSim.setInputVoltage(voltage);
       running = voltage != 0;
-
     }
 
     @Override
     public void setRollerVoltage(double voltage) {
-
       rollerVoltage = voltage;
-
     }
 
     @Override
     public void setSetpoint(Distance position) {
-
       pid.setSetpoint(position.in(Meters));
       running = true;
-
     }
 
     @Override
     public Distance getPosition() {
-
       return Meters.of(extensionSim.getPositionMeters());
-
     } 
 
     @Override
@@ -77,11 +69,9 @@ public class IntakeIOSim implements IntakeIO {
         double volts = 0.0;
 
         if (running) {
-
             double pidOut = pid.calculate(extensionSim.getPositionMeters());
             double maxV = Math.max(12.0, RoboRioSim.getVInVoltage());
             volts = MathUtil.clamp(pidOut * 12.0, -maxV, maxV);
-            
         }
 
       extensionSim.setInputVoltage(volts);
