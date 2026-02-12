@@ -20,7 +20,7 @@ public class Feeder extends SubsystemBase {
         this.io = io;
         inputs = new FeederInputsAutoLogged();
 
-        Checkmate.register("Feeder spins", () -> {
+        Checkmate.register("Should spin to move FUEL towards launcher", () -> {
             Command cmd = this.setVoltage(2);
             cmd.initialize();
             cmd.execute();

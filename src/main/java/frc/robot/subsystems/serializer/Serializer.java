@@ -21,7 +21,7 @@ public class Serializer extends SubsystemBase{
         this.io = io;
         inputs = new SerializerInputsAutoLogged();
         
-        Checkmate.register("Serializer spins", () -> {
+        Checkmate.register("Should spin towards feeder", () -> {
             Command cmd = this.setVoltage(2);
             cmd.initialize();
             cmd.execute();
