@@ -88,7 +88,7 @@ public class IntakeIOSim implements IntakeIO {
       inputs.isRetracted = extensionSim.getPositionMeters() <= Extension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
       inputs.extensionVelocity = MetersPerSecond.of(extensionSim.getVelocityMetersPerSecond());
       inputs.extensionCurrent = Amps.of(extensionSim.getCurrentDrawAmps());
-      inputs.extensionRunning = running;
+      inputs.isExtensionRunning = running;
       inputs.extensionVolts = Volts.of(volts);
       inputs.extensionTemp = 25.0; // Constant temp for sim
 

@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
@@ -21,102 +22,70 @@ public class Intake extends SubsystemBase {
         this.intakeIO = intakeIO;
         this.inputs = new IntakeInputsAutoLogged();
 
-        Checkmate.register("Extension extend-retract", () -> {
+        Checkmate.register("Extension extend test", () -> {
 
-            final double extendTarget = Extension.EXTENSION_DISTANCE.in(Meters);
-            final double retractTarget = Extension.EXTENSION_MIN_DISTANCE.in(Meters);
-            final double timeoutSec = 5.0;
-            final long sleepMs = 20;
+            double extendTarget = Extension.EXTENSION_DISTANCE.in(Meters);
 
-            try {
-                intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
-                double elapsed = 0.0;
-                while (elapsed < timeoutSec) {
-                    intakeIO.updateInputs(inputs);
-                    if (inputs.extensionPosition >= extendTarget - 0.02) {
-                        break;
-                    }
-                    Thread.sleep(sleepMs);
-                    elapsed += sleepMs / 1000.0;
-                }
-                if (inputs.extensionPosition < extendTarget - 0.02) {
-                    return TestResult.fail(String.format("Extension failed to extend (pos=%.3f target=%.3f)",
-                            inputs.extensionPosition, extendTarget));
-                }
-                intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
-                elapsed = 0.0;
-                while (elapsed < timeoutSec) {
-                    intakeIO.updateInputs(inputs);
-                    if (inputs.extensionPosition <= retractTarget + 0.02) {
-                        break;
-                    }
-                    Thread.sleep(sleepMs);
-                    elapsed += sleepMs / 1000.0;
-                }
-                if (inputs.extensionPosition > retractTarget + 0.02) {
-                    return TestResult.fail(String.format("Extension failed to retract (pos=%.3f target=%.3f)",
-                            inputs.extensionPosition, retractTarget));
-                }
-                return TestResult.success(String.format("Extension ok (extend=%.3f retract=%.3f)", extendTarget, retractTarget));
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-                try {
-                    intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
-                } catch (Exception ignore) {
-                }
-                return TestResult.fail("Interrupted during extension check");
-            } catch (Exception ex) {
-                try {
-                    intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
-                } catch (Exception ignore) {
-                }
-                return TestResult.fail("Exception during extension check: " + ex.getMessage());
+            intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
+
+            Timer.delay(2.0);
+
+            if (Math.abs(inputs.extensionPosition - extendTarget) > 0.02) {
+                return TestResult.fail("Intake extension failed to extend, position: " + inputs.extensionPosition);
             }
+            return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
         });
 
-        Checkmate.register("Intake roller", () -> {
-            try {
-                intakeIO.setRollerVoltage(30.0);
-                Thread.sleep(1000);
-                intakeIO.updateInputs(inputs);
-                double current = inputs.rollerCurrent.in(Amps);
-                if (Math.abs(current) < 25.0) {
-                    return TestResult.fail("Intake roller failed to spin up, current: " + current);
-                }
-                intakeIO.setRollerVoltage(0.0);
-                return TestResult.success("Intake roller ok, current: " + current);
-            } catch (Exception ex) {
-                try {
-                    intakeIO.setRollerVoltage(0.0);
-                } catch (Exception ignore) {
-                }
-                return TestResult.fail("Exception during intake roller check: " + ex.getMessage());
+        Checkmate.register("Retraction retract test", () -> {
+
+            double retractTarget = Extension.EXTENSION_MIN_DISTANCE.in(Meters);
+
+            intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
+
+            Timer.delay(2.0);
+
+            if (Math.abs(inputs.extensionPosition - retractTarget) > 0.02) {
+                return TestResult.fail("Intake extension failed to retract, position: " + inputs.extensionPosition);
             }
+            return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
         });
+
+
+        Checkmate.register("Intake roller spin test", () -> {
+
+            intakeIO.setRollerVoltage(6.0);
+
+            Timer.delay(2.0);
+
+            double current = inputs.rollerCurrent.in(Amps);
+            intakeIO.setRollerVoltage(0.0);
+            if (Math.abs(current) < 1.0) {
+                return TestResult.fail("Intake roller failed to spin up, current: " + current);
+            }
+            return TestResult.success("Intake roller ok, current: " + current);
+        });
+        ;
+
     }
 
-    public Command intakeCommand(double voltage) {
+    public Command intake(double voltage) {
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage), this);
     }
 
-    public Command brakemodeCommand() {
+    public Command brakemode() {
         return Commands.runOnce(() -> intakeIO.brakeMode(), this);
     }
 
-    public Command extendCommand() {
+    public Command extend() {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE), this);
     }
 
-    public Command retractCommand() {
+    public Command retract() {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
     }
 
-    public Command stopMotorCommand() {
+    public Command stopMotor() {
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
-    }
-
-    public Command getPositionCommand() {
-        return Commands.runOnce(() -> intakeIO.getPosition().in(Meters), this);
     }
 
     @Override

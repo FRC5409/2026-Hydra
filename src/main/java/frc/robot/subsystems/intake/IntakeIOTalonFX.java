@@ -129,7 +129,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.extensionTemp = 0.0;
         inputs.extensionPosition =  Units.rotationsToRadians(extensionPositionSignal.getValueAsDouble());
         inputs.extensionVelocity = MetersPerSecond.of(extensionVelocitySignal.getValueAsDouble());
-        inputs.extensionRunning = Math.abs(extensionVoltageSignal.getValueAsDouble()) > 0.1;
+        inputs.isExtensionRunning = Math.abs(extensionVoltageSignal.getValueAsDouble()) > 0.1;
         inputs.isExtended = inputs.extensionPosition >= Extension.EXTENSION_MAX_DISTANCE.in(Meters) - 0.01;
         inputs.isRetracted = inputs.extensionPosition <= Extension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
 

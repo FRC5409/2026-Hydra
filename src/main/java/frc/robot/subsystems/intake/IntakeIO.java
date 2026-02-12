@@ -23,7 +23,7 @@ public interface IntakeIO {
         public AngularVelocity rollerVelocity = RotationsPerSecond.of(0.0);
 
         public boolean isExtensionConnected = false;
-        public boolean extensionRunning = false;
+        public boolean isExtensionRunning = false;
         public Voltage extensionVolts = Volts.of(0.0);
         public Current extensionCurrent = Amps.of(0.0);
         public double extensionTemp = 0.0;
