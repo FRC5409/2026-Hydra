@@ -22,7 +22,7 @@ public class Intake extends SubsystemBase {
         this.intakeIO = intakeIO;
         this.inputs = new IntakeInputsAutoLogged();
 
-        Checkmate.register("Extension extend test", () -> {
+        Checkmate.register("Should extend intake", () -> {
 
             double extendTarget = Extension.EXTENSION_DISTANCE.in(Meters);
 
@@ -36,7 +36,7 @@ public class Intake extends SubsystemBase {
             return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
         });
 
-        Checkmate.register("Retraction retract test", () -> {
+        Checkmate.register("Should retract intake", () -> {
 
             double retractTarget = Extension.EXTENSION_MIN_DISTANCE.in(Meters);
 
@@ -51,7 +51,7 @@ public class Intake extends SubsystemBase {
         });
 
 
-        Checkmate.register("Intake roller spin test", () -> {
+        Checkmate.register("Should spin roller", () -> {
 
             intakeIO.setRollerVoltage(6.0);
 
