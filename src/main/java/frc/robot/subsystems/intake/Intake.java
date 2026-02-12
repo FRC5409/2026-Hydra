@@ -16,6 +16,7 @@ public class Intake extends SubsystemBase {
 
     private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged inputs;
+    private final Timer timer = new Timer();
 
     public Intake(IntakeIO intakeIO) {
 
@@ -28,7 +29,10 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
 
-            Timer.delay(2.0);
+            timer.start();
+
+            while (timer.hasElapsed(2.0)) {
+            }
 
             if (Math.abs(inputs.extensionPosition - extendTarget) > 0.02) {
                 return TestResult.fail("Intake extension failed to extend, position: " + inputs.extensionPosition);
@@ -42,7 +46,10 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
 
-            Timer.delay(2.0);
+            timer.start();
+
+            while (timer.hasElapsed(2.0)) {
+            }
 
             if (Math.abs(inputs.extensionPosition - retractTarget) > 0.02) {
                 return TestResult.fail("Intake extension failed to retract, position: " + inputs.extensionPosition);
@@ -55,7 +62,10 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setRollerVoltage(6.0);
 
-            Timer.delay(2.0);
+            timer.start();
+
+            while (timer.hasElapsed(2.0)) {
+            } 
 
             double current = inputs.rollerCurrent.in(Amps);
             intakeIO.setRollerVoltage(0.0);
