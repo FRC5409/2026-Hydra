@@ -1,7 +1,7 @@
 package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Volts;
 
 import org.littletonrobotics.junction.AutoLog;
@@ -17,13 +17,13 @@ public interface HopperIO {
         public Current mainAppliedCurrent = Amps.of(0.0);
         public Voltage mainAppliedVoltage = Volts.of(0.0);
         public double mainMotorTemp = 0.0;
-        public Distance mainMotorPosition = Meters.of(0.0);
+        public Distance mainMotorPosition = Inches.of(0.0);
 
         public boolean isFollowerMotorConnected = false;
         public Current followerAppliedCurrent = Amps.of(0.0);
         public Voltage followerAppliedVoltage = Volts.of(0.0);
         public double followerMotorTemp = 0.0;
-        public Distance followerMotorPosition = Meters.of(0.0);
+        public Distance followerMotorPosition = Inches.of(0.0);
     }
 
     public default void updateInputs(HopperInputs inputs) {}
@@ -31,6 +31,6 @@ public interface HopperIO {
     public default void stopMotor() {}
     public default void zeroEncoder() {}
     public default void setSetpoint(Distance setpoint) {}
-    public default Distance getPosition() {return Meters.of(0.0);}
+    public default Distance getPosition() {return Inches.of(0.0);}
 
 }

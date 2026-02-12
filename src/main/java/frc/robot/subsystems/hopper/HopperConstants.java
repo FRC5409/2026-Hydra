@@ -21,7 +21,7 @@ public final class HopperConstants {
     public static final Current CURRENT_LIMIT = Amps.of(30.0);
     public static final double kGearing = 10.0 / 1.0;
     public static final Distance HOPPER_DRUMRADIUS = Millimeters.of(22);
-    public static final double kCircumfrence = 2 * Math.PI * HOPPER_DRUMRADIUS.in(Meters);
+    public static final double kCircumfrence = 2 * Math.PI * HOPPER_DRUMRADIUS.in(Inches);
     public static final double kRotationConverter = kCircumfrence / kGearing;
     public static final Mass HOPPER_MASS = Pound.of(10.561);
 

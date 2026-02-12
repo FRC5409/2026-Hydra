@@ -1,5 +1,6 @@
 package frc.robot.subsystems.hopper;
 
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -57,7 +58,7 @@ public class HopperIOTalonFX implements HopperIO {
         m_followerMotorConfig.apply(m_currentConfig);
 
         m_encoderConfigs = new FeedbackConfigs()
-            .withSensorToMechanismRatio(HopperConstants.kGearing);
+            .withSensorToMechanismRatio(HopperConstants.kRotationConverter);
         m_mainMotorConfig.apply(m_encoderConfigs);
         m_followerMotorConfig.apply(m_encoderConfigs);
 
@@ -122,12 +123,12 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public Distance getPosition() {
-        return Meters.of(m_mainMotor.getPosition().getValueAsDouble());
+        return Inches.of(m_mainMotor.getPosition().getValueAsDouble());
     }
 
     @Override
     public void setSetpoint(Distance setpoint) {
-        m_mainMotor.setControl(m_request.withPosition(setpoint.in(Meters)));
+        m_mainMotor.setControl(m_request.withPosition(setpoint.in(Inches)));
     }
 
     @Override
@@ -142,7 +143,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.mainAppliedVoltage = mainDeviceVoltage.getValue();
         inputs.mainAppliedCurrent = mainDeviceCurrent.getValue();
         inputs.mainMotorTemp = mainDeviceTemp.getValueAsDouble();
-        inputs.mainMotorPosition = Meters.of(motorPosition.getValueAsDouble());
+        inputs.mainMotorPosition = Inches.of(motorPosition.getValueAsDouble());
         
         inputs.isFollowerMotorConnected = BaseStatusSignal.refreshAll(
             followerDeviceVoltage, 
@@ -152,7 +153,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.followerAppliedVoltage = followerDeviceVoltage.getValue();
         inputs.followerAppliedCurrent = followerDeviceCurrent.getValue();
         inputs.followerMotorTemp = followerDeviceTemp.getValueAsDouble();        
-        inputs.followerMotorPosition = Meters.of(motorPosition.getValueAsDouble());
+        inputs.followerMotorPosition = Inches.of(motorPosition.getValueAsDouble());
     }
 
 }
