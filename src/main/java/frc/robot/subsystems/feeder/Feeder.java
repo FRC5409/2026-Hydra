@@ -54,7 +54,7 @@ public class Feeder extends SubsystemBase {
 
     public Command zeroFeederEncoder() {
         return Commands.runOnce(() -> {
-            io.zeroFeederEncoder();
+            io.zeroEncoder();
         }, this);
     }
 

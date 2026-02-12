@@ -18,23 +18,23 @@ public interface SerializerIO {
     @AutoLog
     public class SerializerInputs {
 
-        public boolean isIndexerMotorConnected = false;
-        public Voltage indexerAppliedVoltage = Volts.of(0.0);
-        public Current indexerAppliedCurrent = Amps.of(0.0);
-        public double indexerMotorTemperature = 0.0;
-        public Angle indexerMotorPosition = Degrees.of(0.0);
-        public AngularVelocity indexerMotorVelocity = RotationsPerSecond.of(0.0);
+        public boolean isMotorConnected = false;
+        public Voltage appliedVoltage = Volts.of(0.0);
+        public Current appliedCurrent = Amps.of(0.0);
+        public double motorTemperature = 0.0;
+        public Angle motorPosition = Degrees.of(0.0);
+        public AngularVelocity motorVelocity = RotationsPerSecond.of(0.0);
         
     }
 
     public default void updateInputs(SerializerInputs inputs) {}
 
-    public default void setIndexerMotorVoltage(double voltage) {}
+    public default void setMotorVoltage(double voltage) {}
 
 
-    public default void stopIndexerMotor() {}
+    public default void stopMotor() {}
 
-    public default void zeroIndexerEncoder() {}
+    public default void zeroEncoder() {}
     
-    public default AngularVelocity getIndexerVelocity() {return RotationsPerSecond.of(0);}
+    public default AngularVelocity getVelocity() {return RotationsPerSecond.of(0);}
 }

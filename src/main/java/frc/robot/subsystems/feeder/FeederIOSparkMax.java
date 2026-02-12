@@ -34,9 +34,9 @@ public class FeederIOSparkMax implements FeederIO {
 
     @Override
     public void updateInputs(FeederInputs inputs) {
-        inputs.isFeederMotorConnected = !(feederMotor.getFaults().motorType || feederMotor.getFaults().can);
-        inputs.feederAppliedVoltage = Volts.of(feederMotor.get() * RobotController.getBatteryVoltage());
-        inputs.feederAppliedCurrent = Amps.of(feederMotor.getOutputCurrent());
-        inputs.feederMotorTemperature = feederMotor.getMotorTemperature();
+        inputs.isMotorConnected = !(feederMotor.getFaults().motorType || feederMotor.getFaults().can);
+        inputs.appliedVoltage = Volts.of(feederMotor.get() * RobotController.getBatteryVoltage());
+        inputs.appliedCurrent = Amps.of(feederMotor.getOutputCurrent());
+        inputs.motorTemperature = feederMotor.getMotorTemperature();
     }
 }

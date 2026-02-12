@@ -74,12 +74,12 @@ public class FeederIOSim implements FeederIO {
         feederSim.setInputVoltage(simVoltage);
         feederSim.update(0.02);
         
-        inputs.isFeederMotorConnected = true;
-        inputs.feederAppliedVoltage = Volts.of(feederSim.getInputVoltage());
-        inputs.feederMotorVelocity = getVelocityRPS();
-        inputs.feederAppliedCurrent = Amps.of(feederSim.getCurrentDrawAmps());
+        inputs.isMotorConnected = true;
+        inputs.appliedVoltage = Volts.of(feederSim.getInputVoltage());
+        inputs.motorVelocity = getVelocityRPS();
+        inputs.appliedCurrent = Amps.of(feederSim.getCurrentDrawAmps());
         numberOfRotations += getVelocityRPS().in(RotationsPerSecond)*0.02;
-        inputs.feederMotorPosition = Rotations.of(numberOfRotations);
+        inputs.motorPosition = Rotations.of(numberOfRotations);
     }
 
 }

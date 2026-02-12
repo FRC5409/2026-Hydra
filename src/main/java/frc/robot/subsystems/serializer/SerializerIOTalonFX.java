@@ -17,86 +17,86 @@ import edu.wpi.first.units.measure.Voltage;
 
 public class SerializerIOTalonFX implements SerializerIO {
     
-    private TalonFX indexerMotor;
+    private TalonFX m_motor;
 
-    private TalonFXConfigurator indexerMotorConfig;
+    private TalonFXConfigurator motorConfig;
     private CurrentLimitsConfigs currentConfigs;
 
-    private StatusSignal<AngularVelocity> indexerDeviceVelocity;
-    private StatusSignal<Angle> indexerDevicePosition;
-    private StatusSignal<Voltage> indexerDeviceVoltage;
-    private StatusSignal<Current> indexerDeviceCurrent;
-    private StatusSignal<Temperature> indexerDeviceTemp;
+    private StatusSignal<AngularVelocity> deviceVelocity;
+    private StatusSignal<Angle> devicePosition;
+    private StatusSignal<Voltage> deviceVoltage;
+    private StatusSignal<Current> deviceCurrent;
+    private StatusSignal<Temperature> deviceTemp;
 
     
 
 
-    public SerializerIOTalonFX(int indexerID) {
-        indexerMotor = new TalonFX(indexerID);
+    public SerializerIOTalonFX(int motorId) {
+        m_motor = new TalonFX(motorId);
 
-        indexerMotorConfig = indexerMotor.getConfigurator();
+        motorConfig = m_motor.getConfigurator();
 
         currentConfigs = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(SerializerConstants.TALON_FX_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
-        indexerMotorConfig.apply(currentConfigs);
+        motorConfig.apply(currentConfigs);
 
-        indexerMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+        motorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
-        indexerMotor.setNeutralMode(NeutralModeValue.Brake);
+        m_motor.setNeutralMode(NeutralModeValue.Brake);
 
-        indexerDeviceVelocity = indexerMotor.getVelocity();
-        indexerDevicePosition = indexerMotor.getPosition();
-        indexerDeviceVoltage = indexerMotor.getMotorVoltage();
-        indexerDeviceCurrent = indexerMotor.getSupplyCurrent();
-        indexerDeviceTemp = indexerMotor.getDeviceTemp();
+        deviceVelocity = m_motor.getVelocity();
+        devicePosition = m_motor.getPosition();
+        deviceVoltage = m_motor.getMotorVoltage();
+        deviceCurrent = m_motor.getSupplyCurrent();
+        deviceTemp = m_motor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50,
-            indexerDevicePosition,
-            indexerDeviceVelocity,
-            indexerDeviceVoltage,
-            indexerDeviceCurrent,
-            indexerDeviceTemp
+            devicePosition,
+            deviceVelocity,
+            deviceVoltage,
+            deviceCurrent,
+            deviceTemp
         );
 
-        indexerMotor.optimizeBusUtilization();
+        m_motor.optimizeBusUtilization();
     }
 
     @Override
-    public void setIndexerMotorVoltage(double voltage) {
-        indexerMotor.setVoltage(voltage);
+    public void setMotorVoltage(double voltage) {
+        m_motor.setVoltage(voltage);
     }
 
     @Override
-    public void stopIndexerMotor() {
-        indexerMotor.stopMotor();
+    public void stopMotor() {
+        m_motor.stopMotor();
     }
 
     @Override
-    public void zeroIndexerEncoder() {
-        indexerMotor.setPosition(0);
+    public void zeroEncoder() {
+        m_motor.setPosition(0);
     }
 
     @Override
-    public AngularVelocity getIndexerVelocity() {
-        return indexerDeviceVelocity.getValue();
+    public AngularVelocity getVelocity() {
+        return deviceVelocity.getValue();
     }
 
     @Override
     public void updateInputs(SerializerInputs inputs) {
-        inputs.isIndexerMotorConnected = BaseStatusSignal.refreshAll(
-            indexerDevicePosition,
-            indexerDeviceVelocity,
-            indexerDeviceVoltage,
-            indexerDeviceCurrent,
-            indexerDeviceTemp
+        inputs.isMotorConnected = BaseStatusSignal.refreshAll(
+            devicePosition,
+            deviceVelocity,
+            deviceVoltage,
+            deviceCurrent,
+            deviceTemp
         ).isOK();
-        inputs.indexerMotorPosition = indexerDevicePosition.getValue();
-        inputs.indexerMotorVelocity = indexerDeviceVelocity.getValue();
-        inputs.indexerAppliedVoltage = indexerDeviceVoltage.getValue();
-        inputs.indexerAppliedCurrent = indexerDeviceCurrent.getValue();
-        inputs.indexerMotorTemperature = indexerDeviceTemp.getValueAsDouble();
+        inputs.motorPosition = devicePosition.getValue();
+        inputs.motorVelocity = deviceVelocity.getValue();
+        inputs.appliedVoltage = deviceVoltage.getValue();
+        inputs.appliedCurrent = deviceCurrent.getValue();
+        inputs.motorTemperature = deviceTemp.getValueAsDouble();
     }
 
 }

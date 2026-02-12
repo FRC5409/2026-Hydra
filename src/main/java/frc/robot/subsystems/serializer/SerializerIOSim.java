@@ -14,21 +14,21 @@ public class SerializerIOSim implements SerializerIO {
     }
 
     @Override
-    public void setIndexerMotorVoltage(double voltage) {
+    public void setMotorVoltage(double voltage) {
 
         indexerVoltage = voltage;
 
     }
 
     @Override
-    public void stopIndexerMotor() {
+    public void stopMotor() {
 
         indexerVoltage = 0.0;
 
     }
 
     @Override
-    public AngularVelocity getIndexerVelocity() {
+    public AngularVelocity getVelocity() {
 
         return RotationsPerSecond.of(indexerVoltage);
 
@@ -37,9 +37,9 @@ public class SerializerIOSim implements SerializerIO {
     @Override
     public void updateInputs(SerializerInputs inputs) {
 
-        inputs.isIndexerMotorConnected = true;
-        inputs.indexerAppliedVoltage = Volts.of(indexerVoltage);
-        inputs.indexerMotorVelocity = getIndexerVelocity();
+        inputs.isMotorConnected = true;
+        inputs.appliedVoltage = Volts.of(indexerVoltage);
+        inputs.motorVelocity = getVelocity();
 
     }
 

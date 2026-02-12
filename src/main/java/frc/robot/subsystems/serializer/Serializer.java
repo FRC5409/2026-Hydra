@@ -21,68 +21,41 @@ public class Serializer extends SubsystemBase{
         this.io = io;
         inputs = new SerializerInputsAutoLogged();
         
-        Checkmate.register("Indexer spins", () -> {
-
-            Command cmd = this.setIndexerVoltage(2);
+        Checkmate.register("Serializer spins", () -> {
+            Command cmd = this.setVoltage(2);
             cmd.initialize();
             cmd.execute();
-
-            if(this.getIndexerVelocity().in(RotationsPerSecond) > 0) {
-
-                return TestResult.success("Indexer spins the right way");
-
+            if(this.getVelocity().in(RotationsPerSecond) > 0) {
+                return TestResult.success("Serializer spins the right way");
             } 
-            else if (this.getIndexerVelocity().in(RotationsPerSecond) < 0) {
-
-                return TestResult.fail("Indexer spins the wrong way");
-
+            else if (this.getVelocity().in(RotationsPerSecond) < 0) {
+                return TestResult.fail("Serializer spins the wrong way");
             } 
             else {
-
-                return TestResult.fail("Indexer is not spinning!");
-
+                return TestResult.fail("Serializer is not spinning!");
             }
         });
     }
 
-    
-
-    public Command setIndexerVoltage(double voltage){
-
-        return Commands.runOnce(() -> {io.setIndexerMotorVoltage(voltage);}, this);
-
+    public Command setVoltage(double voltage){
+        return Commands.runOnce(() -> {io.setMotorVoltage(voltage);}, this);
     }
 
-    
-
-    public Command stopIndexer() {
-
-        return Commands.runOnce(() -> {io.stopIndexerMotor();}, this);
-
+    public Command stopMotor() {
+        return Commands.runOnce(() -> {io.stopMotor();}, this);
     }
 
-    
-
-    public Command zeroIndexerEncoder() {
-
-        return Commands.runOnce(() -> {io.zeroIndexerEncoder();}, this);
-
+    public Command zeroEncoder() {
+        return Commands.runOnce(() -> {io.zeroEncoder();}, this);
     }
 
-
-    public AngularVelocity getIndexerVelocity() {
-
-        return io.getIndexerVelocity();
-
+    public AngularVelocity getVelocity() {
+        return io.getVelocity();
     }
-
-    
 
     @Override
     public void periodic() {
-
         io.updateInputs(inputs);
         Logger.processInputs("Serializer", inputs);
-
     }
 }

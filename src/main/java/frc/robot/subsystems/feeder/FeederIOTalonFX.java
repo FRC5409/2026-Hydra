@@ -91,7 +91,7 @@ public class FeederIOTalonFX implements FeederIO {
     }
 
     @Override
-    public void zeroFeederEncoder() {
+    public void zeroEncoder() {
         feederMotor.setPosition(0);
     }
 
@@ -102,18 +102,18 @@ public class FeederIOTalonFX implements FeederIO {
 
     @Override
     public void updateInputs(FeederInputs inputs) {
-        inputs.isFeederMotorConnected = BaseStatusSignal.refreshAll(
+        inputs.isMotorConnected = BaseStatusSignal.refreshAll(
             feederDevicePosition,
             feederDeviceVelocity,
             feederDeviceVoltage,
             feederDeviceCurrent,
             feederDeviceTemp
         ).isOK();
-        inputs.feederMotorPosition = feederDevicePosition.getValue();
-        inputs.feederMotorVelocity = feederDeviceVelocity.getValue();
-        inputs.feederAppliedVoltage = feederDeviceVoltage.getValue();
-        inputs.feederAppliedCurrent = feederDeviceCurrent.getValue();
-        inputs.feederMotorTemperature = feederDeviceTemp.getValueAsDouble();
+        inputs.motorPosition = feederDevicePosition.getValue();
+        inputs.motorVelocity = feederDeviceVelocity.getValue();
+        inputs.appliedVoltage = feederDeviceVoltage.getValue();
+        inputs.appliedCurrent = feederDeviceCurrent.getValue();
+        inputs.motorTemperature = feederDeviceTemp.getValueAsDouble();
     }
 
 }

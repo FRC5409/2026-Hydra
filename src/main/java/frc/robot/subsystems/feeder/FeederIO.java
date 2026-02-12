@@ -15,12 +15,12 @@ import edu.wpi.first.units.measure.Voltage;
 public interface FeederIO {
     @AutoLog
     public class FeederInputs {
-        public boolean isFeederMotorConnected = false;
-        public Voltage feederAppliedVoltage = Volts.of(0.0);
-        public Current feederAppliedCurrent = Amps.of(0.0);
-        public double feederMotorTemperature = 0.0;
-        public Angle feederMotorPosition = Degrees.of(0.0);
-        public AngularVelocity feederMotorVelocity = RotationsPerSecond.of(0.0);
+        public boolean isMotorConnected = false;
+        public Voltage appliedVoltage = Volts.of(0.0);
+        public Current appliedCurrent = Amps.of(0.0);
+        public double motorTemperature = 0.0;
+        public Angle motorPosition = Degrees.of(0.0);
+        public AngularVelocity motorVelocity = RotationsPerSecond.of(0.0);
     }
 
     public default void updateInputs(FeederInputs inputs) {}
@@ -31,7 +31,7 @@ public interface FeederIO {
 
      public default void stopMotor() {}
 
-     public default void zeroFeederEncoder() {}
+     public default void zeroEncoder() {}
      
      public default AngularVelocity getVelocityRPS() {return RotationsPerSecond.of(0);}
 
