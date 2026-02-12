@@ -21,12 +21,12 @@ public class Feeder extends SubsystemBase {
         inputs = new FeederInputsAutoLogged();
 
         Checkmate.register("Feeder spins", () -> {
-            Command cmd = this.setFeederVoltage(2);
+            Command cmd = this.setVoltage(2);
             cmd.initialize();
             cmd.execute();
-            if(this.getFeederVelocity().in(RotationsPerSecond) > 0) {
+            if(this.getVelocity().in(RotationsPerSecond) > 0) {
                 return TestResult.success("Feeder spins the right way");
-            } else if (this.getFeederVelocity().in(RotationsPerSecond) < 0) {
+            } else if (this.getVelocity().in(RotationsPerSecond) < 0) {
                 return TestResult.fail("Feeder spins the wrong way");
             } else {
                 return TestResult.fail("Feeder is not spinning!");
@@ -34,31 +34,31 @@ public class Feeder extends SubsystemBase {
         });
     }
 
-    public Command setFeederVoltage(double voltage){
+    public Command setVoltage(double voltage){
         return Commands.runOnce(() -> {
             io.setMotorVoltage(voltage);
         }, this);
     }
 
-    public Command runFeederRPS(double RPS) {
+    public Command runRPS(double RPS) {
         return Commands.runOnce(() -> {
             io.runRPS(RPS);
         }, this);
     }
 
-    public Command stopFeeder() {
+    public Command stopMotor() {
         return Commands.runOnce(() -> {
             io.stopMotor();
         }, this);
     }
 
-    public Command zeroFeederEncoder() {
+    public Command zeroEncoder() {
         return Commands.runOnce(() -> {
             io.zeroEncoder();
         }, this);
     }
 
-    public AngularVelocity getFeederVelocity() {
+    public AngularVelocity getVelocity() {
         return io.getVelocityRPS();
     }
 
