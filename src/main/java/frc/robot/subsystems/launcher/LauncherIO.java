@@ -38,6 +38,8 @@ public interface LauncherIO {
         public Angle targetHoodPosition = Degrees.of(0.0);
 
         public double velocitySetpoint = 0.0;
+
+        public double ultrasonicDistance = 0.0;
     }
 
     default void setVoltage(double volts) {}
@@ -49,6 +51,14 @@ public interface LauncherIO {
     default Angle getHoodPos() {return Degrees.of(0);}
 
     default void stop() {}
+
+    // Ultrasonic sensor
+    default double getDistance() {return 0.0;}
     
     default void updateInputs(LauncherInputs inputs) {}
+
+    // Servo
+    default void setServoPos(double pos) {}
+
+    default double getServoPos() {return 0.0;}
 }

@@ -44,8 +44,21 @@ public class Launcher extends SubsystemBase{
         logInterpolation(Meters.of(0), null);
     }
 
+    
+    public Command setServoPos(double pos) {
+        return Commands.runOnce(() -> io.setServoPos(pos));
+    }
+
+    public double getServoPos() {
+        return io.getServoPos();
+    }
+
     public Angle getHoodPos() {
         return io.getHoodPos();
+    }
+
+    public double getDistance() {
+        return io.getDistance();
     }
 
     public Command launchFuel(Supplier<Distance> distance) {
@@ -98,7 +111,7 @@ public class Launcher extends SubsystemBase{
         Logger.processInputs("Launcher", inputs);
         Logger.recordOutput("Launcher Mech", launcherMech);
 
-        SmartDashboard.putData("Launcher/PID", LauncherConstants.PID);
+        // SmartDashboard.putData("Launcher/PID", LauncherConstants.PID);
 
         launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
 

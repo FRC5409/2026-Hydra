@@ -67,9 +67,13 @@ public class RobotContainer {
         //         new ModuleIOTalonFX(TunerConstants.BackRight));
 
         sys_launcher = new Launcher(new LauncherTalonFX(
-                LauncherConstants.LAUNCHER_CAN_ID,
-                LauncherConstants.LAUNCHER_SENSOR_ID,
                 LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID
+                // LauncherConstants.LAUNCHER_CAN_ID,
+                // LauncherConstants.LAUNCHER_SENSOR_ID,
+                // LauncherConstants.FOLLOWER_LAUNCHER_CAN_ID,
+                LauncherConstants.Ultrasonic.DIGITAL_OUPTPUT,
+                LauncherConstants.Ultrasonic.DIGITAL_INPUT
+                // LauncherConstants.Servo.CHANNEL
                 // LauncherConstants.HOOD_CAN_ID,
                 // LauncherConstants.HOOD_SENSOR_ID)
                 ));
@@ -193,6 +197,13 @@ public class RobotContainer {
     primaryController.x()
                     .onTrue(sys_launcher.launchFuel(() -> Centimeter.of(640)));
 
+    //Servo**
+    primaryController.povRight()
+                        .whileTrue(sys_launcher.setServoPos(sys_launcher.getServoPos()+0.1));
+    
+    primaryController.povLeft()
+                        .whileTrue(sys_launcher.setServoPos(sys_launcher.getServoPos()-0.1));
+
       // launch fuel w distance
       SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
       SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
@@ -224,6 +235,7 @@ public class RobotContainer {
         SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
                 () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
 
+                
 
     // primaryController.x()
     //     .whileTrue(sys_launcher.runVelocity(1));
