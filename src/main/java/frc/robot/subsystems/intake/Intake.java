@@ -36,53 +36,39 @@ public class Intake extends SubsystemBase {
                     if (inputs.extensionPosition >= extendTarget - 0.02) {
                         break;
                     }
-
                     Thread.sleep(sleepMs);
                     elapsed += sleepMs / 1000.0;
                 }
-
                 if (inputs.extensionPosition < extendTarget - 0.02) {
                     return TestResult.fail(String.format("Extension failed to extend (pos=%.3f target=%.3f)",
                             inputs.extensionPosition, extendTarget));
                 }
-
                 intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
                 elapsed = 0.0;
-
                 while (elapsed < timeoutSec) {
                     intakeIO.updateInputs(inputs);
                     if (inputs.extensionPosition <= retractTarget + 0.02) {
                         break;
                     }
-
                     Thread.sleep(sleepMs);
                     elapsed += sleepMs / 1000.0;
-
                 }
-
                 if (inputs.extensionPosition > retractTarget + 0.02) {
                     return TestResult.fail(String.format("Extension failed to retract (pos=%.3f target=%.3f)",
                             inputs.extensionPosition, retractTarget));
                 }
-
-                return TestResult
-                        .success(String.format("Extension ok (extend=%.3f retract=%.3f)", extendTarget, retractTarget));
-
-            } 
-            catch (InterruptedException ex) {
+                return TestResult.success(String.format("Extension ok (extend=%.3f retract=%.3f)", extendTarget, retractTarget));
+            } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
                 try {
                     intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
-                } 
-                catch (Exception ignore) {
+                } catch (Exception ignore) {
                 }
                 return TestResult.fail("Interrupted during extension check");
-            } 
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 try {
                     intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
-                } 
-                catch (Exception ignore) {
+                } catch (Exception ignore) {
                 }
                 return TestResult.fail("Exception during extension check: " + ex.getMessage());
             }
@@ -90,26 +76,21 @@ public class Intake extends SubsystemBase {
 
         Checkmate.register("Intake roller", () -> {
             try {
-
                 intakeIO.setRollerVoltage(30.0);
                 Thread.sleep(1000);
                 intakeIO.updateInputs(inputs);
                 double current = inputs.rollerCurrent.in(Amps);
-
                 if (Math.abs(current) < 25.0) {
                     return TestResult.fail("Intake roller failed to spin up, current: " + current);
                 }
                 intakeIO.setRollerVoltage(0.0);
                 return TestResult.success("Intake roller ok, current: " + current);
-            } 
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 try {
                     intakeIO.setRollerVoltage(0.0);
-                } 
-                catch (Exception ignore) {
+                } catch (Exception ignore) {
                 }
                 return TestResult.fail("Exception during intake roller check: " + ex.getMessage());
-
             }
         });
     }
@@ -134,11 +115,13 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
     }
 
+    public Command getPositionCommand() {
+        return Commands.runOnce(() -> intakeIO.getPosition().in(Meters), this);
+    }
+
     @Override
     public void periodic() {
-
         intakeIO.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
-
     }
 }

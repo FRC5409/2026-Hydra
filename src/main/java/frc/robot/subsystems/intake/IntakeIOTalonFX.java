@@ -116,6 +116,10 @@ public final class IntakeIOTalonFX implements IntakeIO {
         extensionMotor.set(0.0);
     }
 
+    public Distance getPosition() {
+        return Meters.of(extensionPositionSignal.getValueAsDouble());
+    }
+
     @Override
     public void updateInputs(IntakeIO.IntakeInputs inputs) {
 
