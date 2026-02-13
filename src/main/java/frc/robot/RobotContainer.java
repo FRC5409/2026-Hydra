@@ -164,7 +164,8 @@ public class RobotContainer {
 //                        sys_vision
 //                );
 
-                sys_launcher = new Launcher(new LauncherIOSim());
+                // TODO: disabled sim IO because i don't have time for ts
+                sys_launcher = new Launcher(new LauncherIO() {});
             }
             // Replayed robot, disable IO implementations
             default -> {
