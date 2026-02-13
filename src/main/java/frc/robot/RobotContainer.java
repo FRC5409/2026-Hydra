@@ -73,26 +73,24 @@ import static edu.wpi.first.units.Units.Meters;
  */
 public class RobotContainer {
     // Subsystems
-    protected final Drive      sys_drive;
-    protected final Vision     sys_vision;
-    protected final Intake     sys_intake;
+//    protected final Drive      sys_drive;
+//    protected final Vision     sys_vision;
     protected final Serializer sys_serializer;
     protected final Feeder     sys_feeder;
-    protected final Hopper     sys_hopper;
     protected final Launcher   sys_launcher;
 
     public static SwerveDriveSimulation simConfig;
 
-    private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
-    private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
-    private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
+//    private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
+//    private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
+//    private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
 
     // Controllers
-    private final CommandXboxController primaryController   = new CommandXboxController(0);
-    private final CommandXboxController secondaryController = new CommandXboxController(1);
+//    private final CommandXboxController primaryController   = new CommandXboxController(0);
+//    private final CommandXboxController secondaryController = new CommandXboxController(1);
 
     // Dashboard inputs
-    private final LoggedDashboardChooser<Command> autoChooser;
+//    private final LoggedDashboardChooser<Command> autoChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -102,22 +100,19 @@ public class RobotContainer {
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
-                sys_hopper = new Hopper(
-                        new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
-                sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
                 sys_serializer = new Serializer(
                         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
                 sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
-                sys_vision = new Vision(new VisionIOLimelight());
-
-                sys_drive = new Drive(
-                        new GyroIOPigeon2(),
-                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                        new ModuleIOTalonFX(TunerConstants.FrontRight),
-                        new ModuleIOTalonFX(TunerConstants.BackLeft),
-                        new ModuleIOTalonFX(TunerConstants.BackRight),
-                        sys_vision
-                );
+//                sys_vision = new Vision(new VisionIOLimelight());
+//
+//                sys_drive = new Drive(
+//                        new GyroIOPigeon2(),
+//                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+//                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+//                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+//                        new ModuleIOTalonFX(TunerConstants.BackRight),
+//                        sys_vision
+//                );
 
                 sys_launcher = new Launcher(new LauncherIOTalonFX(
                     LauncherConstants.Launcher.LAUNCHER_CAN_ID,
@@ -131,8 +126,6 @@ public class RobotContainer {
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
-                sys_hopper = new Hopper(new HopperIOSim());
-                sys_intake = new Intake(new IntakeIOSim());
                 sys_serializer = new Serializer(new SerializerIOSim());
                 sys_feeder = new Feeder(new FeederIOSim());
 
@@ -160,31 +153,29 @@ public class RobotContainer {
                 SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
                 SimulatedArena.getInstance().resetFieldForAuto();
 
-                sys_vision = new Vision(new VisionIOSim(simConfig));
-
-                sys_drive = new Drive(
-                        new GyroIOSim(simConfig.getGyroSimulation()),
-                        new ModuleIOSim(simConfig.getModules()[0]),
-                        new ModuleIOSim(simConfig.getModules()[1]),
-                        new ModuleIOSim(simConfig.getModules()[2]),
-                        new ModuleIOSim(simConfig.getModules()[3]),
-                        sys_vision
-                );
+//                sys_vision = new Vision(new VisionIOSim(simConfig));
+//
+//                sys_drive = new Drive(
+//                        new GyroIOSim(simConfig.getGyroSimulation()),
+//                        new ModuleIOSim(simConfig.getModules()[0]),
+//                        new ModuleIOSim(simConfig.getModules()[1]),
+//                        new ModuleIOSim(simConfig.getModules()[2]),
+//                        new ModuleIOSim(simConfig.getModules()[3]),
+//                        sys_vision
+//                );
 
                 sys_launcher = new Launcher(new LauncherIOSim());
             }
             // Replayed robot, disable IO implementations
             default -> {
-                sys_vision = new Vision(new VisionIO() {});
-                sys_drive = new Drive(
-                        new GyroIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        new ModuleIO() {},
-                        sys_vision);
-                sys_hopper = new Hopper(new HopperIO() {});
-                sys_intake = new Intake(new IntakeIO() {});
+//                sys_vision = new Vision(new VisionIO() {});
+//                sys_drive = new Drive(
+//                        new GyroIO() {},
+//                        new ModuleIO() {},
+//                        new ModuleIO() {},
+//                        new ModuleIO() {},
+//                        new ModuleIO() {},
+//                        sys_vision);
                 sys_serializer = new Serializer(new SerializerIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {});
@@ -192,43 +183,43 @@ public class RobotContainer {
         }
 
         // Set up auto routines
-        autoChooser = buildAutoChooser();
+//        autoChooser = buildAutoChooser();
 
         // Configure the button bindings
         configureButtonBindings();
     }
 
-    /**
-     * builds the dashboard command chooser ({@link LoggedDashboardChooser}) for picking autonomous routines.
-     *
-     * @return the logged dashboard chooser
-     */
-    private LoggedDashboardChooser<Command> buildAutoChooser() {
-        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>(
-                "Auto Choices", AutoBuilder.buildAutoChooser());
-
-        // Set up SysId routines
-        chooser.addOption(
-                "Drive Wheel Radius Characterization",
-                DriveCommands.wheelRadiusCharacterization(sys_drive));
-        chooser.addOption(
-                "Drive Simple FF Characterization",
-                DriveCommands.feedforwardCharacterization(sys_drive));
-        chooser.addOption(
-                "Drive SysId (Quasistatic Forward)",
-                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        chooser.addOption(
-                "Drive SysId (Quasistatic Reverse)",
-                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        chooser.addOption(
-                "Drive SysId (Dynamic Forward)",
-                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        chooser.addOption(
-                "Drive SysId (Dynamic Reverse)",
-                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        return chooser;
-    }
+//    /**
+//     * builds the dashboard command chooser ({@link LoggedDashboardChooser}) for picking autonomous routines.
+//     *
+//     * @return the logged dashboard chooser
+//     */
+//    private LoggedDashboardChooser<Command> buildAutoChooser() {
+//        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>(
+//                "Auto Choices", AutoBuilder.buildAutoChooser());
+//
+//        // Set up SysId routines
+//        chooser.addOption(
+//                "Drive Wheel Radius Characterization",
+//                DriveCommands.wheelRadiusCharacterization(sys_drive));
+//        chooser.addOption(
+//                "Drive Simple FF Characterization",
+//                DriveCommands.feedforwardCharacterization(sys_drive));
+//        chooser.addOption(
+//                "Drive SysId (Quasistatic Forward)",
+//                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+//        chooser.addOption(
+//                "Drive SysId (Quasistatic Reverse)",
+//                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+//        chooser.addOption(
+//                "Drive SysId (Dynamic Forward)",
+//                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+//        chooser.addOption(
+//                "Drive SysId (Dynamic Reverse)",
+//                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+//
+//        return chooser;
+//    }
 
     /**
      * Updates sim positions of algae, coral and robot poses
@@ -246,14 +237,14 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
-        sys_drive.setDefaultCommand(
-                DriveCommands.joystickDrive(
-                        sys_drive,
-                        () -> -primaryController.getLeftY(),
-                        () -> -primaryController.getLeftX(),
-                        () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
-                )
-        );
+//        sys_drive.setDefaultCommand(
+//                DriveCommands.joystickDrive(
+//                        sys_drive,
+//                        () -> -primaryController.getLeftY(),
+//                        () -> -primaryController.getLeftX(),
+//                        () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
+//                )
+//        );
 
         // TEST CODE FOR LAUNCHER PROTOTYPES
         // launch fuel w distance
@@ -282,110 +273,110 @@ public class RobotContainer {
       ));
 
       // score fuel in hub by using odometry
-      var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
-      Logger.recordOutput("Vision/Estimate", pose);
-      SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
-              () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
+//      var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
+//      Logger.recordOutput("Vision/Estimate", pose);
+//      SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
+//              () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
 
         // Switch to X pattern when X button is pressed
-        primaryController.x()
-                         .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
-
-        // Switch To Bump Speed Modifier
-        primaryController.a()
-                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
-                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
-
-        primaryController.rightBumper()
-                         .whileTrue(
-                              DriveCommands.alignToHeading(
-                                sys_drive, 
-                                () -> DriveCommands.getRotation2d(
-                                  sys_drive, 
-                                  new Pose2d(
-                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
-                                    Rotation2d.kZero
-                                  )
-                                )
-                              )
-                         );
-
-        primaryController.leftBumper()
-                        .whileTrue(
-                          DriveCommands.joystickDriveAtAngle(
-                            sys_drive,
-                            () -> -primaryController.getLeftY(),
-                            () -> -primaryController.getLeftX(),
-                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
-                          )
-                        );
-
-        primaryController.x()
-                        .whileTrue(
-                            Commands.sequence(
-                              DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimibingPrepPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
-
-                              ),
-                              DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimbingPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-                              )
-                            )
-                        );
-
-        secondaryController.x()
-                        .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
-        secondaryController.b()
-                        .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
-        secondaryController.a()
-                        .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
-
-        secondaryController.povLeft()
-                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
-        secondaryController.povRight()
-                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+//        primaryController.x()
+//                         .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
+//
+//        // Switch To Bump Speed Modifier
+//        primaryController.a()
+//                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+//                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+//
+//        primaryController.rightBumper()
+//                         .whileTrue(
+//                              DriveCommands.alignToHeading(
+//                                sys_drive,
+//                                () -> DriveCommands.getRotation2d(
+//                                  sys_drive,
+//                                  new Pose2d(
+//                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()),
+//                                    Rotation2d.kZero
+//                                  )
+//                                )
+//                              )
+//                         );
+//
+//        primaryController.leftBumper()
+//                        .whileTrue(
+//                          DriveCommands.joystickDriveAtAngle(
+//                            sys_drive,
+//                            () -> -primaryController.getLeftY(),
+//                            () -> -primaryController.getLeftX(),
+//                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
+//                          )
+//                        );
+//
+//        primaryController.x()
+//                        .whileTrue(
+//                            Commands.sequence(
+//                              DriveCommands.alignToPoint(
+//                                sys_drive,
+//                                () -> selectedClimibingPrepPosition.pose,
+//                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
+//                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+//                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+//                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+//                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+//
+//                              ),
+//                              DriveCommands.alignToPoint(
+//                                sys_drive,
+//                                () -> selectedClimbingPosition.pose,
+//                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB,
+//                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+//                              )
+//                            )
+//                        );
+//
+//        secondaryController.x()
+//                        .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
+//        secondaryController.b()
+//                        .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
+//        secondaryController.a()
+//                        .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
+//
+//        secondaryController.povLeft()
+//                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
+//        secondaryController.povRight()
+//                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
   
     }
 
-    private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
-        return Commands.runOnce(
-                () -> {
-                        if (climbingPosition == ClimbingPositions.LEFT)
-                          selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
-                        else
-                          selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
-                          
-                        Logger.recordOutput("Climbing Position", climbingPosition);
-
-                        selectedClimbingPosition = climbingPosition; 
-                        
-                        Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
-
-                }
-        );
-    };
-
-    private Command prepPassingPositionCommand(PassingPositions passingPosition){
-        return Commands.runOnce(
-                () -> {
-                        Logger.recordOutput("Passing Position", passingPosition);
-
-                        selectedPassingPosition = passingPosition;
-
-                        Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
-
-                }
-        );
-    }
+//    private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
+//        return Commands.runOnce(
+//                () -> {
+//                        if (climbingPosition == ClimbingPositions.LEFT)
+//                          selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
+//                        else
+//                          selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
+//
+//                        Logger.recordOutput("Climbing Position", climbingPosition);
+//
+//                        selectedClimbingPosition = climbingPosition;
+//
+//                        Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
+//
+//                }
+//        );
+//    };
+//
+//    private Command prepPassingPositionCommand(PassingPositions passingPosition){
+//        return Commands.runOnce(
+//                () -> {
+//                        Logger.recordOutput("Passing Position", passingPosition);
+//
+//                        selectedPassingPosition = passingPosition;
+//
+//                        Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
+//
+//                }
+//        );
+//    }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
@@ -393,6 +384,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+        // TODO: temp. code for prototype
+        return null;
     }
 }
