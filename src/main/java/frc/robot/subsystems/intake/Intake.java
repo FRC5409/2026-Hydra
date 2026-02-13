@@ -66,6 +66,8 @@ public class Intake extends SubsystemBase {
         });
         ;
 
+    public Command extend() {
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE), this);
     }
 
     public Command intake(double voltage) {
@@ -86,10 +88,6 @@ public class Intake extends SubsystemBase {
 
     public Command stopMotor() {
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
-    }
-
-    public Command getPosition() {
-        return Commands.runOnce(() -> intakeIO.getPosition(), this);
     }
 
     @Override
