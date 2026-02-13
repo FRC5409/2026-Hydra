@@ -88,6 +88,10 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
     }
 
+    public Command getPosition() {
+        return Commands.runOnce(() -> intakeIO.getPosition(), this);
+    }
+
     @Override
     public void periodic() {
         intakeIO.updateInputs(inputs);
