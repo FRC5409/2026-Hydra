@@ -5,10 +5,8 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
@@ -19,94 +17,86 @@ import edu.wpi.first.units.measure.Voltage;
 
 public class SerializerIOTalonFX implements SerializerIO {
     
-    private TalonFX floorMotor;
-    private TalonFX feederMotor;
+    private TalonFX m_motor;
 
-    private TalonFXConfigurator floorMotorConfig;
-    private TalonFXConfigurator feederMotorConfig;
+    private TalonFXConfigurator motorConfig;
     private CurrentLimitsConfigs currentConfigs;
 
     private StatusSignal<AngularVelocity> deviceVelocity;
     private StatusSignal<Angle> devicePosition;
-    private StatusSignal<Voltage> floorDeviceVoltage;
-    private StatusSignal<Current> floorDeviceCurrent;
-    private StatusSignal<Temperature> floorDeviceTemp;
+    private StatusSignal<Voltage> deviceVoltage;
+    private StatusSignal<Current> deviceCurrent;
+    private StatusSignal<Temperature> deviceTemp;
 
-    private StatusSignal<Voltage> feederDeviceVoltage;
-    private StatusSignal<Current> feederDeviceCurrent;
-    private StatusSignal<Temperature> feederDeviceTemp;
+    
 
 
-    public SerializerIOTalonFX(int floorId, int feederId) {
-        floorMotor = new TalonFX(floorId);
-        feederMotor = new TalonFX(feederId);
+    public SerializerIOTalonFX(int motorId) {
+        m_motor = new TalonFX(motorId);
 
-        floorMotorConfig = floorMotor.getConfigurator();
-        feederMotorConfig = feederMotor.getConfigurator();
+        motorConfig = m_motor.getConfigurator();
+
         currentConfigs = new CurrentLimitsConfigs()
-            .withSupplyCurrentLimit(30)
+            .withSupplyCurrentLimit(SerializerConstants.TALON_FX_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
-        floorMotorConfig.apply(currentConfigs);
-        feederMotorConfig.apply(currentConfigs);
+        motorConfig.apply(currentConfigs);
 
-        floorMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
-        floorMotor.setNeutralMode(NeutralModeValue.Brake);
-        feederMotor.setNeutralMode(NeutralModeValue.Brake);
+        motorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
-        feederMotor.setControl(new Follower(floorId, MotorAlignmentValue.Opposed));
+        m_motor.setNeutralMode(NeutralModeValue.Brake);
 
-        deviceVelocity = floorMotor.getVelocity();
-        devicePosition = floorMotor.getPosition();
-        floorDeviceVoltage = floorMotor.getMotorVoltage();
-        floorDeviceCurrent = floorMotor.getSupplyCurrent();
-        floorDeviceTemp = floorMotor.getDeviceTemp();
-
-        feederDeviceVoltage = feederMotor.getMotorVoltage();
-        feederDeviceCurrent = feederMotor.getSupplyCurrent();
-        feederDeviceTemp = feederMotor.getDeviceTemp();
+        deviceVelocity = m_motor.getVelocity();
+        devicePosition = m_motor.getPosition();
+        deviceVoltage = m_motor.getMotorVoltage();
+        deviceCurrent = m_motor.getSupplyCurrent();
+        deviceTemp = m_motor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50,
             devicePosition,
             deviceVelocity,
-            floorDeviceVoltage,
-            floorDeviceCurrent,
-            floorDeviceTemp,
-            feederDeviceVoltage,
-            feederDeviceCurrent,
-            feederDeviceTemp
+            deviceVoltage,
+            deviceCurrent,
+            deviceTemp
         );
 
-        floorMotor.optimizeBusUtilization();
-        feederMotor.optimizeBusUtilization();
+        m_motor.optimizeBusUtilization();
     }
-
 
     @Override
     public void setMotorVoltage(double voltage) {
-        floorMotor.setVoltage(voltage);
+        m_motor.setVoltage(voltage);
     }
 
     @Override
     public void stopMotor() {
-        floorMotor.stopMotor();
+        m_motor.stopMotor();
+    }
+
+    @Override
+    public void zeroEncoder() {
+        m_motor.setPosition(0);
+    }
+
+    @Override
+    public AngularVelocity getVelocity() {
+        return deviceVelocity.getValue();
     }
 
     @Override
     public void updateInputs(SerializerInputs inputs) {
-        inputs.isFloorMotorConnected = BaseStatusSignal.refreshAll(
+        inputs.isMotorConnected = BaseStatusSignal.refreshAll(
             devicePosition,
             deviceVelocity,
-            floorDeviceVoltage,
-            floorDeviceCurrent,
-            floorDeviceTemp
+            deviceVoltage,
+            deviceCurrent,
+            deviceTemp
         ).isOK();
-        
-        inputs.isFeederMotorConnected = BaseStatusSignal.refreshAll(
-            feederDeviceVoltage,
-            feederDeviceCurrent,
-            feederDeviceTemp
-        ).isOK();   
+        inputs.motorPosition = devicePosition.getValue();
+        inputs.motorVelocity = deviceVelocity.getValue();
+        inputs.appliedVoltage = deviceVoltage.getValue();
+        inputs.appliedCurrent = deviceCurrent.getValue();
+        inputs.motorTemperature = deviceTemp.getValueAsDouble();
     }
 
 }

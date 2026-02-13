@@ -7,10 +7,16 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -22,11 +28,6 @@ import frc.robot.util.FieldConstants.Hub;
 import frc.robot.util.LimelightHelpers;
 
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-
-import static edu.wpi.first.units.Units.Centimeter;
-import static edu.wpi.first.units.Units.Degrees;
-
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -39,165 +40,223 @@ import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.ClimbingPositions;
+import frc.robot.Constants.PassingPositions;
+import frc.robot.Constants.kAutoAlign;
+import frc.robot.Constants.kBump;
+import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.*;
+import frc.robot.subsystems.hopper.*;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Roller;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.serializer.*;
+import frc.robot.subsystems.vision.VisionIOSim;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.COTS;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
+import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import static edu.wpi.first.units.Units.Meters;
 
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
- * subsystems, commands, and button mappings) should be declared here.
+ * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
+ * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
+ * Instead, the structure of the robot (including subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // Subsystems
- private final Drive drive;
-  // private final Intake sys_intake;
+    // Subsystems
+    protected final Drive      sys_drive;
+    protected final Vision     sys_vision;
+    protected final Intake     sys_intake;
+    protected final Serializer sys_serializer;
+    protected final Feeder     sys_feeder;
+    protected final Hopper     sys_hopper;
+    protected final Launcher   sys_launcher;
 
-  protected final Launcher sys_launcher;
-  // protected final Serializer sys_serializer;
-  protected final Vision sys_vision;
+    public static SwerveDriveSimulation simConfig;
 
-  // Controller
-  private final CommandXboxController primaryController = new CommandXboxController(0);
-  private final CommandXboxController secondaryController = new CommandXboxController(1);
+    private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
+    private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
+    private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
 
-  // Dashboard inputs
-//   private final LoggedDashboardChooser<Command> autoChooser;
+    // Controllers
+    private final CommandXboxController primaryController   = new CommandXboxController(0);
+    private final CommandXboxController secondaryController = new CommandXboxController(1);
 
-  /** The container for the robot. Contains subsystems, OI devices, and commands. */
-  public RobotContainer() {
-    switch (Constants.currentMode) {
-      case REAL:
-        // Real robot, instantiate hardware IO implementations
-        // ModuleIOTalonFX is intended for modules with TalonFX drive, TalonFX turn, and
-        // a CANcoder
-        drive =
-            new Drive(
-                new GyroIOPigeon2(),
-                new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                new ModuleIOTalonFX(TunerConstants.FrontRight),
-                new ModuleIOTalonFX(TunerConstants.BackLeft),
-                new ModuleIOTalonFX(TunerConstants.BackRight));
+    // Dashboard inputs
+    private final LoggedDashboardChooser<Command> autoChooser;
 
-        sys_launcher = new Launcher(new LauncherTalonFX(
-                LauncherConstants.Launcher.LAUNCHER_CAN_ID,
-                LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
-                LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
-                LauncherConstants.Hood.HOOD_CAN_ID,
-                LauncherConstants.Hood.HOOD_SENSOR_ID,
-                LauncherConstants.Ultrasonic.DIGITAL_OUPTPUT,
-                LauncherConstants.Ultrasonic.DIGITAL_INPUT
-                )
-            );
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands.
+     */
 
-          sys_vision = new Vision(new VisionIOLimelight());
+    public RobotContainer() {
+        switch (Constants.CURRENT_MODE) {
+            // Real robot, instantiate hardware IO implementations
+            case REAL -> {
+                sys_hopper = new Hopper(
+                        new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
+                sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+                sys_serializer = new Serializer(
+                        new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
+                sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
+                sys_vision = new Vision(new VisionIOLimelight());
 
-        // sys_serializer = new Serializer(
-        //         new SerializerIOSparkMax(
-        //             SerializerConstants.ORTONA_INDEXER_MOTOR_CANID, 
-        //             SerializerConstants.ORTONA_FEEDER_MOTOR_CANID
-        //         )
-        //     );
+                sys_drive = new Drive(
+                        new GyroIOPigeon2(),
+                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                        new ModuleIOTalonFX(TunerConstants.BackRight),
+                        sys_vision
+                );
 
-        // The ModuleIOTalonFXS implementation provides an example implementation for
-        // TalonFXS controller connected to a CANdi with a PWM encoder. The
-        // implementations
-        // of ModuleIOTalonFX, ModuleIOTalonFXS, and ModuleIOSpark (from the Spark
-        // swerve
-        // template) can be freely intermixed to support alternative hardware
-        // arrangements.
-        // Please see the AdvantageKit template documentation for more information:
-        // https://docs.advantagekit.org/getting-started/template-projects/talonfx-swerve-template#custom-module-implementations
-        break;
+                sys_launcher = new Launcher(new LauncherTalonFX(
+                    LauncherConstants.Launcher.LAUNCHER_CAN_ID,
+                    LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
+                    LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
+                    LauncherConstants.Hood.HOOD_CAN_ID,
+                    LauncherConstants.Hood.HOOD_SENSOR_ID,
+                    LauncherConstants.Ultrasonic.DIGITAL_OUPTPUT,
+                    LauncherConstants.Ultrasonic.DIGITAL_INPUT
+                ));
+            }
+            // Sim robot, instantiate physics sim IO implementations
+            case SIM -> {
+                sys_hopper = new Hopper(new HopperIOSim());
+                sys_intake = new Intake(new IntakeIOSim());
+                sys_serializer = new Serializer(new SerializerIOSim());
+                sys_feeder = new Feeder(new FeederIOSim());
 
-      case SIM:
-        // sys_intake = new Intake(new IntakeIOSim());
-        // Sim robot, instantiate physics sim IO implementations
-       drive =
-           new Drive(
-               new GyroIO() {},
-               new ModuleIOSim(TunerConstants.FrontLeft),
-               new ModuleIOSim(TunerConstants.FrontRight),
-               new ModuleIOSim(TunerConstants.BackLeft),
-               new ModuleIOSim(TunerConstants.BackRight));
+                final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
+                        .Default()
+                        .withGyro(COTS.ofPigeon2())
+                        .withRobotMass(DriveConstants.ROBOT_FULL_MASS)
+                        .withTrackLengthTrackWidth(Meters.of(0.578), Meters.of(0.578))
+                        .withBumperSize(Meters.of(0.881), Meters.of(0.881))
+                        .withSwerveModule(
+                                COTS.ofMark4i(
+                                        DCMotor.getKrakenX60(1),
+                                        DCMotor.getKrakenX60(1),
+                                        DriveConstants.WHEEL_COF,
+                                        1
+                                )
+                        );
 
-        sys_launcher =  new Launcher(new LauncherSim());
-        sys_vision = new Vision(new VisionIO() {});
+                simConfig = new SwerveDriveSimulation(
+                        driveConfig,
+                        new Pose2d(3, 3, Rotation2d.kZero)
+                );
 
-        break;
+                SimulatedArena.overrideInstance(new Arena2026Rebuilt(false));
+                SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
+                SimulatedArena.getInstance().resetFieldForAuto();
 
-      default:
-        // sys_intake = new Intake(new IntakeIO(){});
-        // Replayed robot, disable IO implementations
-       drive =
-           new Drive(
-               new GyroIO() {},
-               new ModuleIO() {},
-               new ModuleIO() {},
-               new ModuleIO() {},
-               new ModuleIO() {});
+                sys_vision = new Vision(new VisionIOSim(simConfig));
 
-        sys_launcher = new Launcher(new LauncherIO() {});
-        sys_vision = new Vision(new VisionIO() {});
+                sys_drive = new Drive(
+                        new GyroIOSim(simConfig.getGyroSimulation()),
+                        new ModuleIOSim(simConfig.getModules()[0]),
+                        new ModuleIOSim(simConfig.getModules()[1]),
+                        new ModuleIOSim(simConfig.getModules()[2]),
+                        new ModuleIOSim(simConfig.getModules()[3]),
+                        sys_vision
+                );
 
-        break;
+                sys_launcher = new Launcher(new LauncherSim());
+            }
+            // Replayed robot, disable IO implementations
+            default -> {
+                sys_vision = new Vision(new VisionIO() {});
+                sys_drive = new Drive(
+                        new GyroIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        sys_vision);
+                sys_hopper = new Hopper(new HopperIO() {});
+                sys_intake = new Intake(new IntakeIO() {});
+                sys_serializer = new Serializer(new SerializerIO() {});
+                sys_feeder = new Feeder(new FeederIO() {});
+                sys_launcher = new Launcher(new LauncherIO() {});
+            }
+        }
+
+        // Set up auto routines
+        autoChooser = buildAutoChooser();
+
+        // Configure the button bindings
+        configureButtonBindings();
     }
 
-    // Set up auto routines
-    // autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    /**
+     * builds the dashboard command chooser ({@link LoggedDashboardChooser}) for picking autonomous routines.
+     *
+     * @return the logged dashboard chooser
+     */
+    private LoggedDashboardChooser<Command> buildAutoChooser() {
+        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>(
+                "Auto Choices", AutoBuilder.buildAutoChooser());
 
-    // Set up SysId routines
-    // autoChooser.addOption(
-    //     "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
-    // autoChooser.addOption(
-    //     "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Forward)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Quasistatic Reverse)",
-    //     drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    // autoChooser.addOption(
-    //     "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        // Set up SysId routines
+        chooser.addOption(
+                "Drive Wheel Radius Characterization",
+                DriveCommands.wheelRadiusCharacterization(sys_drive));
+        chooser.addOption(
+                "Drive Simple FF Characterization",
+                DriveCommands.feedforwardCharacterization(sys_drive));
+        chooser.addOption(
+                "Drive SysId (Quasistatic Forward)",
+                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        chooser.addOption(
+                "Drive SysId (Quasistatic Reverse)",
+                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        chooser.addOption(
+                "Drive SysId (Dynamic Forward)",
+                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        chooser.addOption(
+                "Drive SysId (Dynamic Reverse)",
+                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
-    // Configure the button bindings
-    configureButtonBindings();
-  }
+        return chooser;
+    }
 
-  /**
-   * Use this method to define your button->command mappings. Buttons can be created by
-   * instantiating a {@link GenericHID} or one of its subclasses ({@link
-   * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-   * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-   */
-  private void configureButtonBindings() {
-    // Default command, normal field-relative drive
-    // drive.setDefaultCommand(
-    //     DriveCommands.joystickDrive(
-    //         drive,
-    //         () -> -primaryController.getLeftY(),
-    //         () -> -primaryController.getLeftX(),
-    //         () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
-    //     )
-    // );
+    /**
+     * Updates sim positions of algae, coral and robot poses
+     */
+    public void updateSim() {
+        SimulatedArena.getInstance().simulationPeriodic();
+        Logger.recordOutput("Simulation/RobotPose", simConfig.getSimulatedDriveTrainPose());
+        Logger.recordOutput("Simulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
+    }
 
-    LoggedNetworkNumber voltageSetpoint = new LoggedNetworkNumber("Launcher Voltage Setpoint", 0);
-    
-    primaryController.povUp()
-                     .onTrue(sys_launcher.launcherSetVoltage(voltageSetpoint.getAsDouble()))
-                     .onFalse(sys_launcher.stopLauncher());
+    /**
+     * Use this method to define your button->command mappings. Buttons can be created by instantiating a
+     * {@link GenericHID} or one of its subclasses ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}),
+     * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
+     */
+    private void configureButtonBindings() {
+        // Default command, normal field-relative drive
+        sys_drive.setDefaultCommand(
+                DriveCommands.joystickDrive(
+                        sys_drive,
+                        () -> -primaryController.getLeftY(),
+                        () -> -primaryController.getLeftX(),
+                        () -> -(primaryController.getRightTriggerAxis() - primaryController.getLeftTriggerAxis())
+                )
+        );
 
-    primaryController.a()
-                    .onTrue(sys_launcher.runRPS(() -> RotationsPerSecond.of(20)));
-
-                    
-    primaryController.y()
-                    .onTrue(sys_launcher.stopLauncher());
-
-    primaryController.x()
-                    .onTrue(sys_launcher.launchFuel(() -> Centimeter.of(640)));
-
-      // launch fuel w distance
+        // TEST CODE FOR LAUNCHER PROTOTYPES
+        // launch fuel w distance
       SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
       SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
               () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
@@ -222,49 +281,118 @@ public class RobotContainer {
                           .toArray(Command[]::new)
       ));
 
-       // score fuel in hub by using odometry
-       var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
-       Logger.recordOutput("Vision/Estimate", pose);
-        SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
-                () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
+      // score fuel in hub by using odometry
+      var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
+      Logger.recordOutput("Vision/Estimate", pose);
+      SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
+              () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
 
+        // Switch to X pattern when X button is pressed
+        primaryController.x()
+                         .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
 
-    primaryController.povRight()
-                    .onTrue(sys_launcher.setHoodPos(Degrees.of(30)));
+        // Switch To Bump Speed Modifier
+        primaryController.a()
+                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
-    primaryController.povLeft()
-                    .onFalse(sys_launcher.setHoodPos(Degrees.of(0)));
+        primaryController.rightBumper()
+                         .whileTrue(
+                              DriveCommands.alignToHeading(
+                                sys_drive, 
+                                () -> DriveCommands.getRotation2d(
+                                  sys_drive, 
+                                  new Pose2d(
+                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+                                    Rotation2d.kZero
+                                  )
+                                )
+                              )
+                         );
 
-    // primaryController.x()
-    //     .whileTrue(sys_launcher.runVelocity(1));
+        primaryController.leftBumper()
+                        .whileTrue(
+                          DriveCommands.joystickDriveAtAngle(
+                            sys_drive,
+                            () -> -primaryController.getLeftY(),
+                            () -> -primaryController.getLeftX(),
+                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
+                          )
+                        );
 
-    // primaryController.y()
-    //     .onTrue(sys_serializer.runIndexerVoltage(8));
+        primaryController.x()
+                        .whileTrue(
+                            Commands.sequence(
+                              DriveCommands.alignToPoint(
+                                sys_drive, 
+                                () -> selectedClimibingPrepPosition.pose, 
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
 
-    // primaryController.a()
-    //     .onTrue(sys_serializer.runFeederVoltage(5));
+                              ),
+                              DriveCommands.alignToPoint(
+                                sys_drive, 
+                                () -> selectedClimbingPosition.pose, 
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+                              )
+                            )
+                        );
 
-    // primaryController.povDown()
-    //     .onTrue(sys_serializer.runFeederVoltage(0));
+        secondaryController.x()
+                        .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
+        secondaryController.b()
+                        .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
+        secondaryController.a()
+                        .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
 
-    // primaryController.povUp()
-    //     .onTrue(sys_serializer.runIndexerVoltage(0));
-  }
+        secondaryController.povLeft()
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
+        secondaryController.povRight()
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+  
+    }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
-  // public Command getAutonomousCommand() {
-  //   return autoChooser.get();
-  // }
-//  /**
-//   * Use this to pass the autonomous command to the main {@link Robot} class.
-//   *
-//   * @return the command to run in autonomous
-//   */
-//  public Command getAutonomousCommand() {
-//    return autoChooser.get();
-//  }
+    private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
+        return Commands.runOnce(
+                () -> {
+                        if (climbingPosition == ClimbingPositions.LEFT)
+                          selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
+                        else
+                          selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
+                          
+                        Logger.recordOutput("Climbing Position", climbingPosition);
+
+                        selectedClimbingPosition = climbingPosition; 
+                        
+                        Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
+
+                }
+        );
+    };
+
+    private Command prepPassingPositionCommand(PassingPositions passingPosition){
+        return Commands.runOnce(
+                () -> {
+                        Logger.recordOutput("Passing Position", passingPosition);
+
+                        selectedPassingPosition = passingPosition;
+
+                        Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
+
+                }
+        );
+    }
+
+    /**
+     * Use this to pass the autonomous command to the main {@link Robot} class.
+     *
+     * @return the command to run in autonomous
+     */
+    public Command getAutonomousCommand() {
+        return autoChooser.get();
+    }
 }

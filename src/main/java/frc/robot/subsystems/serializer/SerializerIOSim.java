@@ -1,29 +1,46 @@
 package frc.robot.subsystems.serializer;
 
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
+
+import edu.wpi.first.units.measure.AngularVelocity;
 
 public class SerializerIOSim implements SerializerIO {
 
-    private double volts = 0.0;
+    private double indexerVoltage = 0.0;
 
-    public SerializerIOSim() {}
+    public SerializerIOSim() {
+        
+    }
 
     @Override
     public void setMotorVoltage(double voltage) {
-        volts = voltage;
+
+        indexerVoltage = voltage;
+
     }
 
     @Override
     public void stopMotor() {
-        volts = 0.0;
+
+        indexerVoltage = 0.0;
+
+    }
+
+    @Override
+    public AngularVelocity getVelocity() {
+
+        return RotationsPerSecond.of(indexerVoltage);
+
     }
 
     @Override
     public void updateInputs(SerializerInputs inputs) {
-        inputs.isFloorMotorConnected = true;
-        inputs.isFeederMotorConnected = true;
-        inputs.floorAppliedVoltage = Volts.of(volts);
-        inputs.feederAppliedVoltage = Volts.of(volts);
+
+        inputs.isMotorConnected = true;
+        inputs.appliedVoltage = Volts.of(indexerVoltage);
+        inputs.motorVelocity = getVelocity();
+
     }
 
 
