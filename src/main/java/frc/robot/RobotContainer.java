@@ -27,19 +27,13 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import static edu.wpi.first.units.Units.Centimeter;
 import static edu.wpi.first.units.Units.Degrees;
 
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.launcher.*;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIOPigeon2;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
@@ -54,7 +48,7 @@ import static edu.wpi.first.units.Units.*;
  */
 public class RobotContainer {
   // Subsystems
-//  private final Drive drive;
+ private final Drive drive;
   // private final Intake sys_intake;
 
   protected final Launcher sys_launcher;
@@ -94,6 +88,8 @@ public class RobotContainer {
                 )
             );
 
+          sys_vision = new Vision(new VisionIOLimelight());
+
         // sys_serializer = new Serializer(
         //         new SerializerIOSparkMax(
         //             SerializerConstants.ORTONA_INDEXER_MOTOR_CANID, 
@@ -115,13 +111,13 @@ public class RobotContainer {
       case SIM:
         // sys_intake = new Intake(new IntakeIOSim());
         // Sim robot, instantiate physics sim IO implementations
-//        drive =
-//            new Drive(
-//                new GyroIO() {},
-//                new ModuleIOSim(TunerConstants.FrontLeft),
-//                new ModuleIOSim(TunerConstants.FrontRight),
-//                new ModuleIOSim(TunerConstants.BackLeft),
-//                new ModuleIOSim(TunerConstants.BackRight));
+       drive =
+           new Drive(
+               new GyroIO() {},
+               new ModuleIOSim(TunerConstants.FrontLeft),
+               new ModuleIOSim(TunerConstants.FrontRight),
+               new ModuleIOSim(TunerConstants.BackLeft),
+               new ModuleIOSim(TunerConstants.BackRight));
 
         sys_launcher =  new Launcher(new LauncherSim());
         sys_vision = new Vision(new VisionIO() {});
@@ -131,13 +127,13 @@ public class RobotContainer {
       default:
         // sys_intake = new Intake(new IntakeIO(){});
         // Replayed robot, disable IO implementations
-//        drive =
-//            new Drive(
-//                new GyroIO() {},
-//                new ModuleIO() {},
-//                new ModuleIO() {},
-//                new ModuleIO() {},
-//                new ModuleIO() {});
+       drive =
+           new Drive(
+               new GyroIO() {},
+               new ModuleIO() {},
+               new ModuleIO() {},
+               new ModuleIO() {},
+               new ModuleIO() {});
 
         sys_launcher = new Launcher(new LauncherIO() {});
         sys_vision = new Vision(new VisionIO() {});
@@ -192,7 +188,7 @@ public class RobotContainer {
                      .onFalse(sys_launcher.stopLauncher());
 
     primaryController.a()
-                    .onTrue(sys_launcher.runRPS(20));
+                    .onTrue(sys_launcher.runRPS(() -> RotationsPerSecond.of(20)));
 
                     
     primaryController.y()
@@ -206,14 +202,14 @@ public class RobotContainer {
       SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
               () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
 
-      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stop());
+      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
       // launch fuel w speed
       SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
-      SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
+      SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runRPS(
               () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
-      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stop());
+      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
       // sequentially run every distance from 0.5 m to 10.0 m
       SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(

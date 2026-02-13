@@ -10,6 +10,8 @@ import org.littletonrobotics.junction.AutoLog;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.Supplier;
+
 public interface LauncherIO {
 
     @AutoLog
@@ -44,7 +46,7 @@ public interface LauncherIO {
     // Launcher
     default void launcherSetVoltage(double volts) {}
 
-    default void runVelocity(double velocity) {}
+    default void runRPS(Supplier<AngularVelocity> velocity) {}
 
     default void stopLauncher() {}
 

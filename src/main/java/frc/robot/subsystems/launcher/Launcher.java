@@ -21,6 +21,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class Launcher extends SubsystemBase{
@@ -52,8 +54,7 @@ public class Launcher extends SubsystemBase{
         return Commands.runOnce(() -> io.hoodSetVoltage(volts), this);
     }
 
-    // Run system
-    public Command runRPS(double velocity) {
+    public Command runRPS(Supplier<AngularVelocity> velocity) {
         return Commands.runOnce(() -> io.runRPS(velocity));
     }
 
@@ -64,7 +65,7 @@ public class Launcher extends SubsystemBase{
             LauncherInterpolator.LaunchConfig c = LauncherInterpolator.interpolate(distance.get());
             logInterpolation(distance.get(), c);
             config.set(Optional.of(c)); // update ptr. for use in next cmd.
-        }).andThen(runVelocity(RotationsPerSecond.of(
+        }).andThen(runRPS(() -> RotationsPerSecond.of(
                 config.get()
                       .map(c -> c.speed().in(RotationsPerSecond))
                       .orElse(0.0)

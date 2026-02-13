@@ -6,18 +6,18 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import static edu.wpi.first.units.Units.*;
+
+import java.util.function.Supplier;
 
 public class LauncherSim implements LauncherIO {
     private static final double JOULES_PER_KILO_METERS_SQUARED = 1.0;
@@ -98,9 +98,8 @@ public class LauncherSim implements LauncherIO {
     }
 
     @Override
-    public void launchFuel(Distance distance) {
-        flywheelSim.setAngularVelocity(2);
-        
+    public void runRPS(Supplier<AngularVelocity> velocity) {
+        flywheelSim.setAngularVelocity(velocity.get().in(RadiansPerSecond));
     }
 
     @Override

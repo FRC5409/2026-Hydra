@@ -1,5 +1,7 @@
 package frc.robot.subsystems.launcher;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -45,11 +47,11 @@ public class LauncherTalonFX implements LauncherIO {
     private final StatusSignal<Current> currentLauncherFollower;
     private final StatusSignal<AngularVelocity> speedLauncherFollower;
 
-    // private final StatusSignal<Temperature>     temperatureHood;
-    // private final StatusSignal<Voltage>         voltageHood;
-    // private final StatusSignal<Current>         currentHood;
-    // private final StatusSignal<AngularVelocity> speedHood;
-    // private final StatusSignal<Angle>           hoodPosition;
+    private final StatusSignal<Temperature>     temperatureHood;
+    private final StatusSignal<Voltage>         voltageHood;
+    private final StatusSignal<Current>         currentHood;
+    private final StatusSignal<AngularVelocity> speedHood;
+    private final StatusSignal<Angle>           hoodPosition;
 
     // This thing
     private double velocitySetpoint;
@@ -94,20 +96,20 @@ public class LauncherTalonFX implements LauncherIO {
                 temperatureLauncherFollower,
                 voltageLauncherFollower,
                 currentLauncherFollower,
-                speedLauncherFollower
+                speedLauncherFollower,
 
-                // temperatureHood,
-                // voltageHood,
-                // currentHood,
-                // speedHood,
-                // hoodPosition
+                temperatureHood,
+                voltageHood,
+                currentHood,
+                speedHood,
+                hoodPosition
         );
 
         // Configurators
         TalonFXConfigurator launcherConfigurator = launcherMotor.getConfigurator();
         TalonFXConfigurator launcherFollowerConfigurator = launcherMotor.getConfigurator();
 
-        // TalonFXConfigurator hoodConfigurator = hoodMotor.getConfigurator();
+        TalonFXConfigurator hoodConfigurator = hoodMotor.getConfigurator();
 
         // Slot configs
         Slot0Configs launcherSlotConfigs = new Slot0Configs()
@@ -184,20 +186,11 @@ public class LauncherTalonFX implements LauncherIO {
 
     // Run systems
     @Override
-    public void runRPS(double velocity) {
-        this.velocitySetpoint = velocity;
-        VelocityVoltage velocityVoltage = new VelocityVoltage(velocity)
+    public void runRPS(Supplier<AngularVelocity> velocity) {
+        launcherMotor.setControl(new VelocityVoltage(velocity.get())
                                          .withSlot(0)
-                                         .withFeedForward(0);
-                            
-        launcherMotor.setControl(velocityVoltage
-        );
-
-        // Logger.recordOutput("Launcher/velocityVoltage", velocityVoltage.Velocity);
+                                         .withFeedForward(0));
     }
-
-    @Override
-    public void launchFuel(Distance distance) {}
 
     @Override
     public void setHoodPos(Angle pos) {
