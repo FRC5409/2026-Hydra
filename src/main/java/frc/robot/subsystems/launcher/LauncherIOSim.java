@@ -13,17 +13,15 @@ import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import static edu.wpi.first.units.Units.*;
 
 import java.util.function.Supplier;
 
-public class LauncherSim implements LauncherIO {
-    private static final double JOULES_PER_KILO_METERS_SQUARED = 1.0;
-    private static final double GEARINGLAUNCHER                        = 1.0;
+import static edu.wpi.first.units.Units.*;
 
-    private static final double GEARINGHOOD                        = 1.0;
+public class LauncherIOSim implements LauncherIO {
+    private static final double FLYWHEEL_INERTIA = 1.0;
+    private static final double LAUNCHER_GEARING = 1.0;
+    private static final double HOOD_GEARING     = 1.0;
 
     private final FlywheelSim   flywheelSim;
     private final PIDController controllerLauncher;
@@ -32,40 +30,38 @@ public class LauncherSim implements LauncherIO {
 
     private final SingleJointedArmSim hoodSim;
 
-    private final DCMotor motorLauncher = DCMotor.getFalcon500Foc(1);
-    private final DCMotor motorHood = DCMotor.getFalcon500Foc(1);
-
     private Angle targetHoodAngle = Degrees.of(0.0);
 
-    private final Mechanism2d mech;
-    private final MechanismRoot2d root;
+    private final Mechanism2d         mech;
+    private final MechanismRoot2d     root;
     private final MechanismLigament2d stand;
     private final MechanismLigament2d hood;
 
-
     private boolean isRunning;
 
-    public LauncherSim() {
+    public LauncherIOSim() {
+        DCMotor motorLauncher = DCMotor.getFalcon500Foc(1);
         flywheelSim = new FlywheelSim(
                 LinearSystemId.createFlywheelSystem(
                         motorLauncher,
-                        JOULES_PER_KILO_METERS_SQUARED,
-                        GEARINGLAUNCHER
+                        FLYWHEEL_INERTIA,
+                        LAUNCHER_GEARING
                 ),
                 motorLauncher,
                 0.02
         );
 
+        DCMotor motorHood = DCMotor.getFalcon500Foc(1);
         hoodSim = new SingleJointedArmSim(
-            motorHood,
-            GEARINGHOOD,
-            0.7,
-            0.3,
-            0.0,
-            Units.degreesToRadians(30),
-            true,
-            15,
-            Math.PI
+                motorHood,
+                HOOD_GEARING,
+                0.7,
+                0.3,
+                0.0,
+                Units.degreesToRadians(30),
+                true,
+                15,
+                Math.PI
         );
 
         flywheelSim.update(0.01);
@@ -75,24 +71,28 @@ public class LauncherSim implements LauncherIO {
         root = mech.getRoot("Base", 0.3, 0.1);
 
         stand = root.append(
-            new MechanismLigament2d(
-                "Stand",
-                 0.7,
-                 90
-            )
+                new MechanismLigament2d(
+                        "Stand",
+                        0.7,
+                        90
+                )
         );
 
         hood = stand.append(
-            new MechanismLigament2d(
-                "Hood",
-                 0.5,
-                 45
-            )
+                new MechanismLigament2d(
+                        "Hood",
+                        0.5,
+                        45
+                )
         );
 
-        controllerLauncher = new PIDController(LauncherConstants.Launcher.PID.getP(), LauncherConstants.Launcher.PID.getI(), LauncherConstants.Launcher.PID.getD());
+        controllerLauncher = new PIDController(
+                LauncherConstants.Launcher.PID.getP(), LauncherConstants.Launcher.PID.getI(),
+                LauncherConstants.Launcher.PID.getD());
 
-        controllerHood = new PIDController(LauncherConstants.Hood.PID.getP(), LauncherConstants.Hood.PID.getI(), LauncherConstants.Hood.PID.getD());
+        controllerHood = new PIDController(
+                LauncherConstants.Hood.PID.getP(), LauncherConstants.Hood.PID.getI(),
+                LauncherConstants.Hood.PID.getD());
 
         isRunning = true;
     }
@@ -133,19 +133,9 @@ public class LauncherSim implements LauncherIO {
 
         if (isRunning) {
             voltageLauncher = MathUtil.clamp(
-                    controllerLauncher.calculate(flywheelSim.getAngularVelocityRPM()),
-                    12,
-                    -12
-            );
-
-            voltageHood = MathUtil.clamp(
-                    controllerHood.calculate(hoodSim.getAngleRads()),
-                    12,
-                    -12
-            );
-
+                    controllerLauncher.calculate(flywheelSim.getAngularVelocityRPM()), 12, -12);
+            voltageHood = MathUtil.clamp(controllerHood.calculate(hoodSim.getAngleRads()), 12, -12);
             currentLauncher = flywheelSim.getCurrentDrawAmps();
-
             currentHood = hoodSim.getCurrentDrawAmps();
         }
 
@@ -165,8 +155,5 @@ public class LauncherSim implements LauncherIO {
 
         inputs.targetHoodPosition = targetHoodAngle;
         inputs.hoodPosition = Degrees.of(hoodSim.getAngleRads());
-
-        SmartDashboard.putNumber("Input volatge", flywheelSim.getInputVoltage());
-        SmartDashboard.putNumber("Angular velocity RPM", flywheelSim.getAngularVelocityRadPerSec());
     }
 }

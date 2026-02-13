@@ -119,13 +119,13 @@ public class RobotContainer {
                         sys_vision
                 );
 
-                sys_launcher = new Launcher(new LauncherTalonFX(
+                sys_launcher = new Launcher(new LauncherIOTalonFX(
                     LauncherConstants.Launcher.LAUNCHER_CAN_ID,
                     LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
                     LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
                     LauncherConstants.Hood.HOOD_CAN_ID,
                     LauncherConstants.Hood.HOOD_SENSOR_ID,
-                    LauncherConstants.Ultrasonic.DIGITAL_OUPTPUT,
+                    LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
                     LauncherConstants.Ultrasonic.DIGITAL_INPUT
                 ));
             }
@@ -171,7 +171,7 @@ public class RobotContainer {
                         sys_vision
                 );
 
-                sys_launcher = new Launcher(new LauncherSim());
+                sys_launcher = new Launcher(new LauncherIOSim());
             }
             // Replayed robot, disable IO implementations
             default -> {
