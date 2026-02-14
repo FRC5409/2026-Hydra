@@ -38,9 +38,9 @@ public class Launcher extends SubsystemBase {
         return Commands.runOnce(() -> io.launcherSetVoltage(volts), this);
     }
 
-    public Command hoodSetVoltage(double volts) {
-        return Commands.runOnce(() -> io.hoodSetVoltage(volts), this);
-    }
+    // public Command hoodSetVoltage(double volts) {
+    //     return Commands.runOnce(() -> io.hoodSetVoltage(volts), this);
+    // }
 
     public Command runRPS(Supplier<AngularVelocity> velocity) {
         return Commands.runOnce(() -> io.runRPS(velocity));
@@ -67,21 +67,71 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput("Launcher/TargetAngle", config == null ? Radians.of(0) : config.angle());
     }
 
-    public Command setHoodPos(Angle angle) {
+    // public Command setHoodPos(Angle angle) {
+    //     Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
+    //     Logger.recordOutput("Hood/hoodPosition", inputs.hoodPosition);
+
+    //     // return Commands.runOnce(() -> io.setHoodPos(angle));
+
+    //     return Commands.sequence(
+    //             Commands.runOnce(() -> io.setHoodPos(angle)),
+    //             Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
+    //             )
+    //     );
+
+    // }
+
+    public Command setHoodPos(Distance setpoint) {
+        // TODO: CHECK WHY THIS IS NECESSARY
         Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
-        Logger.recordOutput("Hood/hoodPosition", inputs.hoodPosition);
+        Logger.recordOutput("Hood/hoodPosition", inputs.hood1Position);
 
         // return Commands.runOnce(() -> io.setHoodPos(angle));
 
-        return Commands.sequence(
-                Commands.runOnce(() -> io.setHoodPos(angle)),
-                Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
-                )
-        );
+        // return Commands.sequence(
+        //         Commands.runOnce(() -> io.setHoodPos(angle)),
+        //         Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
+        //         )
+        // );
+
+        // return Commands.run( () -> io.setHoodPos(setpoint));
+        return Commands.run( () -> io.setHoodPos(setpoint));
+        // .until(() -> inputs.targetHood1PositionMM == inputs.hood1Position);
+        // .until(() -> io.getHoodPos().isNear(setpoint, 0.01));
+    }
+
+    public Command setHoodAngle(Angle setpoint) {
+        // TODO: CHECK WHY THIS IS NECESSARY
+        Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
+        Logger.recordOutput("Hood/hoodPosition", inputs.hood1Position);
+
+        // return Commands.runOnce(() -> io.setHoodPos(angle));
+
+        // return Commands.sequence(
+        //         Commands.runOnce(() -> io.setHoodPos(angle)),
+        //         Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
+        //         )
+        // );
+
+        // return Commands.runOnce( () -> io.setHoodAngle(setpoint));
+        return Commands.run( () -> io.setHoodAngle(setpoint));
+        // return Commands.runOnce(() -> io.setH)
+
+        // .until(() -> io.getHoodPos().isNear(setpoint, 0.01));
+    }
+
+    public Command setHoodSpeed(double speed){
+        // return Commands.run(() -> io.setHoodSpeed(speed));
+        return Commands.runOnce(() -> io.setHoodSpeed(speed));
+    }
+
+    public Command setHoodPWM(int pwmMS){
+        // return Commands.runOnce(() -> io.setHoodPWM(pwmMS));
+        return Commands.run(() -> io.setHoodPWM(pwmMS));
     }
 
     // Getters
-    public Angle getHoodPos() {
+    public Distance getHoodPos() {
         return io.getHoodPos();
     }
 
@@ -94,9 +144,9 @@ public class Launcher extends SubsystemBase {
         return Commands.runOnce(io::stopLauncher, this);
     }
 
-    public Command stopHood() {
-        return Commands.runOnce(io::stopHood, this);
-    }
+    // public Command stopHood() {
+    //     return Commands.runOnce(io::stopHood, this);
+    // }
 
     @Override
     public void periodic() {

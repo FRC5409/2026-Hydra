@@ -7,62 +7,31 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.launcher.*;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.util.FieldConstants.Hub;
-import frc.robot.util.LimelightHelpers;
 
 import org.littletonrobotics.junction.Logger;
-import frc.robot.generated.TunerConstants;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.GyroIO;
-import frc.robot.subsystems.drive.GyroIOPigeon2;
-import frc.robot.subsystems.drive.ModuleIO;
-import frc.robot.subsystems.drive.ModuleIOSim;
-import frc.robot.subsystems.drive.ModuleIOTalonFX;
 
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
 import static edu.wpi.first.units.Units.*;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.ClimbingPositions;
-import frc.robot.Constants.PassingPositions;
-import frc.robot.Constants.kAutoAlign;
-import frc.robot.Constants.kBump;
-import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.feeder.*;
-import frc.robot.subsystems.hopper.*;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
-import frc.robot.subsystems.intake.IntakeConstants.Roller;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.serializer.*;
-import frc.robot.subsystems.vision.VisionIOSim;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -75,8 +44,8 @@ public class RobotContainer {
     // Subsystems
 //    protected final Drive      sys_drive;
 //    protected final Vision     sys_vision;
-    protected final Serializer sys_serializer;
-    protected final Feeder     sys_feeder;
+    // protected final Serializer sys_serializer;
+    // protected final Feeder     sys_feeder;
     protected final Launcher   sys_launcher;
 
     public static SwerveDriveSimulation simConfig;
@@ -100,9 +69,9 @@ public class RobotContainer {
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
-                sys_serializer = new Serializer(
-                        new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
-                sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
+                // sys_serializer = new Serializer(
+                //         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
+                // sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
 //                sys_vision = new Vision(new VisionIOLimelight());
 //
 //                sys_drive = new Drive(
@@ -115,19 +84,22 @@ public class RobotContainer {
 //                );
 
                 sys_launcher = new Launcher(new LauncherIOTalonFX(
-                    LauncherConstants.Launcher.LAUNCHER_CAN_ID,
-                    LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
-                    LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
-                    LauncherConstants.Hood.HOOD_CAN_ID,
-                    LauncherConstants.Hood.HOOD_SENSOR_ID,
-                    LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
-                    LauncherConstants.Ultrasonic.DIGITAL_INPUT
+                    // LauncherConstants.Launcher.LAUNCHER_CAN_ID,
+                    // LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
+                    // LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
+                    // LauncherConstants.Hood.HOOD_CAN_ID,
+                    LauncherConstants.Hood.HOOD_PWM_CHANNEL_1,
+                    LauncherConstants.Hood.HOOD_PWM_CHANNEL_2
+                //     LauncherConstants.Hood.HOOD_SENSOR_ID
+                //     LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
+                //     LauncherConstants.Ultrasonic.DIGITAL_INPUT
                 ));
+                
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
-                sys_serializer = new Serializer(new SerializerIOSim());
-                sys_feeder = new Feeder(new FeederIOSim());
+                // sys_serializer = new Serializer(new SerializerIOSim());
+                // sys_feeder = new Feeder(new FeederIOSim());
 
                 final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
                         .Default()
@@ -177,8 +149,8 @@ public class RobotContainer {
 //                        new ModuleIO() {},
 //                        new ModuleIO() {},
 //                        sys_vision);
-                sys_serializer = new Serializer(new SerializerIO() {});
-                sys_feeder = new Feeder(new FeederIO() {});
+                // sys_serializer = new Serializer(new SerializerIO() {});
+                // sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {});
             }
         }
@@ -271,7 +243,16 @@ public class RobotContainer {
                                   sys_launcher.launchFuel(() -> Meters.of(d)),
                                   new WaitCommand(0.5)))
                           .toArray(Command[]::new)
-      ));
+      )); 
+      
+      SmartDashboard.putNumber("Hood Distance Setpoint [mm]", 0);
+      SmartDashboard.putNumber("Hood Angle Setpoint [Degrees]", 0);
+      SmartDashboard.putNumber("Hood Speed -1 to 1", 0);
+      SmartDashboard.putNumber("Hood PWM", 0);
+      SmartDashboard.putData("Set Hood Pos [mm]", sys_launcher.setHoodPos(Millimeters.of(SmartDashboard.getNumber("Hood Distance Setpoint [mm]", 0))));
+      SmartDashboard.putData("Set Hood Angle", sys_launcher.setHoodAngle(Degrees.of(SmartDashboard.getNumber("Hood Angle Setpoint [Degrees]", 0))));
+      SmartDashboard.putData("Set Hood Speed -1 to 1", sys_launcher.setHoodSpeed(SmartDashboard.getNumber("Hood Speed -1 to 1", 0)));
+      SmartDashboard.putData("Set Hood PWM", sys_launcher.setHoodPWM((int) SmartDashboard.getNumber("Hood PWM", 0)));
 
       // score fuel in hub by using odometry
 //      var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;

@@ -103,7 +103,7 @@ public class LauncherIOSim implements LauncherIO {
     }
 
     @Override
-    public void setHoodPos(Angle angle) {
+    public void setHoodAngle(Angle angle) {
         targetHoodAngle = angle;
         controllerHood.setSetpoint(angle.in(Radians));
     }
@@ -153,7 +153,7 @@ public class LauncherIOSim implements LauncherIO {
         inputs.launcherSpeedRadians = flywheelSim.getAngularVelocity();
         // inputs.hoodSpeedRadians = Radians.of(hoodSim.getVelocityRadPerSec());
 
-        inputs.targetHoodPosition = targetHoodAngle;
-        inputs.hoodPosition = Degrees.of(hoodSim.getAngleRads());
+        // inputs.targetHoodPosition = targetHoodAngle;
+        // inputs.hoodPosition = Degrees.of(hoodSim.getAngleRads());
     }
 }
