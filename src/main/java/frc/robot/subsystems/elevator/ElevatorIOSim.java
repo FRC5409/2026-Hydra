@@ -2,6 +2,7 @@ package frc.robot.subsystems.elevator;
 
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
+import edu.wpi.first.units.Units;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
@@ -22,7 +23,7 @@ public class ElevatorIOSim implements ElevatorIO {
         //Creating sim elevator object
         elevatorSim = new ElevatorSim(
             DCMotor.getFalcon500(2), 
-            ElevatorConstants.kGearing, 
+            ElevatorConstants.GEARING, 
             ElevatorConstants.ELEVATOR_MASS.in(Kilograms), 
             ElevatorConstants.ELEVATOR_DRUMRADIUS.in(Meters), 
             ElevatorConstants.ELEVATOR_MIN_HEIGHT, 
@@ -87,10 +88,10 @@ public class ElevatorIOSim implements ElevatorIO {
         elevatorSim.setInputVoltage (volts);
         elevatorSim.update(0.02);
 
-        inputs.mainMotorConnection = true;
-        inputs.mainAppliedVoltage = volts;
-        inputs.mainAppliedCurrent = Math.abs(current);
+        inputs.isMainMotorConnected = true;
+        inputs.mainAppliedVoltage = Units.Volts.of(volts);
+        inputs.mainAppliedCurrent = Units.Amps.of(Math.abs(current));
         inputs.mainMotorTemperature = 0.0;
-        inputs.mainMotorPosition = elevatorSim.getPositionMeters();
+        inputs.mainMotorPosition = Units.Meters.of(elevatorSim.getPositionMeters());
     }
 }

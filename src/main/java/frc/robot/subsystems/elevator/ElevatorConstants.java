@@ -1,5 +1,6 @@
 package frc.robot.subsystems.elevator;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
@@ -10,13 +11,13 @@ import com.pathplanner.lib.config.PIDConstants;
 public final class ElevatorConstants {
 
     public static final int MAIN_MOTOR_ID = 20;
-    public static final double CURRENT_LIMIT = 0.0;
-    public static final double kGearing = 0.0;
-    public static final Distance ELEVATOR_DRUMRADIUS = Inches.of(0.0);
-    public static final double kCircumfrence = 2 * Math.PI * ELEVATOR_DRUMRADIUS.in(Meters);
-    public static final double kRotationConverter = kCircumfrence / kGearing;
-    public static final PIDConstants TALONFX_PID = new PIDConstants(0, 0, 0);
-    public static final PIDConstants SIM_PID = new PIDConstants(0, 0, 0);
+    public static final Current CURRENT_LIMIT = Units.Amps.of(30.0); // TODO: Replace with real climber current limit after testing
+    public static final double GEARING = 9.0/1.0; // TODO: Replace with actual gearbox ratio
+    public static final Distance ELEVATOR_DRUMRADIUS = Units.Inches.of(0.0);
+    public static final double ELEVATOR_DRUMCIRCUMFERENCE = 2 * Math.PI * ELEVATOR_DRUMRADIUS.in(Meters);
+    public static final double kRotationConverter = ELEVATOR_DRUMCIRCUMFERENCE / GEARING;
+    public static final PIDConstants TALONFX_PID = new PIDConstants(0, 0, 0); 
+    public static final PIDConstants SIM_PID = new PIDConstants(10, 0, 0);
     public static final Mass ELEVATOR_MASS = Pound.of(0);
     public static final double ELEVATOR_MIN_HEIGHT = 0.0;
     public static final double ELEVATOR_MAX_HEIGHT = 0.0;

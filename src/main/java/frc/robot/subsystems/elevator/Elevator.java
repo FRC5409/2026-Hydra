@@ -6,6 +6,7 @@ import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -81,8 +82,8 @@ public class Elevator extends SubsystemBase{
         Logger.recordOutput("Components/Elevator", elevatorPose);
 
         //Alert if motors are disconnected
-        ElevatorAlert.set(!inputs.mainMotorConnection);
+        ElevatorAlert.set(!inputs.isMainMotorConnected);
 
-        elevatorPose = new Pose3d(0,0,inputs.mainMotorPosition, new Rotation3d());
+        elevatorPose = new Pose3d(0,0,inputs.mainMotorPosition.in(Units.Meters), new Rotation3d());
     }
 }
