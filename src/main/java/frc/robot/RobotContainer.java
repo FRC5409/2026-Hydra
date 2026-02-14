@@ -25,6 +25,7 @@ import frc.robot.Constants.kBump;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.*;
 import frc.robot.subsystems.hopper.*;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
@@ -68,6 +69,7 @@ public class RobotContainer {
     protected final Vision     sys_vision;
     protected final Intake     sys_intake;
     protected final Serializer sys_serializer;
+    protected final Feeder     sys_feeder;
     protected final Hopper     sys_hopper;
 
     public static SwerveDriveSimulation simConfig;
@@ -96,7 +98,8 @@ public class RobotContainer {
                         new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
                 sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
                 sys_serializer = new Serializer(
-                        new SerializerIOTalonFX(SerializerConstants.INDEXER_ID, SerializerConstants.FEEDER_ID));
+                        new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
+                sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
                 sys_vision = new Vision(new VisionIOLimelight());
                 sys_elevator = new Elevator(new ElevatorIOTalonFX(ElevatorConstants.MAIN_MOTOR_ID));
 
@@ -116,6 +119,7 @@ public class RobotContainer {
                 sys_intake = new Intake(new IntakeIOSim());
                 sys_serializer = new Serializer(new SerializerIOSim());
                 sys_elevator = new Elevator(new ElevatorIOSim());
+                sys_feeder = new Feeder(new FeederIOSim());
 
                 final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
                         .Default()
@@ -166,6 +170,7 @@ public class RobotContainer {
                 sys_intake = new Intake(new IntakeIO() {});
                 sys_serializer = new Serializer(new SerializerIO() {});
                 sys_elevator = new Elevator(new ElevatorIO() {});
+                sys_feeder = new Feeder(new FeederIO() {});
             }
         }
 
