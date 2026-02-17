@@ -36,7 +36,10 @@ import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.launcher.Launcher;
+import frc.robot.subsystems.launcher.LauncherConstants;
+import frc.robot.subsystems.launcher.LauncherIO;
+import frc.robot.subsystems.launcher.LauncherIOTalonFX;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
@@ -44,7 +47,6 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.FieldConstants.Hub;
-import frc.robot.util.LimelightHelpers;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -86,6 +88,7 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
+    private final LoggedDashboardChooser<Command> launchStrategyChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -191,6 +194,7 @@ public class RobotContainer {
 
         // Set up auto routines
         autoChooser = buildAutoChooser();
+        launchStrategyChooser = buildLaunchStrategyShooter();
 
         // Configure the button bindings
         configureButtonBindings();
