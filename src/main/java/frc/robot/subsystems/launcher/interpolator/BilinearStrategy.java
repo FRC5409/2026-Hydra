@@ -1,8 +1,6 @@
 package frc.robot.subsystems.launcher.interpolator;
 
-import edu.wpi.first.math.InterpolatingMatrixTreeMap;
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -18,16 +16,14 @@ import static edu.wpi.first.units.Units.*;
  * @author Logan Dhillon, FRC 5409 Chargers
  */
 public class BilinearStrategy implements LaunchStrategy {
-    private static final InterpolatingMatrixTreeMap<Double, N1, N1> ANGLE_INTERPOLATOR    =
-            new InterpolatingMatrixTreeMap<>();
-    private static final InterpolatingMatrixTreeMap<Double, N1, N1> VELOCITY_INTERPOLATOR =
-            new InterpolatingMatrixTreeMap<>();
+    private static final InterpolatingDoubleTreeMap ANGLE_INTERPOLATOR    = new InterpolatingDoubleTreeMap();
+    private static final InterpolatingDoubleTreeMap VELOCITY_INTERPOLATOR = new InterpolatingDoubleTreeMap();
 
     @Override
     public LaunchConfig interpolate(Distance displacement) {
         return new LaunchConfig(
-                Radians.of(ANGLE_INTERPOLATOR.get(displacement.in(Meters)).get(0, 0)),
-                RotationsPerSecond.of(VELOCITY_INTERPOLATOR.get(displacement.in(Meters)).get(0, 0))
+                Radians.of(ANGLE_INTERPOLATOR.get(displacement.in(Meters))),
+                RotationsPerSecond.of(VELOCITY_INTERPOLATOR.get(displacement.in(Meters)))
         );
     }
 
@@ -39,13 +35,8 @@ public class BilinearStrategy implements LaunchStrategy {
      * @param distance total distance the fuel traveled
      */
     private static void addData(Angle angle, AngularVelocity speed, Distance distance) {
-        Matrix<N1, N1> theta = new Matrix<>(N1.instance, N1.instance);
-        theta.set(0, 0, angle.in(Radians));
-        ANGLE_INTERPOLATOR.put(distance.in(Meters), theta);
-
-        Matrix<N1, N1> vel = new Matrix<>(N1.instance, N1.instance);
-        vel.set(0, 0, speed.in(RotationsPerSecond));
-        VELOCITY_INTERPOLATOR.put(distance.in(Meters), vel);
+        ANGLE_INTERPOLATOR.put(distance.in(Meters), angle.in(Radians));
+        VELOCITY_INTERPOLATOR.put(distance.in(Meters), speed.in(RotationsPerSecond));
     }
 
     static {
