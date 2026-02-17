@@ -19,38 +19,38 @@ public class RetractAndPulseCommand extends ParallelDeadlineGroup {
   private static final Distance TOLERANCE = HopperConstants.PULSE_TOLERANCE;
     
     /** Creates a new RetractCommand. */
-    public RetractAndPulseCommand(Hopper hopper, Intake intake) {
-      this(hopper, intake, true);
+    public RetractAndPulseCommand(Hopper sys_hopper, Intake sys_intake) {
+      this(sys_hopper, sys_intake, true);
     }
 
 
-    public RetractAndPulseCommand(Hopper hopper, Intake intake, boolean pulseHopper) {
+    public RetractAndPulseCommand(Hopper sys_hopper, Intake sys_intake, boolean pulseHopper) {
       super(
         Commands.waitUntil(() ->
-                hopper.getPosition().isNear(Inches.of(0.0), TOLERANCE) && 
-                intake.getPosition().isNear(Inches.of(0.0), TOLERANCE)
+                sys_hopper.getPosition().isNear(Inches.of(0.0), TOLERANCE) && 
+                sys_intake.getPosition().isNear(Inches.of(0.0), TOLERANCE)
         ),
         
-        intake.retract(),
+        sys_intake.retract(),
 
         pulseHopper 
           ? Commands.either(
-              hopper.pulseWhileRetracting(
-                          intake.getPosition().plus(MIN_GAP), 
-                          intake.getPosition().plus(INCREASE)
+              sys_hopper.pulseWhileRetracting(
+                          sys_intake.getPosition().plus(MIN_GAP), 
+                          sys_intake.getPosition().plus(INCREASE)
               ),
-              hopper.stopMotor(),
-              () -> !hopper.getPosition().isNear(intake.getPosition(), MIN_GAP)
+              sys_hopper.stopMotor(),
+              () -> !sys_hopper.getPosition().isNear(sys_intake.getPosition(), MIN_GAP)
           ).repeatedly()
 
           : Commands.either(
-            hopper.fullRetract(),
-            hopper.stopMotor(),
-            () -> !hopper.getPosition().isNear(Inches.of(0.0), TOLERANCE)
+            sys_hopper.fullRetract(),
+            sys_hopper.stopMotor(),
+            () -> !sys_hopper.getPosition().isNear(Inches.of(0.0), TOLERANCE)
           ).repeatedly()
 
       );
-      addRequirements(hopper, intake);
+      addRequirements(sys_hopper, sys_intake);
 
    }
 }
