@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -30,13 +29,13 @@ public class Launcher extends SubsystemBase {
 
     public Launcher(LauncherIO io, LaunchStrategy strategy) {
         this.io = io;
-        this.strategy = strategy;
         inputs = new LauncherInputsAutoLogged();
 
         launcherMech = new Pose3d();
 
         // create the logged fields
         logInterpolation(Meters.of(0), null);
+        setStrategy(strategy);
     }
 
     // Voltage

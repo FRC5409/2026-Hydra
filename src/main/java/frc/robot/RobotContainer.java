@@ -194,7 +194,7 @@ public class RobotContainer {
 
         // Set up auto routines
         autoChooser = buildAutoChooser();
-        launchStrategyChooser = buildLaunchStrategyShooter();
+        launchStrategyChooser = buildLaunchStrategyChooser();
 
         // Configure the button bindings
         configureButtonBindings();
@@ -237,9 +237,8 @@ public class RobotContainer {
      *
      * @return the logged dashboard chooser
      */
-    public LoggedDashboardChooser<Command> buildLaunchStrategyShooter() {
-        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>(
-                "Launch Strategy", AutoBuilder.buildAutoChooser());
+    public LoggedDashboardChooser<Command> buildLaunchStrategyChooser() {
+        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>("Launch Strategy");
 
         for (LaunchStrategy strategy: LaunchStrategy.getLaunchStrategies())
             chooser.addOption(strategy.getName(), Commands.runOnce(() -> sys_launcher.setStrategy(strategy)));
