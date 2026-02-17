@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -21,10 +22,11 @@ import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase {
     private final LauncherIO               io;
-    private final LaunchStrategy           strategy;
     private final LauncherInputsAutoLogged inputs;
 
     private static Pose3d launcherMech;
+
+    private LaunchStrategy strategy;
 
     public Launcher(LauncherIO io, LaunchStrategy strategy) {
         this.io = io;
@@ -100,6 +102,11 @@ public class Launcher extends SubsystemBase {
 
     public Command stopHood() {
         return Commands.runOnce(io::stopHood, this);
+    }
+
+    public void setStrategy(LaunchStrategy strategy) {
+        this.strategy = strategy;
+        Logger.recordOutput("Launcher/LaunchStrategy", strategy.getName());
     }
 
     @Override

@@ -15,7 +15,7 @@ import static edu.wpi.first.units.Units.*;
  *
  * @author Logan Dhillon, FRC 5409 Chargers
  */
-public class BilinearStrategy implements LaunchStrategy {
+public class BilinearStrategy extends LaunchStrategy {
     private static final InterpolatingDoubleTreeMap ANGLE_INTERPOLATOR    = new InterpolatingDoubleTreeMap();
     private static final InterpolatingDoubleTreeMap VELOCITY_INTERPOLATOR = new InterpolatingDoubleTreeMap();
 
@@ -25,6 +25,11 @@ public class BilinearStrategy implements LaunchStrategy {
                 Radians.of(ANGLE_INTERPOLATOR.get(displacement.in(Meters))),
                 RotationsPerSecond.of(VELOCITY_INTERPOLATOR.get(displacement.in(Meters)))
         );
+    }
+
+    @Override
+    public String getName() {
+        return "Bilinear Interpolation";
     }
 
     /**

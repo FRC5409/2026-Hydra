@@ -17,7 +17,7 @@ import static edu.wpi.first.units.Units.*;
  *
  * @author Logan Dhillon, FRC 5409 Chargers
  */
-public class MatrixStrategy implements LaunchStrategy {
+public class MatrixStrategy extends LaunchStrategy {
     /**
      * map of tested shots keyed by distance to travel, storing 2x1 matrices [angle (rad), velocity (rps)]
      */
@@ -31,6 +31,11 @@ public class MatrixStrategy implements LaunchStrategy {
                 Radians.of(interpolated.get(0, 0)),
                 RotationsPerSecond.of(interpolated.get(1, 0))
         );
+    }
+
+    @Override
+    public String getName() {
+        return "3D Matrix Interpolation";
     }
 
     /**

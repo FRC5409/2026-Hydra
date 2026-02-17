@@ -4,8 +4,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
+import frc.robot.subsystems.launcher.interpolator.BilinearStrategy;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
-import frc.robot.subsystems.launcher.interpolator.MatrixStrategy;
 
 import static edu.wpi.first.units.Units.Degrees;
 
@@ -24,7 +24,7 @@ public class LauncherConstants {
 
         public static final PIDController PID = new PIDController(0.05, 0, 0);
 
-        public static final LaunchStrategy LAUNCH_STRATEGY = new MatrixStrategy();
+        public static final LaunchStrategy DEFAULT_LAUNCH_STRATEGY = new BilinearStrategy();
     }
 
     public static final int SUPPLY_CURRENT_LIMIT = 60;
