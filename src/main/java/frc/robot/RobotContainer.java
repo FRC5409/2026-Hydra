@@ -298,11 +298,11 @@ public class RobotContainer {
                 ));
 
         // score fuel in hub by using odometry
-        var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
-        Logger.recordOutput("Vision/Estimate", pose);
-        SmartDashboard.putData(
-                "SCORE FUEL IN HUB", sys_launcher.launchFuel(
-                        () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
+//        var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
+//        Logger.recordOutput("Vision/Estimate", pose);
+//        SmartDashboard.putData(
+//                "SCORE FUEL IN HUB", sys_launcher.launchFuel(
+//                        () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
 
         // Switch to X pattern when X button is pressed
         primaryController.x()
