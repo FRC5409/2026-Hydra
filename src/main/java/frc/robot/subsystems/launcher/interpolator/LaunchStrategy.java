@@ -2,13 +2,8 @@ package frc.robot.subsystems.launcher.interpolator;
 
 import edu.wpi.first.units.measure.Distance;
 
-import java.util.ArrayList;
-
 public abstract class LaunchStrategy {
-    private static final ArrayList<LaunchStrategy> LAUNCH_STRATEGIES = new ArrayList<>();
-
     public LaunchStrategy() {
-        LAUNCH_STRATEGIES.add(this);
     }
 
     /**
@@ -25,7 +20,13 @@ public abstract class LaunchStrategy {
 
     public abstract String getName();
 
+    /**
+     * Gets a list of all the available {@link LaunchStrategy} that the user can choose from.
+     */
     public static LaunchStrategy[] getLaunchStrategies() {
-        return LAUNCH_STRATEGIES.toArray(LaunchStrategy[]::new);
+        return new LaunchStrategy[]{
+                new BilinearStrategy(),
+                new MatrixStrategy()
+        };
     }
 }
