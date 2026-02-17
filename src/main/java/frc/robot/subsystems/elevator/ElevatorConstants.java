@@ -18,7 +18,7 @@ public final class ElevatorConstants {
     public static final double kRotationConverter = ELEVATOR_DRUMCIRCUMFERENCE / GEARING;
     public static final PIDConstants TALONFX_PID = new PIDConstants(0, 0, 0); 
     public static final PIDConstants SIM_PID = new PIDConstants(10, 0, 0);
-    public static final Mass ELEVATOR_MASS = Pound.of(0);
+    public static final Mass ELEVATOR_MASS = Pound.of(1);
     public static final double ELEVATOR_MIN_HEIGHT = 0.0;
     public static final double ELEVATOR_MAX_HEIGHT = 0.0;
 
