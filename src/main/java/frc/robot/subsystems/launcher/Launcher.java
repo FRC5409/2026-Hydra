@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
+import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -19,12 +21,14 @@ import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase {
     private final LauncherIO               io;
+    private final LaunchStrategy           strategy;
     private final LauncherInputsAutoLogged inputs;
 
     private static Pose3d launcherMech;
 
-    public Launcher(LauncherIO io) {
+    public Launcher(LauncherIO io, LaunchStrategy strategy) {
         this.io = io;
+        this.strategy = strategy;
         inputs = new LauncherInputsAutoLogged();
 
         launcherMech = new Pose3d();
@@ -48,9 +52,9 @@ public class Launcher extends SubsystemBase {
 
     public Command launchFuel(Supplier<Distance> distance) {
         // ptr. to config; anon. fn. req. stable addr.
-        AtomicReference<Optional<LauncherInterpolator.LaunchConfig>> config = new AtomicReference<>(Optional.empty());
+        AtomicReference<Optional<LaunchConfig>> config = new AtomicReference<>(Optional.empty());
         return Commands.runOnce(() -> {
-            LauncherInterpolator.LaunchConfig c = LauncherInterpolator.interpolate(distance.get());
+            LaunchConfig c = strategy.interpolate(distance.get());
             logInterpolation(distance.get(), c);
             config.set(Optional.of(c)); // update ptr. for use in next cmd.
         }).andThen(runRPS(() -> RotationsPerSecond.of(
@@ -60,7 +64,7 @@ public class Launcher extends SubsystemBase {
         )));
     }
 
-    private void logInterpolation(Distance distance, LauncherInterpolator.LaunchConfig config) {
+    private void logInterpolation(Distance distance, LaunchConfig config) {
         Logger.recordOutput("Launcher/TargetDistance", distance);
         Logger.recordOutput("Launcher/DidInterpolationSucceed", config != null);
         Logger.recordOutput("Launcher/TargetSpeed", config == null ? RotationsPerSecond.of(0) : config.speed());

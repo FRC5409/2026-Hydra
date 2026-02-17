@@ -119,15 +119,18 @@ public class RobotContainer {
                         sys_vision
                 );
 
-                sys_launcher = new Launcher(new LauncherIOTalonFX(
-                    LauncherConstants.Launcher.LAUNCHER_CAN_ID,
-                    LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
-                    LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
-                    LauncherConstants.Hood.HOOD_CAN_ID,
-                    LauncherConstants.Hood.HOOD_SENSOR_ID,
-                    LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
-                    LauncherConstants.Ultrasonic.DIGITAL_INPUT
-                ));
+                sys_launcher = new Launcher(
+                        new LauncherIOTalonFX(
+                            LauncherConstants.Launcher.LAUNCHER_CAN_ID,
+                            LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
+                            LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
+                            LauncherConstants.Hood.HOOD_CAN_ID,
+                            LauncherConstants.Hood.HOOD_SENSOR_ID,
+                            LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
+                            LauncherConstants.Ultrasonic.DIGITAL_INPUT
+                        ),
+                        LauncherConstants.Launcher.LAUNCH_STRATEGY
+                );
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -171,7 +174,7 @@ public class RobotContainer {
                         sys_vision
                 );
 
-                sys_launcher = new Launcher(new LauncherIOSim());
+                sys_launcher = new Launcher(new LauncherIOSim(), LauncherConstants.Launcher.LAUNCH_STRATEGY);
             }
             // Replayed robot, disable IO implementations
             default -> {
@@ -187,7 +190,7 @@ public class RobotContainer {
                 sys_intake = new Intake(new IntakeIO() {});
                 sys_serializer = new Serializer(new SerializerIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
-                sys_launcher = new Launcher(new LauncherIO() {});
+                sys_launcher = new Launcher(new LauncherIO() {}, LauncherConstants.Launcher.LAUNCH_STRATEGY);
             }
         }
 
@@ -299,11 +302,11 @@ public class RobotContainer {
         primaryController.rightBumper()
                          .whileTrue(
                               DriveCommands.alignToHeading(
-                                sys_drive, 
+                                sys_drive,
                                 () -> DriveCommands.getRotation2d(
-                                  sys_drive, 
+                                  sys_drive,
                                   new Pose2d(
-                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()),
                                     Rotation2d.kZero
                                   )
                                 )
@@ -324,9 +327,9 @@ public class RobotContainer {
                         .whileTrue(
                             Commands.sequence(
                               DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimibingPrepPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+                                sys_drive,
+                                () -> selectedClimibingPrepPosition.pose,
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
                                 () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
                                 kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
                                 kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
@@ -334,9 +337,9 @@ public class RobotContainer {
 
                               ),
                               DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimbingPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+                                sys_drive,
+                                () -> selectedClimbingPosition.pose,
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB,
                                 () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
                               )
                             )
@@ -353,7 +356,7 @@ public class RobotContainer {
                         .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
         secondaryController.povRight()
                         .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
-  
+
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
@@ -363,11 +366,11 @@ public class RobotContainer {
                           selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
                         else
                           selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
-                          
+
                         Logger.recordOutput("Climbing Position", climbingPosition);
 
-                        selectedClimbingPosition = climbingPosition; 
-                        
+                        selectedClimbingPosition = climbingPosition;
+
                         Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
 
                 }

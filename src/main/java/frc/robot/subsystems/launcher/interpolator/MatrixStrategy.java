@@ -1,4 +1,4 @@
-package frc.robot.subsystems.launcher;
+package frc.robot.subsystems.launcher.interpolator;
 
 import edu.wpi.first.math.InterpolatingMatrixTreeMap;
 import edu.wpi.first.math.Matrix;
@@ -17,11 +17,21 @@ import static edu.wpi.first.units.Units.*;
  *
  * @author Logan Dhillon, FRC 5409 Chargers
  */
-public class LauncherInterpolator {
+public class MatrixStrategy implements LaunchStrategy {
     /**
      * map of tested shots keyed by distance to travel, storing 2x1 matrices [angle (rad), velocity (rps)]
      */
     private static final InterpolatingMatrixTreeMap<Double, N2, N1> INTERPOLATOR = new InterpolatingMatrixTreeMap<>();
+
+    @Override
+    public LaunchConfig interpolate(Distance displacement) {
+        Matrix<N2, N1> interpolated = INTERPOLATOR.get(displacement.in(Meters));
+
+        return new LaunchConfig(
+                Radians.of(interpolated.get(0, 0)),
+                RotationsPerSecond.of(interpolated.get(1, 0))
+        );
+    }
 
     /**
      * Adds a test point to the {@link InterpolatingMatrixTreeMap} used internally by the data interpolator
@@ -37,23 +47,6 @@ public class LauncherInterpolator {
         INTERPOLATOR.put(Arrays.stream(trials).mapToDouble(d -> d.in(Meters)).average().orElseThrow(), matrix);
     }
 
-    /**
-     * Interpolates the fastest angular velocity and shoot angle for the launcher based on the displacement to fire the
-     * fuel.
-     *
-     * @param displacement total straight-line displacement to shoot fuel at
-     *
-     * @return {@link LaunchConfig}, containing angular velocity and angle to shoot at
-     */
-    public static LaunchConfig interpolate(Distance displacement) {
-        Matrix<N2, N1> interpolated = INTERPOLATOR.get(displacement.in(Meters));
-
-        return new LaunchConfig(
-                Radians.of(interpolated.get(0, 0)),
-                RotationsPerSecond.of(interpolated.get(1, 0))
-        );
-    }
-
     static {
         // ==== TESTING DATA FOR PROTOTYPE LAUNCHER ====
         addData(Degrees.of(75), RotationsPerSecond.of(50), Meters.of(2.30));
@@ -63,6 +56,4 @@ public class LauncherInterpolator {
         addData(Degrees.of(75), RotationsPerSecond.of(90), Meters.of(7.68));
         addData(Degrees.of(75), RotationsPerSecond.of(100), Meters.of(9.40));
     }
-
-    public record LaunchConfig(Angle angle, AngularVelocity speed) {}
 }
