@@ -14,11 +14,14 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.launcher.*;
 
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
@@ -44,8 +47,8 @@ public class RobotContainer {
     // Subsystems
 //    protected final Drive      sys_drive;
 //    protected final Vision     sys_vision;
-    // protected final Serializer sys_serializer;
-    // protected final Feeder     sys_feeder;
+    protected final Serializer sys_serializer;
+    protected final Feeder     sys_feeder;
     protected final Launcher   sys_launcher;
 
     public static SwerveDriveSimulation simConfig;
@@ -55,7 +58,7 @@ public class RobotContainer {
 //    private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
 
     // Controllers
-//    private final CommandXboxController primaryController   = new CommandXboxController(0);
+   private final CommandXboxController primaryController   = new CommandXboxController(0);
 //    private final CommandXboxController secondaryController = new CommandXboxController(1);
 
     // Dashboard inputs
@@ -69,9 +72,9 @@ public class RobotContainer {
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
-                // sys_serializer = new Serializer(
-                //         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
-                // sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
+                sys_serializer = new Serializer(
+                        new SerializerIOTalonFX(SerializerConstants.SERIALIZER_ID));
+                sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
 //                sys_vision = new Vision(new VisionIOLimelight());
 //
 //                sys_drive = new Drive(
@@ -84,9 +87,9 @@ public class RobotContainer {
 //                );
 
                 sys_launcher = new Launcher(new LauncherIOTalonFX(
-                    // LauncherConstants.Launcher.LAUNCHER_CAN_ID,
+                    LauncherConstants.Launcher.LAUNCHER_CAN_ID,
                     // LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
-                    // LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
+                    LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
                     // LauncherConstants.Hood.HOOD_CAN_ID,
                     LauncherConstants.Hood.HOOD_PWM_CHANNEL_1,
                     LauncherConstants.Hood.HOOD_PWM_CHANNEL_2
@@ -98,8 +101,8 @@ public class RobotContainer {
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
-                // sys_serializer = new Serializer(new SerializerIOSim());
-                // sys_feeder = new Feeder(new FeederIOSim());
+                sys_serializer = new Serializer(new SerializerIOSim());
+                sys_feeder = new Feeder(new FeederIOSim());
 
                 final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
                         .Default()
@@ -149,8 +152,8 @@ public class RobotContainer {
 //                        new ModuleIO() {},
 //                        new ModuleIO() {},
 //                        sys_vision);
-                // sys_serializer = new Serializer(new SerializerIO() {});
-                // sys_feeder = new Feeder(new FeederIO() {});
+                sys_serializer = new Serializer(new SerializerIO() {});
+                sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {});
             }
         }
@@ -246,119 +249,65 @@ public class RobotContainer {
       )); 
       
       SmartDashboard.putNumber("Hood Distance Setpoint [mm]", 0);
-      SmartDashboard.putNumber("Hood Angle Setpoint [Degrees]", 0);
-      SmartDashboard.putNumber("Hood Speed -1 to 1", 0);
-      SmartDashboard.putNumber("Hood PWM", 0);
-      SmartDashboard.putData("Set Hood Pos [mm]", sys_launcher.setHoodPos(Millimeters.of(SmartDashboard.getNumber("Hood Distance Setpoint [mm]", 0))));
-      SmartDashboard.putData("Set Hood Angle", sys_launcher.setHoodAngle(Degrees.of(SmartDashboard.getNumber("Hood Angle Setpoint [Degrees]", 0))));
-      SmartDashboard.putData("Set Hood Speed -1 to 1", sys_launcher.setHoodSpeed(SmartDashboard.getNumber("Hood Speed -1 to 1", 0)));
-      SmartDashboard.putData("Set Hood PWM", sys_launcher.setHoodPWM((int) SmartDashboard.getNumber("Hood PWM", 0)));
+      SmartDashboard.putNumber("Hood Distance Setpoint 1 [mm]", 0);
+      SmartDashboard.putNumber("Hood Distance Setpoint 2 [mm]", 0);
+
+      SmartDashboard.putData("Set Hood Pos [mm]", 
+        Commands.runOnce(() -> sys_launcher.setHoodPos(
+            Millimeters.of(SmartDashboard.getNumber("Hood Distance Setpoint [mm]", 0)))));
+
+      SmartDashboard.putData("Set Hood 1 Pos [mm]", 
+        Commands.runOnce(() -> sys_launcher.setHood1Pos(
+            Millimeters.of(SmartDashboard.getNumber("Hood Distance Setpoint 1 [mm]", 0)))));
+
+    SmartDashboard.putData("Set Hood 2 Pos [mm]", 
+        Commands.runOnce(() -> sys_launcher.setHood2Pos(
+            Millimeters.of(SmartDashboard.getNumber("Hood Distance Setpoint 2 [mm]", 0)))));
+    
+
+      SmartDashboard.putData("Set Hood max (29 mm)", 
+            Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeters.of(29))));
+
+      SmartDashboard.putData("Set Hood 0 (0 mm)",
+            Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeter.of(0))));
+
+
+        SmartDashboard.putNumber("Feeder Voltage", 0);
+        SmartDashboard.putNumber("Serializer Voltage", 0);
+
+
+        primaryController.a()
+            .onTrue(Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeters.of(0))));
+
+        primaryController.x()
+            .onTrue(Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeter.of(0))));
+
+
+        primaryController.povUp()
+            .onTrue(sys_feeder.setVoltage(10))
+            .onTrue(sys_serializer.setVoltage(8));
+
+
+        primaryController.povDown()
+            .onTrue(sys_feeder.setVoltage(0))
+            .onTrue(sys_serializer.setVoltage(0));
+
+
+        primaryController.povRight()
+            .onTrue(sys_serializer.setVoltage(5));
+        
+        primaryController.povLeft()
+            .onTrue(sys_serializer.setVoltage(0));
+
 
       // score fuel in hub by using odometry
 //      var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
 //      Logger.recordOutput("Vision/Estimate", pose);
 //      SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
 //              () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
-
-        // Switch to X pattern when X button is pressed
-//        primaryController.x()
-//                         .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
-//
-//        // Switch To Bump Speed Modifier
-//        primaryController.a()
-//                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
-//                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
-//
-//        primaryController.rightBumper()
-//                         .whileTrue(
-//                              DriveCommands.alignToHeading(
-//                                sys_drive,
-//                                () -> DriveCommands.getRotation2d(
-//                                  sys_drive,
-//                                  new Pose2d(
-//                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()),
-//                                    Rotation2d.kZero
-//                                  )
-//                                )
-//                              )
-//                         );
-//
-//        primaryController.leftBumper()
-//                        .whileTrue(
-//                          DriveCommands.joystickDriveAtAngle(
-//                            sys_drive,
-//                            () -> -primaryController.getLeftY(),
-//                            () -> -primaryController.getLeftX(),
-//                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
-//                          )
-//                        );
-//
-//        primaryController.x()
-//                        .whileTrue(
-//                            Commands.sequence(
-//                              DriveCommands.alignToPoint(
-//                                sys_drive,
-//                                () -> selectedClimibingPrepPosition.pose,
-//                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
-//                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-//                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-//                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-//                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
-//
-//                              ),
-//                              DriveCommands.alignToPoint(
-//                                sys_drive,
-//                                () -> selectedClimbingPosition.pose,
-//                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB,
-//                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-//                              )
-//                            )
-//                        );
-//
-//        secondaryController.x()
-//                        .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
-//        secondaryController.b()
-//                        .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
-//        secondaryController.a()
-//                        .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
-//
-//        secondaryController.povLeft()
-//                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
-//        secondaryController.povRight()
-//                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
   
     }
 
-//    private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
-//        return Commands.runOnce(
-//                () -> {
-//                        if (climbingPosition == ClimbingPositions.LEFT)
-//                          selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
-//                        else
-//                          selectedClimibingPrepPosition = ClimbingPositions.RIGHT_PREP;
-//
-//                        Logger.recordOutput("Climbing Position", climbingPosition);
-//
-//                        selectedClimbingPosition = climbingPosition;
-//
-//                        Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
-//
-//                }
-//        );
-//    };
-//
-//    private Command prepPassingPositionCommand(PassingPositions passingPosition){
-//        return Commands.runOnce(
-//                () -> {
-//                        Logger.recordOutput("Passing Position", passingPosition);
-//
-//                        selectedPassingPosition = passingPosition;
-//
-//                        Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
-//
-//                }
-//        );
-//    }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

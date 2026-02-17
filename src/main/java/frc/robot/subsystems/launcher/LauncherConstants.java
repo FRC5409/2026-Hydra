@@ -20,9 +20,9 @@ import com.pathplanner.lib.config.PIDConstants;
 public class LauncherConstants {
     public static class Launcher {
         public static final int LAUNCHER_SENSOR_ID = 1;
-        public static final int LAUNCHER_CAN_ID    = 11;
+        public static final int LAUNCHER_CAN_ID    = 24;
 
-        public static final int FOLLOWER_LAUNCHER_CAN_ID    = 12;
+        public static final int FOLLOWER_LAUNCHER_CAN_ID    = 25;
         public static final int FOLLOWER_LAUNCHER_SENSOR_ID = 0;
 
         public static final double kG = 0.0;
@@ -42,8 +42,8 @@ public class LauncherConstants {
 
         public static final int HOOD_CAN_ID    = 1;
         public static final int HOOD_SENSOR_ID = 1;
-        public static final int HOOD_PWM_CHANNEL_1 = 3;
-        public static final int HOOD_PWM_CHANNEL_2 = 99;
+        public static final int HOOD_PWM_CHANNEL_1 = 4;
+        public static final int HOOD_PWM_CHANNEL_2 = 5;
 
 
         public static final Angle MIN_ANGLE = Degrees.of(0);
@@ -54,6 +54,8 @@ public class LauncherConstants {
         public static final Distance MAX_EXTENSION      = Millimeters.of(140);
         // TODO: GET REAL VALUE
         public static final LinearVelocity MAX_SPEED    = Millimeters.per(Seconds).of(20);
+
+        // public static final Distance IMPOSED_MAX_EXTENSION = Millimeters.of(100);
 
         // TODO: SEE IF VALUES ARE NECESSARY, IF SO GET WHAT THE VALUES SHOULD BE
         public static final int MAX_PULSE_WIDTH = 4;

@@ -2,7 +2,6 @@ package frc.robot.subsystems.launcher;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -21,6 +20,9 @@ public class Launcher extends SubsystemBase {
     private final LauncherIO               io;
     private final LauncherInputsAutoLogged inputs;
 
+    private AtomicReference<Distance> servo1Setpoint = new AtomicReference<Distance>(Millimeters.of(0.0));
+    private AtomicReference<Distance> servo2Setpoint = new AtomicReference<Distance>(Millimeters.of(0.0));
+    
     private static Pose3d launcherMech;
 
     public Launcher(LauncherIO io) {
@@ -35,7 +37,7 @@ public class Launcher extends SubsystemBase {
 
     // Voltage
     public Command launcherSetVoltage(double volts) {
-        return Commands.runOnce(() -> io.launcherSetVoltage(volts), this);
+        return Commands.runOnce(() -> io.launcherSetVoltage(volts));
     }
 
     // public Command hoodSetVoltage(double volts) {
@@ -81,53 +83,24 @@ public class Launcher extends SubsystemBase {
 
     // }
 
-    public Command setHoodPos(Distance setpoint) {
-        // TODO: CHECK WHY THIS IS NECESSARY
-        Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
-        Logger.recordOutput("Hood/hoodPosition", inputs.hood1Position);
+    // public Command setHoodPos(Distance setpoint) {
+    //     // TODO: CHECK WHY THIS IS NECESSARY
+    //     Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
+    //     Logger.recordOutput("Hood/hoodPosition", inputs.hood1Position);
 
-        // return Commands.runOnce(() -> io.setHoodPos(angle));
-
-        // return Commands.sequence(
-        //         Commands.runOnce(() -> io.setHoodPos(angle)),
-        //         Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
-        //         )
-        // );
-
-        // return Commands.run( () -> io.setHoodPos(setpoint));
-        return Commands.run( () -> io.setHoodPos(setpoint));
-        // .until(() -> inputs.targetHood1PositionMM == inputs.hood1Position);
-        // .until(() -> io.getHoodPos().isNear(setpoint, 0.01));
+    //     return Commands.runOnce(() -> servoSetpoint.set(setpoint));
+    // }
+    public void setHoodPos(Distance setpoint){
+        servo1Setpoint.set(setpoint);
+        servo2Setpoint.set(setpoint);
     }
 
-    public Command setHoodAngle(Angle setpoint) {
-        // TODO: CHECK WHY THIS IS NECESSARY
-        Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
-        Logger.recordOutput("Hood/hoodPosition", inputs.hood1Position);
-
-        // return Commands.runOnce(() -> io.setHoodPos(angle));
-
-        // return Commands.sequence(
-        //         Commands.runOnce(() -> io.setHoodPos(angle)),
-        //         Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
-        //         )
-        // );
-
-        // return Commands.runOnce( () -> io.setHoodAngle(setpoint));
-        return Commands.run( () -> io.setHoodAngle(setpoint));
-        // return Commands.runOnce(() -> io.setH)
-
-        // .until(() -> io.getHoodPos().isNear(setpoint, 0.01));
+    public void setHood1Pos(Distance setpoint){
+        servo1Setpoint.set(setpoint);
     }
-
-    public Command setHoodSpeed(double speed){
-        // return Commands.run(() -> io.setHoodSpeed(speed));
-        return Commands.runOnce(() -> io.setHoodSpeed(speed));
-    }
-
-    public Command setHoodPWM(int pwmMS){
-        // return Commands.runOnce(() -> io.setHoodPWM(pwmMS));
-        return Commands.run(() -> io.setHoodPWM(pwmMS));
+    
+    public void setHood2Pos(Distance setpoint){
+        servo2Setpoint.set(setpoint);
     }
 
     // Getters
@@ -157,5 +130,11 @@ public class Launcher extends SubsystemBase {
         SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
 
         launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
+
+        io.updateCurPos1();
+        io.updateCurPos2();
+
+        io.setHood1Position(servo1Setpoint.get().in(Millimeters));
+        io.setHood2Position(servo2Setpoint.get().in(Millimeters));
     }
 }

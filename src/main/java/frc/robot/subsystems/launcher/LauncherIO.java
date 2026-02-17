@@ -73,6 +73,20 @@ public interface LauncherIO {
 
     default void setHoodPWM(int pwm){}
 
+    default void setHoodPosition(double setpoint){}
+
+    default void setHood1Position(double setpoint){}
+    default void setHood2Position(double setpoint){}
+    
+    default void updateCurPos1() {}
+    default void updateCurPos2() {}
+
+    default double getPosition1() {return 0.0;}
+    default double getPosition2() {return 0.0;}
+    
+    default boolean isFinished1() {return false;}
+    default boolean isFinished2() {return false;}
+
     // default Angle getHoodPos() {
     //     return Degrees.of(0);
     // }

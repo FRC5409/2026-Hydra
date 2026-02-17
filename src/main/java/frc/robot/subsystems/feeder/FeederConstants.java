@@ -7,7 +7,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.units.measure.Current;
 
 public final class FeederConstants {
-        public static final int FEEDER_ID = 2;
+        public static final int FEEDER_ID = 27;
 
         public static final PIDConstants SIM_PID = new PIDConstants(0.0175, 0, 0);
         public static final PIDConstants TALONFX_PID = new PIDConstants(0.001, 0, 0);
