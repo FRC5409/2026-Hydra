@@ -167,7 +167,9 @@ public class RobotContainer {
                         sys_vision
                 );
 
-                sys_launcher = new Launcher(new LauncherIOSim(), LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
+                // TODO: sigh
+//                sys_launcher = new Launcher(new LauncherIOSim(), LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
+                sys_launcher = new Launcher(new LauncherIO() {}, LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
             }
             // Replayed robot, disable IO implementations
             default -> {
