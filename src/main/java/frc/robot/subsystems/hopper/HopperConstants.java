@@ -31,7 +31,8 @@ public final class HopperConstants {
     public static final Distance HOPPER_MIN_EXTENSION = Inches.of(0.0);
     public static final Distance HOPPER_MAX_EXTENSION = Inches.of(12.0);
 
-    public static final Distance PUMP_EXTENSION_POINT = Inches.of(11.0);
-    public static final Distance PUMP_RETRACTION_POINT = Inches.of(9.0);
-    public static final Distance TOLERANCE = Meters.of(0.02);
+    public static final Distance PULSE_TOLERANCE = Meters.of(0.02);
+    public static final double PULSE_DELAY = 0.5;
+    public static final Distance MIN_GAP_TO_INTAKE = Inches.of(1.0);
+    public static final Distance MAX_GAP_TO_INTAKE = Inches.of(1.25);
 }
