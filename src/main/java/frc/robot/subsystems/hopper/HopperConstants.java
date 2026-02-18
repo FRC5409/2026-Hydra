@@ -3,8 +3,7 @@ package frc.robot.subsystems.hopper;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Millimeters;
-import static edu.wpi.first.units.Units.Pound;
+import static edu.wpi.first.units.Units.Pounds;
 
 import com.pathplanner.lib.config.PIDConstants;
 
@@ -20,19 +19,19 @@ public final class HopperConstants {
 
     public static final Current CURRENT_LIMIT = Amps.of(30.0);
     public static final double kGearing = 10.0 / 1.0;
-    public static final Distance HOPPER_DRUMRADIUS = Millimeters.of(22);
+    public static final Distance HOPPER_DRUMRADIUS = Meters.of(1.0);
     public static final double kCircumfrence = 2 * Math.PI * HOPPER_DRUMRADIUS.in(Inches);
     public static final double kRotationConverter = kCircumfrence / kGearing;
-    public static final Mass HOPPER_MASS = Pound.of(10.561);
+    public static final Mass HOPPER_MASS = Pounds.of(10.561);
 
     public static final PIDConstants TALONFX_PID = new PIDConstants(0.001, 0, 0);
-    public static final PIDConstants SIM_PID = new PIDConstants(1, 0, 0);
+    public static final PIDConstants SIM_PID = new PIDConstants(10, 0, 0);
 
     public static final Distance HOPPER_MIN_EXTENSION = Inches.of(0.0);
     public static final Distance HOPPER_MAX_EXTENSION = Inches.of(12.0);
 
     public static final Distance PULSE_TOLERANCE = Meters.of(0.02);
-    public static final double PULSE_DELAY = 0.5;
+    public static final double PULSE_DELAY = 0.5; // Seconds
     public static final Distance MIN_GAP_TO_INTAKE = Inches.of(1.0);
     public static final Distance MAX_GAP_TO_INTAKE = Inches.of(1.25);
 }

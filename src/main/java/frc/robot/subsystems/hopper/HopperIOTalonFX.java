@@ -1,7 +1,6 @@
 package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -123,7 +122,7 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public Distance getPosition() {
-        return Inches.of(m_mainMotor.getPosition().getValueAsDouble());
+        return Inches.of(motorPosition.getValueAsDouble());
     }
 
     @Override

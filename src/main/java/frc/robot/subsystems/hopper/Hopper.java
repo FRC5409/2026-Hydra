@@ -61,7 +61,7 @@ public class Hopper extends SubsystemBase {
     }
 
     /** 
-     * Extends hopper 0.3 metres out 
+     * Extends hopper 12 inches out 
      */
     public Command fullExtend() {
         return Commands.runOnce(
@@ -70,7 +70,7 @@ public class Hopper extends SubsystemBase {
     }
 
     /** 
-     * Retracts hopper all the way to 0.0m
+     * Retracts hopper all the way to 0 inches
      */
     public Command fullRetract() {
         return Commands.runOnce(
@@ -79,7 +79,7 @@ public class Hopper extends SubsystemBase {
     }
 
     /** 
-     * Positive voltage extends, Negative voltage retracts (MAX of 0.3m and MIN of 0.0m)
+     * Positive voltage extends, Negative voltage retracts (MAX of 12 inches and MIN of 0 inches)
      */
     public Command manualMove(double voltage) {
         return Commands.runOnce(() -> io.setMotorVoltage(voltage), this);
