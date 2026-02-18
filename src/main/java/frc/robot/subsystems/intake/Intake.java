@@ -105,7 +105,7 @@ public class Intake extends SubsystemBase {
         extenderPose = new Pose3d(
 
             inputs.extensionPosition, 0.0, 0.0,
-            new Rotation3d(0.0, 0.0, Math.toRadians(90.0))
+            new Rotation3d(0.0, 0.0, Math.toRadians(0.0))
 
         );
 
