@@ -1,6 +1,7 @@
 package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
@@ -43,7 +44,7 @@ public class HopperIOSim implements HopperIO {
         pid = new PIDController(HopperConstants.SIM_PID.kP, HopperConstants.SIM_PID.kI, HopperConstants.SIM_PID.kD);
         running = false;
 
-        mechanism = new LoggedMechanism2d(2, 2);
+        mechanism = new LoggedMechanism2d(14, 2);
         root = mechanism.getRoot("Hopper", 1, 1);
         slider = new LoggedMechanismLigament2d("Arm", 0.3, 0);
         root.append(slider);
@@ -106,7 +107,7 @@ public class HopperIOSim implements HopperIO {
         inputs.followerMotorTemp = 0.0;
         inputs.followerMotorPosition = Meters.of(hopperSim.getPositionMeters());
 
-        slider.setLength(hopperSim.getPositionMeters());
+        slider.setLength(getPosition().in(Meters));
         Logger.recordOutput("Hopper Slider/Mech", mechanism);
     }
 
