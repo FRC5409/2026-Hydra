@@ -1,11 +1,8 @@
 package frc.robot.subsystems.launcher.interpolator;
 
-import edu.wpi.first.units.AngleUnit;
-import edu.wpi.first.units.AngularVelocityUnit;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import static edu.wpi.first.units.Units.Radians;
@@ -22,12 +19,37 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
  * will be used here.
  */
 public class DynamicHoodBilinearStrategy extends BilinearStrategy {
-    private static final Per<AngleUnit, AngularVelocityUnit> ALPHA = Radians.per(RadiansPerSecond).ofNative(1);
+    /**
+     * Tuned value that affects the correction rate of the hood as per the velocity error.
+     */
+    private static final float ALPHA = 0f;
 
-    public Angle computeHoodAdjustment(AngularVelocity targetVelocity, AngularVelocity realVelocity, Angle hoodAngle) {
-        return (Angle)ALPHA.timesDivisor(targetVelocity.minus(realVelocity)).times(Math.cos(hoodAngle.in(Radians)));
+    /**
+     * Computes the new hood value to correct the error of theoretical velocity and real velocity
+     *
+     * @param targetVelocity target/theoretical velocity
+     * @param realVelocity   actual velocity of the motor
+     * @param hoodAngle      measured hood angle
+     *
+     * @return new hood angle
+     */
+    public Angle computeHoodAdjustment(
+            AngularVelocity targetVelocity, AngularVelocity realVelocity, Angle hoodAngle) {
+        return Radians.of(ALPHA
+                          * targetVelocity.minus(realVelocity).in(RadiansPerSecond) // velocity error
+                          * Math.cos(hoodAngle.times(2).in(Radians))); // hood adjustment
     }
 
+    /**
+     * Runs {@link BilinearStrategy#interpolate(Distance)} and updates the hood position.
+     *
+     * @param displacement total straight-line displacement to shoot fuel at
+     *
+     * @return launch config
+     *
+     * @see BilinearStrategy#interpolate(Distance)
+     * @see DynamicHoodBilinearStrategy#computeHoodAdjustment(AngularVelocity, AngularVelocity, Angle)
+     */
     @Override
     public LaunchConfig interpolate(Distance displacement) {
         var params = super.interpolate(displacement);
