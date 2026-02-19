@@ -2,6 +2,7 @@ package frc.robot.subsystems.launcher;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -22,12 +23,14 @@ public class Launcher extends SubsystemBase {
     private final LauncherInputsAutoLogged inputs;
 
     private static Pose3d launcherMech;
+    private static Pose3d hooPose3d;
 
     public Launcher(LauncherIO io) {
         this.io = io;
         inputs = new LauncherInputsAutoLogged();
 
         launcherMech = new Pose3d();
+        hooPose3d = new Pose3d();
 
         // create the logged fields
         logInterpolation(Meters.of(0), null);
@@ -68,14 +71,9 @@ public class Launcher extends SubsystemBase {
     }
 
     public Command setHoodPos(Angle angle) {
-        Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
-        Logger.recordOutput("Hood/hoodPosition", inputs.hoodPosition);
-
-        // return Commands.runOnce(() -> io.setHoodPos(angle));
-
         return Commands.sequence(
                 Commands.runOnce(() -> io.setHoodPos(angle)),
-                Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
+                Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 0.01)
                 )
         );
     }
@@ -104,8 +102,12 @@ public class Launcher extends SubsystemBase {
         Logger.processInputs("Launcher", inputs);
         Logger.recordOutput("Launcher Mech", launcherMech);
 
+        Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
+        Logger.recordOutput("Hood/hoodPosition", inputs.hoodPosition);
+
         SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
 
-        launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
+        launcherMech = new Pose3d(new Translation3d(), new Rotation3d(inputs.launcherRPM, 0, 0));
+        hooPose3d = new Pose3d(new Translation3d(), new Rotation3d(0, getHoodPos().in(Radians), 0));
     }
 }

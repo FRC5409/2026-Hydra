@@ -194,7 +194,7 @@ public class LauncherIOTalonFX implements LauncherIO {
 
     @Override
     public double getDistance() {
-        return medianFilter.calculate(ultrasonic.getRangeInches());
+        return ultrasonic.getRangeInches();
     }
 
     // Stops

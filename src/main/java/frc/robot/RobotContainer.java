@@ -246,6 +246,10 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
+
+        primaryController.x().onTrue(sys_launcher.setHoodPos(Degrees.of(0)));
+        primaryController.b().onTrue(sys_launcher.setHoodPos(Degrees.of(30)));
+
         sys_drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         sys_drive,
@@ -282,14 +286,14 @@ public class RobotContainer {
       ));
 
       // score fuel in hub by using odometry
-      var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
-      Logger.recordOutput("Vision/Estimate", pose);
-      SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
-              () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
+//       var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
+//       Logger.recordOutput("Vision/Estimate", pose);
+//       SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
+//               () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
 
         // Switch to X pattern when X button is pressed
-        primaryController.x()
-                         .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
+        // primaryController.x()
+        //                  .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
 
         // Switch To Bump Speed Modifier
         primaryController.a()
@@ -320,27 +324,27 @@ public class RobotContainer {
                           )
                         );
 
-        primaryController.x()
-                        .whileTrue(
-                            Commands.sequence(
-                              DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimibingPrepPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+        // primaryController.x()
+        //                 .whileTrue(
+        //                     Commands.sequence(
+        //                       DriveCommands.alignToPoint(
+        //                         sys_drive, 
+        //                         () -> selectedClimibingPrepPosition.pose, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+        //                         kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+        //                         kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+        //                         kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
 
-                              ),
-                              DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimbingPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-                              )
-                            )
-                        );
+        //                       ),
+        //                       DriveCommands.alignToPoint(
+        //                         sys_drive, 
+        //                         () -> selectedClimbingPosition.pose, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+        //                       )
+        //                     )
+        //                 );
 
         secondaryController.x()
                         .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));

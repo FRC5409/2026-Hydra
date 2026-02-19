@@ -32,7 +32,7 @@ public class LauncherConstants {
         public static final Angle MIN_ANGLE = Degrees.of(0);
         public static final Angle MAX_ANGLE = Degrees.of(30);
 
-        public static final PIDController PID = new PIDController(120.0, 0.0, 0.0075);
+        public static final PIDController PID = new PIDController(0.5, 0.0, 0.0);
     }
 
     public static class Ultrasonic {
