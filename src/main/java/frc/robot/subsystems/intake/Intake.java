@@ -81,6 +81,10 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE), this);
     }
 
+    public Command move(Distance setpoint) {
+        return Commands.runOnce(() -> intakeIO.setSetpoint(setpoint), this);
+    }
+
     public Command retract() {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
     }

@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.config.PIDConstants;
@@ -24,7 +25,13 @@ public final class IntakeConstants {
 		public static final Mass INTAKE_MASS = Kilograms.of(3.1818);
 		// public static final Distance INTAKE_DRUMRADIUS = Meters.of(0.0254);
 		// public static final Distance INTAKE_MIN_DISTANCE = Meters.of(0.0);
-		// public static final Distance INTAKE_MAX_DISTANCE = Meters.of(0.279146); 
+		// public static final Distance INTAKE_MAX_DISTANCE = Meters.of(0.279146);
+		
+		public static final Distance RETRACT_INCREMENT = Meters.of(0.0254);
+		public static final Distance EXTEND_INCREMENT = Meters.of(0.0127);
+		public static final Distance INITIAL_SETPOINT = Meters.of(0.222);
+
+		public static final Time WAIT_TIME = Seconds.of(0.25);
 
 		public static final int UPDATE_FREQUENCY = 50; // in Hz
 

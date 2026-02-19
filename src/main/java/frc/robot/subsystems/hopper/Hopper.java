@@ -85,17 +85,6 @@ public class Hopper extends SubsystemBase {
         return Commands.runOnce(() -> io.setMotorVoltage(voltage), this);
     }
 
-    public Command pulseWhileRetracting(Distance retractionPoint, Distance extensionPoint) {
-            return Commands.sequence(
-                Commands.runOnce(() -> io.setSetpoint(retractionPoint), this),
-                Commands.waitUntil(() -> getPosition().isNear(retractionPoint, HopperConstants.PULSE_TOLERANCE)),
-                Commands.waitSeconds(HopperConstants.PULSE_DELAY),
-                Commands.runOnce(() -> io.setSetpoint(extensionPoint), this),
-                Commands.waitUntil(() -> getPosition().isNear(extensionPoint, HopperConstants.PULSE_TOLERANCE)),
-                Commands.waitSeconds(HopperConstants.PULSE_DELAY)
-            );
-    }
-
     public Command stopMotor() {
         return Commands.runOnce(
             () -> io.stopMotor(), this
