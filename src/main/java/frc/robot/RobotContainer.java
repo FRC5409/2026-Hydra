@@ -281,7 +281,7 @@ public class RobotContainer {
         // launch fuel w speed
         SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
         SmartDashboard.putData(
-                "LAUNCH FUEL (SPD)", sys_launcher.runRPS(
+                "LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
                         () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());

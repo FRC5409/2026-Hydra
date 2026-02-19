@@ -98,7 +98,7 @@ public class LauncherIOSim implements LauncherIO {
     }
 
     @Override
-    public void runRPS(Supplier<AngularVelocity> velocity) {
+    public void runVelocity(Supplier<AngularVelocity> velocity) {
         flywheelSim.setAngularVelocity(velocity.get().in(RadiansPerSecond));
     }
 
@@ -142,18 +142,16 @@ public class LauncherIOSim implements LauncherIO {
         inputs.isLauncherConnected = true;
         inputs.isHoodConnected = true;
 
-        inputs.temperatureLauncher = 0.0;
-        inputs.temperatureHood = 0.0;
+        inputs.launcherTemperature = 0.0;
+        inputs.hoodTemperature = 0.0;
 
         inputs.launcherVoltage = Volts.of(voltageLauncher);
         inputs.hoodVoltage = Volts.of(voltageHood);
         inputs.launcherCurrent = Current.ofBaseUnits(currentLauncher, Amps);
         inputs.hoodCurrent = Current.ofBaseUnits(currentHood, Amps);
 
-        inputs.launcherSpeedRadians = flywheelSim.getAngularVelocity();
-        // inputs.hoodSpeedRadians = Radians.of(hoodSim.getVelocityRadPerSec());
+        inputs.launcherVelocity = flywheelSim.getAngularVelocity();
 
-        inputs.targetHoodPosition = targetHoodAngle;
         inputs.hoodPosition = Degrees.of(hoodSim.getAngleRads());
     }
 }

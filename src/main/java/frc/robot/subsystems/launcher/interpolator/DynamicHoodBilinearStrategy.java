@@ -6,6 +6,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Per;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -32,8 +33,8 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
         var params = super.interpolate(displacement);
 
         // update hood before returning interpolation
-        this.launcher.setHoodPos(computeHoodAdjustment(
-                params.speed(), this.launcher.getVelocity(), this.launcher.getHoodPos()));
+        CommandScheduler.getInstance().schedule(this.launcher.setHoodPos(computeHoodAdjustment(
+                params.speed(), this.launcher.getVelocity(), this.launcher.getHoodPos())));
 
         return params;
     }

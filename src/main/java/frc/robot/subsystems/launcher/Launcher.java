@@ -38,17 +38,8 @@ public class Launcher extends SubsystemBase {
         setStrategy(LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
     }
 
-    // Voltage
-    public Command launcherSetVoltage(double volts) {
-        return Commands.runOnce(() -> io.launcherSetVoltage(volts), this);
-    }
-
-    public Command hoodSetVoltage(double volts) {
-        return Commands.runOnce(() -> io.hoodSetVoltage(volts), this);
-    }
-
-    public Command runRPS(Supplier<AngularVelocity> velocity) {
-        return Commands.runOnce(() -> io.runRPS(velocity));
+    public Command runVelocity(Supplier<AngularVelocity> velocity) {
+        return Commands.runOnce(() -> io.runVelocity(velocity));
     }
 
     public Command launchFuel(Supplier<Distance> distance) {
@@ -58,7 +49,7 @@ public class Launcher extends SubsystemBase {
             LaunchConfig c = strategy.interpolate(distance.get());
             logInterpolation(distance.get(), c);
             config.set(Optional.of(c)); // update ptr. for use in next cmd.
-        }).andThen(runRPS(() -> RotationsPerSecond.of(
+        }).andThen(runVelocity(() -> RotationsPerSecond.of(
                 config.get()
                       .map(c -> c.speed().in(RotationsPerSecond))
                       .orElse(0.0)
@@ -73,16 +64,9 @@ public class Launcher extends SubsystemBase {
     }
 
     public Command setHoodPos(Angle angle) {
-        Logger.recordOutput("Hood/getHoodPos", io.getHoodPos());
-        Logger.recordOutput("Hood/hoodPosition", inputs.hoodPosition);
-
-        // return Commands.runOnce(() -> io.setHoodPos(angle));
-
         return Commands.sequence(
                 Commands.runOnce(() -> io.setHoodPos(angle)),
-                Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)
-                )
-        );
+                Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)));
     }
 
     // Getters

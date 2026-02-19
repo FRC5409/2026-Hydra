@@ -161,20 +161,9 @@ public class LauncherIOTalonFX implements LauncherIO {
         launcherFollowerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Opposed));
     }
 
-    // Voltage
-    @Override
-    public void launcherSetVoltage(double volts) {
-        launcherMotor.setVoltage(volts);
-    }
-
-    @Override
-    public void hoodSetVoltage(double volts) {
-        hoodMotor.setVoltage(volts);
-    }
-
     // Run systems
     @Override
-    public void runRPS(Supplier<AngularVelocity> velocity) {
+    public void runVelocity(Supplier<AngularVelocity> velocity) {
         launcherMotor.setControl(new VelocityVoltage(velocity.get())
                                          .withSlot(0)
                                          .withFeedForward(0));
@@ -228,15 +217,15 @@ public class LauncherIOTalonFX implements LauncherIO {
                 speedLauncherFollower
         ).isOK();
 
-        inputs.temperatureLauncher = temperatureLauncher.getValueAsDouble();
+        inputs.launcherTemperature = temperatureLauncher.getValueAsDouble();
         inputs.launcherVoltage = voltageLauncher.getValue();
         inputs.launcherCurrent = currentLauncher.getValue();
-        inputs.launcherSpeedRadians = getVelocity();
+        inputs.launcherVelocity = getVelocity();
 
-        inputs.launcherFollowerTemperature = temperatureLauncher.getValueAsDouble();
-        inputs.launcherFollowerVoltage = voltageLauncher.getValue();
-        inputs.launcherFollowerCurrent = currentLauncher.getValue();
-        inputs.launcherFollowerSpeedRadians = speedLauncher.getValue();
+        inputs.launcherFollowerTemperature = temperatureLauncherFollower.getValueAsDouble();
+        inputs.launcherFollowerVoltage = voltageLauncherFollower.getValue();
+        inputs.launcherFollowerCurrent = currentLauncherFollower.getValue();
+        inputs.launcherFollowerVelocity = speedLauncherFollower.getValue();
 
         // Hood
         inputs.isHoodConnected = BaseStatusSignal.refreshAll(
@@ -246,10 +235,10 @@ public class LauncherIOTalonFX implements LauncherIO {
                 speedHood
         ).isOK();
 
-        inputs.temperatureHood = temperatureHood.getValueAsDouble();
+        inputs.hoodTemperature = temperatureHood.getValueAsDouble();
         inputs.hoodVoltage = voltageHood.getValue();
         inputs.hoodCurrent = currentHood.getValue();
-        inputs.hoodSpeedRadians = speedHood.getValue();
+        inputs.hoodVelocity = speedHood.getValue();
         inputs.hoodPosition = hoodPosition.getValue();
     }
 }
