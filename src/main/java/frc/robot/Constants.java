@@ -56,16 +56,18 @@ public final class Constants {
         public static final int LAUNCHER_HOOD_SERVO_2       = 0; // TODO
 
         // FEEDER
-        public static final int FEEDER_MOTOR = 27;
+        public static final int FEEDER_MOTOR_TOP    = 0; // TODO: jaden will update these
+        public static final int FEEDER_MOTOR_BOTTOM = 0;
 
         // HOPPER
-        public static final int HOPPER_MOTOR = 30;
+        public static final int HOPPER_MAIN_MOTOR_ID     = 20;
+        public static final int HOPPER_FOLLOWER_MOTOR_ID = 21;
 
         // SERIALIZER
         public static final int SERIALIZER_MOTOR = 31;
 
         // CLIMBER
-        public static final int CLIMBER_MOTOR = 32;
+        public static final int CLIMBER_MOTOR = 0; // TODO: yonina will update this
     }
 
     public static final class kAutoAlign {
