@@ -121,8 +121,7 @@ public class RobotContainer {
                                 LauncherConstants.Hood.HOOD_SENSOR_ID,
                                 LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
                                 LauncherConstants.Ultrasonic.DIGITAL_INPUT
-                        ),
-                        LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY
+                        )
                 );
             }
             // Sim robot, instantiate physics sim IO implementations
@@ -169,7 +168,7 @@ public class RobotContainer {
 
                 // TODO: sigh
 //                sys_launcher = new Launcher(new LauncherIOSim(), LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
-                sys_launcher = new Launcher(new LauncherIO() {}, LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
+                sys_launcher = new Launcher(new LauncherIO() {});
             }
             // Replayed robot, disable IO implementations
             default -> {
@@ -185,7 +184,7 @@ public class RobotContainer {
                 sys_intake = new Intake(new IntakeIO() {});
                 sys_serializer = new Serializer(new SerializerIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
-                sys_launcher = new Launcher(new LauncherIO() {}, LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
+                sys_launcher = new Launcher(new LauncherIO() {});
             }
         }
 

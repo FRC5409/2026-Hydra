@@ -60,6 +60,10 @@ public interface LauncherIO {
         return Degrees.of(0);
     }
 
+    default AngularVelocity getVelocity() {
+        return RotationsPerSecond.of(0);
+    }
+
     default void stopHood() {}
 
     // Ultrasonic sensor

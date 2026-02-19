@@ -1,10 +1,10 @@
 package frc.robot.subsystems.launcher.interpolator;
 
 import edu.wpi.first.units.measure.Distance;
+import frc.robot.subsystems.launcher.Launcher;
 
 public abstract class LaunchStrategy {
-    public LaunchStrategy() {
-    }
+    protected Launcher launcher;
 
     /**
      * Interpolates the fastest angular velocity and shoot angle for the launcher based on the displacement to fire the
@@ -26,7 +26,13 @@ public abstract class LaunchStrategy {
     public static LaunchStrategy[] getLaunchStrategies() {
         return new LaunchStrategy[]{
                 new BilinearStrategy(),
+                new DynamicHoodBilinearStrategy(),
                 new MatrixStrategy()
         };
+    }
+
+    public void setLauncher(Launcher launcher) {
+        if (this.launcher != null) throw new IllegalStateException("Launcher is already set!");
+        this.launcher = launcher;
     }
 }

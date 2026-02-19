@@ -27,7 +27,7 @@ public class Launcher extends SubsystemBase {
 
     private LaunchStrategy strategy;
 
-    public Launcher(LauncherIO io, LaunchStrategy strategy) {
+    public Launcher(LauncherIO io) {
         this.io = io;
         inputs = new LauncherInputsAutoLogged();
 
@@ -35,7 +35,7 @@ public class Launcher extends SubsystemBase {
 
         // create the logged fields
         logInterpolation(Meters.of(0), null);
-        setStrategy(strategy);
+        setStrategy(LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
     }
 
     // Voltage
@@ -90,6 +90,10 @@ public class Launcher extends SubsystemBase {
         return io.getHoodPos();
     }
 
+    public AngularVelocity getVelocity() {
+        return io.getVelocity();
+    }
+
     public double getDistance() {
         return io.getDistance();
     }
@@ -105,6 +109,7 @@ public class Launcher extends SubsystemBase {
 
     public void setStrategy(LaunchStrategy strategy) {
         this.strategy = strategy;
+        this.strategy.setLauncher(this);
         Logger.recordOutput("Launcher/LaunchStrategy", strategy.getName());
     }
 

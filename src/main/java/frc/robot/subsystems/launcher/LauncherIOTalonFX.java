@@ -193,6 +193,11 @@ public class LauncherIOTalonFX implements LauncherIO {
     }
 
     @Override
+    public AngularVelocity getVelocity() {
+        return speedLauncher.getValue();
+    }
+
+    @Override
     public double getDistance() {
         return medianFilter.calculate(ultrasonic.getRangeInches());
     }
@@ -226,7 +231,7 @@ public class LauncherIOTalonFX implements LauncherIO {
         inputs.temperatureLauncher = temperatureLauncher.getValueAsDouble();
         inputs.launcherVoltage = voltageLauncher.getValue();
         inputs.launcherCurrent = currentLauncher.getValue();
-        inputs.launcherSpeedRadians = speedLauncher.getValue();
+        inputs.launcherSpeedRadians = getVelocity();
 
         inputs.launcherFollowerTemperature = temperatureLauncher.getValueAsDouble();
         inputs.launcherFollowerVoltage = voltageLauncher.getValue();
