@@ -15,6 +15,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -22,18 +25,31 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimbingPositions;
+import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.Constants.kBump;
+import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.feeder.*;
+import frc.robot.subsystems.hopper.*;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Roller;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.util.AutoPath;
 import frc.robot.util.FieldConstants.Hub;
 import frc.robot.util.FieldConstants.LinesVertical;
 
@@ -43,11 +59,21 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
+
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.units.Units.FeetPerSecond;
+
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+
+import java.util.ArrayList;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -60,6 +86,7 @@ public class RobotContainer {
 //     protected final Vision     sys_vision;
 
     public static SwerveDriveSimulation simConfig;
+    private final Elevator sys_elevator;
 
     private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
     private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
@@ -70,12 +97,22 @@ public class RobotContainer {
     private final CommandXboxController primaryController   = new CommandXboxController(0);
     private final CommandXboxController secondaryController = new CommandXboxController(1);
 
+    private final Alert primaryDisconnectedAlert = new Alert(
+        "Primary Controller Disconnected!",
+        AlertType.kError
+    );
+    private final Alert secondaryDisconnectedAlert = new Alert(
+        "Secondary Controller Disconnected!",
+        AlertType.kError
+    );
+
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
+
     public RobotContainer() {
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
@@ -140,11 +177,41 @@ public class RobotContainer {
         }
 
         // Set up auto routines
-        autoChooser = buildAutoChooser();
-        registerCommands();
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+        autoChooser.addDefaultOption("None", Commands.none());
+        ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
 
+        autoPaths.forEach(autoPath -> autoChooser.addOption(autoPath.getName(), autoPath));
+
+        autoChooser.onChange(command -> resetPose());
         // Configure the button bindings
         configureButtonBindings();
+
+        SmartDashboard.putData("Reset", Commands.runOnce(this::resetPose).ignoringDisable(true));
+
+        new Trigger(() -> !primaryController.isConnected())
+                .onChange(
+                    Commands.runOnce(() -> primaryDisconnectedAlert.set(!primaryController.isConnected()))
+                        .ignoringDisable(true)
+                );
+
+        new Trigger(() -> !secondaryController.isConnected())
+                .onChange(
+                    Commands.runOnce(() -> secondaryDisconnectedAlert.set(!secondaryController.isConnected()))
+                        .ignoringDisable(true)
+                );
+
+        // When DS connects check joystick connections
+        new Trigger(DriverStation::isDSAttached).onTrue(
+            Commands.waitSeconds(1.0).andThen(
+                Commands.runOnce(() -> {
+                    primaryDisconnectedAlert.set(!primaryController.isConnected());
+                    secondaryDisconnectedAlert.set(!secondaryController.isConnected());
+
+                    resetPose();
+                }).ignoringDisable(true)
+            )
+        );
     }
 
     /**
@@ -177,6 +244,14 @@ public class RobotContainer {
                 sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
         return chooser;
+    }
+
+    private void resetPose(){
+        if (autoChooser.get() instanceof AutoPath path){
+                sys_drive.setPose(path.getStartingPose());
+                if (Constants.CURRENT_MODE == Mode.SIM)
+                        simConfig.setSimulationWorldPose(path.getStartingPose());
+        }
     }
 
     /**
@@ -231,6 +306,9 @@ public class RobotContainer {
         primaryController.a()
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+    
+        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
+        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
 
         primaryController.rightBumper()
                          .whileTrue(
@@ -361,6 +439,6 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return autoChooser.get();
+                return autoChooser.get();
     }
 }

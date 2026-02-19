@@ -28,9 +28,14 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
+import frc.robot.Constants.Mode;
 import frc.robot.Constants.kAutoAlign;
+import frc.robot.Constants.kBump;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AlignHelper;
+import frc.robot.util.FieldConstants.LinesVertical;
 import frc.robot.util.ProfiledController;
 
 import static edu.wpi.first.units.Units.Centimeters;
@@ -47,6 +52,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleSupplier;
@@ -522,25 +528,56 @@ public class DriveCommands {
     );
   }
 
-
-  public static Command crossBump(Drive drive, Supplier<Rotation2d> robotHeading, LinearVelocity speed, double groundTimeToEnd){
+  public static Command crossBump(Drive drive, Vision vision, Supplier<Rotation2d> robotHeading, LinearVelocity speed, double groundTimeToEndMS){
+    if (Constants.CURRENT_MODE == Mode.SIM)
+      return Commands.sequence(
+        DriveCommands.alignToHeading(
+          drive, 
+          () -> {
+            if (AutoBuilder.shouldFlip())
+              return FlippingUtil.flipFieldRotation(robotHeading.get());
+            else 
+              return robotHeading.get();
+          }
+      ),
+        Commands.run(() -> {
+          drive.runVelocity(
+            new ChassisSpeeds(
+              speed.times(Math.abs(drive.getRotation().getCos())), 
+              speed.times(Math.abs(drive.getRotation().getSin())), 
+              RadiansPerSecond.of(0.0)
+            )
+          );
+        }, drive).withTimeout(3),
+        Commands.runOnce(() -> {
+          drive.stop();
+        })
+      );
     return Commands.sequence(
       DriveCommands.alignToHeading(
           drive, 
-          robotHeading
+          () -> {
+            if (AutoBuilder.shouldFlip())
+              return FlippingUtil.flipFieldRotation(robotHeading.get());
+            else 
+              return robotHeading.get();
+          }
       ),
       Commands.runOnce(() -> DID_GET_OFF_GROUND.set(false)),
       Commands.run(() -> {
         drive.runVelocity(
-          rotateForNewFront(
+          new ChassisSpeeds(
             speed, 
             MetersPerSecond.of(0.0), 
             RadiansPerSecond.of(0.0)
           )
         );
-      }, drive).until(
+      }, drive) 
+      .until(
         () -> {
-          
+          if (Constants.CURRENT_MODE == Mode.SIM){
+            return Commands.waitSeconds(4).isFinished();
+          }
           if (drive.getTilt().gt(Degrees.of(2.5)) && !DID_GET_OFF_GROUND.get())
             DID_GET_OFF_GROUND.set(true);
 
@@ -551,10 +588,10 @@ public class DriveCommands {
           }
 
           Logger.recordOutput("Drive/BumpTimer", System.currentTimeMillis() - lastTime.get());
-          return drive.getTilt().lte(Degrees.of(2.5)) && System.currentTimeMillis() - lastTime.get() > groundTimeToEnd;
+          return (drive.getTilt().lte(Degrees.of(2.5)) && (System.currentTimeMillis() - lastTime.get() > groundTimeToEndMS || vision.hasTarget()));
         }
       ),
-      Commands.runOnce(() -> {
+        Commands.runOnce(() -> {
         drive.stop();
       })
     );
@@ -573,6 +610,27 @@ public class DriveCommands {
       targetPose.getX() - drive.getPose().getX(),
       targetPose.getY() - drive.getPose().getY()
     );
+  }
+
+  public static LinearVelocity getBumpSpeed(Drive drive) {
+    try {
+      if (DriverStation.getAlliance().get() == Alliance.Blue){
+        if (drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.allianceZone)))
+          return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
+        else
+          return kBump.BUMP_TRAVERSAL_SPEED;
+      } else if (DriverStation.getAlliance().get() == Alliance.Red){
+        if (drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.oppAllianceZone)))
+          return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
+        else   
+          return kBump.BUMP_TRAVERSAL_SPEED;
+      } else {
+          return kBump.BUMP_TRAVERSAL_SPEED;
+      }
+    } catch (NoSuchElementException e){
+      System.out.println(e);
+      return MetersPerSecond.of(0.0);
+    }
   }
 
   /**

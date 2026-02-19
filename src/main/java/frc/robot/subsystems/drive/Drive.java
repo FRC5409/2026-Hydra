@@ -36,6 +36,7 @@ import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -89,7 +90,6 @@ public class Drive extends SubsystemBase {
                     getModuleTranslations());
 
     private Rotation2d rawGyroRotation = Rotation2d.kZero;
-    private final Field2d field2d;
 
     protected static final Lock ODOMETRY_LOCK = new ReentrantLock();
 
@@ -110,7 +110,9 @@ public class Drive extends SubsystemBase {
     private final SwerveDrivePoseEstimator poseEstimator         =
             new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
-    // private final Vision vision;
+    private final Vision vision;
+    private final Field2d field2d;
+
 
     public Drive(
             GyroIO gyroIO,
@@ -148,6 +150,9 @@ public class Drive extends SubsystemBase {
                 (activePath) -> Logger.recordOutput("Odometry/Trajectory", activePath.toArray(new Pose2d[0])));
         PathPlannerLogging.setLogTargetPoseCallback(
                 (targetPose) -> Logger.recordOutput("Odometry/TrajectorySetpoint", targetPose));
+
+        field2d = new Field2d();
+        SmartDashboard.putData("Robot Field", field2d);
 
         // Configure SysId
         sysId =

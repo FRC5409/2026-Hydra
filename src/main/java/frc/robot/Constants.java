@@ -17,6 +17,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.util.FieldConstants.Tower;
@@ -143,6 +144,8 @@ public final class Constants {
     public static final class kBump {
         // Percentage of max speed
         public static final double BUMP_SPEED_MODIFIER = 0.4;
-        public static final LinearVelocity BUMP_TRAVERSAL_SPEED = FeetPerSecond.of(6.0);
+                        // TODO: GET A REAL NUMBER NOT A GUESS
+        public static final LinearVelocity  BUMP_TRAVERSAL_SPEED    = MetersPerSecond.of(0.5);
+        public static final Time            SETTLING_TIME           = Milliseconds.of(200);
     }
 }
