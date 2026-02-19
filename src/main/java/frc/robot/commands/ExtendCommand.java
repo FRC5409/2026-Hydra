@@ -9,15 +9,15 @@ import static edu.wpi.first.units.Units.Inches;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.hopper.Hopper;
-import frc.robot.subsystems.hopper.HopperConstants;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
 
 public class ExtendCommand extends Command {
   private final Hopper hopper;
   private final Intake intake;
   private double distance;
 
-  private static final Distance MIN_GAP = HopperConstants.MIN_GAP_TO_INTAKE;
+  private static final Distance MIN_GAP = IntakeConstants.Extension.KILLSWITCH_TOLERANCE;
 
   public ExtendCommand(Hopper hopper, Intake intake) {
     this.hopper = hopper;

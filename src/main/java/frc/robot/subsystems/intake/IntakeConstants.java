@@ -31,7 +31,7 @@ public final class IntakeConstants {
 		public static final Distance EXTEND_INCREMENT = Meters.of(0.0127);
 		public static final Distance INITIAL_SETPOINT = Meters.of(0.222);
 
-		public static final Distance TOLERANCE = Meters.of(0.0127);
+		public static final Distance KILLSWITCH_TOLERANCE = Meters.of(0.0127);
 
 		public static final Time WAIT_TIME = Seconds.of(0.25);
 

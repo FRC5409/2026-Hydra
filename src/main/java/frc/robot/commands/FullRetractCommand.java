@@ -21,7 +21,7 @@ public class FullRetractCommand extends SequentialCommandGroup {
                 ),
 
                 new WaitUntilCommand(() ->
-                    Math.abs(intake.getPosition().in(Inches) - hopper.getPosition().in(Inches)) <= IntakeConstants.Extension.TOLERANCE.in(Inches)
+                    Math.abs(intake.getPosition().in(Inches) - hopper.getPosition().in(Inches)) <= IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches)
                 )
             )
         );

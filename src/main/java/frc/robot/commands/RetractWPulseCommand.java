@@ -13,11 +13,11 @@ import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 
-public class RetractCommand extends SequentialCommandGroup {
+public class RetractWPulseCommand extends SequentialCommandGroup {
 
   private static Distance currentSetpoint = Inches.of(IntakeConstants.Extension.INITIAL_SETPOINT.in(Inches));
 
-  public RetractCommand(Intake intake, Hopper hopper) {
+  public RetractWPulseCommand(Intake intake, Hopper hopper) {
     super(
 
       Commands.parallel(
@@ -30,6 +30,9 @@ public class RetractCommand extends SequentialCommandGroup {
       Commands.waitSeconds(IntakeConstants.Extension.WAIT_TIME.in(Seconds)),
       Commands.runOnce(() -> currentSetpoint = currentSetpoint.minus(Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))
     
+    );
+    repeatedly().until(() -> 
+      Math.abs(intake.getPosition().in(Inches) - hopper.getPosition().in(Inches)) <= IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches) || currentSetpoint.in(Inches) <= IntakeConstants.Extension.EXTENSION_MIN_DISTANCE.in(Inches)
     );
     addRequirements(intake, hopper);
 
