@@ -31,20 +31,25 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -84,6 +89,7 @@ public class Drive extends SubsystemBase {
                     getModuleTranslations());
 
     private Rotation2d rawGyroRotation = Rotation2d.kZero;
+    private final Field2d field2d;
 
     protected static final Lock ODOMETRY_LOCK = new ReentrantLock();
 
@@ -104,22 +110,21 @@ public class Drive extends SubsystemBase {
     private final SwerveDrivePoseEstimator poseEstimator         =
             new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
 
-    private final Vision vision;
+    // private final Vision vision;
 
     public Drive(
             GyroIO gyroIO,
             ModuleIO flModuleIO,
             ModuleIO frModuleIO,
             ModuleIO blModuleIO,
-            ModuleIO brModuleIO,
-            Vision vision) {
+            ModuleIO brModuleIO) {
         this.gyroIO = gyroIO;
         modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
         modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
         modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
         modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
 
-        this.vision = vision;
+        // this.vision = vision;
 
         // Usage reporting for swerve template
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -154,6 +159,9 @@ public class Drive extends SubsystemBase {
                                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+
+        field2d = new Field2d();
+        SmartDashboard.putData("Robot Field", field2d);
     }
 
     @Override
@@ -165,6 +173,8 @@ public class Drive extends SubsystemBase {
             module.periodic();
         }
         ODOMETRY_LOCK.unlock();
+        
+        field2d.setRobotPose(getPose());
 
         // Stop moving when disabled
         if (DriverStation.isDisabled()) {
@@ -211,7 +221,7 @@ public class Drive extends SubsystemBase {
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
 
-        vision.addPoseEstimate(this);
+        // vision.addPoseEstimate(this);
 
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.isConnected && Constants.CURRENT_MODE != Mode.SIM);
@@ -328,7 +338,7 @@ public class Drive extends SubsystemBase {
         ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());
         Rotation2d robotRotation = getRotation();
 
-        return new ChassisSpeeds(
+        return DriveCommands.rotateForNewFront(
                 speeds.vxMetersPerSecond * robotRotation.getCos() - speeds.vyMetersPerSecond * robotRotation.getSin(),
                 speeds.vxMetersPerSecond * robotRotation.getSin() + speeds.vyMetersPerSecond * robotRotation.getCos(),
                 speeds.omegaRadiansPerSecond
@@ -339,7 +349,7 @@ public class Drive extends SubsystemBase {
         ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());
         Rotation2d robotRotation = getRotation();
 
-        return new ChassisSpeeds(
+        return DriveCommands.rotateForNewFront(
                 speeds.vxMetersPerSecond * robotRotation.getCos() - speeds.vyMetersPerSecond * robotRotation.getSin(),
                 speeds.vxMetersPerSecond * robotRotation.getSin() + speeds.vyMetersPerSecond * robotRotation.getCos(),
                 omegaRadiansPerSecond
@@ -357,10 +367,14 @@ public class Drive extends SubsystemBase {
         return getPose().getRotation();
     }
 
+    public Angle getTilt(){
+        return gyroInputs.tilt;
+    }
+
     /** Resets the current odometry pose. */
     public void setPose(Pose2d pose) {
         poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
-        vision.setRotation(pose.getRotation());
+        // vision.setRotation(pose.getRotation());
     }
 
     /** Adds a new timestamped vision measurement. */

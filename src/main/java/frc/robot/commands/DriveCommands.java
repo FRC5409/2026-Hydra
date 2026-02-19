@@ -47,6 +47,8 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
@@ -69,6 +71,15 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
   private static LoggedNetworkNumber speedModifier = new LoggedNetworkNumber("Speed Modifier", 1.0);
   private static boolean isAligned = false;
+
+  /**
+   * used for the {@link DriveCommands#crossBump(Drive, Supplier, Supplier, double)} command to only start counting
+   * the timer once the robot initally leaves the ground
+  */
+  public static final AtomicBoolean DID_GET_OFF_GROUND = new AtomicBoolean();
+
+  private static AtomicLong lastTime = new AtomicLong(System.currentTimeMillis());
+
 
   private DriveCommands() {}
 
@@ -114,6 +125,31 @@ public class DriveCommands {
     return isAligned;
   }
 
+  public static ChassisSpeeds rotateForNewFront(double vx, double vy, double omega) {
+    double cosA = Math.cos(90);
+    double sinA = Math.sin(90);
+    double rotatedVx = vx * cosA - vy * sinA;
+    double rotatedVy = vx * sinA + vy * cosA;
+
+    rotatedVx = vx;
+    rotatedVy = vy;
+    return new ChassisSpeeds(rotatedVx, rotatedVy, omega);
+  }
+
+  public static ChassisSpeeds rotateForNewFront(LinearVelocity vx, LinearVelocity vy, AngularVelocity omega) {
+    double cosA = Math.cos(90);
+    double sinA = Math.sin(90);
+    LinearVelocity rotatedVx = vx.times(cosA).minus(vy.times(sinA));
+    LinearVelocity rotatedVy = vx.times(sinA).plus(vy.times(cosA));
+
+    rotatedVx = vx;
+    rotatedVy = vy;
+    return new ChassisSpeeds(rotatedVx, rotatedVy, omega);
+  }
+
+  
+
+
   /**
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
    */
@@ -138,7 +174,7 @@ public class DriveCommands {
             omega += Math.copySign(0.05, omega);
 
           // Convert to field relative speeds & send command
-          ChassisSpeeds speeds = new ChassisSpeeds(
+          ChassisSpeeds speeds = rotateForNewFront(
                   linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                   linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                   omega * drive.getMaxAngularSpeedRadPerSec() * speedModifier.get());
@@ -196,7 +232,7 @@ public class DriveCommands {
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
-                  new ChassisSpeeds(
+                  rotateForNewFront(
                       linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                       linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                       omega);
@@ -486,6 +522,44 @@ public class DriveCommands {
     );
   }
 
+
+  public static Command crossBump(Drive drive, Supplier<Rotation2d> robotHeading, LinearVelocity speed, double groundTimeToEnd){
+    return Commands.sequence(
+      DriveCommands.alignToHeading(
+          drive, 
+          robotHeading
+      ),
+      Commands.runOnce(() -> DID_GET_OFF_GROUND.set(false)),
+      Commands.run(() -> {
+        drive.runVelocity(
+          rotateForNewFront(
+            speed, 
+            MetersPerSecond.of(0.0), 
+            RadiansPerSecond.of(0.0)
+          )
+        );
+      }, drive).until(
+        () -> {
+          
+          if (drive.getTilt().gt(Degrees.of(2.5)) && !DID_GET_OFF_GROUND.get())
+            DID_GET_OFF_GROUND.set(true);
+
+          if (!DID_GET_OFF_GROUND.get()) return false;
+
+          if (drive.getTilt().gt(Degrees.of(2.5))){ // should be much lower on real robot
+              lastTime.set(System.currentTimeMillis());
+          }
+
+          Logger.recordOutput("Drive/BumpTimer", System.currentTimeMillis() - lastTime.get());
+          return drive.getTilt().lte(Degrees.of(2.5)) && System.currentTimeMillis() - lastTime.get() > groundTimeToEnd;
+        }
+      ),
+      Commands.runOnce(() -> {
+        drive.stop();
+      })
+    );
+  }
+
   /*
    * Gets Rotation2d to target pose from drive pose
    */
@@ -582,7 +656,7 @@ public class DriveCommands {
             Commands.run(
                 () -> {
                   double speed = limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY);
-                  drive.runVelocity(new ChassisSpeeds(0.0, 0.0, speed));
+                  drive.runVelocity(rotateForNewFront(0.0, 0.0, speed));
                 },
                 drive)),
 

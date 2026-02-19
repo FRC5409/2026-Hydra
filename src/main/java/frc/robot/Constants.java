@@ -143,5 +143,6 @@ public final class Constants {
     public static final class kBump {
         // Percentage of max speed
         public static final double BUMP_SPEED_MODIFIER = 0.4;
+        public static final LinearVelocity BUMP_TRAVERSAL_SPEED = FeetPerSecond.of(6.0);
     }
 }

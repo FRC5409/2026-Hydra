@@ -8,12 +8,23 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.RebuiltTimer;
+import frc.robot.util.FieldConstants.LinesHorizontal;
+import frc.robot.util.FieldConstants.LinesVertical;
+import frc.robot.util.RebuiltTimer.AutoWinner;
+
+import static edu.wpi.first.units.Units.Seconds;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -28,8 +39,10 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project, you must also update the build.gradle file in the project.
  */
 public class Robot extends LoggedRobot {
-    private       Command        autonomousCommand;
-    private final RobotContainer robotContainer;
+    private         Command        autonomousCommand;
+    private final   RobotContainer robotContainer;
+    // public  static  RebuiltTimer   rebuiltTimer;
+    // private         Color          autoWinnerColor;
 
     // build constants are defined at compile-time, thus IntelliSense thinks "GitDirty" is unreachable.
     @SuppressWarnings("DataFlowIssue")
@@ -81,6 +94,8 @@ public class Robot extends LoggedRobot {
         VisionIOLimelight.forwardLimelightPorts();
 
         SignalLogger.enableAutoLogging(false);
+        // rebuiltTimer = new RebuiltTimer();
+        // autoWinnerColor = new Color("#FFFF00");
     }
 
     /** This function is called periodically during all modes. */
@@ -102,6 +117,13 @@ public class Robot extends LoggedRobot {
 
         // put match time in smart dashboard
         SmartDashboard.putNumber("Time", DriverStation.getMatchTime());
+
+        // rebuiltTimer.trackShift();
+        // SmartDashboard.putNumber("Time In shift", rebuiltTimer.getTimeInShift());
+        // SmartDashboard.putString("Current Shift", rebuiltTimer.currentShift.toString());
+
+
+
     }
 
     /** This function is called once when the robot is disabled. */
@@ -125,6 +147,8 @@ public class Robot extends LoggedRobot {
 
         if (Constants.CURRENT_MODE == Constants.Mode.SIM)
             SimulatedArena.getInstance().resetFieldForAuto();
+
+        // rebuiltTimer.start();
     }
 
     /** This function is called periodically during autonomous. */
@@ -142,11 +166,43 @@ public class Robot extends LoggedRobot {
             autonomousCommand.cancel();
         }
         robotContainer.sys_drive.brakeMode();
+        // rebuiltTimer.getAutoWinner();
     }
 
     /** This function is called periodically during operator control. */
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+    //     rebuiltTimer.getAutoWinner();
+    //     Logger.recordOutput("Drive/DidGetOffGround", DriveCommands.DID_GET_OFF_GROUND.get());
+
+    //     Logger.recordOutput("Horizontal Center", LinesHorizontal.center);
+    //     Logger.recordOutput("Vertical Center", LinesVertical.center);
+
+    //     if (rebuiltTimer.autoWinner == AutoWinner.BLUE)
+    //         autoWinnerColor = new Color("#0000FF");
+    //     else if (rebuiltTimer.autoWinner == AutoWinner.RED)
+    //         autoWinnerColor = new Color("#FF0000");
+    //     else
+    //         autoWinnerColor = new Color("#FFFF00");
+
+        
+    //     SmartDashboard.putString("AutoWinner", autoWinnerColor.toHexString());
+
+    //     SmartDashboard.putNumber("Fuel", rebuiltTimer.getFuel());
+
+    //     SmartDashboard.putNumber("Time Left to Acquire", 
+    //             rebuiltTimer.timeToAcquire(
+    //                 rebuiltTimer.scoreTime(), 
+    //                 rebuiltTimer.timeToPose(() -> robotContainer.sys_drive.getPose(),() ->  Pose2d.kZero)
+    //             ));
+
+    //     SmartDashboard.putNumber("Time to score", rebuiltTimer.scoreTime());
+
+    //     SmartDashboard.putNumber("Time to travel", rebuiltTimer.timeToPose(() -> robotContainer.sys_drive.getPose(),() ->  Pose2d.kZero).in(Seconds));
+
+        
+        
+    }
 
     /** This function is called once when test mode is enabled. */
     @Override

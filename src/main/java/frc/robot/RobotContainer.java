@@ -8,12 +8,17 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,6 +35,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.FieldConstants.Hub;
+import frc.robot.util.FieldConstants.LinesVertical;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -39,7 +45,9 @@ import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
+import static edu.wpi.first.units.Units.FeetPerSecond;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -49,13 +57,14 @@ import static edu.wpi.first.units.Units.Meters;
 public class RobotContainer {
     // Subsystems
     protected final Drive      sys_drive;
-    protected final Vision     sys_vision;
+//     protected final Vision     sys_vision;
 
     public static SwerveDriveSimulation simConfig;
 
     private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
     private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
     private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
+    private LinearVelocity bumpSpeed = MetersPerSecond.of(0.0);
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -71,15 +80,14 @@ public class RobotContainer {
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
-                sys_vision = new Vision(new VisionIOLimelight());
+                // sys_vision = new Vision(new VisionIOLimelight());
 
                 sys_drive = new Drive(
                         new GyroIOPigeon2(),
                         new ModuleIOTalonFX(TunerConstants.FrontLeft),
                         new ModuleIOTalonFX(TunerConstants.FrontRight),
                         new ModuleIOTalonFX(TunerConstants.BackLeft),
-                        new ModuleIOTalonFX(TunerConstants.BackRight),
-                        sys_vision
+                        new ModuleIOTalonFX(TunerConstants.BackRight)
                 );
             }
             // Sim robot, instantiate physics sim IO implementations
@@ -109,32 +117,31 @@ public class RobotContainer {
                 SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
                 SimulatedArena.getInstance().resetFieldForAuto();
 
-                sys_vision = new Vision(new VisionIOSim(simConfig));
+                // sys_vision = new Vision(new VisionIOSim(simConfig));
 
                 sys_drive = new Drive(
                         new GyroIOSim(simConfig.getGyroSimulation()),
                         new ModuleIOSim(simConfig.getModules()[0]),
                         new ModuleIOSim(simConfig.getModules()[1]),
                         new ModuleIOSim(simConfig.getModules()[2]),
-                        new ModuleIOSim(simConfig.getModules()[3]),
-                        sys_vision
+                        new ModuleIOSim(simConfig.getModules()[3])
                 );
             }
             // Replayed robot, disable IO implementations
             default -> {
-                sys_vision = new Vision(new VisionIO() {});
+                // sys_vision = new Vision(new VisionIO() {});
                 sys_drive = new Drive(
                         new GyroIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {},
-                        new ModuleIO() {},
-                        sys_vision);
+                        new ModuleIO() {});
             }
         }
 
         // Set up auto routines
         autoChooser = buildAutoChooser();
+        registerCommands();
 
         // Configure the button bindings
         configureButtonBindings();
@@ -181,6 +188,13 @@ public class RobotContainer {
         Logger.recordOutput("Simulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
     }
 
+    private void registerCommands(){
+        NamedCommands.registerCommand(
+                "Traverse Bump", 
+                DriveCommands.crossBump(sys_drive, () -> Rotation2d.kZero, getBumpSpeed(), 500)
+        );
+    }
+
     /**
      * Use this method to define your button->command mappings. Buttons can be created by instantiating a
      * {@link GenericHID} or one of its subclasses ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}),
@@ -204,9 +218,14 @@ public class RobotContainer {
                     .ignoringDisable(true)
             );
 
+        // primaryController.x()
+        //         .onTrue(
+                              
+        //         );
+
         // Switch to X pattern when X button is pressed
-        primaryController.x()
-                         .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
+        // primaryController.x()
+        //                  .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
 
         // Switch To Bump Speed Modifier
         primaryController.a()
@@ -227,49 +246,66 @@ public class RobotContainer {
                               )
                          );
 
-        primaryController.leftBumper()
-                        .whileTrue(
-                          DriveCommands.joystickDriveAtAngle(
-                            sys_drive,
-                            () -> -primaryController.getLeftY(),
-                            () -> -primaryController.getLeftX(),
-                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
-                          )
-                        );
+        // primaryController.leftBumper()
+        //                 .whileTrue(
+        //                   DriveCommands.joystickDriveAtAngle(
+        //                     sys_drive,
+        //                     () -> -primaryController.getLeftY(),
+        //                     () -> -primaryController.getLeftX(),
+        //                     () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
+        //                   )
+        //                 );
+
+        // primaryController.x()
+        //                 .whileTrue(
+        //                     Commands.sequence(
+        //                       DriveCommands.alignToPoint(
+        //                         sys_drive, 
+        //                         () -> selectedClimibingPrepPosition.pose, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+        //                         kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+        //                         kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+        //                         kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+
+        //                       ),
+        //                       DriveCommands.alignToPoint(
+        //                         sys_drive, 
+        //                         () -> selectedClimbingPosition.pose, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+        //                         () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+        //                       )
+        //                     )
+        //                 );
 
         primaryController.x()
                         .whileTrue(
-                            Commands.sequence(
-                              DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimibingPrepPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
 
-                              ),
-                              DriveCommands.alignToPoint(
-                                sys_drive, 
-                                () -> selectedClimbingPosition.pose, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-                              )
-                            )
+                                DriveCommands.crossBump(
+                                        sys_drive,
+                                        () -> Rotation2d.k180deg,
+                                        getBumpSpeed(),
+                                        500
+                                )        
                         );
+        
 
         secondaryController.x()
-                        .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
-        secondaryController.b()
                         .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
+        secondaryController.b()
+                        .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
         secondaryController.a()
                         .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
 
-        secondaryController.povLeft()
-                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
-        secondaryController.povRight()
-                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+        // secondaryController.povLeft()
+        //                 .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
+        // secondaryController.povRight()
+        //                 .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+
+        // secondaryController.povUp()
+        //                 .onTrue(Commands.runOnce(() -> Robot.rebuiltTimer.addFuel(5)));
+        // secondaryController.povDown()
+        //                 .onTrue(Commands.runOnce(() -> Robot.rebuiltTimer.addFuel(-5)));
   
     }
 
@@ -302,6 +338,21 @@ public class RobotContainer {
 
                 }
         );
+    }
+
+    private LinearVelocity getBumpSpeed() {
+        if (DriverStation.getAlliance().get() == Alliance.Blue)
+                if (sys_drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.allianceZone)))
+                        return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
+                else
+                        return kBump.BUMP_TRAVERSAL_SPEED;
+        else if (DriverStation.getAlliance().get() == Alliance.Red)
+                if (sys_drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.oppAllianceZone)))
+                        return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
+                else   
+                        return kBump.BUMP_TRAVERSAL_SPEED;
+        else
+                return kBump.BUMP_TRAVERSAL_SPEED;
     }
 
     /**
