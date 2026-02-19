@@ -42,6 +42,8 @@ public interface LauncherIO {
         public Angle           targetHoodPosition = Degrees.of(0.0);
 
         public double velocitySetpoint = 0.0;
+
+        public double ultrasonicDistance = 0.0;
     }
 
     // Launcher

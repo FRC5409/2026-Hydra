@@ -36,6 +36,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 
+import java.net.ContentHandler;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
@@ -132,15 +133,14 @@ public class RobotContainer {
                 );
 
                 sys_launcher = new Launcher(new LauncherIOTalonFX(
-                    LauncherConstants.Launcher.LAUNCHER_CAN_ID,
-                    LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
-                    LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
-                    LauncherConstants.Hood.HOOD_CAN_ID,
-                    LauncherConstants.Hood.HOOD_SENSOR_ID,
-                    LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
-                    LauncherConstants.Ultrasonic.DIGITAL_INPUT
+                    Constants.DeviceID.LAUNCHER_MOTOR_1,
+                    Constants.DeviceID.LAUNCHER_MOTOR_2,
+                    Constants.DeviceID.ULTRASONIC_CHANNEL,
+                    Constants.DeviceID.LAUNCHER_HOOD_SERVO_1,
+                    Constants.DeviceID.LAUNCHER_HOOD_SERVO_2
                 ));
             }
+
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
                 sys_hopper = new Hopper(new HopperIOSim());

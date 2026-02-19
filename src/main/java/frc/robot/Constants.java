@@ -54,6 +54,7 @@ public final class Constants {
         public static final int LAUNCHER_FLYWHEEL_CAN_CODER = 26;
         public static final int LAUNCHER_HOOD_SERVO_1       = 0; // TODO
         public static final int LAUNCHER_HOOD_SERVO_2       = 0; // TODO
+        public static final int ULTRASONIC_CHANNEL          = 1;
 
         // FEEDER
         public static final int FEEDER_MOTOR_TOP    = 0; // TODO: jaden will update these
