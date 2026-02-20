@@ -18,25 +18,24 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.subsystems.launcher.*;
-
-import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
-
-import static edu.wpi.first.units.Units.*;
-import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.feeder.*;
+import frc.robot.subsystems.launcher.Launcher;
+import frc.robot.subsystems.launcher.LauncherConstants;
+import frc.robot.subsystems.launcher.LauncherIO;
+import frc.robot.subsystems.launcher.LauncherIOTalonFX;
 import frc.robot.subsystems.serializer.*;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
+import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.units.Units.Meters;
+import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
+
+import static edu.wpi.first.units.Units.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -224,63 +223,38 @@ public class RobotContainer {
 
         // TEST CODE FOR LAUNCHER PROTOTYPES
         // launch fuel w distance
-      SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
-      SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
+        SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
+        SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
               () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
 
-      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
+        SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
-      // launch fuel w speed
-      SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
-      SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runRPS(
+        // launch fuel w speed
+        SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
+        SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runRPS(
               () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
-      SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
+        SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
-      // sequentially run every distance from 0.5 m to 10.0 m
-//       SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(
-//               DoubleStream.iterate(0, d -> d + 0.5)
-//                           .limit((int)(10 / 0.5) + 1)
-//                           .boxed()
-//                           .flatMap(d -> Stream.of(
-//                                   sys_launcher.launchFuel(() -> Meters.of(d)),
-//                                   new WaitCommand(0.5)))
-//                           .toArray(Command[]::new)
-//       )); 
+        // sequentially run every distance from 0.5 m to 10.0 m
+        SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(
+               DoubleStream.iterate(0, d -> d + 0.5)
+                           .limit((int)(10 / 0.5) + 1)
+                           .boxed()
+                           .flatMap(d -> Stream.of(
+                                   sys_launcher.launchFuel(() -> Meters.of(d)),
+                                   new WaitCommand(0.5)))
+                           .toArray(Command[]::new)
+        ));
       
-      SmartDashboard.putNumber("Hood Distance Setpoint [mm]", 0);
-      SmartDashboard.putNumber("Hood Distance Setpoint 1 [mm]", 0);
-      SmartDashboard.putNumber("Hood Distance Setpoint 2 [mm]", 0);
+        SmartDashboard.putNumber("Hood Distance Setpoint [°]", 0);
 
-      SmartDashboard.putData("Set Hood Pos [mm]", 
-        Commands.runOnce(() -> sys_launcher.setHoodPos(
-            Millimeters.of(SmartDashboard.getNumber("Hood Distance Setpoint [mm]", 0)))));
-
-      SmartDashboard.putData("Set Hood 1 Pos [mm]", 
-        Commands.runOnce(() -> sys_launcher.setHood1Pos(
-            Millimeters.of(SmartDashboard.getNumber("Hood Distance Setpoint 1 [mm]", 0)))));
-
-    SmartDashboard.putData("Set Hood 2 Pos [mm]", 
-        Commands.runOnce(() -> sys_launcher.setHood2Pos(
-            Millimeters.of(SmartDashboard.getNumber("Hood Distance Setpoint 2 [mm]", 0)))));
-    
-
-      SmartDashboard.putData("Set Hood max (29 mm)", 
-            Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeters.of(29))));
-
-      SmartDashboard.putData("Set Hood 0 (0 mm)",
-            Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeter.of(0))));
-
+        SmartDashboard.putData("Set Hood Pos [°]", Commands.runOnce(() -> sys_launcher.setHoodPos(
+            Degrees.of(SmartDashboard.getNumber("Hood Distance Setpoint [mm]", 0)))));
 
         SmartDashboard.putNumber("Feeder Voltage", 0);
         SmartDashboard.putNumber("Serializer Voltage", 0);
 
-
-        // primaryController.a()
-        //     .onTrue(Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeters.of(0))));
-
-        // primaryController.x()
-        //     .onTrue(Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeter.of(0))));
 
         primaryController.y()
                 .onTrue(sys_launcher.runRPS(

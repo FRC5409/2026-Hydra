@@ -2,6 +2,7 @@ package frc.robot.subsystems.launcher;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,7 +23,7 @@ public class Launcher extends SubsystemBase {
 
     private AtomicReference<Distance> servo1Setpoint = new AtomicReference<Distance>(Millimeters.of(0.0));
     private AtomicReference<Distance> servo2Setpoint = new AtomicReference<Distance>(Millimeters.of(0.0));
-    
+
     private static Pose3d launcherMech;
 
     public Launcher(LauncherIO io) {
@@ -90,17 +91,15 @@ public class Launcher extends SubsystemBase {
 
     //     return Commands.runOnce(() -> servoSetpoint.set(setpoint));
     // }
-    public void setHoodPos(Distance setpoint){
-        servo1Setpoint.set(setpoint);
-        servo2Setpoint.set(setpoint);
+    private Distance hoodAngleToExt(Angle angle) {
+        // linear regression (deg to mm)
+        return Millimeters.of(0.298462*angle.in(Degrees)+15.23077);
     }
 
-    public void setHood1Pos(Distance setpoint){
-        servo1Setpoint.set(setpoint);
-    }
-    
-    public void setHood2Pos(Distance setpoint){
-        servo2Setpoint.set(setpoint);
+    public void setHoodPos(Angle setpoint){
+        var ext = hoodAngleToExt(setpoint);
+        servo1Setpoint.set(ext);
+        servo2Setpoint.set(ext);
     }
 
     // Getters
