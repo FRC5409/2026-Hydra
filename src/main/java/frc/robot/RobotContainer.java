@@ -96,7 +96,7 @@ public class RobotContainer {
                 //     LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
                 //     LauncherConstants.Ultrasonic.DIGITAL_INPUT
                 ));
-                
+
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -246,11 +246,15 @@ public class RobotContainer {
                                    new WaitCommand(0.5)))
                            .toArray(Command[]::new)
         ));
-      
-        SmartDashboard.putNumber("Hood Distance Setpoint [deg]", 0);
 
-        SmartDashboard.putData("Set Hood Pos [deg]", Commands.runOnce(() -> sys_launcher.setHoodPos(
-            Degrees.of(SmartDashboard.getNumber("Hood Distance Setpoint [mm]", 0)))));
+        SmartDashboard.putNumber("Hood Extension [mm]", 0);
+        SmartDashboard.putData("Set Hood Extension", Commands.runOnce(() -> sys_launcher.setHoodPos(
+                Millimeters.of(SmartDashboard.getNumber("Hood Extension [mm]", 0)))));
+
+        SmartDashboard.putNumber("Hood Angle [deg]", 0);
+        SmartDashboard.putData("Set Hood Angle", Commands.runOnce(() -> sys_launcher.setHoodPos(
+                // linear regression (deg to mm)
+                Millimeters.of(0.298462*SmartDashboard.getNumber("Hood Angle [deg]", 0)+15.23077))));
 
         SmartDashboard.putNumber("Feeder Voltage", 0);
         SmartDashboard.putNumber("Serializer Voltage", 0);
@@ -267,18 +271,18 @@ public class RobotContainer {
 
 
         primaryController.povUp()
-            .onTrue(sys_feeder.runRPS(() -> SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0)))            
+            .onTrue(sys_feeder.runRPS(() -> SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0)))
             .onTrue(sys_serializer.setVoltage(8));
 
 
         primaryController.povDown()
-            .onTrue(sys_feeder.setVoltage(0))            
+            .onTrue(sys_feeder.setVoltage(0))
             .onTrue(sys_serializer.setVoltage(0));
 
 
         primaryController.povRight()
             .onTrue(sys_serializer.setVoltage(5));
-        
+
         primaryController.povLeft()
             .onTrue(sys_serializer.setVoltage(0));
 
@@ -288,7 +292,7 @@ public class RobotContainer {
 //      Logger.recordOutput("Vision/Estimate", pose);
 //      SmartDashboard.putData("SCORE FUEL IN HUB", sys_launcher.launchFuel(
 //              () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
-  
+
     }
 
 

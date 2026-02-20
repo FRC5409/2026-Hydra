@@ -91,15 +91,10 @@ public class Launcher extends SubsystemBase {
 
     //     return Commands.runOnce(() -> servoSetpoint.set(setpoint));
     // }
-    private Distance hoodAngleToExt(Angle angle) {
-        // linear regression (deg to mm)
-        return Millimeters.of(0.298462*angle.in(Degrees)+15.23077);
-    }
 
-    public void setHoodPos(Angle setpoint){
-        var ext = hoodAngleToExt(setpoint);
-        servo1Setpoint.set(ext);
-        servo2Setpoint.set(ext);
+    public void setHoodPos(Distance setpoint){
+        servo1Setpoint.set(setpoint);
+        servo2Setpoint.set(setpoint);
     }
 
     // Getters
