@@ -284,7 +284,7 @@ public class RobotContainer {
 
 
         primaryController.povUp()
-            .onTrue(sys_feeder.setVoltage(10))
+            .onTrue(sys_feeder.runRPS(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0)))
             .onTrue(sys_serializer.setVoltage(8));
 
 
