@@ -247,9 +247,9 @@ public class RobotContainer {
                            .toArray(Command[]::new)
         ));
       
-        SmartDashboard.putNumber("Hood Distance Setpoint [°]", 0);
+        SmartDashboard.putNumber("Hood Distance Setpoint [deg]", 0);
 
-        SmartDashboard.putData("Set Hood Pos [°]", Commands.runOnce(() -> sys_launcher.setHoodPos(
+        SmartDashboard.putData("Set Hood Pos [deg]", Commands.runOnce(() -> sys_launcher.setHoodPos(
             Degrees.of(SmartDashboard.getNumber("Hood Distance Setpoint [mm]", 0)))));
 
         SmartDashboard.putNumber("Feeder Voltage", 0);
