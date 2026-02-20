@@ -2,6 +2,8 @@ package frc.robot.subsystems.feeder;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.AngularVelocity;
@@ -40,7 +42,7 @@ public class Feeder extends SubsystemBase {
         }, this);
     }
 
-    public Command runRPS(double RPS) {
+    public Command runRPS(Supplier<AngularVelocity> RPS) {
         return Commands.runOnce(() -> {
             io.runRPS(RPS);
         }, this);

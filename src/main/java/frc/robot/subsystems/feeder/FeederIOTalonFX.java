@@ -1,5 +1,7 @@
 package frc.robot.subsystems.feeder;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -77,8 +79,8 @@ public class FeederIOTalonFX implements FeederIO {
     }
 
     @Override
-    public void runRPS(double velocity) {
-        VelocityVoltage velocityVoltage = new VelocityVoltage(velocity)
+    public void runRPS(Supplier<AngularVelocity> velocity) {
+        VelocityVoltage velocityVoltage = new VelocityVoltage(velocity.get())
                                         .withSlot(0)
                                         .withFeedForward(0);
         feederMotor.setControl(velocityVoltage);
