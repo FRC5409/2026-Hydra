@@ -7,41 +7,31 @@ package frc.robot.commands;
 import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import frc.robot.subsystems.hopper.Hopper;
+import frc.robot.subsystems.hopper.HopperConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 
-public class ExtendCommand extends Command {
-  private final Hopper hopper;
-  private final Intake intake;
-  private double distance;
+// NOTE:  Consider using this command inline, rather than writing a subclass.  For more
+// information, see:
+// https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
+public class ExtendCommand extends ParallelDeadlineGroup {
+  private static final double MIN_GAP = IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches);
+  private static final double STARTING_GAP = HopperConstants.STARTING_GAP_TO_INTAKE.in(Inches);
 
-  private static final Distance MIN_GAP = IntakeConstants.Extension.KILLSWITCH_TOLERANCE;
-
+  /** Creates a new ExtendCommand. */
   public ExtendCommand(Hopper hopper, Intake intake) {
-    this.hopper = hopper;
-    this.intake = intake;
-    addRequirements(hopper, intake);
-  }
 
-  @Override
-  public void execute() {
-    hopper.fullExtend();
-    intake.extend();
-  }
+    super(
+      Commands.waitUntil(() -> 
+          (hopper.getPosition().in(Inches)+STARTING_GAP) - intake.getPosition().in(Inches) <= MIN_GAP ||
+          hopper.getPosition().isNear(HopperConstants.HOPPER_MAX_EXTENSION, Inches.of(0.02))
+      ),
+      hopper.fullExtend(),
+      intake.extend()
+    );
 
-  @Override
-  public boolean isFinished() {
-    double hopperPos = hopper.getPosition().in(Inches);
-    double intakePos = intake.getPosition().in(Inches);
-    distance = hopperPos - intakePos;
-    return distance < MIN_GAP.in(Inches);
-  }
-
-  @Override
-  public void end(boolean interrupted) {
-    hopper.stopMotor();
-    intake.stopMotor();
   }
 }
