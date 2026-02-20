@@ -10,7 +10,9 @@ public class SerializerIOSim implements SerializerIO {
     private double indexerVoltage = 0.0;
     private double bottomFeederVoltage = 0.0;
 
-    public SerializerIOSim() {}
+    public SerializerIOSim() {
+        
+    }
 
     @Override
     public void setVoltage(double voltage) {
