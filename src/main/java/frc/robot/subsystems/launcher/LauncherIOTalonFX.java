@@ -67,8 +67,6 @@ public class LauncherIOTalonFX implements LauncherIO {
         hoodServo   = new Servo(servoChannel);
         hoodServo2  = new Servo(servoChannel2);
 
-        // ultrasonic = new Ultrasonic(pingChannel, echoChannel);
-
         ultrasonic = new AnalogInput(ultrasonicChannel);
 
         hoodServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
