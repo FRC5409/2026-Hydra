@@ -566,7 +566,7 @@ public class DriveCommands {
       Commands.runOnce(() -> DID_GET_OFF_GROUND.set(false)),
       Commands.run(() -> {
         drive.runVelocity(
-          new ChassisSpeeds(
+          rotateForNewFront(
             speed, 
             MetersPerSecond.of(0.0), 
             RadiansPerSecond.of(0.0)

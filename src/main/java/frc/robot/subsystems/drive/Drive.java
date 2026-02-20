@@ -49,7 +49,6 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 
 
 import java.util.concurrent.locks.Lock;
@@ -119,14 +118,15 @@ public class Drive extends SubsystemBase {
             ModuleIO flModuleIO,
             ModuleIO frModuleIO,
             ModuleIO blModuleIO,
-            ModuleIO brModuleIO) {
+            ModuleIO brModuleIO,
+            Vision vision) {
         this.gyroIO = gyroIO;
         modules[0] = new Module(flModuleIO, 0, TunerConstants.FrontLeft);
         modules[1] = new Module(frModuleIO, 1, TunerConstants.FrontRight);
         modules[2] = new Module(blModuleIO, 2, TunerConstants.BackLeft);
         modules[3] = new Module(brModuleIO, 3, TunerConstants.BackRight);
 
-        // this.vision = vision;
+        this.vision = vision;
 
         // Usage reporting for swerve template
         HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_AdvantageKit);
@@ -164,9 +164,6 @@ public class Drive extends SubsystemBase {
                                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
-
-        field2d = new Field2d();
-        SmartDashboard.putData("Robot Field", field2d);
     }
 
     @Override
@@ -226,7 +223,7 @@ public class Drive extends SubsystemBase {
             poseEstimator.updateWithTime(sampleTimestamps[i], rawGyroRotation, modulePositions);
         }
 
-        // vision.addPoseEstimate(this);
+        vision.addPoseEstimate(this);
 
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.isConnected && Constants.CURRENT_MODE != Mode.SIM);
@@ -379,7 +376,7 @@ public class Drive extends SubsystemBase {
     /** Resets the current odometry pose. */
     public void setPose(Pose2d pose) {
         poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
-        // vision.setRotation(pose.getRotation());
+        vision.setRotation(pose.getRotation());
     }
 
     /** Adds a new timestamped vision measurement. */

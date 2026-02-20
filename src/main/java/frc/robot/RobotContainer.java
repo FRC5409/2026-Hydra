@@ -8,20 +8,17 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -30,28 +27,17 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
-import frc.robot.Constants.kAutoAlign;
 import frc.robot.Constants.kBump;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.feeder.*;
-import frc.robot.subsystems.hopper.*;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
-import frc.robot.subsystems.intake.IntakeConstants.Roller;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.AutoPath;
 import frc.robot.util.FieldConstants.Hub;
-import frc.robot.util.FieldConstants.LinesVertical;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -60,18 +46,11 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import frc.robot.subsystems.elevator.ElevatorConstants;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import static edu.wpi.first.units.Units.FeetPerSecond;
 
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.ArrayList;
 
@@ -83,15 +62,14 @@ import java.util.ArrayList;
 public class RobotContainer {
     // Subsystems
     protected final Drive      sys_drive;
-//     protected final Vision     sys_vision;
+    protected final Vision     sys_vision;
 
     public static SwerveDriveSimulation simConfig;
-    private final Elevator sys_elevator;
 
     private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
     private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
     private ClimbingPositions selectedClimibingPrepPosition = ClimbingPositions.LEFT_PREP;
-    private LinearVelocity bumpSpeed = MetersPerSecond.of(0.0);
+//     private LinearVelocity bumpSpeed = MetersPerSecond.of(0.0);
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -117,14 +95,15 @@ public class RobotContainer {
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
-                // sys_vision = new Vision(new VisionIOLimelight());
+                sys_vision = new Vision(new VisionIOLimelight());
 
                 sys_drive = new Drive(
                         new GyroIOPigeon2(),
                         new ModuleIOTalonFX(TunerConstants.FrontLeft),
                         new ModuleIOTalonFX(TunerConstants.FrontRight),
                         new ModuleIOTalonFX(TunerConstants.BackLeft),
-                        new ModuleIOTalonFX(TunerConstants.BackRight)
+                        new ModuleIOTalonFX(TunerConstants.BackRight),
+                        sys_vision
                 );
             }
             // Sim robot, instantiate physics sim IO implementations
@@ -154,25 +133,27 @@ public class RobotContainer {
                 SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
                 SimulatedArena.getInstance().resetFieldForAuto();
 
-                // sys_vision = new Vision(new VisionIOSim(simConfig));
+                sys_vision = new Vision(new VisionIOSim(simConfig));
 
                 sys_drive = new Drive(
                         new GyroIOSim(simConfig.getGyroSimulation()),
                         new ModuleIOSim(simConfig.getModules()[0]),
                         new ModuleIOSim(simConfig.getModules()[1]),
                         new ModuleIOSim(simConfig.getModules()[2]),
-                        new ModuleIOSim(simConfig.getModules()[3])
+                        new ModuleIOSim(simConfig.getModules()[3]),
+                        sys_vision
                 );
             }
             // Replayed robot, disable IO implementations
             default -> {
-                // sys_vision = new Vision(new VisionIO() {});
+                sys_vision = new Vision(new VisionIO() {});
                 sys_drive = new Drive(
                         new GyroIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {},
                         new ModuleIO() {},
-                        new ModuleIO() {});
+                        new ModuleIO() {},
+                        sys_vision);
             }
         }
 
@@ -182,6 +163,27 @@ public class RobotContainer {
         ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
 
         autoPaths.forEach(autoPath -> autoChooser.addOption(autoPath.getName(), autoPath));
+
+        if (Constants.IS_TUNING){
+                autoChooser.addOption(
+                        "Drive Wheel Radius Characterization",
+                        DriveCommands.wheelRadiusCharacterization(sys_drive));
+                autoChooser.addOption(
+                        "Drive Simple FF Characterization",
+                        DriveCommands.feedforwardCharacterization(sys_drive));
+                autoChooser.addOption(
+                        "Drive SysId (Quasistatic Forward)",
+                        sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+                autoChooser.addOption(
+                        "Drive SysId (Quasistatic Reverse)",
+                        sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+                autoChooser.addOption(
+                        "Drive SysId (Dynamic Forward)",
+                        sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+                autoChooser.addOption(
+                        "Drive SysId (Dynamic Reverse)",
+                        sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        }
 
         autoChooser.onChange(command -> resetPose());
         // Configure the button bindings
@@ -214,38 +216,6 @@ public class RobotContainer {
         );
     }
 
-    /**
-     * builds the dashboard command chooser ({@link LoggedDashboardChooser}) for picking autonomous routines.
-     *
-     * @return the logged dashboard chooser
-     */
-    private LoggedDashboardChooser<Command> buildAutoChooser() {
-        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>(
-                "Auto Choices", AutoBuilder.buildAutoChooser());
-
-        // Set up SysId routines
-        chooser.addOption(
-                "Drive Wheel Radius Characterization",
-                DriveCommands.wheelRadiusCharacterization(sys_drive));
-        chooser.addOption(
-                "Drive Simple FF Characterization",
-                DriveCommands.feedforwardCharacterization(sys_drive));
-        chooser.addOption(
-                "Drive SysId (Quasistatic Forward)",
-                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-        chooser.addOption(
-                "Drive SysId (Quasistatic Reverse)",
-                sys_drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-        chooser.addOption(
-                "Drive SysId (Dynamic Forward)",
-                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-        chooser.addOption(
-                "Drive SysId (Dynamic Reverse)",
-                sys_drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-
-        return chooser;
-    }
-
     private void resetPose(){
         if (autoChooser.get() instanceof AutoPath path){
                 sys_drive.setPose(path.getStartingPose());
@@ -261,13 +231,6 @@ public class RobotContainer {
         SimulatedArena.getInstance().simulationPeriodic();
         Logger.recordOutput("Simulation/RobotPose", simConfig.getSimulatedDriveTrainPose());
         Logger.recordOutput("Simulation/Fuel", SimulatedArena.getInstance().getGamePiecesArrayByType("Fuel"));
-    }
-
-    private void registerCommands(){
-        NamedCommands.registerCommand(
-                "Traverse Bump", 
-                DriveCommands.crossBump(sys_drive, () -> Rotation2d.kZero, getBumpSpeed(), 500)
-        );
     }
 
     /**
@@ -306,9 +269,6 @@ public class RobotContainer {
         primaryController.a()
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
-    
-        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
-        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
 
         primaryController.rightBumper()
                          .whileTrue(
@@ -361,8 +321,9 @@ public class RobotContainer {
 
                                 DriveCommands.crossBump(
                                         sys_drive,
+                                        sys_vision,
                                         () -> Rotation2d.k180deg,
-                                        getBumpSpeed(),
+                                        DriveCommands.getBumpSpeed(sys_drive),
                                         500
                                 )        
                         );
@@ -375,10 +336,10 @@ public class RobotContainer {
         secondaryController.a()
                         .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
 
-        // secondaryController.povLeft()
-        //                 .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
-        // secondaryController.povRight()
-        //                 .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+        secondaryController.povLeft()
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
+        secondaryController.povRight()
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
 
         // secondaryController.povUp()
         //                 .onTrue(Commands.runOnce(() -> Robot.rebuiltTimer.addFuel(5)));
@@ -416,21 +377,6 @@ public class RobotContainer {
 
                 }
         );
-    }
-
-    private LinearVelocity getBumpSpeed() {
-        if (DriverStation.getAlliance().get() == Alliance.Blue)
-                if (sys_drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.allianceZone)))
-                        return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
-                else
-                        return kBump.BUMP_TRAVERSAL_SPEED;
-        else if (DriverStation.getAlliance().get() == Alliance.Red)
-                if (sys_drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.oppAllianceZone)))
-                        return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
-                else   
-                        return kBump.BUMP_TRAVERSAL_SPEED;
-        else
-                return kBump.BUMP_TRAVERSAL_SPEED;
     }
 
     /**

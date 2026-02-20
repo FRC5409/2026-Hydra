@@ -94,17 +94,17 @@ public class Autos {
             new AutoPath(
                 "RightBump-Intake-Score-RightClimb",
                 // Starting Pose: 
-                new Pose2d(3.470,3.071, Rotation2d.k180deg),
+                new Pose2d(3.470,3.071, Rotation2d.k180deg) ,
                 // Alliance -> neutral zone 
                 DriveCommands.crossBump(drive, vision, () -> Rotation2d.k180deg, DriveCommands.getBumpSpeed(drive), kBump.SETTLING_TIME.in(Milliseconds)),
-                // confirm position
+                // confirm position (needed to align heading once?)
                 // DriveCommands.alignToHeading(
                 //     drive,
                 //     () -> new Rotation2d(Degrees.of(13))
                 // ),
                 DriveCommands.alignToPoint(
                     drive, 
-                    () -> new Pose2d(6.265,3.071, new Rotation2d(Degrees.of(3.071))), 
+                    () -> new Pose2d(6.265,3.071, new Rotation2d(Degrees.of(135.015))), 
                     () -> MetersPerSecond.of(2.0), 
                     () -> MetersPerSecondPerSecond.of(8.0)
                 ),
