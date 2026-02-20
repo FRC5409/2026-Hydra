@@ -2,12 +2,16 @@ package frc.robot.subsystems.feeder;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.DoubleSupplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.launcher.LauncherConstants;
 import frc.robot.utils.Checkmate;
 import frc.robot.utils.Checkmate.TestResult;
 
@@ -39,7 +43,7 @@ public class Feeder extends SubsystemBase {
         );
     }
 
-    public Command runRPS(double RPS) {
+    public Command runRPS(DoubleSupplier RPS) {
         return Commands.runOnce(() -> {
             io.runRPS(RPS);
         }, this);
@@ -65,5 +69,6 @@ public class Feeder extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Feeder", inputs);
+        SmartDashboard.putData("Feeder/PID", FeederConstants.PID);
     }
 }

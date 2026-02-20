@@ -1,5 +1,10 @@
 package frc.robot.subsystems.feeder;
 
+import static edu.wpi.first.units.Units.Rotations;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.function.DoubleSupplier;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -29,6 +34,8 @@ public class FeederIOTalonFX implements FeederIO {
     private StatusSignal<Voltage> feederDeviceVoltage;
     private StatusSignal<Current> feederDeviceCurrent;
     private StatusSignal<Temperature> feederDeviceTemp;
+
+    private double setpoint = 0.0;
 
     public FeederIOTalonFX(int feederID) {
         feederMotor = new TalonFX(feederID);
@@ -77,8 +84,9 @@ public class FeederIOTalonFX implements FeederIO {
     }
 
     @Override
-    public void runRPS(double velocity) {
-        VelocityVoltage velocityVoltage = new VelocityVoltage(velocity)
+    public void runRPS(DoubleSupplier velocity) {
+        setpoint = velocity.getAsDouble();
+        VelocityVoltage velocityVoltage = new VelocityVoltage(velocity.getAsDouble())
                                         .withSlot(0)
                                         .withFeedForward(0);
         feederMotor.setControl(velocityVoltage);
@@ -111,6 +119,7 @@ public class FeederIOTalonFX implements FeederIO {
         ).isOK();
         inputs.motorPosition = feederDevicePosition.getValue();
         inputs.motorVelocity = feederDeviceVelocity.getValue();
+        inputs.motorVelocitySetpoint = setpoint;
         inputs.appliedVoltage = feederDeviceVoltage.getValue();
         inputs.appliedCurrent = feederDeviceCurrent.getValue();
         inputs.motorTemperature = feederDeviceTemp.getValueAsDouble();

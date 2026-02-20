@@ -238,15 +238,15 @@ public class RobotContainer {
       SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
       // sequentially run every distance from 0.5 m to 10.0 m
-      SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(
-              DoubleStream.iterate(0, d -> d + 0.5)
-                          .limit((int)(10 / 0.5) + 1)
-                          .boxed()
-                          .flatMap(d -> Stream.of(
-                                  sys_launcher.launchFuel(() -> Meters.of(d)),
-                                  new WaitCommand(0.5)))
-                          .toArray(Command[]::new)
-      )); 
+//       SmartDashboard.putData("LAUNCHER RUN ALL", new SequentialCommandGroup(
+//               DoubleStream.iterate(0, d -> d + 0.5)
+//                           .limit((int)(10 / 0.5) + 1)
+//                           .boxed()
+//                           .flatMap(d -> Stream.of(
+//                                   sys_launcher.launchFuel(() -> Meters.of(d)),
+//                                   new WaitCommand(0.5)))
+//                           .toArray(Command[]::new)
+//       )); 
       
       SmartDashboard.putNumber("Hood Distance Setpoint [mm]", 0);
       SmartDashboard.putNumber("Hood Distance Setpoint 1 [mm]", 0);
@@ -276,20 +276,29 @@ public class RobotContainer {
         SmartDashboard.putNumber("Serializer Voltage", 0);
 
 
-        primaryController.a()
-            .onTrue(Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeters.of(0))));
+        // primaryController.a()
+        //     .onTrue(Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeters.of(0))));
 
-        primaryController.x()
-            .onTrue(Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeter.of(0))));
+        // primaryController.x()
+        //     .onTrue(Commands.runOnce( () -> sys_launcher.setHoodPos(Millimeter.of(0))));
+
+        primaryController.y()
+                .onTrue(sys_launcher.runRPS(
+                    () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0)))
+                );
+
+
+        primaryController.a()
+            .onTrue(sys_launcher.stopLauncher());
 
 
         primaryController.povUp()
-            .onTrue(sys_feeder.runRPS(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0)))
+            .onTrue(sys_feeder.runRPS(() -> SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0)))            
             .onTrue(sys_serializer.setVoltage(8));
 
 
         primaryController.povDown()
-            .onTrue(sys_feeder.setVoltage(0))
+            .onTrue(sys_feeder.setVoltage(0))            
             .onTrue(sys_serializer.setVoltage(0));
 
 

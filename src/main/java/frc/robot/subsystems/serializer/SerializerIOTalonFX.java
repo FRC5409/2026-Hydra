@@ -48,7 +48,8 @@ public class SerializerIOTalonFX implements SerializerIO {
         deviceVelocity = m_motor.getVelocity();
         devicePosition = m_motor.getPosition();
         deviceVoltage = m_motor.getMotorVoltage();
-        deviceCurrent = m_motor.getSupplyCurrent();
+        // deviceCurrent = m_motor.getSupplyCurrent();
+        deviceCurrent = m_motor.getStatorCurrent();
         deviceTemp = m_motor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(

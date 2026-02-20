@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
+import java.util.function.DoubleSupplier;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -44,8 +46,8 @@ public class FeederIOSim implements FeederIO {
     }
 
     @Override
-    public void runRPS(double RPS) {
-        controller.setSetpoint(RPS);
+    public void runRPS(DoubleSupplier RPS) {
+        controller.setSetpoint(RPS.getAsDouble());
         running = true;
     }
 
