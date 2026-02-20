@@ -20,13 +20,11 @@ public class Hopper extends SubsystemBase {
     private final HopperIO io;
     private final HopperInputsAutoLogged inputs;
     private static Pose3d hopperPose = new Pose3d();
-    private static Pose3d dummyPose = new Pose3d();
 
     public Hopper(HopperIO io) {
         this.io = io;
         inputs = new HopperInputsAutoLogged();
 
-        dummyPose = new Pose3d();
         hopperPose = new Pose3d();
 
         Checkmate.register("Hopper extends fully", () -> {
@@ -108,10 +106,8 @@ public class Hopper extends SubsystemBase {
         // This method will be called once per scheduler run
         io.updateInputs(inputs);
         Logger.processInputs("Hopper", inputs);
-        Logger.recordOutput("Components/dummy", dummyPose);
-        Logger.recordOutput("Components/Hopper", hopperPose);
 
-        dummyPose = new Pose3d(0, 0, 0, new Rotation3d());
         hopperPose = new Pose3d(inputs.mainMotorPosition.in(Meters), 0, 0, new Rotation3d());
+        Logger.recordOutput("Components/Hopper", hopperPose);
     }
 }
