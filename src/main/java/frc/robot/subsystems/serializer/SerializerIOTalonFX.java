@@ -27,11 +27,11 @@ public class SerializerIOTalonFX implements SerializerIO {
 
     private CurrentLimitsConfigs currentConfigs;
 
-    private StatusSignal<AngularVelocity> deviceVelocity;
-    private StatusSignal<Angle> devicePosition;
-    private StatusSignal<Voltage> deviceVoltage;
-    private StatusSignal<Current> deviceCurrent;
-    private StatusSignal<Temperature> deviceTemp;
+    private StatusSignal<AngularVelocity> indexerDeviceVelocity;
+    private StatusSignal<Angle> indexerDevicePosition;
+    private StatusSignal<Voltage> indexerDeviceVoltage;
+    private StatusSignal<Current> indexerDeviceCurrent;
+    private StatusSignal<Temperature> indexerDeviceTemp;
 
     private StatusSignal<AngularVelocity> bottomFeederDeviceVelocity;
     private StatusSignal<Angle> bottomFeederDevicePosition;
@@ -114,12 +114,12 @@ public class SerializerIOTalonFX implements SerializerIO {
 
     @Override
     public void updateInputs(SerializerInputs inputs) {
-        inputs.isMotorConnected = BaseStatusSignal.refreshAll(
-            devicePosition,
-            deviceVelocity,
-            deviceVoltage,
-            deviceCurrent,
-            deviceTemp
+        inputs.isIndexerMotorConnected = BaseStatusSignal.refreshAll(
+            indexerDevicePosition,
+            indexerDeviceVelocity,
+            indexerDeviceVoltage,
+            indexerDeviceCurrent,
+            indexerDeviceTemp
         ).isOK();
         inputs.indexerMotorPosition = indexerDevicePosition.getValue();
         inputs.indexerMotorVelocity = indexerDeviceVelocity.getValue();
