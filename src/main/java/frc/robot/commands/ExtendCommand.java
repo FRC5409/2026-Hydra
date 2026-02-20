@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Inches;
 
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import frc.robot.subsystems.hopper.Hopper;
