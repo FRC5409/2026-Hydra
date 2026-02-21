@@ -293,7 +293,7 @@ public class RobotContainer {
                 ));
 
         SmartDashboard.putNumber("Hood Angle [deg]", 0);
-        SmartDashboard.putData("Set Hood Angle", sys_launcher.setHoodAngle(
+        SmartDashboard.putData("Set Hood Angle", sys_launcher.setHoodAngle(() ->
                 Degrees.of(SmartDashboard.getNumber("Hood Angle [deg]", 0))));
 
         // score fuel in hub by using odometry

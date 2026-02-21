@@ -63,8 +63,8 @@ public class Launcher extends SubsystemBase {
                 .minus(LauncherConstants.Hood.OFFSET_MM);
     }
 
-    public Command setHoodAngle(Angle angle) {
-        return Commands.runOnce(() -> io.setHoodExtension(computeHoodExtension(angle)));
+    public Command setHoodAngle(Supplier<Angle> angle) {
+        return Commands.runOnce(() -> io.setHoodExtension(computeHoodExtension(angle.get())));
     }
 
     // Getters

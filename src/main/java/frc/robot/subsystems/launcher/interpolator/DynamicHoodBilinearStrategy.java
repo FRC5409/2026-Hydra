@@ -55,7 +55,7 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
         var params = super.interpolate(displacement);
 
         // update hood before returning interpolation
-        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(computeHoodAdjustment(
+        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> computeHoodAdjustment(
                 params.speed(), this.launcher.getVelocity(), this.launcher.getHoodAngle())));
 
         return params;
