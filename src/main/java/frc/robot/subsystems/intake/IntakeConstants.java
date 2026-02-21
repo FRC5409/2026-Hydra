@@ -17,7 +17,7 @@ public final class IntakeConstants {
 		public static final Distance EXTENSION_DISTANCE = Meters.of(0.222); //Needs confirmation from Design for exact extension distance
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146); //Needs confirmation from Design for exact extension distance
 
-		public static final PIDController PID = new PIDController(0.01, 0.005, 0.002);
+		public static final PIDController PID = new PIDController(0.01, 0.0, 0.0);
 		public static final PIDConstants TALONFX_PID = new PIDConstants(1.0, 0.0, 0.0);
 		public static final PIDConstants SIM_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
 		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
