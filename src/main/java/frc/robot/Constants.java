@@ -122,22 +122,22 @@ public final class Constants {
     /*
      * Passing positon if looking from alliance driver station
      */
-    public static enum PassingPositions {
+    public enum PassingPositions {
         RIGHT(new Pose2d(new Translation2d(Meters.of(2.5), Meters.of(1.26)), Rotation2d.kZero)),
         MIDDLE(new Pose2d(new Translation2d(Meters.of(2.1), Meters.of(3.95)), Rotation2d.kZero)),
         LEFT(new Pose2d(new Translation2d(Meters.of(2.5), Meters.of(6.8)), Rotation2d.kZero));
 
         Pose2d pose;
 
-        private PassingPositions(Pose2d pose) {
+        PassingPositions(Pose2d pose) {
             this.pose = pose;
         }
     }
 
     /*
-     * Climibing position if looking from alliance driver station
+     * Climbing position if looking from alliance driver station
      */
-    public static enum ClimbingPositions {
+    public enum ClimbingPositions {
         // RIGHT   (new Pose2d(new Translation2d(Meters.of(1.15), Meters.of(2.66)), Rotation2d.kZero)),
         // LEFT    (new Pose2d(new Translation2d(Meters.of(1.15), Meters.of(4.84)), Rotation2d.k180deg)),
         RIGHT(new Pose2d(
@@ -169,13 +169,16 @@ public final class Constants {
 
         Pose2d pose;
 
-        private ClimbingPositions(Pose2d pose) {
+        ClimbingPositions(Pose2d pose) {
             this.pose = pose;
         }
     }
 
     public static final class kBump {
         // Percentage of max speed
-        public static final double BUMP_SPEED_MODIFIER = 0.4;
+        public static final double         BUMP_SPEED_MODIFIER  = 0.4;
+        // TODO: GET A REAL NUMBER NOT A GUESS
+        public static final LinearVelocity BUMP_TRAVERSAL_SPEED = FeetPerSecond.of(5.5);
+        public static final Time           SETTLING_TIME        = Seconds.of(1);
     }
 }
