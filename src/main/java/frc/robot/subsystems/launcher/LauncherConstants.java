@@ -17,9 +17,9 @@ import static edu.wpi.first.units.Units.*;
 public class LauncherConstants {
     public static class Launcher {
         public static final int LAUNCHER_SENSOR_ID = 1;
-        public static final int LAUNCHER_CAN_ID    = 11;
+        public static final int LAUNCHER_CAN_ID    = 24;
 
-        public static final int FOLLOWER_LAUNCHER_CAN_ID    = 12;
+        public static final int FOLLOWER_LAUNCHER_CAN_ID    = 25;
         public static final int FOLLOWER_LAUNCHER_SENSOR_ID = 0;
 
         public static final double kG = 0.0;
