@@ -12,6 +12,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -164,7 +165,8 @@ public class LauncherIOTalonFX implements LauncherIO {
      * Run this method in any periodic function to update the position estimation of your servo
      */
     private void updateServos() {
-        double epsilon = 30 * Timer.getFPGATimestamp();
+//        double epsilon = 30 * Timer.getFPGATimestamp();
+        double epsilon = 30;
         // SERVO 1
         if (servo1Pos > servo1Setpoint + epsilon) servo1Pos -= epsilon;
         else if (servo1Pos < servo1Setpoint - epsilon) servo1Pos += epsilon;
@@ -189,7 +191,10 @@ public class LauncherIOTalonFX implements LauncherIO {
     @Override
     public void updateInputs(LauncherInputs inputs) {
         // doesn't log anything but is required for servos to work
-        updateServos();
+        if (DriverStation.isEnabled()) {
+            // only update servos in enabled
+            updateServos();
+        }
 
         // Launcher
         inputs.isLauncherConnected = BaseStatusSignal.refreshAll(
