@@ -5,7 +5,6 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -63,33 +62,8 @@ public interface LauncherIO {
     default void stopLauncher() {}
 
     // Hood
-    default void hoodSetVoltage(double volts) {}
 
-    default void setHoodAngle(Angle pos) {}
-
-    default void setHoodPos(Distance setpoint) {}
-
-    default void setHoodSpeed(double setpoint) {}
-
-    default void setHoodPWM(int pwm){}
-
-    default void setHoodPosition(double setpoint){}
-
-    default void setHood1Position(double setpoint){}
-    default void setHood2Position(double setpoint){}
-    
-    default void updateCurPos1() {}
-    default void updateCurPos2() {}
-
-    default double getPosition1() {return 0.0;}
-    default double getPosition2() {return 0.0;}
-    
-    default boolean isFinished1() {return false;}
-    default boolean isFinished2() {return false;}
-
-    // default Angle getHoodPos() {
-    //     return Degrees.of(0);
-    // }
+    default void updateHood(double setpoint){}
 
     default Distance getHoodPos(){return Millimeters.of(0.0);}
     default Angle getHoodAngle(){return Degrees.of(0.0);}

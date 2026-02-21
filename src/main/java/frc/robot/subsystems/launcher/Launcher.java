@@ -1,8 +1,5 @@
 package frc.robot.subsystems.launcher;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -18,19 +15,13 @@ import java.util.function.Supplier;
 import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase {
-    private final LauncherIO               io;
-    private final LauncherInputsAutoLogged inputs;
-
-    private AtomicReference<Distance> servo1Setpoint = new AtomicReference<Distance>(Millimeters.of(0.0));
-    private AtomicReference<Distance> servo2Setpoint = new AtomicReference<Distance>(Millimeters.of(0.0));
-
-    private static Pose3d launcherMech;
+    private final LauncherIO                io;
+    private final LauncherInputsAutoLogged  inputs;
+    private final AtomicReference<Distance> hoodSetpoint = new AtomicReference<>(Millimeters.of(0.0));
 
     public Launcher(LauncherIO io) {
         this.io = io;
         inputs = new LauncherInputsAutoLogged();
-
-        launcherMech = new Pose3d();
 
         // create the logged fields
         logInterpolation(Meters.of(0), null);
@@ -92,9 +83,8 @@ public class Launcher extends SubsystemBase {
     //     return Commands.runOnce(() -> servoSetpoint.set(setpoint));
     // }
 
-    public void setHoodPos(Distance setpoint){
-        servo1Setpoint.set(setpoint);
-        servo2Setpoint.set(setpoint);
+    public void setHoodPos(Distance setpoint) {
+        hoodSetpoint.set(setpoint);
     }
 
     // Getters
@@ -119,16 +109,8 @@ public class Launcher extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Launcher", inputs);
-        Logger.recordOutput("Launcher Mech", launcherMech);
-
         SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
 
-        launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
-
-        io.updateCurPos1();
-        io.updateCurPos2();
-
-        io.setHood1Position(servo1Setpoint.get().in(Millimeters));
-        io.setHood2Position(servo2Setpoint.get().in(Millimeters));
+        io.updateHood(hoodSetpoint.get().in(Millimeters));
     }
 }

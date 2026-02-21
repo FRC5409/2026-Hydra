@@ -266,7 +266,7 @@ public class LauncherIOTalonFX implements LauncherIO {
     //     return Millimeters.of(hoodServo.getPosition() * LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
     // }
     @Override
-    public void setHood1Position(double targetSetpoint) {
+    public void updateHood(double targetSetpoint) {
         double t = Timer.getFPGATimestamp();
         if (curPos1 > setPos1 + 30 * t) {
             curPos1 -= 30 * t;
