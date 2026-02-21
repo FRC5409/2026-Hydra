@@ -3,6 +3,7 @@ package frc.robot.subsystems.launcher;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -20,6 +21,7 @@ import static edu.wpi.first.units.Units.*;
 public class Launcher extends SubsystemBase {
     private final LauncherIO                io;
     private final LauncherInputsAutoLogged  inputs;
+    private final AtomicReference<Distance> hoodSetpoint = new AtomicReference<>(Millimeters.of(0.0));
 
     private LaunchStrategy strategy;
 
@@ -63,19 +65,19 @@ public class Launcher extends SubsystemBase {
         theta = Math.max(LauncherConstants.Hood.MIN_ANGLE_DEG, Math.min(LauncherConstants.Hood.MAX_ANGLE_DEG, theta));
 
         return (Distance)Degrees.of(theta)
-                .timesConversionFactor(LauncherConstants.Hood.MM_PER_DEG)
-                .minus(LauncherConstants.Hood.OFFSET_MM);
+                                .timesConversionFactor(LauncherConstants.Hood.MM_PER_DEG)
+                                .minus(LauncherConstants.Hood.OFFSET_MM);
     }
 
     public Command setHoodAngle(Supplier<Angle> angle) {
-        return Commands.runOnce(() -> io.setHoodExtension(computeHoodExtension(angle.get())));
+        return Commands.runOnce(() -> hoodSetpoint.set(computeHoodExtension(angle.get())));
     }
 
     // Getters
     public Angle getHoodAngle() {
         return (Angle)io.getHoodExtension()
-                .plus(LauncherConstants.Hood.OFFSET_MM)
-                .divideRatio(LauncherConstants.Hood.MM_PER_DEG);
+                        .plus(LauncherConstants.Hood.OFFSET_MM)
+                        .divideRatio(LauncherConstants.Hood.MM_PER_DEG);
     }
 
     public AngularVelocity getVelocity() {
@@ -103,6 +105,10 @@ public class Launcher extends SubsystemBase {
 
     @Override
     public void periodic() {
+        // update hood
+        if (DriverStation.isEnabled()) io.setHoodExtension(hoodSetpoint.get());
+
+        // update inputs
         io.updateInputs(inputs);
         Logger.processInputs("Launcher", inputs);
         SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
