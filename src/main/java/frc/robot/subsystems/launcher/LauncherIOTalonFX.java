@@ -267,19 +267,19 @@ public class LauncherIOTalonFX implements LauncherIO {
     // }
     @Override
     public void setHood1Position(double targetSetpoint) {
-        double dt = Timer.getFPGATimestamp() - lastTime;
-        if (curPos1 > setPos1 + 30 * dt) {
-            curPos1 -= 30 * dt;
-        } else if (curPos1 < setPos1 - 30 * dt) {
-            curPos1 += 30 * dt;
+        double t = Timer.getFPGATimestamp();
+        if (curPos1 > setPos1 + 30 * t) {
+            curPos1 -= 30 * t;
+        } else if (curPos1 < setPos1 - 30 * t) {
+            curPos1 += 30 * t;
         } else {
             curPos1 = setPos1;
         }
 
-        if (curPos2 > setPos2 + 30 * dt) {
-            curPos2 -= 30 * dt;
-        } else if (curPos2 < setPos2 - 30 * dt) {
-            curPos2 += 30 * dt;
+        if (curPos2 > setPos2 + 30 * t) {
+            curPos2 -= 30 * t;
+        } else if (curPos2 < setPos2 - 30 * t) {
+            curPos2 += 30 * t;
         } else {
             curPos2 = setPos2;
         }
@@ -296,8 +296,6 @@ public class LauncherIOTalonFX implements LauncherIO {
         appliedSetpoint = (setpoint2 / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
         hoodServo2.setSpeed(appliedSetpoint);
     }
-
-    double lastTime = 0;
 
     // Stops
     @Override
