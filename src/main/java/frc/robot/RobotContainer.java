@@ -254,7 +254,7 @@ public class RobotContainer {
         SmartDashboard.putNumber("Hood Angle [deg]", 0);
         SmartDashboard.putData("Set Hood Angle", Commands.runOnce(() -> sys_launcher.setHoodPos(
                 // linear regression (deg to mm)
-                Millimeters.of(0.298462*SmartDashboard.getNumber("Hood Angle [deg]", 0)+15.23077))));
+                Millimeters.of(0.296*SmartDashboard.getNumber("Hood Angle [deg]", 0)+15.2))));
 
         SmartDashboard.putNumber("Feeder Voltage", 0);
         SmartDashboard.putNumber("Serializer Voltage", 0);
