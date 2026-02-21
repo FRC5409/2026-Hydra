@@ -1,7 +1,5 @@
 package frc.robot.subsystems.launcher;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -23,15 +21,11 @@ public class Launcher extends SubsystemBase {
     private final LauncherIO               io;
     private final LauncherInputsAutoLogged inputs;
 
-    private static Pose3d launcherMech;
-
     private LaunchStrategy strategy;
 
     public Launcher(LauncherIO io) {
         this.io = io;
         inputs = new LauncherInputsAutoLogged();
-
-        launcherMech = new Pose3d();
 
         // create the logged fields
         logInterpolation(Meters.of(0), null);
@@ -101,10 +95,6 @@ public class Launcher extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Launcher", inputs);
-        Logger.recordOutput("Launcher Mech", launcherMech);
-
         SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
-
-        launcherMech = new Pose3d(7, 3, 0, new Rotation3d());
     }
 }
