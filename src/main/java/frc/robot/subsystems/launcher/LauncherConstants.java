@@ -4,7 +4,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.AngleUnit;
 import edu.wpi.first.units.DistanceUnit;
 import edu.wpi.first.units.VoltageUnit;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Per;
@@ -43,8 +42,9 @@ public class LauncherConstants {
         public static final int HOOD_PWM_CHANNEL_1 = 4;
         public static final int HOOD_PWM_CHANNEL_2 = 5;
 
-        public static final Angle MIN_ANGLE = Degrees.of(0);
-        public static final Angle MAX_ANGLE = Degrees.of(30);
+        // stored as raw number (degrees) to save computation frames
+        public static final double MIN_ANGLE_DEG = 15.18919;
+        public static final double MAX_ANGLE_DEG = MIN_ANGLE_DEG + 30;
 
         public static final Distance       MIN_EXTENSION = Millimeters.of(0.0);
         // TODO: GET REAL VALUE

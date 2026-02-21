@@ -58,7 +58,11 @@ public class Launcher extends SubsystemBase {
     }
 
     private Distance computeHoodExtension(Angle angle) {
-        return (Distance)angle
+        // clamp between min and max
+        double theta = angle.in(Degrees);
+        theta = Math.max(LauncherConstants.Hood.MIN_ANGLE_DEG, Math.min(LauncherConstants.Hood.MAX_ANGLE_DEG, theta));
+
+        return (Distance)Degrees.of(theta)
                 .timesConversionFactor(LauncherConstants.Hood.MM_PER_DEG)
                 .minus(LauncherConstants.Hood.OFFSET_MM);
     }
