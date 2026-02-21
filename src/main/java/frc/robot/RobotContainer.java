@@ -30,6 +30,10 @@ import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.util.AutoPath;
@@ -54,7 +58,8 @@ import static edu.wpi.first.units.Units.Meters;
 public class RobotContainer {
     // Subsystems
     protected final Drive  sys_drive;
-    protected final Vision sys_vision;
+    protected final Vision   sys_vision;
+    private final   Elevator sys_elevator;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -91,7 +96,6 @@ public class RobotContainer {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
 //                sys_vision = new Vision(new VisionIOLimelight());
-
                 sys_drive = new Drive(
                         new GyroIOPigeon2(),
                         new ModuleIOTalonFX(TunerConstants.FrontLeft),
@@ -99,6 +103,7 @@ public class RobotContainer {
                         new ModuleIOTalonFX(TunerConstants.BackLeft),
                         new ModuleIOTalonFX(TunerConstants.BackRight),
                         sys_vision);
+                sys_elevator = new Elevator(new ElevatorIOTalonFX(Constants.DeviceID.CLIMBER_MOTOR));
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -122,7 +127,6 @@ public class RobotContainer {
                 SimulatedArena.getInstance().resetFieldForAuto();
 
 //                sys_vision = new Vision(new VisionIOSim(simConfig));
-
                 sys_drive = new Drive(
                         new GyroIOSim(simConfig.getGyroSimulation()),
                         new ModuleIOSim(simConfig.getModules()[0]),
@@ -130,6 +134,7 @@ public class RobotContainer {
                         new ModuleIOSim(simConfig.getModules()[2]),
                         new ModuleIOSim(simConfig.getModules()[3]),
                         sys_vision);
+                sys_elevator = new Elevator(new ElevatorIOSim());
             }
             // Replayed robot, disable IO implementations
             default -> {
@@ -141,6 +146,7 @@ public class RobotContainer {
                         new ModuleIO() {},
                         new ModuleIO() {},
                         sys_vision);
+                sys_elevator = new Elevator(new ElevatorIO() {});
             }
         }
 
