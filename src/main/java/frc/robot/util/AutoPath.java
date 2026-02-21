@@ -3,6 +3,8 @@ package frc.robot.util;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.FlippingUtil;
@@ -32,6 +34,7 @@ public class AutoPath extends SequentialCommandGroup {
                 Arrays.stream(commands)
             ).toArray(Command[]::new)
         );        
+        Logger.recordOutput("autoName", this.getName());
         this.autoName = autoName;
         if (AutoBuilder.shouldFlip())
             this.startingPose = FlippingUtil.flipFieldPose(startingPose);

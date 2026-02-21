@@ -9,21 +9,12 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.util.RebuiltTimer;
-import frc.robot.util.FieldConstants.LinesHorizontal;
-import frc.robot.util.FieldConstants.LinesVertical;
-import frc.robot.util.RebuiltTimer.AutoWinner;
-
-import static edu.wpi.first.units.Units.Seconds;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;

@@ -7,7 +7,7 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -46,11 +46,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 
-
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-
-
-import static edu.wpi.first.units.Units.Meters;
 
 import java.util.ArrayList;
 
@@ -327,7 +323,6 @@ public class RobotContainer {
                                         500
                                 )        
                         );
-        
 
         secondaryController.x()
                         .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));

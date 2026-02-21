@@ -38,15 +38,7 @@ import frc.robot.util.AlignHelper;
 import frc.robot.util.FieldConstants.LinesVertical;
 import frc.robot.util.ProfiledController;
 
-import static edu.wpi.first.units.Units.Centimeters;
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.DegreesPerSecond;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecondPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -67,7 +59,7 @@ import com.pathplanner.lib.util.FlippingUtil;
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
   private static final double TRIGGER_DEADBAND = 0.01;
-  private static final double ANGLE_KP = 5.0;
+  private static final double ANGLE_KP = 7.0;
   private static final double ANGLE_KD = 0.4;
   private static final double ANGLE_MAX_VELOCITY = 8.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
@@ -131,27 +123,20 @@ public class DriveCommands {
     return isAligned;
   }
 
-  public static ChassisSpeeds rotateForNewFront(double vx, double vy, double omega) {
-    double cosA = Math.cos(90);
-    double sinA = Math.sin(90);
-    double rotatedVx = vx * cosA - vy * sinA;
-    double rotatedVy = vx * sinA + vy * cosA;
+  // public static ChassisSpeeds rotateForNewFront(double vx, double vy, double omega) {
+  //   return rotateForNewFront(MetersPerSecond.of(vx), MetersPerSecond.of(vy), RadiansPerSecond.of(omega));
+  // }
 
-    rotatedVx = vx;
-    rotatedVy = vy;
-    return new ChassisSpeeds(rotatedVx, rotatedVy, omega);
-  }
+  // public static ChassisSpeeds rotateForNewFront(LinearVelocity vx, LinearVelocity vy, AngularVelocity omega) {
+  //   double cosA = Math.cos(90);
+  //   double sinA = Math.sin(90);
+  //   LinearVelocity rotatedVx = vx.times(cosA).minus(vy.times(sinA));
+  //   LinearVelocity rotatedVy = vx.times(sinA).plus(vy.times(cosA));
 
-  public static ChassisSpeeds rotateForNewFront(LinearVelocity vx, LinearVelocity vy, AngularVelocity omega) {
-    double cosA = Math.cos(90);
-    double sinA = Math.sin(90);
-    LinearVelocity rotatedVx = vx.times(cosA).minus(vy.times(sinA));
-    LinearVelocity rotatedVy = vx.times(sinA).plus(vy.times(cosA));
-
-    rotatedVx = vx;
-    rotatedVy = vy;
-    return new ChassisSpeeds(rotatedVx, rotatedVy, omega);
-  }
+  //   // rotatedVx = vx;
+  //   // rotatedVy = vy;
+  //   return new ChassisSpeeds(rotatedVx, rotatedVy, omega);
+  // }
 
   
 
@@ -180,7 +165,7 @@ public class DriveCommands {
             omega += Math.copySign(0.05, omega);
 
           // Convert to field relative speeds & send command
-          ChassisSpeeds speeds = rotateForNewFront(
+          ChassisSpeeds speeds = new ChassisSpeeds(
                   linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                   linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                   omega * drive.getMaxAngularSpeedRadPerSec() * speedModifier.get());
@@ -238,7 +223,7 @@ public class DriveCommands {
 
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
-                  rotateForNewFront(
+                  new ChassisSpeeds(
                       linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                       linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
                       omega);
@@ -566,7 +551,7 @@ public class DriveCommands {
       Commands.runOnce(() -> DID_GET_OFF_GROUND.set(false)),
       Commands.run(() -> {
         drive.runVelocity(
-          rotateForNewFront(
+          new ChassisSpeeds(
             speed, 
             MetersPerSecond.of(0.0), 
             RadiansPerSecond.of(0.0)
@@ -615,16 +600,30 @@ public class DriveCommands {
   public static LinearVelocity getBumpSpeed(Drive drive) {
     try {
       if (DriverStation.getAlliance().get() == Alliance.Blue){
-        if (drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.allianceZone)))
+        if (drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.allianceZone))){
+          Logger.recordOutput("Drive/bumpSpeed", kBump.BUMP_TRAVERSAL_SPEED.times(-1));
           return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
-        else
+        } else{
+          Logger.recordOutput("Drive/bumpSpeed", kBump.BUMP_TRAVERSAL_SPEED);
           return kBump.BUMP_TRAVERSAL_SPEED;
+        }
       } else if (DriverStation.getAlliance().get() == Alliance.Red){
-        if (drive.getPose().getMeasureX().lte(Meters.of(LinesVertical.oppAllianceZone)))
+        Logger.recordOutput("Drive/red-alliancezone", Meters.of(LinesVertical.oppAllianceZone));
+        
+        if (drive.getPose().getMeasureX().gte(Meters.of(LinesVertical.oppAllianceZone))){
+
+          Logger.recordOutput("Drive/bumpSpeed", kBump.BUMP_TRAVERSAL_SPEED.times(-1));
           return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
-        else   
-          return kBump.BUMP_TRAVERSAL_SPEED;
+
+        } else {
+
+          Logger.recordOutput("Drive/bumpSpeedRedlteoppalliancezone", kBump.BUMP_TRAVERSAL_SPEED.times(-1));
+          return kBump.BUMP_TRAVERSAL_SPEED.times(-1);
+
+        }
+
       } else {
+          Logger.recordOutput("Drive/bumpSpeed", kBump.BUMP_TRAVERSAL_SPEED);
           return kBump.BUMP_TRAVERSAL_SPEED;
       }
     } catch (NoSuchElementException e){
@@ -714,7 +713,7 @@ public class DriveCommands {
             Commands.run(
                 () -> {
                   double speed = limiter.calculate(WHEEL_RADIUS_MAX_VELOCITY);
-                  drive.runVelocity(rotateForNewFront(0.0, 0.0, speed));
+                  drive.runVelocity(new ChassisSpeeds(0.0, 0.0, speed));
                 },
                 drive)),
 

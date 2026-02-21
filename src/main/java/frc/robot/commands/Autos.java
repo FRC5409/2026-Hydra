@@ -1,11 +1,6 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
-import static edu.wpi.first.units.Units.Milliseconds;
-import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.*;
 
 import java.util.ArrayList;
 
@@ -33,7 +28,7 @@ public class Autos {
                 // Starting Pose: 
                 new Pose2d(3.470,5.090, Rotation2d.k180deg),
                 // Alliance -> neutral zone 
-                DriveCommands.crossBump(drive, vision, () -> Rotation2d.k180deg, DriveCommands.getBumpSpeed(drive), kBump.SETTLING_TIME.in(Milliseconds)),
+                DriveCommands.crossBump(drive, vision, () -> Rotation2d.k180deg, kBump.BUMP_TRAVERSAL_SPEED.times(-1), kBump.SETTLING_TIME.in(Milliseconds)).withName("bump 1"),
                 // confirm position
                 // DriveCommands.alignToHeading(
                 //     drive,
@@ -44,22 +39,22 @@ public class Autos {
                     () -> new Pose2d(6.200,5.090, new Rotation2d(Degrees.of(-146.651))), 
                     () -> MetersPerSecond.of(2.0), 
                     () -> MetersPerSecondPerSecond.of(8.0)
-                ),
+                ).withName("align pose"),
                 // Follow path from center of neutral zone to left of field
                 AutoPath.followPath("Left-Bump-IntakeEnd"),
                 // Align back to bump known position
                 DriveCommands.alignToPoint(
                     drive, 
-                    () -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, new Rotation2d(Degrees.of(-50.711))), 
+                    () -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.kZero), 
                     () -> MetersPerSecond.of(2.0), 
                     () -> MetersPerSecondPerSecond.of(8.0)
-                ),
+                ).withName("Align to point"),
                 // cross bump back into alliance zone
-                DriveCommands.crossBump(drive, vision, () -> new Rotation2d(Degrees.of(-50.711)), DriveCommands.getBumpSpeed(drive), kBump.SETTLING_TIME.in(Milliseconds)),
+                DriveCommands.crossBump(drive, vision, () -> drive.getRotation(), kBump.BUMP_TRAVERSAL_SPEED.times(-1), kBump.SETTLING_TIME.in(Milliseconds)),
                 // Commands.runOnce(() ->Logger.recordOutput("Path/running: ", "wait") ),
 
                 // Score
-                Commands.waitTime(Seconds.of(7)),
+                Commands.waitTime(Seconds.of(7)).withName("wait-score"),
                 // Align to climber prep
                 // Commands.runOnce(() ->Logger.recordOutput("Path/running: ", "prep") ),
                 DriveCommands.alignToPoint(
@@ -96,7 +91,7 @@ public class Autos {
                 // Starting Pose: 
                 new Pose2d(3.470,3.071, Rotation2d.k180deg) ,
                 // Alliance -> neutral zone 
-                DriveCommands.crossBump(drive, vision, () -> Rotation2d.k180deg, DriveCommands.getBumpSpeed(drive), kBump.SETTLING_TIME.in(Milliseconds)),
+                DriveCommands.crossBump(drive, vision, () -> Rotation2d.k180deg, kBump.BUMP_TRAVERSAL_SPEED.times(-1), kBump.SETTLING_TIME.in(Milliseconds)),
                 // confirm position (needed to align heading once?)
                 // DriveCommands.alignToHeading(
                 //     drive,
@@ -149,6 +144,20 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
                 )
+            )
+        );
+
+        autoPaths.add(
+            new AutoPath(
+                "Test-Path",
+                new Pose2d(2,7,Rotation2d.k180deg),
+                DriveCommands.alignToPoint(
+                    drive, 
+                    () -> new Pose2d(2,7,Rotation2d.kZero), 
+                    () -> MetersPerSecond.of(1), 
+                    () -> MetersPerSecondPerSecond.of(2)
+                ),
+                AutoPath.followPath("DriveForward-Right")
             )
         );
 

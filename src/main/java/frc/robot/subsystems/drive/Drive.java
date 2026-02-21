@@ -43,7 +43,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
@@ -176,7 +175,7 @@ public class Drive extends SubsystemBase {
         }
         ODOMETRY_LOCK.unlock();
         
-        field2d.setRobotPose(getPose());
+        // field2d.setRobotPose(getPose());
 
         // Stop moving when disabled
         if (DriverStation.isDisabled()) {
@@ -340,7 +339,7 @@ public class Drive extends SubsystemBase {
         ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());
         Rotation2d robotRotation = getRotation();
 
-        return DriveCommands.rotateForNewFront(
+        return new ChassisSpeeds(
                 speeds.vxMetersPerSecond * robotRotation.getCos() - speeds.vyMetersPerSecond * robotRotation.getSin(),
                 speeds.vxMetersPerSecond * robotRotation.getSin() + speeds.vyMetersPerSecond * robotRotation.getCos(),
                 speeds.omegaRadiansPerSecond
@@ -351,7 +350,7 @@ public class Drive extends SubsystemBase {
         ChassisSpeeds speeds = kinematics.toChassisSpeeds(getModuleStates());
         Rotation2d robotRotation = getRotation();
 
-        return DriveCommands.rotateForNewFront(
+        return new ChassisSpeeds(
                 speeds.vxMetersPerSecond * robotRotation.getCos() - speeds.vyMetersPerSecond * robotRotation.getSin(),
                 speeds.vxMetersPerSecond * robotRotation.getSin() + speeds.vyMetersPerSecond * robotRotation.getCos(),
                 omegaRadiansPerSecond
