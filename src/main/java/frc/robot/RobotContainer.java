@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -90,10 +89,11 @@ public class RobotContainer {
                     // LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
                     LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
                     // LauncherConstants.Hood.HOOD_CAN_ID,
+                    0, // ultrasonic channel, irrelevant to this prototype
                     LauncherConstants.Hood.HOOD_PWM_CHANNEL_1,
                     LauncherConstants.Hood.HOOD_PWM_CHANNEL_2
-                //     LauncherConstants.Hood.HOOD_SENSOR_ID
                 //     LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
+                //     LauncherConstants.Hood.HOOD_SENSOR_ID
                 //     LauncherConstants.Ultrasonic.DIGITAL_INPUT
                 ));
 
@@ -231,7 +231,7 @@ public class RobotContainer {
 
         // launch fuel w speed
         SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
-        SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runRPS(
+        SmartDashboard.putData("LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
               () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
@@ -247,21 +247,16 @@ public class RobotContainer {
                            .toArray(Command[]::new)
         ));
 
-        SmartDashboard.putNumber("Hood Extension [mm]", 0);
-        SmartDashboard.putData("Set Hood Extension", Commands.runOnce(() -> sys_launcher.setHoodPos(
-                Millimeters.of(SmartDashboard.getNumber("Hood Extension [mm]", 0)))));
-
         SmartDashboard.putNumber("Hood Angle [deg]", 0);
-        SmartDashboard.putData("Set Hood Angle", Commands.runOnce(() -> sys_launcher.setHoodPos(
-                // linear regression (deg to mm)
-                Millimeters.of(0.296*SmartDashboard.getNumber("Hood Angle [deg]", 0)+15.2))));
+        SmartDashboard.putData("Set Hood Angle", sys_launcher.setHoodAngle(() ->
+                Degrees.of(SmartDashboard.getNumber("Hood Angle [deg]", 0))));
 
         SmartDashboard.putNumber("Feeder Voltage", 0);
         SmartDashboard.putNumber("Serializer Voltage", 0);
 
 
         primaryController.y()
-                .onTrue(sys_launcher.runRPS(
+                .onTrue(sys_launcher.runVelocity(
                     () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0)))
                 );
 
