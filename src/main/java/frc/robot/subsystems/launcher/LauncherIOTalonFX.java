@@ -274,24 +274,13 @@ public class LauncherIOTalonFX implements LauncherIO {
         setPos1 = appliedSetpoint;
         appliedSetpoint = (setpoint/LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) *2)-1;
         hoodServo.setSpeed(appliedSetpoint);
-    }
 
-    @Override
-    public void setHood2Position(double setpoint){
         setpoint += 24;
-        double appliedSetpoint = MathUtil.clamp(setpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        appliedSetpoint = MathUtil.clamp(setpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
         setPos2 = appliedSetpoint;
         appliedSetpoint = (setpoint/LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) *2)-1;
         hoodServo2.setSpeed(appliedSetpoint);
-    }
 
-    double lastTime = 0;
-    /**
-     * Run this method in any periodic function to update the position estimation of your
-    servo
-    */
-    @Override
-    public void updateCurPos1(){
         double dt = Timer.getFPGATimestamp() - lastTime;
         if (curPos1 > setPos1 + 30*dt){
             curPos1 -= 30 *dt;
@@ -310,6 +299,8 @@ public class LauncherIOTalonFX implements LauncherIO {
             curPos2 = setPos2;
         }
     }
+
+    double lastTime = 0;
 
     // Stops
     @Override
