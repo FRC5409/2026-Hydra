@@ -1,11 +1,7 @@
 package frc.robot.subsystems.launcher;
 
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.units.measure.Current;
-import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.units.measure.*;
 import org.littletonrobotics.junction.AutoLog;
 
 import java.util.function.Supplier;
@@ -34,22 +30,22 @@ public interface LauncherIO {
                 launcherSpeedRadians.baseUnitMagnitude());
 
         // Hood
-        public boolean         isHoodConnected          = false;
-        public double          temperatureHood          = 0.0;
-        public Voltage         hoodVoltage              = Volts.of(0.0);
-        public Current         hoodCurrent              = Current.ofBaseUnits(0.0, Amps);
-        
-        public double           hood1Position           = 0.0;
-        public double           hood1TargetAngle              = 0.0;        
-        public double           targetHood1PositionMM   = 0.0;
-        public double           hood1Speed              = 0.0;
-        public double           hood1PWM                = 0.0;
+        public boolean isHoodConnected = false;
+        public double  temperatureHood = 0.0;
+        public Voltage hoodVoltage     = Volts.of(0.0);
+        public Current hoodCurrent     = Current.ofBaseUnits(0.0, Amps);
 
-        public double           hood2Position           = 0.0;
-        public double           hood2TargetAngle              = 0.0;        
-        public double           targetHood2PositionMM   = 0.0;
-        public double           hood2Speed              = 0.0;
-        public double           hood2PWM                = 0.0;
+        public double hood1Position         = 0.0;
+        public double hood1TargetAngle      = 0.0;
+        public double targetHood1PositionMM = 0.0;
+        public double hood1Speed            = 0.0;
+        public double hood1PWM              = 0.0;
+
+        public double hood2Position         = 0.0;
+        public double hood2TargetAngle      = 0.0;
+        public double targetHood2PositionMM = 0.0;
+        public double hood2Speed            = 0.0;
+        public double hood2PWM              = 0.0;
 
         public double velocitySetpoint = 0.0;
     }
@@ -62,12 +58,15 @@ public interface LauncherIO {
     default void stopLauncher() {}
 
     // Hood
+    default void updateHood(double setpoint) {}
 
-    default void updateHood(double setpoint){}
+    default Distance getHoodPos() {
+        return Millimeters.of(0.0);
+    }
 
-    default Distance getHoodPos(){return Millimeters.of(0.0);}
-    default Angle getHoodAngle(){return Degrees.of(0.0);}
-
+    default Angle getHoodAngle() {
+        return Degrees.of(0.0);
+    }
 
     default void stopHood() {}
 

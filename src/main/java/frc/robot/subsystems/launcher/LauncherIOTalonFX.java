@@ -268,22 +268,17 @@ public class LauncherIOTalonFX implements LauncherIO {
     @Override
     public void updateHood(double targetSetpoint) {
         double t = Timer.getFPGATimestamp();
-        if (curPos1 > setPos1 + 30 * t) {
-            curPos1 -= 30 * t;
-        } else if (curPos1 < setPos1 - 30 * t) {
-            curPos1 += 30 * t;
-        } else {
-            curPos1 = setPos1;
-        }
 
-        if (curPos2 > setPos2 + 30 * t) {
-            curPos2 -= 30 * t;
-        } else if (curPos2 < setPos2 - 30 * t) {
-            curPos2 += 30 * t;
-        } else {
-            curPos2 = setPos2;
-        }
+        // update servo continuous positions
+        if (curPos1 > setPos1 + 30 * t) curPos1 -= 30 * t;
+        else if (curPos1 < setPos1 - 30 * t) curPos1 += 30 * t;
+        else curPos1 = setPos1;
 
+        if (curPos2 > setPos2 + 30 * t) curPos2 -= 30 * t;
+        else if (curPos2 < setPos2 - 30 * t) curPos2 += 30 * t;
+        else curPos2 = setPos2;
+
+        // update applied setpoints for servos
         double setpoint1 = targetSetpoint + 20;
         double appliedSetpoint = MathUtil.clamp(setpoint1, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
         setPos1 = appliedSetpoint;
