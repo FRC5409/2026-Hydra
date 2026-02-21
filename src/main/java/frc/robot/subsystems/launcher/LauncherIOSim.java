@@ -103,12 +103,6 @@ public class LauncherIOSim implements LauncherIO {
     }
 
     @Override
-    public void setHoodAngle(Angle angle) {
-        targetHoodAngle = angle;
-        controllerHood.setSetpoint(angle.in(Radians));
-    }
-
-    @Override
     public void stopHood() {
         hoodSim.setInput(0);
         controllerHood.reset();
