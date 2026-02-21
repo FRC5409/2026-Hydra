@@ -33,10 +33,7 @@ import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.launcher.LauncherConstants;
-import frc.robot.subsystems.launcher.LauncherIO;
-import frc.robot.subsystems.launcher.LauncherIOTalonFX;
+import frc.robot.subsystems.launcher.*;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
@@ -165,9 +162,7 @@ public class RobotContainer {
                         sys_vision
                 );
 
-                // TODO: sigh
-//                sys_launcher = new Launcher(new LauncherIOSim(), LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
-                sys_launcher = new Launcher(new LauncherIO() {});
+                sys_launcher = new Launcher(new LauncherIOSim());
             }
             // Replayed robot, disable IO implementations
             default -> {
