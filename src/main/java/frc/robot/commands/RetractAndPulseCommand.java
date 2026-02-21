@@ -25,10 +25,15 @@ public class RetractAndPulseCommand extends SequentialCommandGroup {
   public RetractAndPulseCommand(Intake intake, Hopper hopper) {
     super(
       Commands.runOnce(() -> currentSetpoint = intake.getPosition()),
+      
       Commands.repeatingSequence(
         Commands.parallel(
                 intake.move(() -> currentSetpoint),
-                hopper.setSetpoint(() -> currentSetpoint)
+                Commands.either(
+                  hopper.setSetpoint(() -> currentSetpoint),
+                  hopper.stopMotor(),
+                  () -> hopper.getPosition().in(Inches) - intake.getPosition().in(Inches) <= IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches)
+                )
             ),
         Commands.waitSeconds(IntakeConstants.Extension.WAIT_TIME.in(Seconds)),
             hopper.setSetpoint(() ->

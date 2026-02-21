@@ -22,12 +22,12 @@ import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.PassingPositions;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.Constants.kBump;
-import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.feeder.*;
 import frc.robot.subsystems.hopper.*;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
@@ -39,6 +39,7 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.FieldConstants.Hub;
+import frc.robot.commands.*;
 
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -55,7 +56,7 @@ import frc.robot.subsystems.elevator.ElevatorConstants;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
 /**
@@ -228,6 +229,22 @@ public class RobotContainer {
      * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+        primaryController.povRight().whileTrue(
+                Commands.either(
+                        Commands.parallel(
+                                sys_hopper.stopMotor(),
+                                sys_intake.stopMotor(),
+                                Commands.print("Motors stopped")
+                        ),
+                        Commands.parallel(
+                                sys_hopper.fullExtend(),
+                                sys_intake.extend()
+                        ),
+                        () -> (sys_hopper.getPosition().plus(HopperConstants.STARTING_GAP_TO_INTAKE)
+                                .isNear(Inches.of(sys_intake.getPosition().in(Inches)), Inches.of(0.5)))
+                )
+        );
+        primaryController.y().onTrue(new RetractAndPulseCommand(sys_intake, sys_hopper));
         // Default command, normal field-relative drive
         sys_drive.setDefaultCommand(
                 DriveCommands.joystickDrive(

@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Inches;
 
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import frc.robot.subsystems.hopper.Hopper;
@@ -17,20 +18,19 @@ import frc.robot.subsystems.intake.IntakeConstants;
 // information, see:
 // https://docs.wpilib.org/en/stable/docs/software/commandbased/convenience-features.html
 public class ExtendCommand extends ParallelDeadlineGroup {
-  private static final double MIN_GAP = IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches);
-  private static final double STARTING_GAP = HopperConstants.STARTING_GAP_TO_INTAKE.in(Inches);
-
+  private static final Distance MIN_GAP = Inches.of(IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches));
+  private static final Distance STARTING_GAP = HopperConstants.STARTING_GAP_TO_INTAKE;
   /** Creates a new ExtendCommand. */
   public ExtendCommand(Hopper hopper, Intake intake) {
-
     super(
       Commands.waitUntil(() -> 
-          (hopper.getPosition().in(Inches)+STARTING_GAP) - intake.getPosition().in(Inches) <= MIN_GAP ||
+          hopper.getPosition().plus(STARTING_GAP).isNear(Inches.of(intake.getPosition().in(Inches)), MIN_GAP) ||
           hopper.getPosition().isNear(HopperConstants.HOPPER_MAX_EXTENSION, Inches.of(0.02))
       ),
       hopper.fullExtend(),
       intake.extend()
-    );
+      //Commands.print(Boolean.toString(hopper.getPosition().plus(STARTING_GAP).isNear(Inches.of(intake.getPosition().in(Inches)), MIN_GAP))).repeatedly()
 
+    );
   }
 }
