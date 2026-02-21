@@ -325,41 +325,11 @@ public class LauncherIOTalonFX implements LauncherIO {
         }
     }
 
-    @Override
-     public double getPosition1(){
-        return curPos1;
-    }
-
-    @Override
-     public double getPosition2(){
-        return curPos2;
-    }
-
-    @Override
-    public boolean isFinished1(){
-        return curPos1 == setPos1;
-    }
-
-    @Override
-    public boolean isFinished2(){
-        return curPos2 == setPos2;
-    }
-
-    // @Override
-    // public double getDistance() {
-    //     return medianFilter.calculate(ultrasonic.getRangeInches());
-    // }
-
     // Stops
     @Override
     public void stopLauncher() {
         launcherMotor.setVoltage(0);
     }
-
-    // @Override
-    // public void stopHood() {
-    //     hoodMotor.setVoltage(0);
-    // }
 
     @Override
     public void updateInputs(LauncherInputs inputs) {
@@ -391,20 +361,6 @@ public class LauncherIOTalonFX implements LauncherIO {
         inputs.launcherFollowerSpeedRadians = speedLauncherFollower.getValue();
 
         // Hood
-        // inputs.isHoodConnected = BaseStatusSignal.refreshAll(
-        //         voltageHood,
-        //         currentHood,
-        //         temperatureHood,
-        //         speedHood
-        // ).isOK();
-
-        // inputs.temperatureHood = temperatureHood.getValueAsDouble();
-
-        // inputs.hoodVoltage = voltageHood.getValue();
-        // inputs.hoodCurrent = currentHood.getValue();
-        // inputs.hoodSpeedRadians = speedHood.getValue();
-        // inputs.hoodPosition = hoodPosition.getValue();
-
         inputs.hood1Position = curPos1;
         inputs.targetHood1PositionMM = setPos1;
         inputs.hood1TargetAngle = hoodServo.getAngle();
