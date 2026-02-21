@@ -293,8 +293,8 @@ public class RobotContainer {
                 ));
 
         SmartDashboard.putNumber("Hood Angle [deg]", 0);
-        SmartDashboard.putData("Set Hood Angle", Commands.runOnce(() -> sys_launcher.setHoodAngle(
-                Degrees.of(SmartDashboard.getNumber("Hood Angle [deg]", 0)))));
+        SmartDashboard.putData("Set Hood Angle", sys_launcher.setHoodAngle(
+                Degrees.of(SmartDashboard.getNumber("Hood Angle [deg]", 0))));
 
         // score fuel in hub by using odometry
 //        var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
