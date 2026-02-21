@@ -269,18 +269,6 @@ public class LauncherIOTalonFX implements LauncherIO {
 
     @Override
     public void setHood1Position(double setpoint){
-        setpoint += 20;
-        double appliedSetpoint = MathUtil.clamp(setpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
-        setPos1 = appliedSetpoint;
-        appliedSetpoint = (setpoint/LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) *2)-1;
-        hoodServo.setSpeed(appliedSetpoint);
-
-        setpoint += 24;
-        appliedSetpoint = MathUtil.clamp(setpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
-        setPos2 = appliedSetpoint;
-        appliedSetpoint = (setpoint/LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) *2)-1;
-        hoodServo2.setSpeed(appliedSetpoint);
-
         double dt = Timer.getFPGATimestamp() - lastTime;
         if (curPos1 > setPos1 + 30*dt){
             curPos1 -= 30 *dt;
@@ -298,6 +286,18 @@ public class LauncherIOTalonFX implements LauncherIO {
         }else{
             curPos2 = setPos2;
         }
+
+        setpoint += 20;
+        double appliedSetpoint = MathUtil.clamp(setpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        setPos1 = appliedSetpoint;
+        appliedSetpoint = (setpoint/LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) *2)-1;
+        hoodServo.setSpeed(appliedSetpoint);
+
+        setpoint += 24;
+        appliedSetpoint = MathUtil.clamp(setpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        setPos2 = appliedSetpoint;
+        appliedSetpoint = (setpoint/LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) *2)-1;
+        hoodServo2.setSpeed(appliedSetpoint);
     }
 
     double lastTime = 0;
