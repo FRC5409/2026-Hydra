@@ -18,8 +18,8 @@ import java.util.function.Supplier;
 import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase {
-    private final LauncherIO               io;
-    private final LauncherInputsAutoLogged inputs;
+    private final LauncherIO                io;
+    private final LauncherInputsAutoLogged  inputs;
 
     private LaunchStrategy strategy;
 
@@ -57,23 +57,29 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput("Launcher/TargetAngle", config == null ? Radians.of(0) : config.angle());
     }
 
-    public Command setHoodPos(Angle angle) {
-        return Commands.sequence(
-                Commands.runOnce(() -> io.setHoodPos(angle)),
-                Commands.waitUntil(() -> io.getHoodPos().isNear(angle, 360)));
+    private Distance computeHoodExtension(Angle angle) {
+        return (Distance)angle
+                .timesConversionFactor(LauncherConstants.Hood.MM_PER_DEG)
+                .minus(LauncherConstants.Hood.OFFSET_MM);
+    }
+
+    public Command setHoodAngle(Angle angle) {
+        return Commands.runOnce(() -> io.setHoodExtension(computeHoodExtension(angle)));
     }
 
     // Getters
-    public Angle getHoodPos() {
-        return io.getHoodPos();
+    public Angle getHoodAngle() {
+        return (Angle)io.getHoodExtension()
+                .plus(LauncherConstants.Hood.OFFSET_MM)
+                .divideRatio(LauncherConstants.Hood.MM_PER_DEG);
     }
 
     public AngularVelocity getVelocity() {
         return io.getVelocity();
     }
 
-    public double getDistance() {
-        return io.getDistance();
+    public Distance getUltrasonicDistance() {
+        return io.getUltrasonicVolts().timesConversionFactor(LauncherConstants.Ultrasonic.MM_PER_VOLT);
     }
 
     // Stops

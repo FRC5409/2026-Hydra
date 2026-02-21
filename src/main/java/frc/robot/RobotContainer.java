@@ -55,8 +55,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -117,10 +116,10 @@ public class RobotContainer {
                                 LauncherConstants.Launcher.LAUNCHER_CAN_ID,
                                 LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
                                 LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
-                                LauncherConstants.Hood.HOOD_CAN_ID,
-                                LauncherConstants.Hood.HOOD_SENSOR_ID,
-                                LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
-                                LauncherConstants.Ultrasonic.DIGITAL_INPUT
+                                LauncherConstants.Hood.HOOD_PWM_CHANNEL_1,
+                                LauncherConstants.Hood.HOOD_PWM_CHANNEL_2
+//                                LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
+//                                LauncherConstants.Ultrasonic.DIGITAL_INPUT
                         )
                 );
             }
@@ -298,6 +297,10 @@ public class RobotContainer {
                                     .toArray(Command[]::new)
                 ));
 
+        SmartDashboard.putNumber("Hood Angle [deg]", 0);
+        SmartDashboard.putData("Set Hood Angle", Commands.runOnce(() -> sys_launcher.setHoodAngle(
+                Degrees.of(SmartDashboard.getNumber("Hood Angle [deg]", 0)))));
+
         // score fuel in hub by using odometry
 //        var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
 //        Logger.recordOutput("Vision/Estimate", pose);
@@ -391,8 +394,6 @@ public class RobotContainer {
                 }
         );
     }
-
-    ;
 
     private Command prepPassingPositionCommand(PassingPositions passingPosition) {
         return Commands.runOnce(

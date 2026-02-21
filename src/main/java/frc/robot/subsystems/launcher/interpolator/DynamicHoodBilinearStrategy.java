@@ -22,7 +22,7 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
     /**
      * Tuned value that affects the correction rate of the hood as per the velocity error.
      */
-    private static final float ALPHA = 0f;
+    private static final float ALPHA = 1f;
 
     /**
      * Computes the new hood value to correct the error of theoretical velocity and real velocity
@@ -55,8 +55,8 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
         var params = super.interpolate(displacement);
 
         // update hood before returning interpolation
-        CommandScheduler.getInstance().schedule(this.launcher.setHoodPos(computeHoodAdjustment(
-                params.speed(), this.launcher.getVelocity(), this.launcher.getHoodPos())));
+        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(computeHoodAdjustment(
+                params.speed(), this.launcher.getVelocity(), this.launcher.getHoodAngle())));
 
         return params;
     }

@@ -4,9 +4,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 
 import java.util.function.Supplier;
@@ -17,10 +17,10 @@ public class LauncherIOSim implements LauncherIO {
     private static final double FLYWHEEL_INERTIA = 100.0;
     private static final double LAUNCHER_GEARING = 1.0;
 
-    private final FlywheelSim flywheelSim;
+    private final FlywheelSim   flywheelSim;
     private final PIDController controllerLauncher;
 
-    private Angle hoodPos = Degrees.of(0.0);
+    private Distance hoodPos = Meters.of(0.0);
 
     private boolean isRunning;
 
@@ -50,19 +50,19 @@ public class LauncherIOSim implements LauncherIO {
     }
 
     @Override
-    public Angle getHoodPos() {
+    public Distance getHoodExtension() {
         return hoodPos;
     }
 
     @Override
-    public void setHoodPos(Angle angle) {
-        hoodPos = angle;
+    public void setHoodExtension(Distance setpoint) {
+        hoodPos = setpoint;
         isRunning = true;
     }
 
     @Override
     public void stopHood() {
-        hoodPos = Degrees.of(0.0);
+        hoodPos = Meters.of(0.0);
         isRunning = false;
     }
 
@@ -89,7 +89,6 @@ public class LauncherIOSim implements LauncherIO {
         }
 
         inputs.isLauncherConnected = true;
-        inputs.isHoodConnected = true;
 
         inputs.launcherTemperature = 0.0;
         inputs.hoodTemperature = 0.0;
@@ -100,6 +99,7 @@ public class LauncherIOSim implements LauncherIO {
         inputs.hoodCurrent = Current.ofBaseUnits(currentHood, Amps);
         inputs.launcherVelocity = flywheelSim.getAngularVelocity();
 
-        inputs.hoodPosition = hoodPos;
+        inputs.hoodServo1Pos = hoodPos;
+        inputs.hoodServo2Pos = hoodPos;
     }
 }

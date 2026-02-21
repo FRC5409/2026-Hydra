@@ -1,8 +1,8 @@
 package frc.robot.subsystems.launcher;
 
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -28,12 +28,17 @@ public interface LauncherIO {
         public AngularVelocity launcherFollowerVelocity    = RotationsPerSecond.of(0.0);
 
         // Hood
-        public boolean         isHoodConnected = false;
-        public double          hoodTemperature = 0.0;
-        public Voltage         hoodVoltage     = Volts.of(0.0);
-        public Current         hoodCurrent     = Amps.of(0);
-        public AngularVelocity hoodVelocity    = RotationsPerSecond.of(0.0);
-        public Angle           hoodPosition    = Radians.of(0.0);
+        public double          hoodTemperature  = 0.0;
+        public Voltage         hoodVoltage      = Volts.of(0.0);
+        public Current         hoodCurrent      = Amps.of(0);
+        public AngularVelocity hoodVelocity     = RotationsPerSecond.of(0.0);
+        public Distance        hoodServo1Pos    = Meters.of(0.0);
+        public Distance        hoodServo2Pos    = Meters.of(0.0);
+        public Distance        hoodServo1Target = Meters.of(0.0);
+        public Distance        hoodServo2Target = Meters.of(0.0);
+
+        public Distance ultrasonicDistance = Meters.of(0);
+        public Voltage  ultrasonicVoltage  = Volts.of(0);
     }
 
     // Launcher
@@ -44,12 +49,10 @@ public interface LauncherIO {
     default void stopLauncher() {}
 
     // Hood
-    default void hoodSetVoltage(double volts) {}
+    default void setHoodExtension(Distance setpoint) {}
 
-    default void setHoodPos(Angle pos) {}
-
-    default Angle getHoodPos() {
-        return Degrees.of(0);
+    default Distance getHoodExtension() {
+        return Meters.of(0);
     }
 
     default AngularVelocity getVelocity() {
@@ -59,8 +62,8 @@ public interface LauncherIO {
     default void stopHood() {}
 
     // Ultrasonic sensor
-    default double getDistance() {
-        return 0.0;
+    default Voltage getUltrasonicVolts() {
+        return Volts.of(0.0);
     }
 
     // Shared 

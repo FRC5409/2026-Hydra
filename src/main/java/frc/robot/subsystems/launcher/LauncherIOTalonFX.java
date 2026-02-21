@@ -5,26 +5,33 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import edu.wpi.first.math.filter.MedianFilter;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.*;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DigitalOutput;
-import edu.wpi.first.wpilibj.Ultrasonic;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.Servo;
+import edu.wpi.first.wpilibj.Timer;
 
 import java.util.function.Supplier;
 
+import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.Volts;
+
 public class LauncherIOTalonFX implements LauncherIO {
     // Motors and sensors
-    private final TalonFX hoodMotor;
     private final TalonFX launcherMotor;
+    private final Servo   hoodServo;
+    private final Servo   hoodServo2;
 
-    private final Ultrasonic   ultrasonic;
-    private final MedianFilter medianFilter;
+    private final AnalogInput ultrasonic;
+
+    private double servo1Pos;
+    private double servo2Pos;
+    private double servo1Setpoint;
+    private double servo2Setpoint;
 
     // IOs
     private final StatusSignal<Temperature>     temperatureLauncher;
@@ -37,25 +44,25 @@ public class LauncherIOTalonFX implements LauncherIO {
     private final StatusSignal<Current>         currentLauncherFollower;
     private final StatusSignal<AngularVelocity> speedLauncherFollower;
 
-    private final StatusSignal<Temperature>     temperatureHood;
-    private final StatusSignal<Voltage>         voltageHood;
-    private final StatusSignal<Current>         currentHood;
-    private final StatusSignal<AngularVelocity> speedHood;
-    private final StatusSignal<Angle>           hoodPosition;
-
-    public LauncherIOTalonFX(int launcherCanID, int launcherSensorID, int launcherFollowerCanID, int hoodCanID,
-                             int hoodSensorID, DigitalOutput pingChannel, DigitalInput echoChannel) {
+    public LauncherIOTalonFX(
+            int launcherCanID,
+            int launcherFollowerCanID,
+            int ultrasonicChannel,
+            int servoChannel,
+            int servoChannel2
+    ) {
         // Motors and sensors
-        hoodMotor = new TalonFX(hoodCanID);
-        CANcoder hoodSensor = new CANcoder(hoodSensorID);
-
         launcherMotor = new TalonFX(launcherCanID);
-        CANcoder launcherSensor = new CANcoder(launcherSensorID);
 
         TalonFX launcherFollowerMotor = new TalonFX(launcherFollowerCanID);
 
-        ultrasonic = new Ultrasonic(pingChannel, echoChannel);
-        medianFilter = new MedianFilter(0);
+        hoodServo = new Servo(servoChannel);
+        hoodServo2 = new Servo(servoChannel2);
+
+        ultrasonic = new AnalogInput(ultrasonicChannel);
+
+        hoodServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
+        hoodServo2.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
 
         // IOs
         temperatureLauncher = launcherMotor.getDeviceTemp();
@@ -68,12 +75,6 @@ public class LauncherIOTalonFX implements LauncherIO {
         currentLauncherFollower = launcherFollowerMotor.getSupplyCurrent();
         speedLauncherFollower = launcherFollowerMotor.getVelocity();
 
-        temperatureHood = hoodMotor.getDeviceTemp();
-        voltageHood = hoodMotor.getMotorVoltage();
-        currentHood = hoodMotor.getSupplyCurrent();
-        speedHood = hoodMotor.getVelocity();
-        hoodPosition = hoodMotor.getPosition();
-
         BaseStatusSignal.setUpdateFrequencyForAll(
                 50,
                 temperatureLauncher,
@@ -84,20 +85,12 @@ public class LauncherIOTalonFX implements LauncherIO {
                 temperatureLauncherFollower,
                 voltageLauncherFollower,
                 currentLauncherFollower,
-                speedLauncherFollower,
-
-                temperatureHood,
-                voltageHood,
-                currentHood,
-                speedHood,
-                hoodPosition
+                speedLauncherFollower
         );
 
         // Configurators
         TalonFXConfigurator launcherConfigurator = launcherMotor.getConfigurator();
         TalonFXConfigurator launcherFollowerConfigurator = launcherMotor.getConfigurator();
-
-        TalonFXConfigurator hoodConfigurator = hoodMotor.getConfigurator();
 
         // Slot configs
         Slot0Configs launcherSlotConfigs = new Slot0Configs()
@@ -111,13 +104,6 @@ public class LauncherIOTalonFX implements LauncherIO {
         launcherConfigurator.apply(launcherSlotConfigs);
         launcherFollowerConfigurator.apply(launcherSlotConfigs);
 
-        Slot0Configs hoodSlotConfigs = new Slot0Configs()
-                .withKP(LauncherConstants.Hood.PID.getP())
-                .withKI(LauncherConstants.Hood.PID.getI())
-                .withKD(LauncherConstants.Hood.PID.getD());
-
-        hoodConfigurator.apply(hoodSlotConfigs);
-
         // Current limit configs
         CurrentLimitsConfigs launcherCurrentLimitsConfigs = new CurrentLimitsConfigs()
                 .withSupplyCurrentLimit(LauncherConstants.SUPPLY_CURRENT_LIMIT)
@@ -126,69 +112,72 @@ public class LauncherIOTalonFX implements LauncherIO {
         launcherConfigurator.apply(launcherCurrentLimitsConfigs);
         launcherFollowerConfigurator.apply(launcherCurrentLimitsConfigs);
 
-        CurrentLimitsConfigs hoodCurrentLimitConfigs = new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(LauncherConstants.SUPPLY_CURRENT_LIMIT)
-                .withSupplyCurrentLimitEnable(true);
-
-        hoodConfigurator.apply(hoodCurrentLimitConfigs);
-
         // Motor output configs
-        MotorOutputConfigs launcherOutputConfigs = new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Coast)
-                .withInverted(InvertedValue.CounterClockwise_Positive);
-        MotorOutputConfigs launcherFollowerOutputConfigs = new MotorOutputConfigs()
-                .withNeutralMode(NeutralModeValue.Coast);
-
-        launcherConfigurator.apply(launcherOutputConfigs);
-        launcherFollowerConfigurator.apply(launcherFollowerOutputConfigs);
-
-        MotorOutputConfigs hoodOutputConfigs = new MotorOutputConfigs();
-
-        hoodConfigurator.apply(hoodOutputConfigs);
+        launcherConfigurator.apply(
+                new MotorOutputConfigs()
+                        .withNeutralMode(NeutralModeValue.Coast)
+                        .withInverted(InvertedValue.CounterClockwise_Positive));
+        launcherFollowerConfigurator.apply(
+                new MotorOutputConfigs()
+                        .withNeutralMode(NeutralModeValue.Coast));
 
         // Feedback configs
-        FeedbackConfigs launcherFeedbackConfigs = new FeedbackConfigs()
-                .withRemoteCANcoder(launcherSensor);
+        FeedbackConfigs launcherFeedbackConfigs = new FeedbackConfigs();
 
         launcherConfigurator.apply(launcherFeedbackConfigs);
         launcherFollowerConfigurator.apply(launcherFeedbackConfigs);
 
-        FeedbackConfigs hoodFeedbackConfigs = new FeedbackConfigs()
-                .withRemoteCANcoder(hoodSensor);
-
-        hoodConfigurator.apply(hoodFeedbackConfigs);
-
         launcherFollowerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Opposed));
+    }
+
+    // Voltage
+    @Override
+    public void launcherSetVoltage(double volts) {
+        launcherMotor.setVoltage(volts);
     }
 
     // Run systems
     @Override
     public void runVelocity(Supplier<AngularVelocity> velocity) {
-        launcherMotor.setControl(new VelocityVoltage(velocity.get())
-                                         .withSlot(0)
-                                         .withFeedForward(0));
+        launcherMotor.setControl(
+                new VelocityVoltage(velocity.get())
+                        .withSlot(0)
+                        .withFeedForward(0));
     }
 
     @Override
-    public void setHoodPos(Angle pos) {
-        if (pos.gte(LauncherConstants.Hood.MIN_ANGLE) && pos.lte(LauncherConstants.Hood.MAX_ANGLE)) {
-            hoodMotor.setPosition(pos);
-        }
+    public void setHoodExtension(Distance ext) {
+        double setpoint = MathUtil.clamp(ext.in(Millimeters), 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        servo1Setpoint = setpoint;
+        servo2Setpoint = setpoint;
+        setpoint = (ext.in(Millimeters) / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
+        hoodServo.setSpeed(setpoint + 18);
+        hoodServo2.setSpeed(setpoint + 24);
     }
 
     @Override
-    public Angle getHoodPos() {
-        return hoodMotor.getPosition().getValue();
+    public Distance getHoodExtension() {
+         return Millimeters.of(hoodServo.getPosition());
+    }
+
+    /**
+     * Run this method in any periodic function to update the position estimation of your servo
+     */
+    private void updateServos() {
+        double epsilon = 30 * Timer.getFPGATimestamp();
+        // SERVO 1
+        if (servo1Pos > servo1Setpoint + epsilon) servo1Pos -= epsilon;
+        else if (servo1Pos < servo1Setpoint - epsilon) servo1Pos += epsilon;
+        else servo1Pos = servo1Setpoint;
+        // SERVO 2
+        if (servo2Pos > servo2Setpoint + epsilon) servo2Pos -= epsilon;
+        else if (servo2Pos < servo2Setpoint - epsilon) servo2Pos += epsilon;
+        else servo2Pos = servo2Setpoint;
     }
 
     @Override
-    public AngularVelocity getVelocity() {
-        return speedLauncher.getValue();
-    }
-
-    @Override
-    public double getDistance() {
-        return medianFilter.calculate(ultrasonic.getRangeInches());
+    public Voltage getUltrasonicVolts() {
+        return Volts.of(ultrasonic.getVoltage());
     }
 
     // Stops
@@ -198,12 +187,10 @@ public class LauncherIOTalonFX implements LauncherIO {
     }
 
     @Override
-    public void stopHood() {
-        hoodMotor.setVoltage(0);
-    }
-
-    @Override
     public void updateInputs(LauncherInputs inputs) {
+        // doesn't log anything but is required for servos to work
+        updateServos();
+
         // Launcher
         inputs.isLauncherConnected = BaseStatusSignal.refreshAll(
                 voltageLauncher,
@@ -220,25 +207,32 @@ public class LauncherIOTalonFX implements LauncherIO {
         inputs.launcherTemperature = temperatureLauncher.getValueAsDouble();
         inputs.launcherVoltage = voltageLauncher.getValue();
         inputs.launcherCurrent = currentLauncher.getValue();
-        inputs.launcherVelocity = getVelocity();
+        inputs.launcherVelocity = speedLauncher.getValue();
 
-        inputs.launcherFollowerTemperature = temperatureLauncherFollower.getValueAsDouble();
-        inputs.launcherFollowerVoltage = voltageLauncherFollower.getValue();
-        inputs.launcherFollowerCurrent = currentLauncherFollower.getValue();
-        inputs.launcherFollowerVelocity = speedLauncherFollower.getValue();
+        inputs.launcherFollowerTemperature = temperatureLauncher.getValueAsDouble();
+        inputs.launcherFollowerVoltage = voltageLauncher.getValue();
+        inputs.launcherFollowerCurrent = currentLauncher.getValue();
+        inputs.launcherFollowerVelocity = speedLauncher.getValue();
+
+        inputs.hoodServo1Pos = Millimeters.of(servo1Pos);
+        inputs.hoodServo2Pos = Millimeters.of(servo2Pos);
+        inputs.hoodServo1Target = Millimeters.of(servo1Setpoint);
+        inputs.hoodServo2Target = Millimeters.of(servo2Setpoint);
+
+        inputs.ultrasonicVoltage = getUltrasonicVolts();
 
         // Hood
-        inputs.isHoodConnected = BaseStatusSignal.refreshAll(
-                voltageHood,
-                currentHood,
-                temperatureHood,
-                speedHood
-        ).isOK();
+        // inputs.isHoodConnected = BaseStatusSignal.refreshAll(
+        //         voltageHood,
+        //         currentHood,
+        //         temperatureHood,
+        //         speedHood
+        // ).isOK();
 
-        inputs.hoodTemperature = temperatureHood.getValueAsDouble();
-        inputs.hoodVoltage = voltageHood.getValue();
-        inputs.hoodCurrent = currentHood.getValue();
-        inputs.hoodVelocity = speedHood.getValue();
-        inputs.hoodPosition = hoodPosition.getValue();
+        // inputs.temperatureHood = temperatureHood.getValueAsDouble();
+        // inputs.hoodVoltage = voltageHood.getValue();
+        // inputs.hoodCurrent = currentHood.getValue();
+        // inputs.hoodSpeedRadians = speedHood.getValue();
+        // inputs.hoodPosition = hoodPosition.getValue();
     }
 }

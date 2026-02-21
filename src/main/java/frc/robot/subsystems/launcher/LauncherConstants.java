@@ -1,13 +1,19 @@
 package frc.robot.subsystems.launcher;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.AngleUnit;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.VoltageUnit;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Per;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DigitalOutput;
 import frc.robot.subsystems.launcher.interpolator.BilinearStrategy;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 
-import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.*;
 
 public class LauncherConstants {
     public static class Launcher {
@@ -30,17 +36,36 @@ public class LauncherConstants {
     public static final int SUPPLY_CURRENT_LIMIT = 60;
 
     public static class Hood {
-        public static final int HOOD_CAN_ID    = 1;
-        public static final int HOOD_SENSOR_ID = 1;
+        // values derived from linear map of deg to mm
+        public static final Per<DistanceUnit, AngleUnit> MM_PER_DEG = Millimeters.per(Degrees).ofNative(0.296);
+        public static final Distance                     OFFSET_MM  = Millimeters.of(15.2);
+
+        public static final int HOOD_PWM_CHANNEL_1 = 4;
+        public static final int HOOD_PWM_CHANNEL_2 = 5;
 
         public static final Angle MIN_ANGLE = Degrees.of(0);
         public static final Angle MAX_ANGLE = Degrees.of(30);
 
-        public static final PIDController PID = new PIDController(120.0, 0.0, 0.0075);
+        public static final Distance       MIN_EXTENSION = Millimeters.of(0.0);
+        // TODO: GET REAL VALUE
+        public static final Distance       MAX_EXTENSION = Millimeters.of(140);
+        // TODO: GET REAL VALUE
+        public static final LinearVelocity MAX_SPEED     = Millimeters.per(Second).of(20);
+
+        // public static final Distance IMPOSED_MAX_EXTENSION = Millimeters.of(100);
+
+        // TODO: SEE IF VALUES ARE NECESSARY, IF SO GET WHAT THE VALUES SHOULD BE
+        public static final int MAX_PULSE_WIDTH       = 4;
+        public static final int SERVO_DEADBAND_MAX    = 3;
+        public static final int SERVO_DEADBAND_CENTER = 2;
+        public static final int SERVO_DEADBAND_MIN    = 1;
+        public static final int MIN_PULSE_WIDTH       = 0;
     }
 
     public static class Ultrasonic {
         public static DigitalOutput DIGITAL_OUTPUT = new DigitalOutput(0);
         public static DigitalInput  DIGITAL_INPUT  = new DigitalInput(0);
+
+        public static final Per<DistanceUnit, VoltageUnit> MM_PER_VOLT = Millimeters.of(1024.0).div(Volts.of(5.0));
     }
 }
