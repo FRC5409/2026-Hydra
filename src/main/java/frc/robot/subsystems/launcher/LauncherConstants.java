@@ -37,8 +37,8 @@ public class LauncherConstants {
 
     public static class Hood {
         // values derived from linear map of deg to mm
-        public static final Per<DistanceUnit, AngleUnit> MM_PER_DEG = Millimeters.per(Degrees).ofNative(0.296);
-        public static final Distance                     OFFSET_MM  = Millimeters.of(15.2);
+        public static final Per<DistanceUnit, AngleUnit> MM_PER_DEG = Millimeters.per(Degrees).ofNative(3.37591);
+        public static final Distance                     OFFSET_MM  = Millimeters.of(51.27737);
 
         public static final int HOOD_PWM_CHANNEL_1 = 4;
         public static final int HOOD_PWM_CHANNEL_2 = 5;
