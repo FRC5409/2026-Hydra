@@ -9,30 +9,31 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.units.measure.*;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Temperature;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
 
-import static edu.wpi.first.units.Units.Millimeters;
-
 import java.util.function.Supplier;
+
+import static edu.wpi.first.units.Units.Millimeters;
 
 public class LauncherIOTalonFX implements LauncherIO {
     // Motors and sensors
     // private final TalonFX hoodMotor;
-    private final Servo   hoodServo;
-    private final Servo   hoodServo2;
+    private final Servo  hoodServo;
+    private final Servo  hoodServo2;
     // private final ServoChannelConfig hoodServoConfig;
-    private double curPos1;
-    private double setPos1;
-    private double curPos2;
-    private double setPos2;
-    
+    private       double curPos1;
+    private       double setPos1;
+    private       double curPos2;
+    private       double setPos2;
+
     private final TalonFX launcherMotor;
     private final TalonFX launcherFollowerMotor;
-
 
     // private final Ultrasonic   ultrasonic;
     // private final MedianFilter medianFilter;
@@ -55,20 +56,20 @@ public class LauncherIOTalonFX implements LauncherIO {
     // private final StatusSignal<Angle>           hoodPosition;
 
     public LauncherIOTalonFX(
-                             int launcherCanID, 
-                            //  int launcherSensorID, 
-                             int launcherFollowerCanID, 
-                            //  int hoodCanID,
-                             int hoodServoChannel,
-                             int hoodServoChannel2
-                            //  int hoodSensorID
-                            //  DigitalOutput pingChannel, DigitalInput echoChannel
-                             ) {
+            int launcherCanID,
+            //  int launcherSensorID,
+            int launcherFollowerCanID,
+            //  int hoodCanID,
+            int hoodServoChannel,
+            int hoodServoChannel2
+            //  int hoodSensorID
+            //  DigitalOutput pingChannel, DigitalInput echoChannel
+    ) {
         // Motors and sensors
         // hoodMotor   = new TalonFX(hoodCanID);
-        hoodServo   = new Servo(hoodServoChannel);
+        hoodServo = new Servo(hoodServoChannel);
         // hoodServoConfig = new ServoChannelConfig(ChannelId.kChannelId4);
-        hoodServo2  = new Servo(hoodServoChannel2);
+        hoodServo2 = new Servo(hoodServoChannel2);
 
         // hoodServo.setBoundsMicroseconds(
         //     LauncherConstants.Hood.MAX_PULSE_WIDTH, 
@@ -81,7 +82,6 @@ public class LauncherIOTalonFX implements LauncherIO {
         hoodServo.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
         // hoodServoConfig.pulseRange(1000, 1500, 2000);
         hoodServo2.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
-    
 
         // hoodServo2.setBoundsMicroseconds(
         //     LauncherConstants.Hood.MAX_PULSE_WIDTH, 
@@ -200,7 +200,6 @@ public class LauncherIOTalonFX implements LauncherIO {
         //         .withSensorToMechanismRatio(LauncherConstants.Hood.HOOD_GEAR_RATIO);
 
         // hoodConfigurator.apply(hoodFeedbackConfigs);
-        
 
         launcherFollowerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Aligned));
     }
@@ -266,37 +265,35 @@ public class LauncherIOTalonFX implements LauncherIO {
     //     // return hoodMotor.getPosition().getValue();
     //     return Millimeters.of(hoodServo.getPosition() * LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
     // }
-
     @Override
-    public void setHood1Position(double setpoint){
+    public void setHood1Position(double targetSetpoint) {
         double dt = Timer.getFPGATimestamp() - lastTime;
-        if (curPos1 > setPos1 + 30*dt){
-            curPos1 -= 30 *dt;
-        } else if(curPos1 < setPos1 - 30 *dt){
-            curPos1 += 30 *dt;
-        }else{
+        if (curPos1 > setPos1 + 30 * dt) {
+            curPos1 -= 30 * dt;
+        } else if (curPos1 < setPos1 - 30 * dt) {
+            curPos1 += 30 * dt;
+        } else {
             curPos1 = setPos1;
-
         }
 
-        if (curPos2 > setPos2 + 30*dt){
-            curPos2 -= 30 *dt;
-        } else if(curPos2 < setPos2 - 30 *dt){
-            curPos2 += 30 *dt;
-        }else{
+        if (curPos2 > setPos2 + 30 * dt) {
+            curPos2 -= 30 * dt;
+        } else if (curPos2 < setPos2 - 30 * dt) {
+            curPos2 += 30 * dt;
+        } else {
             curPos2 = setPos2;
         }
 
-        setpoint += 20;
-        double appliedSetpoint = MathUtil.clamp(setpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        double setpoint1 = targetSetpoint + 20;
+        double appliedSetpoint = MathUtil.clamp(setpoint1, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
         setPos1 = appliedSetpoint;
-        appliedSetpoint = (setpoint/LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) *2)-1;
+        appliedSetpoint = (setpoint1 / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
         hoodServo.setSpeed(appliedSetpoint);
 
-        setpoint += 24;
-        appliedSetpoint = MathUtil.clamp(setpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        double setpoint2 = targetSetpoint + 24;
+        appliedSetpoint = MathUtil.clamp(setpoint2, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
         setPos2 = appliedSetpoint;
-        appliedSetpoint = (setpoint/LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) *2)-1;
+        appliedSetpoint = (setpoint2 / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
         hoodServo2.setSpeed(appliedSetpoint);
     }
 
@@ -323,9 +320,7 @@ public class LauncherIOTalonFX implements LauncherIO {
                 currentLauncherFollower,
                 temperatureLauncherFollower,
                 speedLauncherFollower
-        ).isOK();   
-
-
+        ).isOK();
 
         inputs.temperatureLauncher = temperatureLauncher.getValueAsDouble();
         inputs.launcherVoltage = voltageLauncher.getValue();
@@ -349,6 +344,5 @@ public class LauncherIOTalonFX implements LauncherIO {
         inputs.hood2TargetAngle = hoodServo2.getAngle();
         inputs.hood2Speed = hoodServo2.getSpeed();
         inputs.hood2PWM = hoodServo2.getPulseTimeMicroseconds();
-
     }
 }
