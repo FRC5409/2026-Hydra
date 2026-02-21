@@ -42,15 +42,11 @@ public interface LauncherIO {
     }
 
     // Launcher
-    default void launcherSetVoltage(double volts) {}
-
     default void runVelocity(Supplier<AngularVelocity> velocity) {}
 
     default void stopLauncher() {}
 
     // Hood
-    default void setHoodExtension(Distance setpoint) {}
-
     default Distance getHoodExtension() {
         return Meters.of(0);
     }
@@ -59,6 +55,8 @@ public interface LauncherIO {
         return RotationsPerSecond.of(0);
     }
 
+    default void updateHood(Distance setpoint) {}
+
     default void stopHood() {}
 
     // Ultrasonic sensor
@@ -66,6 +64,7 @@ public interface LauncherIO {
         return Volts.of(0.0);
     }
 
-    // Shared 
+    // Shared
+
     default void updateInputs(LauncherInputs inputs) {}
 }

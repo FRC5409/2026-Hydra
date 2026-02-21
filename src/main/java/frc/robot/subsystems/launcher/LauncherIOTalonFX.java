@@ -29,8 +29,8 @@ public class LauncherIOTalonFX implements LauncherIO {
 
     private final AnalogInput ultrasonic;
 
-    private double servo1Pos;
-    private double servo2Pos;
+    private double servo1CurPos;
+    private double servo2CurPos;
     private double servo1Setpoint;
     private double servo2Setpoint;
 
@@ -131,12 +131,6 @@ public class LauncherIOTalonFX implements LauncherIO {
         launcherFollowerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Opposed));
     }
 
-    // Voltage
-    @Override
-    public void launcherSetVoltage(double volts) {
-        launcherMotor.setVoltage(volts);
-    }
-
     // Run systems
     @Override
     public void runVelocity(Supplier<AngularVelocity> velocity) {
@@ -147,34 +141,36 @@ public class LauncherIOTalonFX implements LauncherIO {
     }
 
     @Override
-    public void setHoodExtension(Distance ext) {
-        double setpoint = MathUtil.clamp(ext.in(Millimeters), 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
-        servo1Setpoint = setpoint;
-        servo2Setpoint = setpoint;
-        setpoint = (ext.in(Millimeters) / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
-        hoodServo.setSpeed(setpoint + 18);
-        hoodServo2.setSpeed(setpoint + 24);
+    public void updateHood(Distance extension) {
+        double targetSetpoint = extension.in(Millimeters);
+        double t = Timer.getFPGATimestamp();
+
+        // update servo continuous positions
+        if (servo1CurPos > servo1Setpoint + 30 * t) servo1CurPos -= 30 * t;
+        else if (servo1CurPos < servo1Setpoint - 30 * t) servo1CurPos += 30 * t;
+        else servo1CurPos = servo1Setpoint;
+
+        if (servo2CurPos > servo2Setpoint + 30 * t) servo2CurPos -= 30 * t;
+        else if (servo2CurPos < servo2Setpoint - 30 * t) servo2CurPos += 30 * t;
+        else servo2CurPos = servo2Setpoint;
+
+        // update applied setpoints for servos
+        double setpoint1 = targetSetpoint + 20;
+        double appliedSetpoint = MathUtil.clamp(setpoint1, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        servo1Setpoint = appliedSetpoint;
+        appliedSetpoint = (setpoint1 / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
+        hoodServo.setSpeed(appliedSetpoint);
+
+        double setpoint2 = targetSetpoint + 24;
+        appliedSetpoint = MathUtil.clamp(setpoint2, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        servo2Setpoint = appliedSetpoint;
+        appliedSetpoint = (setpoint2 / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
+        hoodServo2.setSpeed(appliedSetpoint);
     }
 
     @Override
     public Distance getHoodExtension() {
          return Millimeters.of(hoodServo.getPosition());
-    }
-
-    /**
-     * Run this method in any periodic function to update the position estimation of your servo
-     */
-    private void updateServos() {
-//        double epsilon = 30 * Timer.getFPGATimestamp();
-        double epsilon = 30;
-        // SERVO 1
-        if (servo1Pos > servo1Setpoint + epsilon) servo1Pos -= epsilon;
-        else if (servo1Pos < servo1Setpoint - epsilon) servo1Pos += epsilon;
-        else servo1Pos = servo1Setpoint;
-        // SERVO 2
-        if (servo2Pos > servo2Setpoint + epsilon) servo2Pos -= epsilon;
-        else if (servo2Pos < servo2Setpoint - epsilon) servo2Pos += epsilon;
-        else servo2Pos = servo2Setpoint;
     }
 
     @Override
@@ -190,12 +186,6 @@ public class LauncherIOTalonFX implements LauncherIO {
 
     @Override
     public void updateInputs(LauncherInputs inputs) {
-        // doesn't log anything but is required for servos to work
-        if (DriverStation.isEnabled()) {
-            // only update servos in enabled
-            updateServos();
-        }
-
         // Launcher
         inputs.isLauncherConnected = BaseStatusSignal.refreshAll(
                 voltageLauncher,
@@ -219,25 +209,13 @@ public class LauncherIOTalonFX implements LauncherIO {
         inputs.launcherFollowerCurrent = currentLauncher.getValue();
         inputs.launcherFollowerVelocity = speedLauncher.getValue();
 
-        inputs.hoodServo1Pos = Millimeters.of(servo1Pos);
-        inputs.hoodServo2Pos = Millimeters.of(servo2Pos);
+        // Hood
+        inputs.hoodServo1Pos = Millimeters.of(servo1CurPos);
+        inputs.hoodServo2Pos = Millimeters.of(servo2CurPos);
         inputs.hoodServo1Target = Millimeters.of(servo1Setpoint);
         inputs.hoodServo2Target = Millimeters.of(servo2Setpoint);
 
         inputs.ultrasonicVoltage = getUltrasonicVolts();
 
-        // Hood
-        // inputs.isHoodConnected = BaseStatusSignal.refreshAll(
-        //         voltageHood,
-        //         currentHood,
-        //         temperatureHood,
-        //         speedHood
-        // ).isOK();
-
-        // inputs.temperatureHood = temperatureHood.getValueAsDouble();
-        // inputs.hoodVoltage = voltageHood.getValue();
-        // inputs.hoodCurrent = currentHood.getValue();
-        // inputs.hoodSpeedRadians = speedHood.getValue();
-        // inputs.hoodPosition = hoodPosition.getValue();
     }
 }

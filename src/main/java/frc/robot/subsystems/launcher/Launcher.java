@@ -106,7 +106,7 @@ public class Launcher extends SubsystemBase {
     @Override
     public void periodic() {
         // update hood
-        if (DriverStation.isEnabled()) io.setHoodExtension(hoodSetpoint.get());
+        if (DriverStation.isEnabled()) io.updateHood(hoodSetpoint.get());
 
         // update inputs
         io.updateInputs(inputs);
