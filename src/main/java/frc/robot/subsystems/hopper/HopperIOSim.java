@@ -83,7 +83,7 @@ public class HopperIOSim implements HopperIO {
 
             /* PID control */
             volts = MathUtil.clamp(
-                pid.calculate(hopperSim.getPositionMeters()) * 12, 
+                pid.calculate(hopperSim.getPositionMeters())*12, 
                 -RoboRioSim.getVInVoltage(), 
                 RoboRioSim.getVInVoltage()
             );

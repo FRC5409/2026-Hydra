@@ -33,7 +33,7 @@ public final class IntakeConstants {
 
 		public static final Distance KILLSWITCH_TOLERANCE = Meters.of(0.0127);
 
-		public static final Time WAIT_TIME = Seconds.of(0.25);
+		public static final Time WAIT_TIME = Seconds.of(0.01);
 
 		public static final int UPDATE_FREQUENCY = 50; // in Hz
 

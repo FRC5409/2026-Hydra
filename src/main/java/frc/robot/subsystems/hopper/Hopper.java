@@ -5,6 +5,8 @@ package frc.robot.subsystems.hopper;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
+import java.util.function.Supplier;
+
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.math.geometry.Pose3d;
@@ -97,8 +99,8 @@ public class Hopper extends SubsystemBase {
         return io.getPosition();
     }
 
-    public Command setSetpoint(Distance setpoint) {
-        return Commands.runOnce(() -> io.setSetpoint(Inches.of(setpoint.in(Inches))), this);
+    public Command setSetpoint(Supplier<Distance> setpoint) {
+        return Commands.runOnce(() -> io.setSetpoint(Inches.of(setpoint.get().in(Inches))), this);
     }
 
     @Override

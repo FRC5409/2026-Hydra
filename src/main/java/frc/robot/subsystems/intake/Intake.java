@@ -3,6 +3,8 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Distance;
@@ -86,8 +88,8 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE), this);
     }
 
-    public Command move(Distance setpoint) {
-        return Commands.runOnce(() -> intakeIO.setSetpoint(setpoint), this);
+    public Command move(Supplier<Distance> setpoint) {
+        return Commands.runOnce(() -> intakeIO.setSetpoint(setpoint.get()), this);
     }
 
     public Command retract() {
