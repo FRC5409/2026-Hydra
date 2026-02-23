@@ -19,7 +19,7 @@ public final class HopperConstants {
 
     public static final Current CURRENT_LIMIT = Amps.of(30.0);
     public static final double kGearing = 12.0 / 1.0;
-    private static final double totalPinionRotations = 1; //Need values for rack and pinion
+    private static final double totalPinionRotations = 3.3; //Need values for rack and pinion
     public static final Distance DistancePerPinionRotation = Inches.of(12 / totalPinionRotations);
     public static final double kRotationConverter = DistancePerPinionRotation.in(Inches) / kGearing;
 
