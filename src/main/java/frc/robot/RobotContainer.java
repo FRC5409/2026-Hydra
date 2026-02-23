@@ -36,6 +36,7 @@ import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.AutoPath;
 import frc.robot.util.FieldConstants.Hub;
 import org.ironmaple.simulation.SimulatedArena;
@@ -58,8 +59,13 @@ import static edu.wpi.first.units.Units.Meters;
 public class RobotContainer {
     // Subsystems
     protected final Drive  sys_drive;
+    private final boolean hasDrive = true;
+
     protected final Vision   sys_vision;
+    private final boolean hasVision = false;
     private final   Elevator sys_elevator;
+    private final boolean hasElevator = true;
+
 
     public static SwerveDriveSimulation simConfig;
 
@@ -89,21 +95,37 @@ public class RobotContainer {
      */
 
     public RobotContainer() {
-        // TODO: vision is not on this robot yet, so use a dummy IO
-        sys_vision = new Vision(new VisionIO() {});
 
         switch (Constants.CURRENT_MODE) {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
-//                sys_vision = new Vision(new VisionIOLimelight());
-                sys_drive = new Drive(
-                        new GyroIOPigeon2(),
-                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-                        new ModuleIOTalonFX(TunerConstants.FrontRight),
-                        new ModuleIOTalonFX(TunerConstants.BackLeft),
-                        new ModuleIOTalonFX(TunerConstants.BackRight),
+                if (hasVision)
+                    sys_vision = new Vision(new VisionIOLimelight());
+                else
+                    sys_vision = new Vision(new VisionIO() {});
+
+                if (hasDrive){
+                    sys_drive = new Drive(
+                            new GyroIOPigeon2(),
+                            new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                            new ModuleIOTalonFX(TunerConstants.FrontRight),
+                            new ModuleIOTalonFX(TunerConstants.BackLeft),
+                            new ModuleIOTalonFX(TunerConstants.BackRight),
+                            sys_vision);
+                } else {
+                    sys_drive = new Drive(
+                        new GyroIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
+                        new ModuleIO() {},
                         sys_vision);
-                sys_elevator = new Elevator(new ElevatorIOTalonFX(Constants.DeviceID.CLIMBER_MOTOR));
+                }
+
+                if (hasElevator)
+                    sys_elevator = new Elevator(new ElevatorIOTalonFX(Constants.DeviceID.CLIMBER_MOTOR));
+                else
+                    sys_elevator = new Elevator(new ElevatorIO() {});
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -126,7 +148,7 @@ public class RobotContainer {
                 SimulatedArena.getInstance().addDriveTrainSimulation(simConfig);
                 SimulatedArena.getInstance().resetFieldForAuto();
 
-//                sys_vision = new Vision(new VisionIOSim(simConfig));
+                sys_vision = new Vision(new VisionIO() {});
                 sys_drive = new Drive(
                         new GyroIOSim(simConfig.getGyroSimulation()),
                         new ModuleIOSim(simConfig.getModules()[0]),
@@ -138,7 +160,7 @@ public class RobotContainer {
             }
             // Replayed robot, disable IO implementations
             default -> {
-//                sys_vision = new Vision(new VisionIO() {});
+                sys_vision = new Vision(new VisionIO() {});
                 sys_drive = new Drive(
                         new GyroIO() {},
                         new ModuleIO() {},
@@ -265,25 +287,25 @@ public class RobotContainer {
         //                  .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
 
         // Switch To Bump Speed Modifier
-        primaryController.a()
-                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
-                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+        // primaryController.a()
+        //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+        //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
-        primaryController.rightBumper()
-                         .whileTrue(
-                                 DriveCommands.alignToHeading(
-                                         sys_drive,
-                                         () -> DriveCommands.getRotation2d(
-                                                 sys_drive,
-                                                 new Pose2d(
-                                                         new Translation2d(
-                                                                 Hub.topCenterPoint.getMeasureX(),
-                                                                 Hub.topCenterPoint.getMeasureY()),
-                                                         Rotation2d.kZero
-                                                 )
-                                         )
-                                 )
-                         );
+        // primaryController.rightBumper()
+        //                  .whileTrue(
+        //                          DriveCommands.alignToHeading(
+        //                                  sys_drive,
+        //                                  () -> DriveCommands.getRotation2d(
+        //                                          sys_drive,
+        //                                          new Pose2d(
+        //                                                  new Translation2d(
+        //                                                          Hub.topCenterPoint.getMeasureX(),
+        //                                                          Hub.topCenterPoint.getMeasureY()),
+        //                                                  Rotation2d.kZero
+        //                                          )
+        //                                  )
+        //                          )
+        //                  );
 
         // primaryController.leftBumper()
         //                 .whileTrue(
@@ -317,29 +339,29 @@ public class RobotContainer {
         //                     )
         //                 );
 
-        primaryController.x()
-                         .whileTrue(
+        // primaryController.x()
+        //                  .whileTrue(
 
-                                 DriveCommands.crossBump(
-                                         sys_drive,
-                                         sys_vision,
-                                         () -> Rotation2d.k180deg,
-                                         DriveCommands.getBumpSpeed(sys_drive),
-                                         500
-                                 )
-                         );
+        //                          DriveCommands.crossBump(
+        //                                  sys_drive,
+        //                                  sys_vision,
+        //                                  () -> Rotation2d.k180deg,
+        //                                  DriveCommands.getBumpSpeed(sys_drive),
+        //                                  500
+        //                          )
+        //                  );
 
-        secondaryController.x()
-                           .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
-        secondaryController.b()
-                           .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
-        secondaryController.a()
-                           .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
+        // secondaryController.x()
+        //                    .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
+        // secondaryController.b()
+        //                    .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
+        // secondaryController.a()
+        //                    .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
 
-        secondaryController.povLeft()
-                           .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
-        secondaryController.povRight()
-                           .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+        // secondaryController.povLeft()
+        //                    .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
+        // secondaryController.povRight()
+        //                    .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
 
         // secondaryController.povUp()
         //                 .onTrue(Commands.runOnce(() -> Robot.rebuiltTimer.addFuel(5)));
