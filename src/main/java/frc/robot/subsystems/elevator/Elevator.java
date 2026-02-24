@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DeviceID;
+import edu.wpi.first.units.measure.Current;
 
 public class Elevator extends SubsystemBase{
 
@@ -42,6 +43,15 @@ public class Elevator extends SubsystemBase{
         return Commands.runOnce(() -> io.setMotorVoltage(voltage), this);
     }
 
+    public Command goTillSpike(double voltage) {
+        return Commands.sequence(
+            startManualMove(voltage),
+            Commands.waitUntil(() -> getCurrent().in(Amps) >= 50.0),
+            stopAll(),
+            zeroEncoder()
+        );
+    }
+
     /**
      * Zeros elevator encoder position 
      */
@@ -66,6 +76,10 @@ public class Elevator extends SubsystemBase{
      */
     public Command stopAll() {
         return Commands.runOnce(() -> io.stopMotor(), this);
+    }
+
+    public Current getCurrent() {
+        return inputs.mainAppliedCurrent;
     }
     
     /**

@@ -59,6 +59,8 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Amps;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -251,6 +253,7 @@ public class RobotContainer {
     
         primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
         primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
+        primaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
 
         primaryController.rightBumper()
                          .whileTrue(
