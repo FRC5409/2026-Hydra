@@ -6,10 +6,14 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.utils.Checkmate;
+import frc.robot.utils.Checkmate.TestResult;
+
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -23,17 +27,41 @@ public class Launcher extends SubsystemBase {
     private final LauncherInputsAutoLogged inputs;
 
     private static Pose3d launcherMech;
-    private static Pose3d hooPose3d;
+    private static Pose3d hoodPose3d;
 
     public Launcher(LauncherIO io) {
         this.io = io;
         inputs = new LauncherInputsAutoLogged();
 
         launcherMech = new Pose3d();
-        hooPose3d = new Pose3d();
+        hoodPose3d = new Pose3d();
 
         // create the logged fields
         logInterpolation(Meters.of(0), null);
+
+        Checkmate.register("Set max hood position", () -> {
+            this.setHoodPos(LauncherConstants.Hood.MAX_ANGLE);
+
+            Timer.delay(2);
+
+            if (inputs.hoodPosition == inputs.targetHoodPosition) {
+                return TestResult.success("Max hood position set");
+            }
+
+            return TestResult.fail("Max hood position not set");
+        });
+
+        Checkmate.register("Set min hood position", () -> {
+            this.setHoodPos(LauncherConstants.Hood.MIN_ANGLE);
+
+            Timer.delay(2);
+
+            if (inputs.hoodPosition == inputs.targetHoodPosition) {
+                return TestResult.success("Min hood position set");
+            }
+
+            return TestResult.fail("Min hood position not set");
+        });
     }
 
     // Voltage
@@ -108,6 +136,8 @@ public class Launcher extends SubsystemBase {
         SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
 
         launcherMech = new Pose3d(new Translation3d(), new Rotation3d(inputs.launcherRPM, 0, 0));
-        hooPose3d = new Pose3d(new Translation3d(), new Rotation3d(0, getHoodPos().in(Radians), 0));
+        hoodPose3d = new Pose3d(new Translation3d(), new Rotation3d(0, getHoodPos().in(Radians), 0));
+
+        Logger.recordOutput("Hood pose 3d", hoodPose3d);
     }
 }

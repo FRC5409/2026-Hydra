@@ -34,6 +34,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -43,12 +44,16 @@ import frc.robot.Constants.Mode;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.utils.Checkmate;
+import frc.robot.utils.Checkmate.TestResult;
+
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -154,6 +159,38 @@ public class Drive extends SubsystemBase {
                                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
                         new SysIdRoutine.Mechanism(
                                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+    Checkmate.register("Check move", () -> {
+        this.runVelocity(new ChassisSpeeds(10, 10, 10));
+
+        Timer.delay(2);
+
+        for (int i = 0; i < 4; i++) {
+            if ((modules[i].getVelocityMetersPerSec() > 6)
+                && (modules[i].getVelocityMetersPerSec() < 14)) {
+                continue;
+            } else {
+                return TestResult.fail("Movement test failed");
+            }
+        }
+
+        return TestResult.success("Movement test success");
+    });
+
+    Checkmate.register("Turn moduels test", () -> {
+        this.runVelocity(new ChassisSpeeds(0, 0, 360));
+
+        for (int i = 0; i < 4; i++) {
+            if ((modules[i].getAngle().getDegrees() <= 360) &&
+                (modules[i].getAngle().getDegrees() >= 354)) {
+                continue;
+            } else {
+                return TestResult.fail("Turn test failed");
+            }
+        }
+
+        return TestResult.success("Turn test success");
+    });
+
     }
 
     @Override
