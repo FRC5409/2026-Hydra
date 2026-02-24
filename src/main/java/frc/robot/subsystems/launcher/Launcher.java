@@ -6,10 +6,13 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
+import frc.robot.util.MathUtils;
+import frc.robot.utils.Checkmate;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Optional;
@@ -32,6 +35,20 @@ public class Launcher extends SubsystemBase {
         // create the logged fields
         logInterpolation(Meters.of(0), null);
         setStrategy(LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
+
+        Checkmate.register(
+                "Should launch fuel", () -> {
+                    Distance d = Meters.of(2.0);
+                    var config = strategy.interpolate(d);
+
+                    CommandScheduler.getInstance().schedule(this.launchFuel(() -> d));
+
+                    return MathUtils.withinTolerance(
+                            getVelocity().in(RotationsPerSecond), config.speed().in(RotationsPerSecond), 0.05) ?
+                           Checkmate.TestResult.success() :
+                           Checkmate.TestResult.fail(
+                                   "Launcher not fast enough (" + getVelocity().in(RotationsPerSecond) + " RPS)");
+                });
     }
 
     public Command runVelocity(Supplier<AngularVelocity> velocity) {
