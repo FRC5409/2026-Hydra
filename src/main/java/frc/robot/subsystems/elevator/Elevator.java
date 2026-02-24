@@ -18,12 +18,21 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DeviceID;
 import edu.wpi.first.units.measure.Current;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+
 public class Elevator extends SubsystemBase{
 
     private final ElevatorIO io;
     private final ElevatorInputsAutoLogged inputs;
 
     private static Pose3d elevatorPose;
+    
+    private final LoggedNetworkNumber dashboardSetpoint =
+        new LoggedNetworkNumber("/Elevator/SetpointMeters", 0.0);
+
+    private final LoggedNetworkBoolean dashboardGoToSetpoint =
+        new LoggedNetworkBoolean("/Elevator/GoToSetpoint", false);
 
     // Setup alerts for elevator motors connection
     private final Alert ElevatorAlert  = new Alert("The Left Elevator Motor is Disconnected " + DeviceID.CLIMBER_MOTOR, AlertType.kError);
@@ -94,6 +103,10 @@ public class Elevator extends SubsystemBase{
     public void periodic() {
         io.updateInputs(inputs);
 
+        if (dashboardGoToSetpoint.get()) {
+            elevatorGo(Meters.of(dashboardSetpoint.get())).schedule();
+            dashboardGoToSetpoint.set(false);
+}
         // Safety: Stop elevator if current exceeds 50A
         if (inputs.mainAppliedCurrent.in(Amps) >= 50.0) {
             io.stopMotor();
