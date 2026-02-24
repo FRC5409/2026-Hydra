@@ -93,10 +93,6 @@ public class Launcher extends SubsystemBase {
         return Commands.runOnce(io::stopLauncher, this);
     }
 
-    public Command stopHood() {
-        return Commands.runOnce(io::stopHood, this);
-    }
-
     public void setStrategy(LaunchStrategy strategy) {
         this.strategy = strategy;
         this.strategy.setLauncher(this);

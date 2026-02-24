@@ -57,8 +57,6 @@ public interface LauncherIO {
 
     default void updateHood(Distance setpoint) {}
 
-    default void stopHood() {}
-
     // Ultrasonic sensor
     default Voltage getUltrasonicVolts() {
         return Volts.of(0.0);

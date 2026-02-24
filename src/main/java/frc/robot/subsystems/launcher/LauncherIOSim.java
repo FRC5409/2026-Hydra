@@ -60,11 +60,6 @@ public class LauncherIOSim implements LauncherIO {
     }
 
     @Override
-    public void stopHood() {
-        hoodPos = Meters.of(0.0);
-    }
-
-    @Override
     public void stopLauncher() {
         flywheelSim.setInputVoltage(0.0);
         flywheelSim.setAngularVelocity(0);
