@@ -138,7 +138,7 @@ public class RobotContainer {
                         .withSwerveModule(
                                 COTS.ofMark4i(
                                         DCMotor.getKrakenX60(1),
-                                        DCMotor.getKrakenX60(1),
+                                        DCMotor.getKrakenX44(1),
                                         DriveConstants.WHEEL_COF,
                                         1));
 
@@ -173,7 +173,10 @@ public class RobotContainer {
         }
 
         // Set up auto routines
-        autoChooser = buildAutoChooser();
+        // autoChooser = buildAutoChooser();
+        autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+        autoChooser.addDefaultOption("None", Commands.none());
+        
 
         // Configure the button bindings
         configureButtonBindings();

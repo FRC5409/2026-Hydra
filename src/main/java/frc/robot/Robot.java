@@ -7,9 +7,16 @@
 
 package frc.robot;
 
+import com.ctre.phoenix6.SignalLogger;
+
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+
+import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -23,9 +30,11 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project, you must also update the build.gradle file in the project.
  */
 public class Robot extends LoggedRobot {
-    private Command        autonomousCommand;
-    private RobotContainer robotContainer;
+    private         Command        autonomousCommand;
+    private final   RobotContainer robotContainer;
 
+    // build constants are defined at compile-time, thus IntelliSense thinks "GitDirty" is unreachable.
+    @SuppressWarnings("DataFlowIssue")
     public Robot() {
         // Record metadata
         Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
@@ -72,6 +81,8 @@ public class Robot extends LoggedRobot {
 
         // forward limelight ports
         VisionIOLimelight.forwardLimelightPorts();
+
+        SignalLogger.enableAutoLogging(false);
     }
 
     /** This function is called periodically during all modes. */
@@ -79,7 +90,7 @@ public class Robot extends LoggedRobot {
     public void robotPeriodic() {
         // Optionally switch the thread to high priority to improve loop
         // timing (see the template project documentation for details)
-        // Threads.setCurrentThreadPriority(true, 99);
+        Threads.setCurrentThreadPriority(true, 99);
 
         // Runs the Scheduler. This is responsible for polling buttons, adding
         // newly-scheduled commands, running already-scheduled commands, removing
@@ -89,7 +100,10 @@ public class Robot extends LoggedRobot {
         CommandScheduler.getInstance().run();
 
         // Return to non-RT thread priority (do not modify the first argument)
-        // Threads.setCurrentThreadPriority(false, 10);
+        Threads.setCurrentThreadPriority(false, 10);
+
+        // put match time in smart dashboard
+        SmartDashboard.putNumber("Time", DriverStation.getMatchTime());
     }
 
     /** This function is called once when the robot is disabled. */
@@ -103,12 +117,16 @@ public class Robot extends LoggedRobot {
     /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
     @Override
     public void autonomousInit() {
+        CommandScheduler.getInstance().clearComposedCommands();
+
         autonomousCommand = robotContainer.getAutonomousCommand();
 
         // schedule the autonomous command (example)
-        if (autonomousCommand != null) {
+        if (autonomousCommand != null)
             CommandScheduler.getInstance().schedule(autonomousCommand);
-        }
+
+        if (Constants.CURRENT_MODE == Constants.Mode.SIM)
+            SimulatedArena.getInstance().resetFieldForAuto();
     }
 
     /** This function is called periodically during autonomous. */
@@ -125,6 +143,7 @@ public class Robot extends LoggedRobot {
         if (autonomousCommand != null) {
             autonomousCommand.cancel();
         }
+        robotContainer.sys_drive.brakeMode();
     }
 
     /** This function is called periodically during operator control. */
@@ -148,5 +167,8 @@ public class Robot extends LoggedRobot {
 
     /** This function is called periodically whilst in simulation. */
     @Override
-    public void simulationPeriodic() {}
+    public void simulationPeriodic() {
+        // if (Constants.CURRENT_MODE == Constants.Mode.SIM)
+        robotContainer.updateSim();
+    }
 }
