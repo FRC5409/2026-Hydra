@@ -67,7 +67,7 @@ public class DriveCommands {
   private static final double FF_RAMP_RATE = 0.1; // Volts/Sec  Last year -> 1.0
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
-  private static LoggedNetworkNumber speedModifier = new LoggedNetworkNumber("Speed Modifier", 1.0);
+  private static double speedModifier = 1.0;
   private static boolean isAligned = false;
 
   /**
@@ -99,7 +99,7 @@ public class DriveCommands {
   public static Command setSpeedHigh(Drive drive) {
     return Commands.run(
             () -> {
-              speedModifier.set(1.0);
+              speedModifier = 1.0;
             });
   }
 
@@ -107,16 +107,16 @@ public class DriveCommands {
   public static Command setSpeedLow(Drive drive) {
     return Commands.run(
             () -> {
-              speedModifier.set(0.5);
+              speedModifier = 0.5;
             });
     }
 
   public static void setSpeed(double speed){
-    speedModifier.set(speed);
+    speedModifier = speed;
   }
 
   public static double getSpeed(){
-    return speedModifier.get();
+    return speedModifier;
   }
 
   public static boolean isAligned(){
@@ -166,9 +166,9 @@ public class DriveCommands {
 
           // Convert to field relative speeds & send command
           ChassisSpeeds speeds = new ChassisSpeeds(
-                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
-                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
-                  omega * drive.getMaxAngularSpeedRadPerSec() * speedModifier.get());
+                  linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier,
+                  linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier,
+                  omega * drive.getMaxAngularSpeedRadPerSec() * speedModifier);
 
           boolean isFlipped =
               DriverStation.getAlliance().isPresent()
@@ -224,8 +224,8 @@ public class DriveCommands {
               // Convert to field relative speeds & send command
               ChassisSpeeds speeds =
                   new ChassisSpeeds(
-                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
-                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier.get(),
+                      linearVelocity.getX() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier,
+                      linearVelocity.getY() * drive.getMaxLinearSpeedMetersPerSec() * speedModifier,
                       omega);
               boolean isFlipped =
                   DriverStation.getAlliance().isPresent()
@@ -243,13 +243,9 @@ public class DriveCommands {
               Logger.recordOutput("AutoAlign/MaxAcceleration [Rotations per s^2]", RotationsPerSecondPerSecond.of(ANGLE_MAX_ACCELERATION));
               Logger.recordOutput("AutoAlign/Angle to Alignment [Degrees]", difference.in(Degrees));
 
-
-
               if (drive.getRotation().getRadians() == rotationSupplier.get().getRadians())
                   isAligned = true;
-            },
-            drive)
-
+            }, drive)
         // Reset PID controller when command starts
         .beforeStarting(() -> angleController.reset(drive.getRotation().getRadians()));
   }
@@ -310,7 +306,6 @@ public class DriveCommands {
 
         drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(speedX, speedY, omega, drive.getRotation()));
         
-        
         Logger.recordOutput("AutoAlign/Target", targetPose);
         Logger.recordOutput("AutoAlign/SpeedOutput", speed);
         Logger.recordOutput("AutoAlign/OmegaOutput", omega);
@@ -321,6 +316,7 @@ public class DriveCommands {
     ).until(() -> {
         Pose2d robotPose = drive.getPose();
         Pose2d targetPose = target.get();
+
         if(AutoBuilder.shouldFlip())
             targetPose =  FlippingUtil.flipFieldPose(targetPose);
 
@@ -459,7 +455,6 @@ public class DriveCommands {
 
     headingController.enableContinuousInput(-Math.PI, Math.PI);
 
-
     return Commands.sequence(
       Commands.runOnce(() -> {
 
@@ -472,9 +467,9 @@ public class DriveCommands {
         Rotation2d robotRotation = drive.getRotation();
         Rotation2d targetRotation = target.get();
 
-        // if (AutoBuilder.shouldFlip()){
-        //   targetRotation = FlippingUtil.flipFieldRotation(targetRotation);
-        // }
+        if (AutoBuilder.shouldFlip()){
+          targetRotation = FlippingUtil.flipFieldRotation(targetRotation);
+        }
 
         double omega = 
           headingController.calculate(robotRotation.getRadians(), targetRotation.getRadians());
@@ -489,8 +484,9 @@ public class DriveCommands {
     ).until(() -> {
         Rotation2d robotRotation = drive.getRotation();
         Rotation2d targetRotation = target.get();
-        // if(AutoBuilder.shouldFlip())
-        //     targetRotation =  FlippingUtil.flipFieldRotation(targetRotation);
+
+        if(AutoBuilder.shouldFlip())
+            targetRotation =  FlippingUtil.flipFieldRotation(targetRotation);
 
         Angle difference = AlignHelper.rotationDifference(targetRotation, robotRotation);
 
