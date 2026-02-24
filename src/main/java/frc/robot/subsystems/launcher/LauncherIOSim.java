@@ -55,7 +55,7 @@ public class LauncherIOSim implements LauncherIO {
     }
 
     @Override
-    public void setHoodExtension(Distance setpoint) {
+    public void updateHood(Distance setpoint) {
         hoodPos = setpoint;
     }
 
