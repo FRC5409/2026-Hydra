@@ -78,14 +78,24 @@ public class Elevator extends SubsystemBase{
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
         io.updateInputs(inputs);
+
+        // Safety: Stop elevator if current exceeds 50A
+        if (inputs.mainAppliedCurrent.in(Amps) >= 50.0) {
+            io.stopMotor();
+        }
+
         Logger.processInputs("Elevator", inputs);
+
+        elevatorPose = new Pose3d(
+            0,
+            0,
+            inputs.mainMotorPosition.in(Units.Meters),
+            new Rotation3d()
+        );
+
         Logger.recordOutput("Components/Elevator", elevatorPose);
 
-        //Alert if motors are disconnected
         ElevatorAlert.set(!inputs.isMainMotorConnected);
-
-        elevatorPose = new Pose3d(0,0,inputs.mainMotorPosition.in(Units.Meters), new Rotation3d());
     }
 }
