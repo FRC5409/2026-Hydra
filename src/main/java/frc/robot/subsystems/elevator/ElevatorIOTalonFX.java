@@ -63,7 +63,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         m_motorConfig.apply(m_pidConfig);
 
-        m_motorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+        m_motorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
 
         m_motor.setNeutralMode(NeutralModeValue.Brake);
 
