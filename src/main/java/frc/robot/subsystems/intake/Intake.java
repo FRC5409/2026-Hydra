@@ -95,6 +95,10 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
     }
 
+    public Command coastMode() {
+        return Commands.runOnce(() -> intakeIO.coastMode(), this);
+    }
+
     public Distance getPosition() {
         return intakeIO.getPosition();
     }
@@ -109,6 +113,14 @@ public class Intake extends SubsystemBase {
             new Rotation3d(0.0, 0.0, Math.toRadians(0.0))
 
         );
+
+        if(inputs.extensionCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
+            Commands.runOnce(() -> intakeIO.coastMode(), this);
+        }
+
+        // if(inputs.extensionCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
+        //     Commands.runOnce(() -> intakeIO.move(Extension.EXTENSION_MIN_DISTANCE), this);
+        // }
 
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.PID);
