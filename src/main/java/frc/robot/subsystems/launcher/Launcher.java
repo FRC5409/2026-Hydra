@@ -15,7 +15,7 @@ import frc.robot.util.MathUtils;
 import frc.robot.utils.Checkmate;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
@@ -55,25 +55,30 @@ public class Launcher extends SubsystemBase {
         return Commands.runOnce(() -> io.runVelocity(velocity));
     }
 
+    /**
+     * Defers a command that interpolates a {@link LaunchConfig} and then sets the velocity and hood angle of the
+     * launcher, based on the active {@link LaunchStrategy}.
+     *
+     * @param distance supplier to get the distance that fuel should be shot from
+     *
+     * @return defered command that launches fuel
+     */
     public Command launchFuel(Supplier<Distance> distance) {
-        // ptr. to config; anon. fn. req. stable addr.
-        AtomicReference<Optional<LaunchConfig>> config = new AtomicReference<>(Optional.empty());
-        return Commands.runOnce(() -> {
-            LaunchConfig c = strategy.interpolate(distance.get());
-            logInterpolation(distance.get(), c);
-            config.set(Optional.of(c)); // update ptr. for use in next cmd.
-        }).andThen(runVelocity(() -> RotationsPerSecond.of(
-                config.get()
-                      .map(c -> c.speed().in(RotationsPerSecond))
-                      .orElse(0.0)
-        )));
+        return Commands.defer(
+                () -> {
+                    LaunchConfig c = strategy.interpolate(distance.get());
+                    logInterpolation(distance.get(), c);
+
+                    return runVelocity(c::speed).alongWith(setHoodAngle(c::angle));
+                }, Set.of(this));
     }
 
     private void logInterpolation(Distance distance, LaunchConfig config) {
-        Logger.recordOutput("Launcher/TargetDistance", distance);
-        Logger.recordOutput("Launcher/DidInterpolationSucceed", config != null);
-        Logger.recordOutput("Launcher/TargetSpeed", config == null ? RotationsPerSecond.of(0) : config.speed());
-        Logger.recordOutput("Launcher/TargetAngle", config == null ? Radians.of(0) : config.angle());
+        Logger.recordOutput("Launcher/Interpolator/TargetDistance", distance);
+        Logger.recordOutput("Launcher/Interpolator/DidInterpolationSucceed", config != null);
+        Logger.recordOutput(
+                "Launcher/Interpolator/TargetSpeed", config == null ? RotationsPerSecond.of(0) : config.speed());
+        Logger.recordOutput("Launcher/Interpolator/TargetAngle", config == null ? Radians.of(0) : config.angle());
     }
 
     private Distance computeHoodExtension(Angle angle) {
@@ -113,7 +118,7 @@ public class Launcher extends SubsystemBase {
     public void setStrategy(LaunchStrategy strategy) {
         this.strategy = strategy;
         this.strategy.setLauncher(this);
-        Logger.recordOutput("Launcher/LaunchStrategy", strategy.getName());
+        Logger.recordOutput("Launcher/Interpolator/LaunchStrategy", strategy.getName());
     }
 
     @Override
