@@ -13,9 +13,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.feeder.*;
@@ -23,6 +21,7 @@ import frc.robot.subsystems.launcher.Launcher;
 import frc.robot.subsystems.launcher.LauncherConstants;
 import frc.robot.subsystems.launcher.LauncherIO;
 import frc.robot.subsystems.launcher.LauncherIOTalonFX;
+import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.*;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -30,6 +29,7 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
@@ -61,6 +61,7 @@ public class RobotContainer {
 
     // Dashboard inputs
 //    private final LoggedDashboardChooser<Command> autoChooser;
+    private final LoggedDashboardChooser<Command> launchStrategyChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -159,9 +160,26 @@ public class RobotContainer {
 
         // Set up auto routines
 //        autoChooser = buildAutoChooser();
+        launchStrategyChooser = buildLaunchStrategyChooser();
 
         // Configure the button bindings
         configureButtonBindings();
+    }
+
+    /**
+     * builds the dashboard command chooser ({@link LoggedDashboardChooser}) for picking launch strategies.
+     *
+     * @return the logged dashboard chooser
+     */
+    public LoggedDashboardChooser<Command> buildLaunchStrategyChooser() {
+        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>("Launch Strategy");
+
+        for (LaunchStrategy strategy: LaunchStrategy.getLaunchStrategies())
+            chooser.addOption(strategy.getName(), Commands.runOnce(() -> sys_launcher.setStrategy(strategy)));
+
+        chooser.onChange(CommandScheduler.getInstance()::schedule);
+
+        return chooser;
     }
 
 //    /**
