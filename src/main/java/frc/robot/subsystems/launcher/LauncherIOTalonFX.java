@@ -115,8 +115,7 @@ public class LauncherIOTalonFX implements LauncherIO {
         // Motor output configs
         launcherConfigurator.apply(
                 new MotorOutputConfigs()
-                        .withNeutralMode(NeutralModeValue.Coast)
-                        .withInverted(InvertedValue.CounterClockwise_Positive));
+                        .withNeutralMode(NeutralModeValue.Coast));
         launcherFollowerConfigurator.apply(
                 new MotorOutputConfigs()
                         .withNeutralMode(NeutralModeValue.Coast));
@@ -127,7 +126,7 @@ public class LauncherIOTalonFX implements LauncherIO {
         launcherConfigurator.apply(launcherFeedbackConfigs);
         launcherFollowerConfigurator.apply(launcherFeedbackConfigs);
 
-        launcherFollowerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Opposed));
+        launcherFollowerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Aligned));
     }
 
     // Run systems
