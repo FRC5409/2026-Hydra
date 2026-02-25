@@ -4,6 +4,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
@@ -55,8 +56,9 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
         var params = super.interpolate(displacement);
 
         // update hood before returning interpolation
-        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> computeHoodAdjustment(
-                params.speed(), this.launcher.getVelocity(), this.launcher.getHoodAngle())));
+        var err = computeHoodAdjustment(params.speed(), this.launcher.getVelocity(), this.launcher.getHoodAngle());
+        Logger.recordOutput("Launcher/Interpolator/DynamicHoodAdjustment", err);
+        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> err));
 
         return params;
     }
