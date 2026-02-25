@@ -97,9 +97,11 @@ public class Launcher extends SubsystemBase {
 
     // Getters
     public Angle getHoodAngle() {
-        return (Angle)io.getHoodExtension()
-                        .plus(LauncherConstants.Hood.OFFSET_MM)
-                        .divideRatio(LauncherConstants.Hood.MM_PER_DEG);
+        return Degrees.of(
+                io.getHoodExtension()
+                  .plus(LauncherConstants.Hood.OFFSET_MM)
+                  .divideRatio(LauncherConstants.Hood.MM_PER_DEG)
+                  .in(Degrees));
     }
 
     public AngularVelocity getVelocity() {
