@@ -20,10 +20,12 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
  * will be used here.
  */
 public class DynamicHoodBilinearStrategy extends BilinearStrategy {
+    private LaunchConfig lastConfig;
+
     /**
      * Tuned value that affects the correction rate of the hood as per the velocity error.
      */
-    private static final float ALPHA = 1f;
+    private static final float ALPHA = 0.005f;
 
     /**
      * Computes the new hood value to correct the error of theoretical velocity and real velocity
@@ -41,26 +43,21 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
                           * Math.cos(hoodAngle.times(2).in(Radians))); // hood adjustment
     }
 
-    /**
-     * Runs {@link BilinearStrategy#interpolate(Distance)} and updates the hood position.
-     *
-     * @param displacement total straight-line displacement to shoot fuel at
-     *
-     * @return launch config
-     *
-     * @see BilinearStrategy#interpolate(Distance)
-     * @see DynamicHoodBilinearStrategy#computeHoodAdjustment(AngularVelocity, AngularVelocity, Angle)
-     */
     @Override
     public LaunchConfig interpolate(Distance displacement) {
         var params = super.interpolate(displacement);
+        lastConfig = params;
+        return params;
+    }
+
+    @Override
+    public void periodicActive() {
+        if (lastConfig == null) return;
 
         // update hood before returning interpolation
-        var err = computeHoodAdjustment(params.speed(), this.launcher.getVelocity(), this.launcher.getHoodAngle());
+        Angle err = computeHoodAdjustment(lastConfig.speed(), this.launcher.getVelocity(), this.launcher.getHoodAngle());
         Logger.recordOutput("Launcher/Interpolator/DynamicHoodAdjustment", err);
         CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> err));
-
-        return params;
     }
 
     @Override

@@ -18,6 +18,11 @@ public abstract class LaunchStrategy {
      */
     public abstract LaunchConfig interpolate(Distance displacement);
 
+    /**
+     * Called in periodic of the parent {@link Launcher} subsystem
+     */
+    public void periodicActive() {}
+
     public abstract String getName();
 
     /**

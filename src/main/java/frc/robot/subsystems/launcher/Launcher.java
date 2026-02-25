@@ -125,8 +125,13 @@ public class Launcher extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // update hood
-        if (DriverStation.isEnabled()) io.updateHood(hoodSetpoint.get());
+        if (DriverStation.isEnabled()) {
+            // update hood
+            io.updateHood(hoodSetpoint.get());
+
+            // TODO: only run when launching
+            strategy.periodicActive();
+        }
 
         // update inputs
         io.updateInputs(inputs);
