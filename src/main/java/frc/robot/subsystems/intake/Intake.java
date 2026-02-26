@@ -120,7 +120,7 @@ public class Intake extends SubsystemBase {
 
         // if(inputs.extensionCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
         //     Commands.runOnce(() -> intakeIO.move(Extension.EXTENSION_MIN_DISTANCE), this);
-        // }
+        // }  Can be replaced with the content above to change action upon impact
 
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.PID);
