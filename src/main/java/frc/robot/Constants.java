@@ -25,7 +25,7 @@ import static edu.wpi.first.units.Units.*;
 public final class Constants {
     public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
 
-    public static final boolean IS_TUNING = false;
+    public static final boolean IS_TUNING = true;
 
     public enum Mode {
         /** Running on a real robot. */
@@ -67,7 +67,7 @@ public final class Constants {
         public static final int SERIALIZER_MOTOR = 31;
 
         // CLIMBER
-        public static final int CLIMBER_MOTOR = 0; // TODO: yonina will update this
+        public static final int CLIMBER_MOTOR = 32; // TODO: yonina will update this
     }
 
     public static final class kAutoAlign {

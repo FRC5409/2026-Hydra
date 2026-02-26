@@ -176,8 +176,9 @@ public class RobotContainer {
 
         // Set up auto routines
         // autoChooser = buildAutoChooser();
-        autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-        autoChooser.addDefaultOption("None", Commands.none());
+        // autoChooser = new LoggedDashboardChooser<>("Auto Choices");
+        // autoChooser.addDefaultOption("None", Commands.none());
+        autoChooser = buildAutoChooser();
         
 
         // Configure the button bindings
@@ -230,9 +231,9 @@ public class RobotContainer {
     private LoggedDashboardChooser<Command> buildAutoChooser() {
         LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>("Auto Choices");
         chooser.addDefaultOption("None", Commands.none());
-        ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
+        // ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
 
-        autoPaths.forEach(autoPath -> chooser.addOption(autoPath.getName(), autoPath));
+        // autoPaths.forEach(autoPath -> chooser.addOption(autoPath.getName(), autoPath));
 
         if (Constants.IS_TUNING) {
             chooser.addOption(
@@ -282,6 +283,26 @@ public class RobotContainer {
                                          .ignoringDisable(true)
                          );
 
+        // primaryController.povUp()
+        //                 .onTrue(sys_elevator.startManualMove(2))
+        //                 .onFalse(sys_elevator.startManualMove(0));
+
+        // primaryController.povDown()
+        //                 .onTrue(sys_elevator.startManualMove(-2))
+        //                 .onFalse(sys_elevator.startManualMove(0));
+
+        // primaryController.povLeft()
+        //                 .onTrue(sys_elevator.zeroEncoder());
+
+        // primaryController.a()
+        //                 .onTrue(sys_elevator.goTillSpike(-2));
+        
+        // primaryController.b()
+        //                 .onTrue(sys_elevator.elevatorGo(Meters.of(3)));
+        // primaryController.x()
+        //                 .onTrue(sys_elevator.elevatorGo(Meters.of(0.5)));
+        
+
         // primaryController.x()
         //         .onTrue(
 
@@ -296,21 +317,21 @@ public class RobotContainer {
         //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
         //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
-        primaryController.rightBumper()
-                         .whileTrue(
-                                 DriveCommands.alignToHeading(
-                                         sys_drive,
-                                         () -> DriveCommands.getRotation2d(
-                                                 sys_drive,
-                                                 new Pose2d(
-                                                         new Translation2d(
-                                                                 Hub.topCenterPoint.getMeasureX(),
-                                                                 Hub.topCenterPoint.getMeasureY()),
-                                                         Rotation2d.kZero
-                                                 )
-                                         )
-                                 )
-                         );
+        // primaryController.rightBumper()
+        //                  .whileTrue(
+        //                          DriveCommands.alignToHeading(
+        //                                  sys_drive,
+        //                                  () -> DriveCommands.getRotation2d(
+        //                                          sys_drive,
+        //                                          new Pose2d(
+        //                                                  new Translation2d(
+        //                                                          Hub.topCenterPoint.getMeasureX(),
+        //                                                          Hub.topCenterPoint.getMeasureY()),
+        //                                                  Rotation2d.kZero
+        //                                          )
+        //                                  )
+        //                          )
+        //                  );
 
         // primaryController.leftBumper()
         //                 .whileTrue(

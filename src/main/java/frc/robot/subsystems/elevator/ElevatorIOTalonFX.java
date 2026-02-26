@@ -62,7 +62,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         m_motorConfig.apply(m_pidConfig);
 
-        m_motorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+        m_motorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
         m_motor.setNeutralMode(NeutralModeValue.Brake);
 
@@ -127,7 +127,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
      */
     @Override
     public void setSetpoint(Distance setpoint) {
-        m_motor.setControl(m_request.withPosition(setpoint.in(Meters)));
+        m_motor.setControl(m_request.withPosition(setpoint.in(Meters)).withSlot(0));
     }
 
     /**
@@ -147,6 +147,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.mainAppliedCurrent = Units.Amps.of(Math.abs(mainMotorCurrent.getValueAsDouble()));
         inputs.mainMotorTemperature = mainMotorTemp.getValueAsDouble();
         inputs.mainMotorPosition = Units.Meters.of(motorPosition.getValueAsDouble());
+        inputs.mainMotorTorqueCurrent = m_motor.getTorqueCurrent().getValue();
         
     }
 }

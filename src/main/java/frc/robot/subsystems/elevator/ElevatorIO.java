@@ -17,6 +17,7 @@ public interface ElevatorIO {
         public Current mainAppliedCurrent = Units.Amps.of(0.0);
         public double mainMotorTemperature = 0.0; // Celsius
         public Distance mainMotorPosition = Units.Meters.of(0.0);
+        public Current mainMotorTorqueCurrent = Units.Amps.of(0.0);
     }
 
     public default void updateInputs(ElevatorInputs inputs) {}

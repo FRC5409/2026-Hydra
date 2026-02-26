@@ -16,21 +16,12 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DeviceID;
 import edu.wpi.first.units.measure.Current;
 
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
-import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
-
 public class Elevator extends SubsystemBase{
 
     private final ElevatorIO io;
     private final ElevatorInputsAutoLogged inputs;
 
     private static Pose3d elevatorPose;
-    
-    private final LoggedNetworkNumber dashboardSetpoint =
-        new LoggedNetworkNumber("/Elevator/SetpointMeters", 0.0);
-
-    private final LoggedNetworkBoolean dashboardGoToSetpoint =
-        new LoggedNetworkBoolean("/Elevator/GoToSetpoint", false);
 
     // Setup alerts for elevator motors connection
     private final Alert ElevatorAlert  = new Alert("The Left Elevator Motor is Disconnected " + DeviceID.CLIMBER_MOTOR, AlertType.kError);
@@ -53,7 +44,7 @@ public class Elevator extends SubsystemBase{
     public Command goTillSpike(double voltage) {
         return Commands.sequence(
             startManualMove(voltage),
-            Commands.waitUntil(() -> getCurrent().in(Amps) >= 50.0),
+            Commands.waitUntil(() -> isCurrentSpike()),
             stopAll(),
             zeroEncoder()
         );
@@ -86,7 +77,11 @@ public class Elevator extends SubsystemBase{
     }
 
     public Current getCurrent() {
-        return inputs.mainAppliedCurrent;
+        return inputs.mainMotorTorqueCurrent;
+    }
+
+    public boolean isCurrentSpike(){
+        return inputs.mainMotorTorqueCurrent.gte(Amps.of(70)) ||inputs.mainMotorTorqueCurrent.lte(Amps.of(-70));
     }
     
     /**
@@ -101,15 +96,10 @@ public class Elevator extends SubsystemBase{
     public void periodic() {
         io.updateInputs(inputs);
 
-        if (dashboardGoToSetpoint.get()) {
-            elevatorGo(Meters.of(dashboardSetpoint.get())).schedule();
-            dashboardGoToSetpoint.set(false);
-}
-        // Safety: Stop elevator if current exceeds 50A
-        if (inputs.mainAppliedCurrent.in(Amps) >= 50.0) {
-            io.stopMotor();
-        }
-
+        // Safety: Stop elevator if torque current exceeds 70A
+        if (isCurrentSpike())
+            stopAll();
+        
         Logger.processInputs("Elevator", inputs);
 
         elevatorPose = new Pose3d(
