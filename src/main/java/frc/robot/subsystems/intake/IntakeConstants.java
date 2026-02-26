@@ -11,10 +11,10 @@ public final class IntakeConstants {
 
 	public static final class Extension {
 
-		public static final int MOTORID = 15;
+		public static final int MOTORID = 28;
 
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
-		public static final Distance EXTENSION_DISTANCE = Meters.of(0.222); //Needs confirmation from Design for exact extension distance
+		public static final Distance EXTENSION_DISTANCE = Meters.of(0.2794); //Needs confirmation from Design for exact extension distance
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146); //Needs confirmation from Design for exact extension distance
 
 		public static final PIDController PID = new PIDController(0.01, 0.0, 0.0);
@@ -36,7 +36,7 @@ public final class IntakeConstants {
 
     public static final class Roller {
 
-		public static final int MOTORID = 14;
+		public static final int MOTORID = 29;
 
         public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
         public static final Current MAX_CURRENT = Amps.of(30.0);

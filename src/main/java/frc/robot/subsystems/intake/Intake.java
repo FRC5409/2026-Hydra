@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.Meters;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -113,8 +114,7 @@ public class Intake extends SubsystemBase {
             new Rotation3d(0.0, 0.0, Math.toRadians(0.0))
 
         );
-
-        if(inputs.extensionCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
+        if (DriverStation.isEnabled() && inputs.extensionCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
             Commands.runOnce(() -> intakeIO.coastMode(), this);
         }
 
