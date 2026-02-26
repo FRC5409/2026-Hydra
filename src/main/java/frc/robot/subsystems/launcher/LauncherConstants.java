@@ -66,6 +66,8 @@ public class LauncherConstants {
         public static DigitalOutput DIGITAL_OUTPUT = new DigitalOutput(0);
         public static DigitalInput  DIGITAL_INPUT  = new DigitalInput(0);
 
+        public static int ULTRASONIC_CHANNEL = 1;
+
         public static final Per<DistanceUnit, VoltageUnit> MM_PER_VOLT = Millimeters.of(1024.0).div(Volts.of(5.0));
     }
 }
