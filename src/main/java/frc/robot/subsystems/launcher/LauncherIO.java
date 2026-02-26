@@ -28,16 +28,11 @@ public interface LauncherIO {
         public AngularVelocity launcherFollowerVelocity    = RotationsPerSecond.of(0.0);
 
         // Hood
-        public double          hoodTemperature  = 0.0;
-        public Voltage         hoodVoltage      = Volts.of(0.0);
-        public Current         hoodCurrent      = Amps.of(0);
-        public AngularVelocity hoodVelocity     = RotationsPerSecond.of(0.0);
         public Distance        hoodServo1Pos    = Meters.of(0.0);
         public Distance        hoodServo2Pos    = Meters.of(0.0);
         public Distance        hoodServo1Target = Meters.of(0.0);
         public Distance        hoodServo2Target = Meters.of(0.0);
 
-        public Distance ultrasonicDistance = Meters.of(0);
         public Voltage  ultrasonicVoltage  = Volts.of(0);
     }
 

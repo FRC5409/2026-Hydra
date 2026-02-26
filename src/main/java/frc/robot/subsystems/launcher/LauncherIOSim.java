@@ -72,9 +72,6 @@ public class LauncherIOSim implements LauncherIO {
         double voltageLauncher = 0;
         double currentLauncher = 0;
 
-        double voltageHood = 0;
-        double currentHood = 0;
-
         if (isRunning) {
             voltageLauncher = MathUtil.clamp(
                     controllerLauncher.calculate(flywheelSim.getAngularVelocityRPM()), -12, 12);
@@ -82,14 +79,9 @@ public class LauncherIOSim implements LauncherIO {
         }
 
         inputs.isLauncherConnected = true;
-
         inputs.launcherTemperature = 0.0;
-        inputs.hoodTemperature = 0.0;
-
         inputs.launcherVoltage = Volts.of(voltageLauncher);
-        inputs.hoodVoltage = Volts.of(voltageHood);
         inputs.launcherCurrent = Current.ofBaseUnits(currentLauncher, Amps);
-        inputs.hoodCurrent = Current.ofBaseUnits(currentHood, Amps);
         inputs.launcherVelocity = flywheelSim.getAngularVelocity();
 
         inputs.hoodServo1Pos = hoodPos;
