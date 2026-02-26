@@ -243,7 +243,7 @@ public class RobotContainer {
         // launch fuel w distance
         SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
         SmartDashboard.putData("LAUNCH FUEL (DST)", sys_launcher.launchFuel(
-              () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0))));
+              () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0)), sys_feeder));
 
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
@@ -260,7 +260,7 @@ public class RobotContainer {
                            .limit((int)(10 / 0.5) + 1)
                            .boxed()
                            .flatMap(d -> Stream.of(
-                                   sys_launcher.launchFuel(() -> Meters.of(d)),
+                                   sys_launcher.launchFuel(() -> Meters.of(d), sys_feeder),
                                    new WaitCommand(0.5)))
                            .toArray(Command[]::new)
         ));
