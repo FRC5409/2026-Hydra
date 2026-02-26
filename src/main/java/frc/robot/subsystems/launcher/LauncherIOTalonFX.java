@@ -5,10 +5,15 @@ import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
+import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.SensorDirectionValue;
+import com.fasterxml.jackson.databind.JsonSerializable.Base;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -17,12 +22,15 @@ import edu.wpi.first.wpilibj.Timer;
 
 import java.util.function.Supplier;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Volts;
 
 public class LauncherIOTalonFX implements LauncherIO {
     // Motors and sensors
     private final TalonFX launcherMotor;
+    private final CANcoder launcherCANCoder;
+
     private final Servo   hoodServo;
     private final Servo   hoodServo2;
 
@@ -34,6 +42,8 @@ public class LauncherIOTalonFX implements LauncherIO {
     private double servo2Setpoint;
 
     // IOs
+    private final StatusSignal<MagnetHealthValue>   magnetHealth;
+    
     private final StatusSignal<Temperature>     temperatureLauncher;
     private final StatusSignal<Voltage>         voltageLauncher;
     private final StatusSignal<Current>         currentLauncher;
@@ -45,6 +55,7 @@ public class LauncherIOTalonFX implements LauncherIO {
     private final StatusSignal<AngularVelocity> speedLauncherFollower;
 
     public LauncherIOTalonFX(
+            int launcherCANCoderID,
             int launcherCanID,
             int launcherFollowerCanID,
             int ultrasonicChannel,
@@ -53,6 +64,8 @@ public class LauncherIOTalonFX implements LauncherIO {
     ) {
         // Motors and sensors
         launcherMotor = new TalonFX(launcherCanID);
+
+        launcherCANCoder = new CANcoder(launcherCANCoderID);
 
         TalonFX launcherFollowerMotor = new TalonFX(launcherFollowerCanID);
 
@@ -65,6 +78,8 @@ public class LauncherIOTalonFX implements LauncherIO {
         hoodServo2.setBoundsMicroseconds(2000, 1800, 1500, 1200, 1000);
 
         // IOs
+        magnetHealth = launcherCANCoder.getMagnetHealth();
+
         temperatureLauncher = launcherMotor.getDeviceTemp();
         voltageLauncher = launcherMotor.getMotorVoltage();
         currentLauncher = launcherMotor.getSupplyCurrent();
@@ -77,6 +92,9 @@ public class LauncherIOTalonFX implements LauncherIO {
 
         BaseStatusSignal.setUpdateFrequencyForAll(
                 50,
+
+                magnetHealth,
+
                 temperatureLauncher,
                 voltageLauncher,
                 currentLauncher,
@@ -91,6 +109,14 @@ public class LauncherIOTalonFX implements LauncherIO {
         // Configurators
         TalonFXConfigurator launcherConfigurator = launcherMotor.getConfigurator();
         TalonFXConfigurator launcherFollowerConfigurator = launcherMotor.getConfigurator();
+
+        launcherCANCoder.getConfigurator()      // check sensor configs
+                            .apply(
+                                new CANcoderConfiguration()
+                                .MagnetSensor.withAbsoluteSensorDiscontinuityPoint(Degrees.of(180))
+                                .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
+                                .withMagnetOffset(1)
+                                );
 
         // Slot configs
         Slot0Configs launcherSlotConfigs = new Slot0Configs()
@@ -122,7 +148,8 @@ public class LauncherIOTalonFX implements LauncherIO {
                         .withNeutralMode(NeutralModeValue.Coast));
 
         // Feedback configs
-        FeedbackConfigs launcherFeedbackConfigs = new FeedbackConfigs();
+        FeedbackConfigs launcherFeedbackConfigs = new FeedbackConfigs()
+                .withRemoteCANcoder(launcherCANCoder);
 
         launcherConfigurator.apply(launcherFeedbackConfigs);
         launcherFollowerConfigurator.apply(launcherFeedbackConfigs);
@@ -186,6 +213,8 @@ public class LauncherIOTalonFX implements LauncherIO {
     @Override
     public void updateInputs(LauncherInputs inputs) {
         // Launcher
+        inputs.isCANCoderConnecetd = BaseStatusSignal.refreshAll(magnetHealth).isOK();
+
         inputs.isLauncherConnected = BaseStatusSignal.refreshAll(
                 voltageLauncher,
                 currentLauncher,
@@ -197,6 +226,8 @@ public class LauncherIOTalonFX implements LauncherIO {
                 temperatureLauncherFollower,
                 speedLauncherFollower
         ).isOK();
+
+        inputs.magnetHealth = magnetHealth.getValue();
 
         inputs.launcherTemperature = temperatureLauncher.getValueAsDouble();
         inputs.launcherVoltage = voltageLauncher.getValue();
