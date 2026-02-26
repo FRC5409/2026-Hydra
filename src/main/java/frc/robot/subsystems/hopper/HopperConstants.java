@@ -15,7 +15,6 @@ import edu.wpi.first.units.measure.Mass;
 public final class HopperConstants {
 
     public static final int MAIN_MOTOR_ID = 20;
-    public static final int FOLLOWER_MOTOR_ID = 21;
 
     public static final Current CURRENT_LIMIT = Amps.of(30.0);
     public static final double kGearing = 12.0 / 1.0;

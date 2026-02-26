@@ -112,12 +112,6 @@ public class HopperIOSim implements HopperIO {
         inputs.mainMotorPosition = getPosition();
         inputs.setpoint = simSetpoint;
 
-        inputs.isFollowerMotorConnected = true;
-        inputs.followerAppliedVoltage = Volts.of(volts);
-        inputs.followerAppliedCurrent = Amps.of(current);
-        inputs.followerMotorTemp = 0.0;
-        inputs.followerMotorPosition = getPosition();
-
         slider.setLength(getPosition().in(Inches));
         Logger.recordOutput("Hopper Slider/Mech", mechanism);
     }

@@ -99,7 +99,7 @@ public class RobotContainer {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
                 sys_hopper = new Hopper(
-                        new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
+                        new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID));
                 sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
                 sys_serializer = new Serializer(
                         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));

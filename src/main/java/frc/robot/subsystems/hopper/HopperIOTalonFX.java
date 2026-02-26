@@ -24,10 +24,8 @@ import edu.wpi.first.units.measure.Voltage;
 
 public class HopperIOTalonFX implements HopperIO {
     private final TalonFX m_mainMotor;
-    private final TalonFX m_followerMotor;
 
     private final TalonFXConfigurator m_mainMotorConfig;
-    private final TalonFXConfigurator m_followerMotorConfig;
 
     private CurrentLimitsConfigs m_currentConfig;
     private FeedbackConfigs m_encoderConfigs;
@@ -39,27 +37,20 @@ public class HopperIOTalonFX implements HopperIO {
     private final StatusSignal<Voltage> mainDeviceVoltage;
     private final StatusSignal<Current> mainDeviceCurrent;
     private final StatusSignal<Temperature> mainDeviceTemp;
-    private final StatusSignal<Voltage> followerDeviceVoltage;
-    private final StatusSignal<Current> followerDeviceCurrent;
-    private final StatusSignal<Temperature> followerDeviceTemp;
 
-    public HopperIOTalonFX(int mainMotorID, int followerMotorID) {
+    public HopperIOTalonFX(int mainMotorID) {
         m_mainMotor = new TalonFX(mainMotorID);
-        m_followerMotor = new TalonFX(followerMotorID);
 
         m_mainMotorConfig = m_mainMotor.getConfigurator();
-        m_followerMotorConfig = m_followerMotor.getConfigurator();
 
         m_currentConfig = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(HopperConstants.CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
         m_mainMotorConfig.apply(m_currentConfig);
-        m_followerMotorConfig.apply(m_currentConfig);
 
         m_encoderConfigs = new FeedbackConfigs()
             .withSensorToMechanismRatio(HopperConstants.kRotationConverter);
         m_mainMotorConfig.apply(m_encoderConfigs);
-        m_followerMotorConfig.apply(m_encoderConfigs);
 
         m_pidConfig = new Slot0Configs()
             .withKP(HopperConstants.TALONFX_PID.kP)
@@ -67,14 +58,10 @@ public class HopperIOTalonFX implements HopperIO {
             .withKD(HopperConstants.TALONFX_PID.kD);
 
         m_mainMotorConfig.apply(m_pidConfig);
-        m_followerMotorConfig.apply(m_pidConfig);
 
         m_mainMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
         m_mainMotor.setNeutralMode(NeutralModeValue.Brake);
-        m_followerMotor.setNeutralMode(NeutralModeValue.Brake);
-
-        m_followerMotor.setControl(new Follower(mainMotorID, MotorAlignmentValue.Opposed));
 
         m_request = new PositionVoltage(0).withSlot(0);
 
@@ -84,23 +71,16 @@ public class HopperIOTalonFX implements HopperIO {
         mainDeviceVoltage = m_mainMotor.getMotorVoltage();
         mainDeviceCurrent = m_mainMotor.getSupplyCurrent();
         mainDeviceTemp  = m_mainMotor.getDeviceTemp();
-        followerDeviceVoltage = m_followerMotor.getMotorVoltage();
-        followerDeviceCurrent = m_followerMotor.getSupplyCurrent();
-        followerDeviceTemp = m_followerMotor.getDeviceTemp();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50,
             motorPosition,
             mainDeviceVoltage,
             mainDeviceCurrent,
-            mainDeviceTemp,
-            followerDeviceVoltage,
-            followerDeviceCurrent, 
-            followerDeviceTemp
+            mainDeviceTemp
         );
 
         m_mainMotor.optimizeBusUtilization();
-        m_followerMotor.optimizeBusUtilization();
 
     }
 
@@ -143,16 +123,6 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.mainAppliedCurrent = mainDeviceCurrent.getValue();
         inputs.mainMotorTemp = mainDeviceTemp.getValueAsDouble();
         inputs.mainMotorPosition = Inches.of(motorPosition.getValueAsDouble());
-        
-        inputs.isFollowerMotorConnected = BaseStatusSignal.refreshAll(
-            followerDeviceVoltage, 
-            followerDeviceCurrent, 
-            followerDeviceTemp
-        ).isOK();
-        inputs.followerAppliedVoltage = followerDeviceVoltage.getValue();
-        inputs.followerAppliedCurrent = followerDeviceCurrent.getValue();
-        inputs.followerMotorTemp = followerDeviceTemp.getValueAsDouble();        
-        inputs.followerMotorPosition = Inches.of(motorPosition.getValueAsDouble());
     }
 
 }
