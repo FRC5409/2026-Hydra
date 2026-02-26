@@ -196,7 +196,7 @@ public class LauncherIOTalonFX implements LauncherIO {
 
     @Override
     public Distance getHoodExtension() {
-         return Millimeters.of(hoodServo.getPosition());
+        return Millimeters.of(hoodServo.getPosition());
     }
 
     @Override
@@ -219,12 +219,7 @@ public class LauncherIOTalonFX implements LauncherIO {
                 voltageLauncher,
                 currentLauncher,
                 temperatureLauncher,
-                speedLauncher,
-
-                voltageLauncherFollower,
-                currentLauncherFollower,
-                temperatureLauncherFollower,
-                speedLauncherFollower
+                speedLauncher
         ).isOK();
 
         inputs.magnetHealth = magnetHealth.getValue();
@@ -234,6 +229,12 @@ public class LauncherIOTalonFX implements LauncherIO {
         inputs.launcherCurrent = currentLauncher.getValue();
         inputs.launcherVelocity = speedLauncher.getValue();
 
+        inputs.isLauncherFollowerConnected = BaseStatusSignal.refreshAll(
+                voltageLauncherFollower,
+                currentLauncherFollower,
+                temperatureLauncherFollower,
+                speedLauncherFollower
+        ).isOK();
         inputs.launcherFollowerTemperature = temperatureLauncher.getValueAsDouble();
         inputs.launcherFollowerVoltage = voltageLauncher.getValue();
         inputs.launcherFollowerCurrent = currentLauncher.getValue();
@@ -246,6 +247,5 @@ public class LauncherIOTalonFX implements LauncherIO {
         inputs.hoodServo2Target = Millimeters.of(servo2Setpoint);
 
         inputs.ultrasonicVoltage = getUltrasonicVolts();
-
     }
 }
