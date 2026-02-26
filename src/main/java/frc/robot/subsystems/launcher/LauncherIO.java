@@ -7,6 +7,8 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
 
+import com.ctre.phoenix6.signals.MagnetHealthValue;
+
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.*;
@@ -16,6 +18,9 @@ public interface LauncherIO {
     @AutoLog
     class LauncherInputs {
         // Launcher
+        public boolean           isCANCoderConnected  = false;
+        public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
+
         public boolean         isLauncherConnected  = false;
         public double          temperatureLauncher  = 0.0;
         public Voltage         launcherVoltage      = Volts.of(0.0);
