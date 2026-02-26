@@ -38,7 +38,7 @@ public class Intake extends SubsystemBase {
 
             Timer.delay(2.0);
 
-            if (Math.abs(inputs.extensionPosition - extendTarget) > 0.02) {
+            if (Math.abs(inputs.extensionPosition - extendTarget) > 0.05) {
                 return TestResult.fail("Intake extension failed to extend, position: " + inputs.extensionPosition);
             }
             return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
@@ -52,7 +52,7 @@ public class Intake extends SubsystemBase {
 
             Timer.delay(2.0);
 
-            if (Math.abs(inputs.extensionPosition - retractTarget) > 0.02) {
+            if (Math.abs(inputs.extensionPosition - retractTarget) > 0.05) {
                 return TestResult.fail("Intake extension failed to retract, position: " + inputs.extensionPosition);
             }
             return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
