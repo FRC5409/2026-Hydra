@@ -14,11 +14,11 @@ public final class IntakeConstants {
 		public static final int MOTORID = 15;
 
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
-		public static final Distance EXTENSION_DISTANCE = Meters.of(0.222); //Needs confirmation from Design for exact extension distance
+		public static final Distance EXTENSION_DISTANCE = Meters.of(0.2794); //Needs confirmation from Design for exact extension distance
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146); //Needs confirmation from Design for exact extension distance
 
 		public static final PIDConstants TALONFX_PID = new PIDConstants(1.0, 0.0, 0.0);
-		public static final PIDConstants SIM_PID = new PIDConstants(1.5, 0.14, 0.0);
+		public static final PIDConstants SIM_PID = new PIDConstants(0.25, 0.0, 0.0);
 		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
 		public static final Current MAX_CURRENT = Amps.of(30.0);
 		public static final double GEARING = 10.0/1.0;
@@ -29,9 +29,9 @@ public final class IntakeConstants {
 		
 		public static final Distance RETRACT_INCREMENT = Meters.of(0.0254);
 		public static final Distance EXTEND_INCREMENT = Meters.of(0.0127);
-		public static final Distance INITIAL_SETPOINT = Meters.of(0.222);
+		public static final Distance INITIAL_SETPOINT = Meters.of(0.254);
 
-		public static final Distance KILLSWITCH_TOLERANCE = Meters.of(0.0127);
+		public static final Distance KILLSWITCH_TOLERANCE = Meters.of(0.0508);
 
 		public static final Time WAIT_TIME = Seconds.of(0.01);
 

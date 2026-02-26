@@ -27,10 +27,10 @@ public final class HopperConstants {
     public static final Mass HOPPER_MASS = Pounds.of(10.561);
 
     public static final PIDConstants TALONFX_PID = new PIDConstants(0.001, 0, 0);
-    public static final PIDConstants SIM_PID = new PIDConstants(1, 0, 0);
+    public static final PIDConstants SIM_PID = new PIDConstants(4, 0, 3);
 
     public static final Distance HOPPER_MIN_EXTENSION = Inches.of(0.0);
     public static final Distance HOPPER_MAX_EXTENSION = Inches.of(12.0);
-    public static final Distance STARTING_GAP_TO_INTAKE = Inches.of(0.6);
+    public static final Distance STARTING_GAP_TO_INTAKE = Inches.of(1.0);
 
 }

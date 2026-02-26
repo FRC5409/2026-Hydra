@@ -89,7 +89,7 @@ public class Intake extends SubsystemBase {
     }
 
     public Command move(Supplier<Distance> setpoint) {
-        return Commands.runOnce(() -> intakeIO.setSetpoint(setpoint.get()), this);
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(setpoint.get().in(Meters))), this);
     }
 
     public Command retract() {
@@ -97,6 +97,7 @@ public class Intake extends SubsystemBase {
     }
 
     public Command stopMotor() {
+        // intakeIO.stopMotor();
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
     }
 

@@ -18,6 +18,7 @@ public interface HopperIO {
         public Voltage mainAppliedVoltage = Volts.of(0.0);
         public double mainMotorTemp = 0.0;
         public Distance mainMotorPosition = Inches.of(0.0);
+        public Distance setpoint = Inches.of(0.0);
 
         public boolean isFollowerMotorConnected = false;
         public Current followerAppliedCurrent = Amps.of(0.0);
@@ -32,5 +33,6 @@ public interface HopperIO {
     public default void zeroEncoder() {}
     public default void setSetpoint(Distance setpoint) {}
     public default Distance getPosition() {return Inches.of(0.0);}
+    public default Distance getSetpoint() {return Inches.of(0.0);}
 
 }

@@ -20,9 +20,10 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 
 public class HopperIOSim implements HopperIO {
     private boolean running;
-    private ElevatorSim hopperSim;
-    private PIDController pid;
+    private final ElevatorSim hopperSim;
+    private final PIDController pid;
     private double inputVoltage = 0.0;
+    private Distance simSetpoint;
 
     private final LoggedMechanismRoot2d root;
     private final LoggedMechanismLigament2d slider;
@@ -36,7 +37,7 @@ public class HopperIOSim implements HopperIO {
             HopperConstants.HOPPER_MASS.in(Kilograms), 
             HopperConstants.HOPPER_DRUMRADIUS.in(Meters), 
             HopperConstants.HOPPER_MIN_EXTENSION.in(Meters), 
-            HopperConstants.HOPPER_MAX_EXTENSION.in(Meters), 
+            HopperConstants.HOPPER_MAX_EXTENSION.in(Meters)+1000, 
             false, 
             0.0
             );
@@ -59,6 +60,7 @@ public class HopperIOSim implements HopperIO {
 
     @Override
     public void stopMotor() {
+        //pid.reset();
         hopperSim.setInputVoltage(0.0);
         running = false;
     }
@@ -66,6 +68,7 @@ public class HopperIOSim implements HopperIO {
     @Override
     public void setSetpoint(Distance setpoint) {
         pid.setSetpoint(setpoint.in(Meters));
+        simSetpoint = setpoint;
         running = true;
     }
 
@@ -75,15 +78,20 @@ public class HopperIOSim implements HopperIO {
         return Inches.of(positionMeters.in(Inches));
     }
 
+    public Distance getSetpoint() {
+        return simSetpoint;
+    }
+
     
     public void updateInputs(HopperInputs inputs) {
+        running = true;
         double volts = 0.0;
         double current = 0.0;
         if (running) {
 
             /* PID control */
             volts = MathUtil.clamp(
-                pid.calculate(hopperSim.getPositionMeters())*12, 
+                pid.calculate(hopperSim.getPositionMeters()), 
                 -RoboRioSim.getVInVoltage(), 
                 RoboRioSim.getVInVoltage()
             );
@@ -102,6 +110,7 @@ public class HopperIOSim implements HopperIO {
         inputs.mainAppliedCurrent = Amps.of(current);
         inputs.mainMotorTemp = 0.0;
         inputs.mainMotorPosition = getPosition();
+        inputs.setpoint = simSetpoint;
 
         inputs.isFollowerMotorConnected = true;
         inputs.followerAppliedVoltage = Volts.of(volts);

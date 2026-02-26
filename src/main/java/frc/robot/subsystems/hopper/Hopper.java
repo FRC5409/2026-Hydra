@@ -22,6 +22,7 @@ public class Hopper extends SubsystemBase {
     private final HopperIO io;
     private final HopperInputsAutoLogged inputs;
     private static Pose3d hopperPose = new Pose3d();
+    public static Distance target = Inches.of(0.0);
 
     public Hopper(HopperIO io) {
         this.io = io;
@@ -64,8 +65,8 @@ public class Hopper extends SubsystemBase {
      * Extends hopper 12 inches out 
      */
     public Command fullExtend() {
-        return Commands.runOnce(
-            () -> io.setSetpoint(HopperConstants.HOPPER_MAX_EXTENSION), this
+        return Commands.runOnce(() ->
+            io.setSetpoint(HopperConstants.HOPPER_MAX_EXTENSION), this
         );
     }
 
@@ -87,8 +88,9 @@ public class Hopper extends SubsystemBase {
 
     public Command stopMotor() {
         return Commands.runOnce(
-            () -> io.stopMotor(), this
-        );
+           () -> 
+           io.stopMotor(), this
+       );
     }
 
     public Command zeroEncoder() {
@@ -99,8 +101,12 @@ public class Hopper extends SubsystemBase {
         return io.getPosition();
     }
 
+    public Distance getSetpoint(){
+        return io.getSetpoint();
+    }
+
     public Command setSetpoint(Supplier<Distance> setpoint) {
-        return Commands.runOnce(() -> io.setSetpoint(Inches.of(setpoint.get().in(Inches))), this);
+        return Commands.runOnce(() -> io.setSetpoint(Inches.of(setpoint.get().in(Inches))));
     }
 
     @Override
@@ -108,7 +114,7 @@ public class Hopper extends SubsystemBase {
         // This method will be called once per scheduler run
         io.updateInputs(inputs);
         Logger.processInputs("Hopper", inputs);
-
+//try setting it to getPosition().in(Meters)
         hopperPose = new Pose3d(inputs.mainMotorPosition.in(Meters), 0, 0, new Rotation3d());
         Logger.recordOutput("Components/Hopper", hopperPose);
     }
