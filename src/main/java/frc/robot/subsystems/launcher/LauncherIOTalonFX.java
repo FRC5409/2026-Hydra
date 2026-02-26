@@ -176,6 +176,11 @@ public class LauncherIOTalonFX implements LauncherIO {
         return Volts.of(ultrasonic.getVoltage());
     }
 
+    @Override
+    public AngularVelocity getVelocity() {
+        return speedLauncher.getValue();
+    }
+
     // Stops
     @Override
     public void stopLauncher() {
@@ -200,12 +205,12 @@ public class LauncherIOTalonFX implements LauncherIO {
         inputs.launcherTemperature = temperatureLauncher.getValueAsDouble();
         inputs.launcherVoltage = voltageLauncher.getValue();
         inputs.launcherCurrent = currentLauncher.getValue();
-        inputs.launcherVelocity = speedLauncher.getValue();
+        inputs.launcherVelocity = getVelocity();
 
-        inputs.launcherFollowerTemperature = temperatureLauncher.getValueAsDouble();
-        inputs.launcherFollowerVoltage = voltageLauncher.getValue();
-        inputs.launcherFollowerCurrent = currentLauncher.getValue();
-        inputs.launcherFollowerVelocity = speedLauncher.getValue();
+        inputs.launcherFollowerTemperature = temperatureLauncherFollower.getValueAsDouble();
+        inputs.launcherFollowerVoltage = voltageLauncherFollower.getValue();
+        inputs.launcherFollowerCurrent = currentLauncherFollower.getValue();
+        inputs.launcherFollowerVelocity = speedLauncherFollower.getValue();
 
         // Hood
         inputs.hoodServo1Pos = Millimeters.of(servo1CurPos);
