@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.util.MathUtils;
@@ -41,7 +43,8 @@ public class Launcher extends SubsystemBase {
                     Distance d = Meters.of(2.0);
                     var config = strategy.interpolate(d);
 
-                    CommandScheduler.getInstance().schedule(this.launchFuel(() -> d));
+                    // launch fuel with dummy IO for feeder; it doesn't matter if the feeder spins
+                    CommandScheduler.getInstance().schedule(this.launchFuel(() -> d, new Feeder(new FeederIO() {})));
 
                     return MathUtils.withinTolerance(
                             getVelocity().in(RotationsPerSecond), config.speed().in(RotationsPerSecond), 0.05) ?
@@ -63,13 +66,15 @@ public class Launcher extends SubsystemBase {
      *
      * @return defered command that launches fuel
      */
-    public Command launchFuel(Supplier<Distance> distance) {
+    public Command launchFuel(Supplier<Distance> distance, Feeder feeder) {
         return Commands.defer(
                 () -> {
                     LaunchConfig c = strategy.interpolate(distance.get());
                     logInterpolation(distance.get(), c);
 
-                    return runVelocity(c::speed).alongWith(setHoodAngle(c::angle));
+                    return runVelocity(c::speed) // spin launcher
+                            .alongWith(setHoodAngle(c::angle)) // set hood angle
+                            .alongWith(feeder.runRPS(c.speed().in(RotationsPerSecond))); // run feeder at same vel.
                 }, Set.of(this));
     }
 
