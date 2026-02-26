@@ -67,7 +67,7 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
                 lastConfig.angle()
         );
         Logger.recordOutput("Launcher/Interpolator/DynamicHoodAdjustment", err);
-        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> err));
+        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> launcher.getHoodAngle().plus(err)));
     }
 
     @Override
