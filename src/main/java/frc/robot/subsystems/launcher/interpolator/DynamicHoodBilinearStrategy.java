@@ -6,8 +6,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.units.Units.Radians;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * Interpolates a {@link LaunchConfig} (angular velocity and shoot angle) given a displacement to shoot the fuel.
@@ -20,6 +19,8 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
  * will be used here.
  */
 public class DynamicHoodBilinearStrategy extends BilinearStrategy {
+    private static final Angle ANGLE_ADJUSTMENT = Degrees.of(5);
+
     private LaunchConfig lastConfig;
 
     /**
@@ -37,10 +38,14 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
      * @return new hood angle
      */
     public Angle computeHoodAdjustment(
-            AngularVelocity targetVelocity, AngularVelocity realVelocity, Angle hoodAngle) {
-        return Radians.of(ALPHA
-                          * targetVelocity.minus(realVelocity).in(RadiansPerSecond) // velocity error
-                          * Math.cos(hoodAngle.times(2).in(Radians))); // hood adjustment
+            AngularVelocity targetVelocity,
+            AngularVelocity realVelocity,
+            Angle hoodAngle,
+            Angle targetAngle) {
+        return Radians.of(
+                ALPHA
+                * targetVelocity.minus(realVelocity).in(RadiansPerSecond)
+                * Math.cos(2 * hoodAngle.minus(targetAngle.plus(ANGLE_ADJUSTMENT)).in(Radians)));
     }
 
     @Override
@@ -55,7 +60,12 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
         if (lastConfig == null) return;
 
         // update hood before returning interpolation
-        Angle err = computeHoodAdjustment(lastConfig.speed(), this.launcher.getVelocity(), this.launcher.getHoodAngle());
+        Angle err = computeHoodAdjustment(
+                lastConfig.speed(),
+                this.launcher.getVelocity(),
+                this.launcher.getHoodAngle(),
+                lastConfig.angle()
+        );
         Logger.recordOutput("Launcher/Interpolator/DynamicHoodAdjustment", err);
         CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> err));
     }
