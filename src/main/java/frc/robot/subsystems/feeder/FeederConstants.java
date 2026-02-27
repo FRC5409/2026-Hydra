@@ -12,7 +12,7 @@ public final class FeederConstants {
 
         public static final PIDConstants SIM_PID = new PIDConstants(0.0175, 0, 0);
         public static PIDController pid = new PIDController(0, 0, 0);
-        public static final PIDConstants TALONFX_PID = new PIDConstants(pid.getP(), pid.getI(), pid.getD());
+        public static PIDConstants TALONFX_PID = new PIDConstants(pid.getP(), pid.getI(), pid.getD());
         public static final double kG = 0.0;
         public static final double kS = 0.1;
         public static final double kV = 0.12;
