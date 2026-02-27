@@ -144,7 +144,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             motorPosition,
             mainMotorVoltage, 
             mainMotorCurrent, 
-            mainMotorTemp
+            mainMotorTemp,
+            mainMotorTorqueCurrent
         ).isOK();
         inputs.mainAppliedVoltage = mainMotorVoltage.getValue();
         inputs.mainAppliedCurrent = mainMotorCurrent.getValue();
