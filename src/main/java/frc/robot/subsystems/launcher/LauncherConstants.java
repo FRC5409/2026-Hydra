@@ -54,12 +54,11 @@ public class LauncherConstants {
 
         // public static final Distance IMPOSED_MAX_EXTENSION = Millimeters.of(100);
 
-        // TODO: SEE IF VALUES ARE NECESSARY, IF SO GET WHAT THE VALUES SHOULD BE
-        public static final int MAX_PULSE_WIDTH       = 4;
-        public static final int SERVO_DEADBAND_MAX    = 3;
-        public static final int SERVO_DEADBAND_CENTER = 2;
-        public static final int SERVO_DEADBAND_MIN    = 1;
-        public static final int MIN_PULSE_WIDTH       = 0;
+        public static final int MAX_PULSE_WIDTH       = 2000;
+        public static final int SERVO_DEADBAND_MAX    = 1800;
+        public static final int SERVO_DEADBAND_CENTER = 1500;
+        public static final int SERVO_DEADBAND_MIN    = 1200;
+        public static final int MIN_PULSE_WIDTH       = 1000;
     }
 
     public static class Ultrasonic {
