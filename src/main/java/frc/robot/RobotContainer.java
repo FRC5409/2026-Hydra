@@ -14,7 +14,9 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -26,6 +28,8 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.feeder.*;
 import frc.robot.subsystems.hopper.*;
@@ -35,9 +39,8 @@ import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.launcher.LauncherConstants;
-import frc.robot.subsystems.launcher.LauncherIOTalonFX;
+import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -52,7 +55,7 @@ import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -82,7 +85,6 @@ public class RobotContainer {
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
-    private final LoggedDashboardChooser<Command> launchStrategyChooser;
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -99,7 +101,7 @@ public class RobotContainer {
                         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
                 sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
                 sys_vision = new Vision(new VisionIOLimelight());
-                sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
+                sys_elevator = new Elevator(new ElevatorIOTalonFX(Constants.DeviceID.CLIMBER_MOTOR));
 
                 sys_drive = new Drive(
                         new GyroIOPigeon2(),
@@ -187,7 +189,7 @@ public class RobotContainer {
 
         // Set up auto routines
         autoChooser = buildAutoChooser();
-        launchStrategyChooser = buildLaunchStrategyChooser();
+        buildLaunchStrategyChooser();
 
         // Configure the button bindings
         configureButtonBindings();
@@ -283,28 +285,10 @@ public class RobotContainer {
 
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
-        // sequentially run every distance from 0.5 m to 10.0 m
-        SmartDashboard.putData(
-                "LAUNCHER RUN ALL", new SequentialCommandGroup(
-                        DoubleStream.iterate(0, d -> d + 0.5)
-                                    .limit((int)(10 / 0.5) + 1)
-                                    .boxed()
-                                    .flatMap(d -> Stream.of(
-                                            sys_launcher.launchFuel(() -> Meters.of(d), sys_feeder),
-                                            new WaitCommand(0.5)))
-                                    .toArray(Command[]::new)
-                ));
-
         SmartDashboard.putNumber("Hood Angle [deg]", 0);
         SmartDashboard.putData("Set Hood Angle", sys_launcher.setHoodAngle(() ->
                 Degrees.of(SmartDashboard.getNumber("Hood Angle [deg]", 0))));
 
-        // score fuel in hub by using odometry
-//        var pose = LimelightHelpers.getBotPoseEstimate_wpiBlue(Vision.PRIMARY_CAM_NAME).pose;
-//        Logger.recordOutput("Vision/Estimate", pose);
-//        SmartDashboard.putData(
-//                "SCORE FUEL IN HUB", sys_launcher.launchFuel(
-//                        () -> Meters.of(Hub.topCenterPoint.toTranslation2d().getDistance(pose.getTranslation()))));
 
         // Switch to X pattern when X button is pressed
         primaryController.x()
@@ -395,8 +379,6 @@ public class RobotContainer {
                 }
         );
     }
-
-    ;
 
     private Command prepPassingPositionCommand(PassingPositions passingPosition) {
         return Commands.runOnce(
