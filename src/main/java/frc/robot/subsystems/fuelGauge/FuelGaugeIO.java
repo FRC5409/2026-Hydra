@@ -1,4 +1,4 @@
-package frc.robot.subsystems.fuelGauage;
+package frc.robot.subsystems.fuelGauge;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
@@ -10,10 +10,10 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 
-public interface FuelGauageIO {
+public interface FuelGaugeIO {
 
     @AutoLog
-    class FuelGauageInputs {
+    class FuelGaugeInputs {
         public Distance distance = Inches.of(0.0);
 
         public Voltage voltage = Volts.of(0.0);
@@ -21,5 +21,5 @@ public interface FuelGauageIO {
 
     default Distance getDistance() {return Inches.of(0.0);}
 
-    default void updateInputs(FuelGauageInputs inputs) {}
+    default void updateInputs(FuelGaugeInputs inputs) {}
 }
