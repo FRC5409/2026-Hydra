@@ -114,7 +114,7 @@ public class Intake extends SubsystemBase {
             new Rotation3d(0.0, 0.0, Math.toRadians(0.0))
 
         );
-        if (DriverStation.isEnabled() && inputs.extensionCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
+        if (DriverStation.isEnabled() && inputs.extensionTorqueCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
             Commands.runOnce(() -> intakeIO.coastMode(), this);
         }
 

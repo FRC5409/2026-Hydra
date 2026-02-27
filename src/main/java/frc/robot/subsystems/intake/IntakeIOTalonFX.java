@@ -37,6 +37,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal<Voltage>     extensionVoltageSignal;
     private final StatusSignal<Current>     extensionCurrentSignal;
     private final StatusSignal<AngularVelocity>       extensionVelocitySignal;
+    private final StatusSignal<Current>    extensionTorqueCurrentSignal;
 
     public IntakeIOTalonFX(int rollerMotorId, int extensionMotorId) {
 
@@ -63,6 +64,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
         extensionVoltageSignal     = extensionMotor.getMotorVoltage();
         extensionCurrentSignal     = extensionMotor.getSupplyCurrent();
         extensionVelocitySignal    = extensionMotor.getVelocity();
+        extensionTorqueCurrentSignal = extensionMotor.getTorqueCurrent();
 
         rollerPositionSignal    = rollerMotor.getPosition();
         rollerTemperatureSignal = rollerMotor.getDeviceTemp();
@@ -126,6 +128,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.isExtensionConnected = true;
         inputs.extensionVolts = Volts.of(extensionVoltageSignal.getValueAsDouble());
         inputs.extensionCurrent = Amps.of(extensionCurrentSignal.getValueAsDouble());
+        inputs.extensionTorqueCurrent = Amps.of(extensionTorqueCurrentSignal.getValueAsDouble());
         inputs.extensionTemp = 0.0;
         inputs.extensionPosition =  Units.rotationsToRadians(extensionPositionSignal.getValueAsDouble());
         inputs.extensionVelocity = MetersPerSecond.of(extensionVelocitySignal.getValueAsDouble());
