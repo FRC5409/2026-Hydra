@@ -14,6 +14,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -126,6 +127,7 @@ public class Hopper extends SubsystemBase {
         Logger.processInputs("Hopper", inputs);
         hopperPose = new Pose3d(inputs.motorPosition.in(Meters), 0, 0, new Rotation3d());
         Logger.recordOutput("Components/Hopper", hopperPose);
+        SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
 
         if (DriverStation.isEnabled() && inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT)) {
             io.coastMode();
