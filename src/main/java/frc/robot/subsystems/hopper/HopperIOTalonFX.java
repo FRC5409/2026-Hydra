@@ -134,6 +134,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.torqueCurrent = torqueCurrent.getValue();
         inputs.motorTemp = deviceTemp.getValueAsDouble();
         inputs.motorPosition = Inches.of(motorPosition.getValueAsDouble());
+        inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
     }
 
 }

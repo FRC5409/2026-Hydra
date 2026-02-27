@@ -110,6 +110,7 @@ public class HopperIOSim implements HopperIO {
         inputs.appliedCurrent = Amps.of(current);
         inputs.motorTemp = 0.0;
         inputs.motorPosition = getPosition();
+        inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
         inputs.setpoint = simSetpoint;
 
         slider.setLength(getPosition().in(Inches));

@@ -19,6 +19,7 @@ public interface HopperIO {
         public Voltage appliedVoltage = Volts.of(0.0);
         public double motorTemp = 0.0;
         public Distance motorPosition = Inches.of(0.0);
+        public Distance motorPositionIntakeZero = Inches.of(0.0);
         public Distance setpoint = Inches.of(0.0);
     }
 
