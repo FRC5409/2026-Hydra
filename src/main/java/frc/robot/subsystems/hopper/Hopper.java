@@ -112,6 +112,10 @@ public class Hopper extends SubsystemBase {
         return io.getPosition();
     }
 
+    public Distance getPositionIntakeZero() {
+        return io.getPositionIntakeZero();
+    }
+
     public Distance getSetpoint(){
         return io.getSetpoint();
     }

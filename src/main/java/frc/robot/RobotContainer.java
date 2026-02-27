@@ -233,7 +233,7 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         primaryController.povRight().onTrue(extendIntakeAndHopper());
-        primaryController.povLeft().onTrue(retractIntakeAndHopper());
+        primaryController.povLeft().onTrue(retractAndAgitate());
 
         // Default command, normal field-relative drive
         sys_drive.setDefaultCommand(
@@ -355,10 +355,10 @@ public class RobotContainer {
                 sys_intake.stopMotor(),
                 sys_intake.extend(), 
                 () -> {
-                        double hopperPos = sys_hopper.getPosition().in(Inches);
+                        double hopperPos = sys_hopper.getPositionIntakeZero().in(Inches);
                         double intakePos = sys_intake.getPosition().in(Inches);
 
-                        double gap = (hopperPos + HopperConstants.STARTING_GAP_TO_INTAKE.in(Inches)) - intakePos;
+                        double gap = hopperPos - intakePos;
                         System.out.println(gap);
                         return gap < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches) && sys_hopper.getPosition() != HopperConstants.HOPPER_MAX_EXTENSION;
                 
@@ -374,10 +374,10 @@ public class RobotContainer {
                         Commands.parallel(sys_hopper.stopMotor(), Commands.print("STOP")), 
                         sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MIN_EXTENSION), 
                         () -> {
-                                double hopperPos = sys_hopper.getPosition().in(Inches);
+                                double hopperPos = sys_hopper.getPositionIntakeZero().in(Inches);
                                 double intakePos = sys_intake.getPosition().in(Inches);
 
-                                double gap = (hopperPos + HopperConstants.STARTING_GAP_TO_INTAKE.in(Inches)) - intakePos;
+                                double gap = hopperPos - intakePos;
                                 System.out.println(gap);
                                 return gap < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches) && sys_intake.getPosition() != IntakeConstants.Extension.EXTENSION_MIN_DISTANCE;
                         
@@ -388,21 +388,21 @@ public class RobotContainer {
         
     }
 
-    Distance intakeSetpoint = Inches.of(IntakeConstants.Extension.INITIAL_SETPOINT.in(Inches)+IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches));
+    Distance intakeSetpoint;
     Distance hopperSetpoint;
 
-    private Command retractWithPulse() {
+    private Command retractAndAgitate() {
+        intakeSetpoint = Inches.of(IntakeConstants.Extension.INITIAL_SETPOINT.in(Inches)+IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches));
         return Commands.repeatingSequence(
-                Commands.print(Double.toString(intakeSetpoint.in(Inches))),
                 Commands.runOnce(() -> intakeSetpoint = intakeSetpoint.minus((Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))),
-                Commands.print(Double.toString(intakeSetpoint.in(Inches))),
                 Commands.runOnce(() -> hopperSetpoint = intakeSetpoint.plus(IntakeConstants.Extension.KILLSWITCH_TOLERANCE).minus(HopperConstants.STARTING_GAP_TO_INTAKE)),
                 sys_intake.move(() -> intakeSetpoint),
                 sys_hopper.setSetpoint(() -> hopperSetpoint),
                 Commands.waitUntil(() -> sys_hopper.getPosition().isNear(hopperSetpoint, Inches.of(0.02))),
                 sys_hopper.setSetpoint(() -> hopperSetpoint.plus(Inches.of(1.0))),
                 Commands.waitUntil(() -> sys_hopper.getPosition().isNear(hopperSetpoint.plus(Inches.of(1.0)), Inches.of(0.02)))
-        );
+        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.02)))
+                .andThen(sys_hopper.fullRetract());
     }
 
     /**

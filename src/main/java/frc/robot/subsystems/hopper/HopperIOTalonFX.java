@@ -116,6 +116,11 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     @Override
+    public Distance getPositionIntakeZero() {
+        return getPosition().plus(HopperConstants.STARTING_GAP_TO_INTAKE);
+    }
+
+    @Override
     public void setSetpoint(Distance setpoint) {
         m_mainMotor.setControl(m_request.withPosition(setpoint.in(Inches)));
     }

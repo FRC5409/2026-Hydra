@@ -73,9 +73,15 @@ public class HopperIOSim implements HopperIO {
     }
 
     /** Returns hopper position in Inches */
+    @Override
     public Distance getPosition() {
         Distance positionMeters =  Meters.of(hopperSim.getPositionMeters());
         return Inches.of(positionMeters.in(Inches));
+    }
+
+    @Override
+    public Distance getPositionIntakeZero() {
+        return getPosition().plus(HopperConstants.STARTING_GAP_TO_INTAKE);
     }
 
     public Distance getSetpoint() {

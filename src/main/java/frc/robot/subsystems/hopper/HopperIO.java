@@ -33,6 +33,7 @@ public interface HopperIO {
 
     public default void setSetpoint(Distance setpoint) {}
     public default Distance getPosition() {return Inches.of(0.0);}
+    public default Distance getPositionIntakeZero() {return Inches.of(0.0);}
     public default Distance getSetpoint() {return Inches.of(0.0);}
 
 }
