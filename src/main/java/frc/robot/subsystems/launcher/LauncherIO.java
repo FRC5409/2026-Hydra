@@ -1,12 +1,11 @@
 package frc.robot.subsystems.launcher;
 
+import com.ctre.phoenix6.signals.MagnetHealthValue;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Voltage;
 import org.littletonrobotics.junction.AutoLog;
-
-import com.ctre.phoenix6.signals.MagnetHealthValue;
 
 import java.util.function.Supplier;
 
@@ -17,8 +16,8 @@ public interface LauncherIO {
     @AutoLog
     class LauncherInputs {
         // Launcher
-        public boolean          isCANCoderConnected = false;
-        public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
+        public boolean           isCANCoderConnected = false;
+        public MagnetHealthValue magnetHealth        = MagnetHealthValue.Magnet_Invalid;
 
         public boolean         isLauncherConnected = false;
         public double          launcherTemperature = 0.0;
@@ -33,12 +32,12 @@ public interface LauncherIO {
         public AngularVelocity launcherFollowerVelocity    = RotationsPerSecond.of(0.0);
 
         // Hood
-        public Distance        hoodServo1Pos    = Meters.of(0.0);
-        public Distance        hoodServo2Pos    = Meters.of(0.0);
-        public Distance        hoodServo1Target = Meters.of(0.0);
-        public Distance        hoodServo2Target = Meters.of(0.0);
+        public Distance hoodServo1Pos    = Meters.of(0.0);
+        public Distance hoodServo2Pos    = Meters.of(0.0);
+        public Distance hoodServo1Target = Meters.of(0.0);
+        public Distance hoodServo2Target = Meters.of(0.0);
 
-        public Voltage  ultrasonicVoltage  = Volts.of(0);
+        public Voltage ultrasonicVoltage = Volts.of(0);
     }
 
     // Launcher

@@ -7,13 +7,7 @@ import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MagnetHealthValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
-import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.signals.SensorDirectionValue;
-import com.fasterxml.jackson.databind.JsonSerializable.Base;
-
+import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -22,7 +16,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 import java.util.function.Supplier;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Millimeters;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -30,8 +23,8 @@ public class LauncherIOTalonFX implements LauncherIO {
     // Motors and sensors
     private final TalonFX launcherMotor;
 
-    private final Servo   hoodServo;
-    private final Servo   hoodServo2;
+    private final Servo hoodServo;
+    private final Servo hoodServo2;
 
     private final AnalogInput ultrasonic;
 
@@ -41,8 +34,8 @@ public class LauncherIOTalonFX implements LauncherIO {
     private double servo2Setpoint;
 
     // IOs
-    private final StatusSignal<MagnetHealthValue>   magnetHealth;
-    
+    private final StatusSignal<MagnetHealthValue> magnetHealth;
+
     private final StatusSignal<Temperature>     temperatureLauncher;
     private final StatusSignal<Voltage>         voltageLauncher;
     private final StatusSignal<Current>         currentLauncher;
@@ -111,8 +104,8 @@ public class LauncherIOTalonFX implements LauncherIO {
 
         launcherCANCoder.getConfigurator()      // check sensor configs
                         .apply(new CANcoderConfiguration()
-                                .MagnetSensor
-                                .withSensorDirection(SensorDirectionValue.Clockwise_Positive));
+                                       .MagnetSensor
+                                       .withSensorDirection(SensorDirectionValue.Clockwise_Positive));
 
         // Slot configs
         Slot0Configs launcherSlotConfigs = new Slot0Configs()
@@ -167,7 +160,7 @@ public class LauncherIOTalonFX implements LauncherIO {
         double targetSetpoint = extension.in(Millimeters);
         double t = Timer.getFPGATimestamp();
 
-        // update servo continuous positions
+        // update servo continuous positions m
         if (servo1CurPos > servo1Setpoint + 30 * t) servo1CurPos -= 30 * t;
         else if (servo1CurPos < servo1Setpoint - 30 * t) servo1CurPos += 30 * t;
         else servo1CurPos = servo1Setpoint;
