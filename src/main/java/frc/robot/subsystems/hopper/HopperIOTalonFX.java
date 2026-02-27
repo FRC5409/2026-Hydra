@@ -9,11 +9,9 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
-import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
-import com.ctre.phoenix6.signals.MotorAlignmentValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.units.measure.Angle;
@@ -34,9 +32,10 @@ public class HopperIOTalonFX implements HopperIO {
     private PositionVoltage m_request;
     
     private final StatusSignal<Angle> motorPosition;
-    private final StatusSignal<Voltage> mainDeviceVoltage;
-    private final StatusSignal<Current> mainDeviceCurrent;
-    private final StatusSignal<Temperature> mainDeviceTemp;
+    private final StatusSignal<Voltage> deviceVoltage;
+    private final StatusSignal<Current> deviceCurrent;
+    private final StatusSignal<Temperature> deviceTemp;
+    private final StatusSignal<Current> torqueCurrent;
 
     public HopperIOTalonFX(int mainMotorID) {
         m_mainMotor = new TalonFX(mainMotorID);
@@ -68,16 +67,17 @@ public class HopperIOTalonFX implements HopperIO {
         m_mainMotor.setPosition(0);
  
         motorPosition = m_mainMotor.getPosition();
-        mainDeviceVoltage = m_mainMotor.getMotorVoltage();
-        mainDeviceCurrent = m_mainMotor.getSupplyCurrent();
-        mainDeviceTemp  = m_mainMotor.getDeviceTemp();
+        deviceVoltage = m_mainMotor.getMotorVoltage();
+        deviceCurrent = m_mainMotor.getSupplyCurrent();
+        deviceTemp  = m_mainMotor.getDeviceTemp();
+        torqueCurrent = m_mainMotor.getTorqueCurrent();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
             50,
             motorPosition,
-            mainDeviceVoltage,
-            mainDeviceCurrent,
-            mainDeviceTemp
+            deviceVoltage,
+            deviceCurrent,
+            deviceTemp
         );
 
         m_mainMotor.optimizeBusUtilization();
@@ -101,6 +101,16 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     @Override
+    public void brakeMode() {
+        m_mainMotor.setNeutralMode(NeutralModeValue.Brake);
+    }
+
+    @Override
+    public void coastMode() {
+        m_mainMotor.setNeutralMode(NeutralModeValue.Coast);
+    }
+
+    @Override
     public Distance getPosition() {
         return Inches.of(motorPosition.getValueAsDouble());
     }
@@ -113,16 +123,17 @@ public class HopperIOTalonFX implements HopperIO {
     @Override
     public void updateInputs(HopperInputs inputs) {
 
-        inputs.isMainMotorConnected = BaseStatusSignal.refreshAll(
+        inputs.isMotorConnected = BaseStatusSignal.refreshAll(
             motorPosition,
-            mainDeviceVoltage, 
-            mainDeviceCurrent, 
-            mainDeviceTemp
+            deviceVoltage, 
+            deviceCurrent, 
+            deviceTemp
         ).isOK();
-        inputs.mainAppliedVoltage = mainDeviceVoltage.getValue();
-        inputs.mainAppliedCurrent = mainDeviceCurrent.getValue();
-        inputs.mainMotorTemp = mainDeviceTemp.getValueAsDouble();
-        inputs.mainMotorPosition = Inches.of(motorPosition.getValueAsDouble());
+        inputs.appliedVoltage = deviceVoltage.getValue();
+        inputs.appliedCurrent = deviceCurrent.getValue();
+        inputs.torqueCurrent = torqueCurrent.getValue();
+        inputs.motorTemp = deviceTemp.getValueAsDouble();
+        inputs.motorPosition = Inches.of(motorPosition.getValueAsDouble());
     }
 
 }

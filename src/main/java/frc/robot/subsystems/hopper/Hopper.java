@@ -2,6 +2,7 @@
 
 package frc.robot.subsystems.hopper;
 
+import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
 
@@ -12,6 +13,7 @@ import org.littletonrobotics.junction.Logger;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -39,7 +41,7 @@ public class Hopper extends SubsystemBase {
                 return TestResult.success();
             } else if (extensionLength.isNear(HopperConstants.HOPPER_MIN_EXTENSION, 0)) {
                 return TestResult.fail("Hopper did not start! " + 
-                                (inputs.isMainMotorConnected ? "(Motor connected)" : "(Motor not connected)"));
+                                (inputs.isMotorConnected ? "(Motor connected)" : "(Motor not connected)"));
             } else {
                 return TestResult.fail("Hopper not extending fully! Current Position: " + io.getPosition());
             }
@@ -54,7 +56,7 @@ public class Hopper extends SubsystemBase {
                 return TestResult.success();
             } else if (extensionLength.isNear(HopperConstants.HOPPER_MAX_EXTENSION,0)) {
                 return TestResult.fail("Hopper did not start! " + 
-                            (inputs.isMainMotorConnected ? "(Motor connected)" : "(Motor not connected)"));
+                            (inputs.isMotorConnected ? "(Motor connected)" : "(Motor not connected)"));
             } else {
                 return TestResult.fail("Hopper not retracting fully! Current Position: " + io.getPosition());
             }
@@ -97,6 +99,14 @@ public class Hopper extends SubsystemBase {
         return Commands.runOnce(() -> io.zeroEncoder(), this);
     }
 
+    public Command brakeMode() {
+        return Commands.runOnce(() -> io.brakeMode(), this);
+    }
+
+    public Command coastMode() {
+        return Commands.runOnce(() -> io.coastMode(), this);
+    }
+
     public Distance getPosition() {
         return io.getPosition();
     }
@@ -114,8 +124,13 @@ public class Hopper extends SubsystemBase {
         // This method will be called once per scheduler run
         io.updateInputs(inputs);
         Logger.processInputs("Hopper", inputs);
-//try setting it to getPosition().in(Meters)
-        hopperPose = new Pose3d(inputs.mainMotorPosition.in(Meters), 0, 0, new Rotation3d());
+        hopperPose = new Pose3d(inputs.motorPosition.in(Meters), 0, 0, new Rotation3d());
         Logger.recordOutput("Components/Hopper", hopperPose);
+
+        if (DriverStation.isEnabled() && inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT)) {
+            io.coastMode();
+        } else {
+            io.brakeMode();
+        }
     }
 }

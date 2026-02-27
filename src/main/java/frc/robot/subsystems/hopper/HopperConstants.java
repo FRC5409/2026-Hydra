@@ -17,6 +17,7 @@ public final class HopperConstants {
     public static final int MAIN_MOTOR_ID = 20;
 
     public static final Current CURRENT_LIMIT = Amps.of(30.0);
+    public static final Current DAMAGE_DETECTION_CURRENT = Amps.of(50.0);
     public static final double kGearing = 12.0 / 1.0;
     private static final double totalPinionRotations = 3.3; //Need values for rack and pinion
     public static final Distance DistancePerPinionRotation = Inches.of(12 / totalPinionRotations);
