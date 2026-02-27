@@ -110,13 +110,12 @@ public class RobotContainer {
 
                 sys_launcher = new Launcher(
                         new LauncherIOTalonFX(
-                                LauncherConstants.Launcher.LAUNCHER_CAN_ID,
                                 LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
+                                LauncherConstants.Launcher.LAUNCHER_CAN_ID,
                                 LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
+                                LauncherConstants.Ultrasonic.ULTRASONIC_CHANNEL,
                                 LauncherConstants.Hood.HOOD_PWM_CHANNEL_1,
                                 LauncherConstants.Hood.HOOD_PWM_CHANNEL_2
-//                                LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
-//                                LauncherConstants.Ultrasonic.DIGITAL_INPUT
                         )
                 );
             }
