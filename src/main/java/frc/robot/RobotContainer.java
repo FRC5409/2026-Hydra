@@ -25,6 +25,7 @@ import frc.robot.Constants.PassingPositions;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.Constants.kBump;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.AutoClimbSequence;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.feeder.*;
@@ -311,6 +312,15 @@ public class RobotContainer {
                         .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
         secondaryController.povRight()
                         .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+        
+        secondaryController.y().onTrue(
+                new AutoClimbSequence(
+                        sys_drive,
+                        sys_elevator,
+                        () -> selectedClimibingPrepPosition.pose,
+                        () -> selectedClimbingPosition.pose
+                )
+        );                
   
     }
 
