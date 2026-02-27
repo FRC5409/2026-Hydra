@@ -14,8 +14,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimbingPositions;
@@ -25,6 +25,8 @@ import frc.robot.Constants.kBump;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.feeder.*;
 import frc.robot.subsystems.hopper.*;
 import frc.robot.subsystems.intake.Intake;
@@ -33,8 +35,9 @@ import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.launcher.*;
-import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
+import frc.robot.subsystems.launcher.Launcher;
+import frc.robot.subsystems.launcher.LauncherConstants;
+import frc.robot.subsystems.launcher.LauncherIOTalonFX;
 import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
@@ -49,10 +52,7 @@ import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
-
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Meters;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -68,6 +68,7 @@ public class RobotContainer {
     protected final Feeder     sys_feeder;
     protected final Hopper     sys_hopper;
     protected final Launcher   sys_launcher;
+    private final   Elevator   sys_elevator;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -98,6 +99,7 @@ public class RobotContainer {
                         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
                 sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
                 sys_vision = new Vision(new VisionIOLimelight());
+                sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
                 sys_drive = new Drive(
                         new GyroIOPigeon2(),
@@ -124,6 +126,7 @@ public class RobotContainer {
                 sys_hopper = new Hopper(new HopperIOSim());
                 sys_intake = new Intake(new IntakeIOSim());
                 sys_serializer = new Serializer(new SerializerIOSim());
+                sys_elevator = new Elevator(new ElevatorIOSim());
                 sys_feeder = new Feeder(new FeederIOSim());
 
                 final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
@@ -176,6 +179,7 @@ public class RobotContainer {
                 sys_hopper = new Hopper(new HopperIO() {});
                 sys_intake = new Intake(new IntakeIO() {});
                 sys_serializer = new Serializer(new SerializerIO() {});
+                sys_elevator = new Elevator(new ElevatorIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {});
             }
@@ -311,6 +315,9 @@ public class RobotContainer {
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
+        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
+        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
+
         primaryController.rightBumper()
                          .whileTrue(
                                  DriveCommands.alignToHeading(
@@ -388,6 +395,8 @@ public class RobotContainer {
                 }
         );
     }
+
+    ;
 
     private Command prepPassingPositionCommand(PassingPositions passingPosition) {
         return Commands.runOnce(
