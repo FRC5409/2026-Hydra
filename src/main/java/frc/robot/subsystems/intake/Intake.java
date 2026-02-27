@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -100,6 +101,10 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.coastMode(), this);
     }
 
+    public Command setVoltage(double voltage) {
+        return Commands.runOnce(() -> intakeIO.setExtensionVoltage(voltage), this);
+    }
+
     public Distance getPosition() {
         return intakeIO.getPosition();
     }
@@ -116,13 +121,18 @@ public class Intake extends SubsystemBase {
         );
         if (DriverStation.isEnabled() && inputs.extensionTorqueCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
             Commands.runOnce(() -> intakeIO.coastMode(), this);
+            Logger.recordOutput("Intake/Error", "Intake extension torque current exceeded crash threshold");
         }
+        if (DriverStation.isEnabled() && inputs.extensionVolts.in(Volts) > Extension.MAX_VOLTAGE.in(Volts)) {
+            Commands.runOnce(() -> intakeIO.coastMode(), this);
+            Logger.recordOutput("Intake/Error", "Intake extension voltage exceeded maximum limit");
 
         // if(inputs.extensionCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
         //     Commands.runOnce(() -> intakeIO.move(Extension.EXTENSION_MIN_DISTANCE), this);
         // }  Can be replaced with the content above to change action upon impact
 
         Logger.recordOutput("Components/Intake", extenderPose);
+        SmartDashboard.putData("Set Voltage", Commands.runOnce(() -> intakeIO.setExtensionVoltage(45.0), this));
         SmartDashboard.putData("Intake/PID", Extension.PID);
     }
 
