@@ -20,10 +20,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.ClimbingPositions;
-import frc.robot.Constants.PassingPositions;
-import frc.robot.Constants.kAutoAlign;
-import frc.robot.Constants.kBump;
+import frc.robot.Constants.*;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
@@ -39,7 +36,10 @@ import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.launcher.Launcher;
+import frc.robot.subsystems.launcher.LauncherIO;
+import frc.robot.subsystems.launcher.LauncherIOSim;
+import frc.robot.subsystems.launcher.LauncherIOTalonFX;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
@@ -101,7 +101,7 @@ public class RobotContainer {
                         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
                 sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
                 sys_vision = new Vision(new VisionIOLimelight());
-                sys_elevator = new Elevator(new ElevatorIOTalonFX(Constants.DeviceID.CLIMBER_MOTOR));
+                sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
                 sys_drive = new Drive(
                         new GyroIOPigeon2(),
@@ -112,16 +112,13 @@ public class RobotContainer {
                         sys_vision
                 );
 
-                sys_launcher = new Launcher(
-                        new LauncherIOTalonFX(
-                                LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
-                                LauncherConstants.Launcher.LAUNCHER_CAN_ID,
-                                LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
-                                LauncherConstants.Ultrasonic.ULTRASONIC_CHANNEL,
-                                LauncherConstants.Hood.HOOD_PWM_CHANNEL_1,
-                                LauncherConstants.Hood.HOOD_PWM_CHANNEL_2
-                        )
-                );
+                sys_launcher = new Launcher(new LauncherIOTalonFX(
+                        DeviceID.LAUNCHER_CANCODER,
+                        DeviceID.LAUNCHER_MOTOR_1,
+                        DeviceID.LAUNCHER_MOTOR_2,
+                        DeviceID.LAUNCHER_ULTRASONIC_CHANNEL,
+                        DeviceID.LAUNCHER_HOOD_SERVO_1,
+                        DeviceID.LAUNCHER_HOOD_SERVO_2));
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -286,9 +283,12 @@ public class RobotContainer {
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
         SmartDashboard.putNumber("Hood Angle [deg]", 0);
-        SmartDashboard.putData("Set Hood Angle", sys_launcher.setHoodAngle(() ->
-                Degrees.of(SmartDashboard.getNumber("Hood Angle [deg]", 0))));
-
+        SmartDashboard.putData(
+                "Set Hood Angle", sys_launcher.setHoodAngle(() ->
+                                                                    Degrees.of(
+                                                                            SmartDashboard.getNumber(
+                                                                                    "Hood Angle [deg]",
+                                                                                    0))));
 
         // Switch to X pattern when X button is pressed
         primaryController.x()

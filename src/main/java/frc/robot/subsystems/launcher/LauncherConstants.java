@@ -13,10 +13,6 @@ import static edu.wpi.first.units.Units.*;
 
 public class LauncherConstants {
     public static class Launcher {
-        public static final int LAUNCHER_SENSOR_ID       = 1;
-        public static final int LAUNCHER_CAN_ID          = 24;
-        public static final int FOLLOWER_LAUNCHER_CAN_ID = 25;
-
         public static final double        kG  = 0.0;
         public static final double        kS  = 0.1;
         public static final double        kV  = 0.12;
@@ -37,9 +33,6 @@ public class LauncherConstants {
          */
         public static final Distance                     OFFSET_MM  = Millimeters.of(51.27737);
 
-        public static final int HOOD_PWM_CHANNEL_1 = 4;
-        public static final int HOOD_PWM_CHANNEL_2 = 5;
-
         /**
          * stored as raw number (degrees) to save computation frames
          */
@@ -59,8 +52,6 @@ public class LauncherConstants {
     }
 
     public static class Ultrasonic {
-        public static final int ULTRASONIC_CHANNEL = 1;
-
         public static final Per<DistanceUnit, VoltageUnit> MM_PER_VOLT = Millimeters.of(1024.0)
                                                                                     .div(Volts.of(5.0));
     }
