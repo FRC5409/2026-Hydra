@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
     private final TalonFX m_mainMotor;
@@ -97,17 +98,17 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void zeroEncoder() {
-        m_mainMotor.setPosition(0);
+        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setPosition(0));
     }
 
     @Override
     public void brakeMode() {
-        m_mainMotor.setNeutralMode(NeutralModeValue.Brake);
+        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setNeutralMode(NeutralModeValue.Brake));
     }
 
     @Override
     public void coastMode() {
-        m_mainMotor.setNeutralMode(NeutralModeValue.Coast);
+        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setNeutralMode(NeutralModeValue.Coast));
     }
 
     @Override
@@ -122,7 +123,7 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void setSetpoint(Distance setpoint) {
-        m_mainMotor.setControl(m_request.withPosition(setpoint.in(Inches)));
+        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Inches))));
     }
 
     @Override
