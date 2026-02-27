@@ -170,16 +170,14 @@ public class LauncherIOTalonFX implements LauncherIO {
         else servo2CurPos = servo2Setpoint;
 
         // update applied setpoints for servos
-        double setpoint1 = targetSetpoint + 20;
-        double appliedSetpoint = MathUtil.clamp(setpoint1, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        double appliedSetpoint = MathUtil.clamp(targetSetpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
         servo1Setpoint = appliedSetpoint;
-        appliedSetpoint = (setpoint1 / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
+        appliedSetpoint = (targetSetpoint / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
         hoodServo.setSpeed(appliedSetpoint);
 
-        double setpoint2 = targetSetpoint + 24;
-        appliedSetpoint = MathUtil.clamp(setpoint2, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
+        appliedSetpoint = MathUtil.clamp(targetSetpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
         servo2Setpoint = appliedSetpoint;
-        appliedSetpoint = (setpoint2 / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
+        appliedSetpoint = (targetSetpoint / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
         hoodServo2.setSpeed(appliedSetpoint);
     }
 
