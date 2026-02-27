@@ -17,7 +17,7 @@ public interface LauncherIO {
     @AutoLog
     class LauncherInputs {
         // Launcher
-        public boolean          isCANCoderConnecetd = false;
+        public boolean          isCANCoderConnected = false;
         public MagnetHealthValue magnetHealth = MagnetHealthValue.Magnet_Invalid;
 
         public boolean         isLauncherConnected = false;

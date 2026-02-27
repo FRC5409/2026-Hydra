@@ -29,7 +29,6 @@ import static edu.wpi.first.units.Units.Volts;
 public class LauncherIOTalonFX implements LauncherIO {
     // Motors and sensors
     private final TalonFX launcherMotor;
-    private final CANcoder launcherCANCoder;
 
     private final Servo   hoodServo;
     private final Servo   hoodServo2;
@@ -65,7 +64,7 @@ public class LauncherIOTalonFX implements LauncherIO {
         // Motors and sensors
         launcherMotor = new TalonFX(launcherCanID);
 
-        launcherCANCoder = new CANcoder(launcherCANCoderID);
+        CANcoder launcherCANCoder = new CANcoder(launcherCANCoderID);
 
         TalonFX launcherFollowerMotor = new TalonFX(launcherFollowerCanID);
 
@@ -111,12 +110,9 @@ public class LauncherIOTalonFX implements LauncherIO {
         TalonFXConfigurator launcherFollowerConfigurator = launcherMotor.getConfigurator();
 
         launcherCANCoder.getConfigurator()      // check sensor configs
-                            .apply(
-                                new CANcoderConfiguration()
-                                .MagnetSensor.withAbsoluteSensorDiscontinuityPoint(Degrees.of(180))
-                                .withSensorDirection(SensorDirectionValue.Clockwise_Positive)
-                                .withMagnetOffset(1)
-                                );
+                        .apply(new CANcoderConfiguration()
+                                .MagnetSensor
+                                .withSensorDirection(SensorDirectionValue.Clockwise_Positive));
 
         // Slot configs
         Slot0Configs launcherSlotConfigs = new Slot0Configs()
@@ -213,7 +209,7 @@ public class LauncherIOTalonFX implements LauncherIO {
     @Override
     public void updateInputs(LauncherInputs inputs) {
         // Launcher
-        inputs.isCANCoderConnecetd = BaseStatusSignal.refreshAll(magnetHealth).isOK();
+        inputs.isCANCoderConnected = BaseStatusSignal.refreshAll(magnetHealth).isOK();
 
         inputs.isLauncherConnected = BaseStatusSignal.refreshAll(
                 voltageLauncher,
