@@ -27,7 +27,7 @@ public final class HopperConstants {
     public static final Distance HOPPER_DRUMRADIUS = Meters.of(1.0);
     public static final Mass HOPPER_MASS = Pounds.of(10.561);
 
-    public static final PIDController PID = new PIDController(0.0, 0.0, 0.0);
+    public static PIDController PID = new PIDController(0.0, 0.0, 0.0);
     public static PIDConstants TALONFX_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
     public static final PIDConstants SIM_PID = new PIDConstants(4, 0, 3);
 
