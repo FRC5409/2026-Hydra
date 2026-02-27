@@ -20,7 +20,7 @@ public final class IntakeConstants {
 		public static final PIDController PID = new PIDController(0.01, 0.0, 0.0);
 		public static final PIDConstants TALONFX_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
 		public static final PIDConstants SIM_PID = new PIDConstants(0.1, 0.0, 0.0);
-		public static final Voltage MAX_VOLTAGE = Volts.of(15.0);
+		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
 		public static final Current MAX_CURRENT = Amps.of(30.0);
 		public static final double GEARING = 10.0/1.0;
 		public static final Mass INTAKE_MASS = Kilograms.of(3.1818);
