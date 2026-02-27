@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -12,7 +11,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.*;
 import frc.robot.utils.Checkmate;
 import frc.robot.utils.Checkmate.TestResult;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -51,7 +50,7 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
 
-            Timer.delay(2.0);
+            Timer.delay(10.0);
 
             if (Math.abs(inputs.extensionPosition - retractTarget) > 0.05) {
                 return TestResult.fail("Intake extension failed to retract, position: " + inputs.extensionPosition);
@@ -64,7 +63,7 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setRollerVoltage(6.0);
 
-            Timer.delay(2.0);
+            Timer.delay(10.0);
 
             double current = inputs.rollerCurrent.in(Amps);
             intakeIO.setRollerVoltage(0.0);
@@ -119,20 +118,13 @@ public class Intake extends SubsystemBase {
             new Rotation3d(0.0, 0.0, Math.toRadians(0.0))
 
         );
+
         if (DriverStation.isEnabled() && inputs.extensionTorqueCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
             Commands.runOnce(() -> intakeIO.coastMode(), this);
-            Logger.recordOutput("Intake/Error", "Intake extension torque current exceeded crash threshold");
+            System.err.println("Intake extension current exceeded crash threshold, current: " + inputs.extensionTorqueCurrent.in(Amps));
         }
-        if (DriverStation.isEnabled() && inputs.extensionVolts.in(Volts) > Extension.MAX_VOLTAGE.in(Volts)) {
-            Commands.runOnce(() -> intakeIO.coastMode(), this);
-            Logger.recordOutput("Intake/Error", "Intake extension voltage exceeded maximum limit");
-
-        // if(inputs.extensionCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
-        //     Commands.runOnce(() -> intakeIO.move(Extension.EXTENSION_MIN_DISTANCE), this);
-        // }  Can be replaced with the content above to change action upon impact
 
         Logger.recordOutput("Components/Intake", extenderPose);
-        SmartDashboard.putData("Set Voltage", Commands.runOnce(() -> intakeIO.setExtensionVoltage(45.0), this));
         SmartDashboard.putData("Intake/PID", Extension.PID);
     }
 

@@ -76,8 +76,8 @@ public class IntakeIOSim implements IntakeIO {
 
         if (running) {
             double pidOut = pid.calculate(extensionSim.getPositionMeters());
-            double maxV = Math.max(12.0, RoboRioSim.getVInVoltage());
-            volts = MathUtil.clamp(pidOut * 12.0, -maxV, maxV);
+            double maxV = Math.max(Extension.MAX_VOLTAGE.in(Volts), RoboRioSim.getVInVoltage());
+            volts = MathUtil.clamp(pidOut * Extension.MAX_VOLTAGE.in(Volts), -maxV, maxV);
         }
 
       extensionSim.setInputVoltage(volts);
@@ -88,6 +88,7 @@ public class IntakeIOSim implements IntakeIO {
       inputs.isRetracted = extensionSim.getPositionMeters() <= Extension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
       inputs.extensionVelocity = MetersPerSecond.of(extensionSim.getVelocityMetersPerSecond());
       inputs.extensionCurrent = Amps.of(extensionSim.getCurrentDrawAmps());
+      inputs.extensionTorqueCurrent = Amps.of(extensionSim.getCurrentDrawAmps() * 0.5); // Simulated torque current
       inputs.isExtensionRunning = running;
       inputs.extensionVolts = Volts.of(volts);
       inputs.extensionTemp = 25.0; // Constant temp for sim
