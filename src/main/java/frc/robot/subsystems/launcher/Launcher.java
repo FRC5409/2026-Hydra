@@ -4,6 +4,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -28,6 +29,8 @@ public class Launcher extends SubsystemBase {
     private final LauncherInputsAutoLogged  inputs;
     private final AtomicReference<Distance> hoodSetpoint = new AtomicReference<>(Millimeters.of(0.0));
 
+    private static final String PREF_LAUNCH_SPEED_OFFSET = "Launcher/SpeedOffsetRps";
+
     private LaunchStrategy strategy;
 
     public Launcher(LauncherIO io) {
@@ -35,7 +38,7 @@ public class Launcher extends SubsystemBase {
         inputs = new LauncherInputsAutoLogged();
 
         // create the logged fields
-        logInterpolation(Meters.of(0), null);
+        logInterpolation(Meters.of(0), null, -1);
         setStrategy(LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
 
         Checkmate.register(
@@ -58,32 +61,58 @@ public class Launcher extends SubsystemBase {
         return Commands.runOnce(() -> io.runVelocity(velocity));
     }
 
+    private double getLaunchSpeedOffsetRps() {
+        return Preferences.getDouble(PREF_LAUNCH_SPEED_OFFSET, 0.0);
+    }
+
+    /**
+     * Increments the operator's launch speed offset, which changes the real output speed sent to the launcher/feeder
+     * when trying to launch fuel.
+     *
+     * @param by amount to increment offset by. can be a negative number to decrement.
+     */
+    public void incrementLaunchSpeedOffsetRps(double by) {
+        Preferences.setDouble(PREF_LAUNCH_SPEED_OFFSET, getLaunchSpeedOffsetRps() + by);
+    }
+
     /**
      * Defers a command that interpolates a {@link LaunchConfig} and then sets the velocity and hood angle of the
      * launcher, based on the active {@link LaunchStrategy}.
      *
      * @param distance supplier to get the distance that fuel should be shot from
      *
-     * @return defered command that launches fuel
+     * @return deferred command that launches fuel
      */
     public Command launchFuel(Supplier<Distance> distance, Feeder feeder) {
         return Commands.defer(
                 () -> {
                     LaunchConfig c = strategy.interpolate(distance.get());
-                    logInterpolation(distance.get(), c);
+                    double launchSpeed = c.speed().in(RotationsPerSecond) + getLaunchSpeedOffsetRps();
+                    logInterpolation(distance.get(), c, launchSpeed);
 
-                    return runVelocity(c::speed) // spin launcher
+                    return runVelocity(() -> RotationsPerSecond.of(launchSpeed))
                             .alongWith(setHoodAngle(c::angle)) // set hood angle
-                            .alongWith(feeder.runRPS(c.speed().in(RotationsPerSecond))); // run feeder at same vel.
+                            .alongWith(feeder.runRPS(launchSpeed)); // run feeder at same vel.
                 }, Set.of(this));
     }
 
-    private void logInterpolation(Distance distance, LaunchConfig config) {
+    /**
+     * Updates the real outputs for the launcher interpolation system
+     *
+     * @param distance        distance from hub used in interpolation
+     * @param config          resulting {@link LaunchConfig} from the {@link Launcher#strategy}
+     * @param realLaunchSpeed actual launch speed sent to launcher/feeder, being the interpolated speed plus the
+     *                        operator's manual offset
+     */
+    private void logInterpolation(Distance distance, LaunchConfig config, double realLaunchSpeed) {
         Logger.recordOutput("Launcher/Interpolator/TargetDistance", distance);
         Logger.recordOutput("Launcher/Interpolator/DidInterpolationSucceed", config != null);
         Logger.recordOutput(
                 "Launcher/Interpolator/TargetSpeed", config == null ? RotationsPerSecond.of(0) : config.speed());
         Logger.recordOutput("Launcher/Interpolator/TargetAngle", config == null ? Radians.of(0) : config.angle());
+        Logger.recordOutput(
+                "Launcher/Interpolator/OperatorSpeedOffset", RotationsPerSecond.of(getLaunchSpeedOffsetRps()));
+        Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", RotationsPerSecond.of(realLaunchSpeed));
     }
 
     private Distance computeHoodExtension(Angle angle) {
