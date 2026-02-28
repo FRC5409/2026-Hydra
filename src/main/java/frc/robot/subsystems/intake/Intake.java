@@ -36,12 +36,12 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
 
-            Timer.delay(2.0);
+            Timer.delay(10.0);
 
             if (Math.abs(inputs.extensionPosition - extendTarget) > 0.05) {
-                return TestResult.fail("Intake extension failed to extend, position: " + inputs.extensionPosition);
+                return TestResult.fail("Intake failed to extend, position: " + inputs.extensionPosition);
             }
-            return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
+            return TestResult.success("Intake extension ok");
         });
 
         Checkmate.register("Should fully retract Intake", () -> {
@@ -53,9 +53,9 @@ public class Intake extends SubsystemBase {
             Timer.delay(10.0);
 
             if (Math.abs(inputs.extensionPosition - retractTarget) > 0.05) {
-                return TestResult.fail("Intake extension failed to retract, position: " + inputs.extensionPosition);
+                return TestResult.fail("Intake failed to retract, position: " + inputs.extensionPosition);
             }
-            return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
+            return TestResult.success("Intake retraction ok");
         });
 
 
@@ -63,7 +63,7 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setRollerVoltage(6.0);
 
-            Timer.delay(10.0);
+            Timer.delay(5.0);
 
             double current = inputs.rollerCurrent.in(Amps);
             intakeIO.setRollerVoltage(0.0);
@@ -78,6 +78,14 @@ public class Intake extends SubsystemBase {
 
     public Command intake(double voltage) {
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage), this);
+    }
+
+    public Command outTake(double voltage) {
+        return Commands.runOnce(() -> intakeIO.setRollerVoltage(-voltage), this);
+    }
+
+    public Command stopRoller() {
+        return Commands.runOnce(() -> intakeIO.setRollerVoltage(0.0), this);
     }
 
     public Command brakemode() {
