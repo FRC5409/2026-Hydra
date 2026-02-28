@@ -36,7 +36,7 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
 
-            Timer.delay(10.0);
+            Timer.delay(2.0);
 
             if (Math.abs(inputs.extensionPosition - extendTarget) > 0.05) {
                 return TestResult.fail("Intake failed to extend, position: " + inputs.extensionPosition);
@@ -50,7 +50,7 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
 
-            Timer.delay(10.0);
+            Timer.delay(2.0);
 
             if (Math.abs(inputs.extensionPosition - retractTarget) > 0.05) {
                 return TestResult.fail("Intake failed to retract, position: " + inputs.extensionPosition);
@@ -63,7 +63,7 @@ public class Intake extends SubsystemBase {
 
             intakeIO.setRollerVoltage(6.0);
 
-            Timer.delay(5.0);
+            Timer.delay(2.0);
 
             double current = inputs.rollerCurrent.in(Amps);
             intakeIO.setRollerVoltage(0.0);
@@ -76,12 +76,8 @@ public class Intake extends SubsystemBase {
 
     }
 
-    public Command intake(double voltage) {
+    public Command setRollerVoltage(double voltage) {
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage), this);
-    }
-
-    public Command outTake(double voltage) {
-        return Commands.runOnce(() -> intakeIO.setRollerVoltage(-voltage), this);
     }
 
     public Command stopRoller() {
@@ -108,7 +104,7 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.coastMode(), this);
     }
 
-    public Command setVoltage(double voltage) {
+    public Command setExtensionVoltage(double voltage) {
         return Commands.runOnce(() -> intakeIO.setExtensionVoltage(voltage), this);
     }
 
@@ -127,8 +123,8 @@ public class Intake extends SubsystemBase {
         );
 
         if (DriverStation.isEnabled() && inputs.extensionTorqueCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
-            Commands.runOnce(() -> intakeIO.coastMode(), this);
-            System.err.println("Intake extension current exceeded crash threshold, current: " + inputs.extensionTorqueCurrent.in(Amps));
+            Commands.runOnce(() -> intakeIO.coastMode(), this); //TODO
+            Logger.recordOutput("Intake/Crash Detected", true);
         }
 
         intakeIO.updateInputs(inputs);

@@ -56,7 +56,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
             .withKP(Extension.PID.getP())
             .withKI(Extension.PID.getI())
             .withKD(Extension.PID.getD());
-            // .withKV(IntakeConstants.Extension.kV);
             
         extensionMotor.getConfigurator().apply(extensionConfigurator);
 
