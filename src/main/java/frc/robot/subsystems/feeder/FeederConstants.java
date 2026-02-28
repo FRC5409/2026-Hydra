@@ -1,21 +1,27 @@
 package frc.robot.subsystems.feeder;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
+
+import java.util.function.Supplier;
 
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 
 public final class FeederConstants {
         public static final int FEEDER_ID = 2;
 
-        public static final PIDConstants SIM_PID = new PIDConstants(0.0175, 0, 0);
-        public static PIDController pid = new PIDController(0, 0, 0);
+        public static PIDConstants SIM_PID = new PIDConstants(0.0, 0, 0);
+        public static PIDController pid = new PIDController(0.0, 0.0, 0.0);
         public static PIDConstants TALONFX_PID = new PIDConstants(pid.getP(), pid.getI(), pid.getD());
-        public static final double kG = 0.0;
-        public static final double kS = 0.1;
-        public static final double kV = 0.12;
+        public static Supplier<Double> kP = () -> 0.0;
+        public static Supplier<Double> kI = () -> 0.0;
+        public static Supplier<Double> kD = () -> 0.0;
+        public static final double kV = 0.0;
+        public static AngularVelocity targetRPS = RotationsPerSecond.of(0.0);
 
         public static final boolean ORTONA_FEEDER_MOTOR_INVERTED = false;
         public static final Current ORTONA_SPARK_MAX_CURRENT_LIMIT = Amps.of(30);

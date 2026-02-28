@@ -18,6 +18,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FeederIOTalonFX implements FeederIO {
     
@@ -45,8 +46,6 @@ public class FeederIOTalonFX implements FeederIO {
             .withKP(FeederConstants.TALONFX_PID.kP)
             .withKI(FeederConstants.TALONFX_PID.kI)
             .withKD(FeederConstants.TALONFX_PID.kD)
-            .withKG(FeederConstants.kG)
-            .withKS(FeederConstants.kS)
             .withKV(FeederConstants.kV);
         feederMotorConfig.apply(feederPidConfigs);
 
@@ -116,6 +115,18 @@ public class FeederIOTalonFX implements FeederIO {
         inputs.appliedVoltage = feederDeviceVoltage.getValue();
         inputs.appliedCurrent = feederDeviceCurrent.getValue();
         inputs.motorTemperature = feederDeviceTemp.getValueAsDouble();
+
+        double p = FeederConstants.pid.getP();
+        double i = FeederConstants.pid.getI();
+        double d = FeederConstants.pid.getD();
+
+
+        if (feederPidConfigs.kP != p || feederPidConfigs.kI != i || feederPidConfigs.kD != d) {
+            feederPidConfigs.kP = p;
+            feederPidConfigs.kI = i;
+            feederPidConfigs.kD = d;
+            feederMotorConfig.apply(feederPidConfigs);
+        }
     }
 
 }

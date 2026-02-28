@@ -14,6 +14,7 @@ import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class FeederIOSim implements FeederIO {
     private final FlywheelSim feederSim;
@@ -21,6 +22,7 @@ public class FeederIOSim implements FeederIO {
     private final PIDController controller;
     private boolean running;
     private double numberOfRotations;
+    private double simSetpoint;
 
     public FeederIOSim() {
         feederSim = new FlywheelSim(
@@ -33,9 +35,9 @@ public class FeederIOSim implements FeederIO {
         );
 
         controller = new PIDController(
-            FeederConstants.SIM_PID.kP, 
-            FeederConstants.SIM_PID.kI,
-            FeederConstants.SIM_PID.kD);
+            FeederConstants.kP.get(), 
+            FeederConstants.kI.get(),
+            FeederConstants.kD.get());
         running = false;
     }
 
@@ -48,6 +50,7 @@ public class FeederIOSim implements FeederIO {
     @Override
     public void runRPS(Supplier<AngularVelocity> velocity) {
         controller.setSetpoint(velocity.get().in(RotationsPerSecond));
+        simSetpoint = velocity.get().in(RotationsPerSecond);
         running = true;
     }
 
@@ -82,6 +85,10 @@ public class FeederIOSim implements FeederIO {
         inputs.appliedCurrent = Amps.of(feederSim.getCurrentDrawAmps());
         numberOfRotations += getVelocityRPS().in(RotationsPerSecond)*0.02;
         inputs.motorPosition = Rotations.of(numberOfRotations);
+        inputs.setpoint = simSetpoint;
+
+        controller.setPID(FeederConstants.pid.getP(), FeederConstants.pid.getI(), FeederConstants.pid.getD());
+
     }
 
 }

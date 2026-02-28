@@ -20,6 +20,9 @@ public class Feeder extends SubsystemBase {
     private FeederIO io;
     
     public Feeder(FeederIO io) {
+        SmartDashboard.putData("Feeder/PID", FeederConstants.pid);
+        SmartDashboard.putNumber("Feeder/RPS", 0.0);
+
         this.io = io;
         inputs = new FeederInputsAutoLogged();
 
@@ -69,6 +72,6 @@ public class Feeder extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Feeder", inputs);
-        SmartDashboard.putData("Feeder/PID", FeederConstants.pid);
+        FeederConstants.targetRPS = RotationsPerSecond.of(SmartDashboard.getNumber("Feeder/RPS", 0));
     }
 }
