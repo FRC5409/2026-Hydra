@@ -118,7 +118,6 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        intakeIO.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
         extenderPose = new Pose3d(
 
@@ -132,8 +131,10 @@ public class Intake extends SubsystemBase {
             System.err.println("Intake extension current exceeded crash threshold, current: " + inputs.extensionTorqueCurrent.in(Amps));
         }
 
+        intakeIO.updateInputs(inputs);
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.PID);
+
     }
 
 }

@@ -53,9 +53,9 @@ public final class IntakeIOTalonFX implements IntakeIO {
         .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING));
 
         extensionConfigurator.Slot0 = new Slot0Configs()
-            .withKP(Extension.TALONFX_PID.kP)
-            .withKI(Extension.TALONFX_PID.kI)
-            .withKD(Extension.TALONFX_PID.kD);
+            .withKP(Extension.PID.getP())
+            .withKI(Extension.PID.getI())
+            .withKD(Extension.PID.getD());
             // .withKV(IntakeConstants.Extension.kV);
             
         extensionMotor.getConfigurator().apply(extensionConfigurator);

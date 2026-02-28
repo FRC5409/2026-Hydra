@@ -33,9 +33,9 @@ public class IntakeIOSim implements IntakeIO {
         );
 
       pid = new PIDController(
-        Extension.SIM_PID.kP,
-        Extension.SIM_PID.kI,
-        Extension.SIM_PID.kD
+        Extension.PID.getP(),
+        Extension.PID.getI(),
+        Extension.PID.getD()
       );
 
       running = false;
@@ -72,12 +72,6 @@ public class IntakeIOSim implements IntakeIO {
     @Override
     public void updateInputs(IntakeInputs inputs) {
 
-      // if (Extension.PID.getP() != pid.getP() || Extension.PID.getI() != pid.getI() || Extension.PID.getD() != pid.getD()) {
-      //   pid.setP(Extension.PID.getP());
-      //   pid.setI(Extension.PID.getI());
-      //   pid.setD(Extension.PID.getD());
-      // }
-
         double volts = 0.0;
 
         if (running) {
@@ -106,5 +100,7 @@ public class IntakeIOSim implements IntakeIO {
 
       inputs.isRollerConnected = true;
       inputs.isExtensionConnected = true;
+
+      pid.setPID(Extension.PID.getP(), Extension.PID.getI(), Extension.PID.getD());
     }
 }
