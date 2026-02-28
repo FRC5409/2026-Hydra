@@ -61,7 +61,7 @@ public class Launcher extends SubsystemBase {
         return Commands.runOnce(() -> io.runVelocity(velocity));
     }
 
-    private double getLaunchSpeedOffsetRps() {
+    private static double getLaunchSpeedOffsetRps() {
         return Preferences.getDouble(PREF_LAUNCH_SPEED_OFFSET, 0.0);
     }
 
@@ -71,7 +71,7 @@ public class Launcher extends SubsystemBase {
      *
      * @param by amount to increment offset by. can be a negative number to decrement.
      */
-    public void incrementLaunchSpeedOffsetRps(double by) {
+    public static void incrementLaunchSpeedOffsetRps(double by) {
         Preferences.setDouble(PREF_LAUNCH_SPEED_OFFSET, getLaunchSpeedOffsetRps() + by);
     }
 

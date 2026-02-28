@@ -18,6 +18,8 @@ public class LauncherConstants {
         public static final double        kV  = 0.12;
         public static final PIDController PID = new PIDController(0.05, 0, 0);
 
+        public static final double LAUNCH_SPEED_OFFSET_INCREMENT = 0.02; // 1 RPM
+
         public static final LaunchStrategy DEFAULT_LAUNCH_STRATEGY = new BilinearStrategy();
     }
 

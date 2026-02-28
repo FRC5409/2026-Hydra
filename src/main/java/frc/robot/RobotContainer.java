@@ -36,10 +36,7 @@ import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.launcher.LauncherIO;
-import frc.robot.subsystems.launcher.LauncherIOSim;
-import frc.robot.subsystems.launcher.LauncherIOTalonFX;
+import frc.robot.subsystems.launcher.*;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.vision.Vision;
@@ -361,6 +358,14 @@ public class RobotContainer {
                            .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
         secondaryController.povRight()
                            .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+
+        // launcher offset
+        secondaryController.povUp()
+                           .onTrue(Commands.runOnce(() -> Launcher.incrementLaunchSpeedOffsetRps(
+                                   LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT)));
+        secondaryController.povDown()
+                           .onTrue(Commands.runOnce(() -> Launcher.incrementLaunchSpeedOffsetRps(
+                                   -LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT)));
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {
