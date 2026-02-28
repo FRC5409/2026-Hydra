@@ -61,6 +61,11 @@ public class Launcher extends SubsystemBase {
         return Commands.runOnce(() -> io.runVelocity(velocity));
     }
 
+    /**
+     * Gets the operator's launch speed offset [RPS] from the {@link Preferences} "Launcher/SpeedOffsetRps"
+     *
+     * @return double [RPS]
+     */
     private static double getLaunchSpeedOffsetRps() {
         return Preferences.getDouble(PREF_LAUNCH_SPEED_OFFSET, 0.0);
     }
@@ -108,7 +113,8 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput("Launcher/Interpolator/TargetDistance", distance);
         Logger.recordOutput("Launcher/Interpolator/DidInterpolationSucceed", config != null);
         Logger.recordOutput(
-                "Launcher/Interpolator/TargetSpeed", config == null ? RotationsPerSecond.of(0) : config.speed());
+                "Launcher/Interpolator/TargetSpeed",
+                config == null ? RotationsPerSecond.of(0) : config.speed());
         Logger.recordOutput("Launcher/Interpolator/TargetAngle", config == null ? Radians.of(0) : config.angle());
         Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", RotationsPerSecond.of(realLaunchSpeed));
     }
