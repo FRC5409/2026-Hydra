@@ -175,11 +175,7 @@ public class RobotContainer {
         }
 
         // Set up auto routines
-        // autoChooser = buildAutoChooser();
-        // autoChooser = new LoggedDashboardChooser<>("Auto Choices");
-        // autoChooser.addDefaultOption("None", Commands.none());
         autoChooser = buildAutoChooser();
-        
 
         // Configure the button bindings
         configureButtonBindings();

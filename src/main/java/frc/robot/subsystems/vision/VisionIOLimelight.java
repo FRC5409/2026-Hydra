@@ -1,5 +1,7 @@
 package frc.robot.subsystems.vision;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
@@ -95,9 +97,9 @@ public class VisionIOLimelight implements VisionIO {
     public void setCameraOffset() {
         LimelightHelpers.setCameraPose_RobotSpace(
                 Vision.PRIMARY_CAM_NAME,
-                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getX(),
-                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getY(),
-                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getZ(),
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getMeasureX().in(Meters),
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getMeasureY().in(Meters),
+                Vision.OFFSET_FROM_ROBOT_ORIGIN.getTranslation().getMeasureZ().in(Meters),
                 Vision.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureX().in(Units.Degrees),
                 Vision.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureY().in(Units.Degrees),
                 Vision.OFFSET_FROM_ROBOT_ORIGIN.getRotation().getMeasureZ().in(Units.Degrees));
