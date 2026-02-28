@@ -248,13 +248,16 @@ public class RobotContainer {
                          .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
 
         // Switch To Bump Speed Modifier
-        primaryController.a()
-                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
-                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+        // primaryController.a()
+        //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+        //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
     
         primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
         primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
         primaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
+        primaryController.a()
+                        .onTrue(sys_elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATOR_UP))
+                        .onFalse(sys_elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATPR_DOWN));
 
         primaryController.rightBumper()
                          .whileTrue(
