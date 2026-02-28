@@ -110,8 +110,6 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput(
                 "Launcher/Interpolator/TargetSpeed", config == null ? RotationsPerSecond.of(0) : config.speed());
         Logger.recordOutput("Launcher/Interpolator/TargetAngle", config == null ? Radians.of(0) : config.angle());
-        Logger.recordOutput(
-                "Launcher/Interpolator/OperatorSpeedOffset", RotationsPerSecond.of(getLaunchSpeedOffsetRps()));
         Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", RotationsPerSecond.of(realLaunchSpeed));
     }
 
@@ -164,6 +162,9 @@ public class Launcher extends SubsystemBase {
 
         // update inputs
         io.updateInputs(inputs);
+        Logger.recordOutput(
+                "Launcher/Interpolator/OperatorSpeedOffset",
+                RotationsPerSecond.of(getLaunchSpeedOffsetRps()));
         Logger.processInputs("Launcher", inputs);
         SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
     }
