@@ -25,7 +25,8 @@ public class LauncherIOSim implements LauncherIO {
     private final FlywheelSim   flywheelSim;
     private final PIDController controllerLauncher;
 
-    private Angle hoodPos = Degrees.of(0.0);
+    private Angle hoodPos;
+    private Angle targetPos;
 
     private boolean isRunning;
 
@@ -48,6 +49,9 @@ public class LauncherIOSim implements LauncherIO {
                 LauncherConstants.Launcher.PID.getD());
 
         isRunning = true;
+
+        hoodPos = Degrees.of(0.0);
+        targetPos = Degrees.of(0.0);
     }
 
     @Override
@@ -62,6 +66,7 @@ public class LauncherIOSim implements LauncherIO {
 
     @Override
     public void setHoodPos(Angle angle) {
+        targetPos = angle;
         hoodPos = angle;
         isRunning = true;
     }
@@ -108,6 +113,7 @@ public class LauncherIOSim implements LauncherIO {
         inputs.launcherSpeedRadians = flywheelSim.getAngularVelocity();
         // inputs.hoodSpeedRadians = Radians.of(hoodSim.getVelocityRadPerSec());
         
-        inputs.hoodPosition = hoodPos;
+        inputs.targetHoodPosition = targetPos;
+        inputs.hoodPosition = getHoodPos();
     }
 }

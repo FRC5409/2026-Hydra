@@ -51,6 +51,7 @@ public final class Constants {
         public static final int LAUNCHER_CAN_RANGE          = 21;
         public static final int LAUNCHER_MOTOR_1            = 24;
         public static final int LAUNCHER_MOTOR_2            = 25;
+        public static final int LAUNCHER_CANCODER_ID        = 1;
         public static final int LAUNCHER_FLYWHEEL_CAN_CODER = 26;
         public static final int LAUNCHER_HOOD_SERVO_1       = 0; // TODO
         public static final int LAUNCHER_HOOD_SERVO_2       = 0; // TODO

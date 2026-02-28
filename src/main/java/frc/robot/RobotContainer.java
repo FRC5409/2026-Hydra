@@ -135,6 +135,7 @@ public class RobotContainer {
                 sys_launcher = new Launcher(new LauncherIOTalonFX(
                     Constants.DeviceID.LAUNCHER_MOTOR_1,
                     Constants.DeviceID.LAUNCHER_MOTOR_2,
+                    Constants.DeviceID.LAUNCHER_CANCODER_ID,
                     Constants.DeviceID.ULTRASONIC_CHANNEL,
                     Constants.DeviceID.LAUNCHER_HOOD_SERVO_1,
                     Constants.DeviceID.LAUNCHER_HOOD_SERVO_2
@@ -261,6 +262,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
         // Default command, normal field-relative drive
 
+        primaryController.y().onTrue(Commands.runOnce(() -> new Launcher(new LauncherIOSim())));
         primaryController.x().onTrue(sys_launcher.setHoodPos(Degrees.of(0)));
         primaryController.b().onTrue(sys_launcher.setHoodPos(Degrees.of(30)));
 
@@ -313,7 +315,7 @@ public class RobotContainer {
         primaryController.a()
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
-    
+
         primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
         primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
 

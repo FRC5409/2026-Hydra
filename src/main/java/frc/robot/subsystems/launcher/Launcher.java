@@ -42,9 +42,11 @@ public class Launcher extends SubsystemBase {
         Checkmate.register("Set max hood position", () -> {
             this.setHoodPos(LauncherConstants.Hood.MAX_ANGLE);
 
+            inputs.targetHoodPosition = Degrees.of(30);
+
             Timer.delay(2);
 
-            if (inputs.hoodPosition == inputs.targetHoodPosition) {
+            if (inputs.hoodPosition.equals(inputs.targetHoodPosition)) {
                 return TestResult.success("Max hood position set");
             }
 
@@ -54,9 +56,15 @@ public class Launcher extends SubsystemBase {
         Checkmate.register("Set min hood position", () -> {
             this.setHoodPos(LauncherConstants.Hood.MIN_ANGLE);
 
+            inputs.targetHoodPosition = Degrees.of(0);
+
             Timer.delay(2);
 
-            if (inputs.hoodPosition == inputs.targetHoodPosition) {
+            System.out.println("TAREGT " + inputs.targetHoodPosition);
+
+            System.out.println("POS " + inputs.hoodPosition);
+
+            if (inputs.hoodPosition.equals(inputs.targetHoodPosition)) {
                 return TestResult.success("Min hood position set");
             }
 
