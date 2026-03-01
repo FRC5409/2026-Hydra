@@ -21,6 +21,7 @@ public interface HopperIO {
         public Distance motorPosition = Inches.of(0.0);
         public Distance motorPositionIntakeZero = Inches.of(0.0);
         public Distance setpoint = Inches.of(0.0);
+        public boolean isCrashDetected = false;
     }
 
     public default void updateInputs(HopperInputs inputs) {}

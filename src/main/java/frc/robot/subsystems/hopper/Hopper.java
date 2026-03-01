@@ -134,10 +134,14 @@ public class Hopper extends SubsystemBase {
         Logger.recordOutput("Components/Hopper", hopperPose);
         SmartDashboard.putData("Hopper/PID", HopperConstants.TALONFX_PID);
 
-        if (DriverStation.isEnabled() && inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT)) {
-            io.coastMode();
-        } else {
-            io.brakeMode();
-        }
+        boolean overCurrent = inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT);
+    
+    if (DriverStation.isEnabled() && overCurrent && !inputs.isCrashDetected) {
+        io.coastMode();
+        inputs.isCrashDetected = true;
+    } else if (!overCurrent && inputs.isCrashDetected) {
+        io.brakeMode();
+        inputs.isCrashDetected = false;
+    }
     }
 }
