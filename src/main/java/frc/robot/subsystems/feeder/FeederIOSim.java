@@ -35,9 +35,9 @@ public class FeederIOSim implements FeederIO {
         );
 
         controller = new PIDController(
-            FeederConstants.kP.get(), 
-            FeederConstants.kI.get(),
-            FeederConstants.kD.get());
+            FeederConstants.SIM_PID.kP, 
+            FeederConstants.SIM_PID.kI,
+            FeederConstants.SIM_PID.kD);
         running = false;
     }
 
@@ -86,8 +86,6 @@ public class FeederIOSim implements FeederIO {
         numberOfRotations += getVelocityRPS().in(RotationsPerSecond)*0.02;
         inputs.motorPosition = Rotations.of(numberOfRotations);
         inputs.setpoint = simSetpoint;
-
-        controller.setPID(FeederConstants.pid.getP(), FeederConstants.pid.getI(), FeederConstants.pid.getD());
 
     }
 

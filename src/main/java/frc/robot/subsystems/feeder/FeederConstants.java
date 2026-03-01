@@ -14,12 +14,8 @@ import edu.wpi.first.units.measure.Current;
 public final class FeederConstants {
         public static final int FEEDER_ID = 2;
 
-        public static PIDConstants SIM_PID = new PIDConstants(0.0, 0, 0);
-        public static PIDController pid = new PIDController(0.0, 0.0, 0.0);
-        public static PIDConstants TALONFX_PID = new PIDConstants(pid.getP(), pid.getI(), pid.getD());
-        public static Supplier<Double> kP = () -> 0.0;
-        public static Supplier<Double> kI = () -> 0.0;
-        public static Supplier<Double> kD = () -> 0.0;
+        public static final PIDConstants SIM_PID = new PIDConstants(0.0, 0, 0);
+        public static PIDController TALONFX_PID = new PIDController(0.0, 0.0, 0.0);
         public static final double kV = 0.0;
         public static AngularVelocity targetRPS = RotationsPerSecond.of(0.0);
 

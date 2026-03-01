@@ -43,9 +43,9 @@ public class FeederIOTalonFX implements FeederIO {
         feederMotorConfig.apply(currentConfigs);
 
         feederPidConfigs = new Slot0Configs()
-            .withKP(FeederConstants.TALONFX_PID.kP)
-            .withKI(FeederConstants.TALONFX_PID.kI)
-            .withKD(FeederConstants.TALONFX_PID.kD)
+            .withKP(FeederConstants.TALONFX_PID.getP())
+            .withKI(FeederConstants.TALONFX_PID.getI())
+            .withKD(FeederConstants.TALONFX_PID.getD())
             .withKV(FeederConstants.kV);
         feederMotorConfig.apply(feederPidConfigs);
 
@@ -116,9 +116,9 @@ public class FeederIOTalonFX implements FeederIO {
         inputs.appliedCurrent = feederDeviceCurrent.getValue();
         inputs.motorTemperature = feederDeviceTemp.getValueAsDouble();
 
-        double p = FeederConstants.pid.getP();
-        double i = FeederConstants.pid.getI();
-        double d = FeederConstants.pid.getD();
+        double p = FeederConstants.TALONFX_PID.getP();
+        double i = FeederConstants.TALONFX_PID.getI();
+        double d = FeederConstants.TALONFX_PID.getD();
 
 
         if (feederPidConfigs.kP != p || feederPidConfigs.kI != i || feederPidConfigs.kD != d) {
