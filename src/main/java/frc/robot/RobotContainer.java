@@ -232,9 +232,6 @@ public class RobotContainer {
      * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        primaryController.povRight().onTrue(extendIntakeAndHopper());
-        primaryController.povLeft().onTrue(retractAndAgitate());
-
         // Default command, normal field-relative drive
         sys_drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
