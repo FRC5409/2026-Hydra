@@ -4,6 +4,8 @@ import static edu.wpi.first.units.Units.*;
 
 import java.util.ArrayList;
 
+import com.pathplanner.lib.path.PathPlannerPath;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -14,154 +16,388 @@ import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutoPath;
+import frc.robot.util.FieldConstants.Hub;
 import frc.robot.util.FieldConstants.LinesHorizontal;
 import frc.robot.util.FieldConstants.Tower;
 
 public class Autos {
 
-    public static ArrayList<AutoPath> getAutoPaths(Drive drive, Vision vision){
-        ArrayList<AutoPath> autoPaths = new ArrayList<>();
+	public static ArrayList<AutoPath> getAutoPaths(Drive drive, Vision vision){
+		ArrayList<AutoPath> autoPaths = new ArrayList<>();
 
-        autoPaths.add(
-            new AutoPath(
-                "LeftBump-Intake-Score-LeftClimb",
-                // Starting Pose: 
-                new Pose2d(3.470,5.090, Rotation2d.k180deg),
-                // Alliance -> neutral zone 
-                DriveCommands.crossBump(drive, vision, () -> Rotation2d.k180deg, kBump.BUMP_TRAVERSAL_SPEED.times(-1), kBump.SETTLING_TIME.in(Milliseconds)).withName("bump 1"),
-                // confirm position
-                // DriveCommands.alignToHeading(
-                //     drive,
-                //     () -> new Rotation2d(Degrees.of(13))
-                // ),
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> new Pose2d(6.200,5.090, new Rotation2d(Degrees.of(-146.651))), 
-                    () -> MetersPerSecond.of(2.0), 
-                    () -> MetersPerSecondPerSecond.of(8.0)
-                ).withName("align pose"),
-                // Follow path from center of neutral zone to left of field
-                AutoPath.followPath("Left-Bump-IntakeEnd"),
-                // Align back to bump known position
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.kZero), 
-                    () -> MetersPerSecond.of(2.0), 
-                    () -> MetersPerSecondPerSecond.of(8.0)
-                ).withName("Align to point"),
-                // cross bump back into alliance zone
-                DriveCommands.crossBump(drive, vision, () -> drive.getRotation(), kBump.BUMP_TRAVERSAL_SPEED.times(-1), kBump.SETTLING_TIME.in(Milliseconds)),
-                // Commands.runOnce(() ->Logger.recordOutput("Path/running: ", "wait") ),
+		// LEFT SIDE AUTOS:
+		autoPaths.add(
+			new AutoPath(
+				"LeftBump-Intake-CloseFar-Score-LeftClimb",
 
-                // Score
-                Commands.waitTime(Seconds.of(7)).withName("wait-score"),
-                // Align to climber prep
-                // Commands.runOnce(() ->Logger.recordOutput("Path/running: ", "prep") ),
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> new Pose2d(new Translation2d(Meters.of(Tower.leftUpright.getX()), Meters.of(5.00)), Rotation2d.k180deg), 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-                    kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-                    kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-                    kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
-                ),
-                // Commands.runOnce(() -> Logger.recordOutput("Path/running: ", "climb")),
-                // Align to climb
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> (new Pose2d( 
-                            new Translation2d( 
-                                Meters.of(Tower.leftUpright.getX()), 
-                                Meters.of( Tower.leftUpright.getY() + (DriveConstants.ROBOT_WIDTH.in(Meters) / 2) + kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters))
-                            ), 
-                            Rotation2d.k180deg
-                        )
-                    ), 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-                )
-            )
-        );
+				// Angled Starting pose:
+				// new Pose2d(3.470,5.400, new Rotation2d(Degrees.of(-146.651))),
+				new Pose2d(3.470,5.400, new Rotation2d(Degrees.of(38.572))),
 
+				// Starting Pose: 
+				// new Pose2d(3.470,5.400, Rotation2d.k180deg),
 
-        autoPaths.add(
-            new AutoPath(
-                "RightBump-Intake-Score-RightClimb",
-                // Starting Pose: 
-                new Pose2d(3.470,3.071, Rotation2d.k180deg) ,
-                // Alliance -> neutral zone 
-                DriveCommands.crossBump(drive, vision, () -> Rotation2d.k180deg, kBump.BUMP_TRAVERSAL_SPEED.times(-1), kBump.SETTLING_TIME.in(Milliseconds)),
-                // confirm position (needed to align heading once?)
-                // DriveCommands.alignToHeading(
-                //     drive,
-                //     () -> new Rotation2d(Degrees.of(13))
-                // ),
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> new Pose2d(6.265,3.071, new Rotation2d(Degrees.of(135.015))), 
-                    () -> MetersPerSecond.of(2.0), 
-                    () -> MetersPerSecondPerSecond.of(8.0)
-                ),
-                // Follow path from center of neutral zone to left of field
-                AutoPath.followPath("Right-Bump-IntakeEnd"),
-                // Align back to bump known position
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> new Pose2d(6.200,(LinesHorizontal.rightBumpEnd + LinesHorizontal.rightBumpEnd) / 2, new Rotation2d(Degrees.of(-37))), 
-                    () -> MetersPerSecond.of(2.0), 
-                    () -> MetersPerSecondPerSecond.of(8.0)
-                ),
-                // cross bump back into alliance zone
-                DriveCommands.crossBump(drive, vision, () -> drive.getRotation(), DriveCommands.getBumpSpeed(drive), kBump.SETTLING_TIME.in(Milliseconds)),
-                // Commands.runOnce(() ->Logger.recordOutput("Path/running: ", "wait") ),
-                // Score
-                Commands.waitTime(Seconds.of(7)),
-                // Align to climber prep
-                // Commands.runOnce(() ->Logger.recordOutput("Path/running: ", "prep") ),
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> new Pose2d(new Translation2d(Meters.of(Tower.rightUpright.getX()), Meters.of(2.450)), Rotation2d.kZero), 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-                    kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-                    kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-                    kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
-                ),
-                // Commands.runOnce(() -> Logger.recordOutput("Path/running: ", "climb")),
-                // Align to climb
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> (new Pose2d(
-                        new Translation2d(
-                            Meters.of(Tower.rightUpright.getX()), 
-                            Meters.of(
-                                Tower.rightUpright.getY() - (DriveConstants.ROBOT_WIDTH.in(Meters) / 2) - kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters)
-                            )
-                        ), 
-                        Rotation2d.kZero)
-                    ), 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-                )
-            )
-        );
+				// Alliance -> neutral zone 
+				DriveCommands.crossBump(
+					drive, 
+					vision, 
+					() -> drive.getRotation(),
+					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
+					kBump.SETTLING_TIME
+				),
 
-        autoPaths.add(
-            new AutoPath(
-                "Test-Path",
-                new Pose2d(2,7,Rotation2d.k180deg),
-                DriveCommands.alignToPoint(
-                    drive, 
-                    () -> new Pose2d(2,7,Rotation2d.kZero), 
-                    () -> MetersPerSecond.of(1), 
-                    () -> MetersPerSecondPerSecond.of(2)
-                ),
-                AutoPath.followPath("DriveForward-Right")
-            )
-        );
+				// confirm position
+				DriveCommands.alignToPoint(
+					drive,
+					() -> new Pose2d(6.200,5.400, new Rotation2d(Degrees.of(38.572))), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+				),
 
-        return autoPaths;
-    }
-    
+				// Follow path from center of neutral zone to left of field
+				AutoPath.followPath("Left-Bump-Intake-CloseFar"),
+
+				// Align back to bump known position
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.k180deg), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+				),
+
+				// neutral zone -> alliance zone
+				DriveCommands.crossBump(
+					drive, 
+					vision, 
+					() -> drive.getRotation(),
+					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
+					kBump.SETTLING_TIME
+				),
+
+				// Score
+				DriveCommands.alignToHeading(
+					drive, 
+					() -> DriveCommands.getRotation2d(
+						drive, 
+						new Pose2d(
+						new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+						Rotation2d.kZero
+						)
+					).plus(Rotation2d.k180deg)
+				),
+				Commands.waitTime(Seconds.of(5)),
+
+				// Align to climber prep
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(new Translation2d(Meters.of(Tower.leftUpright.getX()), Meters.of(5.00)), Rotation2d.kZero), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+					kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+					kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+					kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+				),
+
+				// Align to climb
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> (new Pose2d( 
+							new Translation2d( 
+								Meters.of(Tower.leftUpright.getX()), 
+								Meters.of( Tower.leftUpright.getY() + (DriveConstants.ROBOT_WIDTH.in(Meters) / 2) + kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters))
+							), 
+							Rotation2d.kZero
+						)
+					), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+				)
+			)
+		);
+
+		autoPaths.add(
+			new AutoPath(
+				"LeftBump-Intake-FarClose-Score-LeftClimb",
+				// Angled Start:
+				new Pose2d(3.470,5.801, new Rotation2d(Degrees.of(226.801))),            
+				// Starting Pose: 
+				// new Pose2d(3.470,5.801, Rotation2d.k180deg),
+
+				// Alliance -> neutral zone 
+				DriveCommands.crossBump(
+					drive, 
+					vision, 
+					() -> drive.getRotation(),
+					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
+					kBump.SETTLING_TIME
+				),
+
+				// confirm position
+				DriveCommands.alignToPoint(
+					drive,
+					() -> new Pose2d(6.187,5.969, new Rotation2d(Degrees.of(226.801))), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+				),
+
+				// Follow path from center of neutral zone to left of field
+				AutoPath.followPath("Left-Bump-Intake-FarClose"),
+
+				// Align back to bump known position
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.k180deg), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+				),
+
+				// neutral zone -> alliance zone
+				DriveCommands.crossBump(
+					drive, 
+					vision, 
+					() -> drive.getRotation(), 
+					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
+					kBump.SETTLING_TIME
+				),
+
+				// Score
+				DriveCommands.alignToHeading(
+					drive, 
+					() -> DriveCommands.getRotation2d(
+						drive, 
+						new Pose2d(
+						new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+						Rotation2d.kZero
+						)
+					).plus(Rotation2d.k180deg)
+				),
+				Commands.waitTime(Seconds.of(5)),
+
+				// Align to climber prep
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(new Translation2d(Meters.of(Tower.leftUpright.getX()), Meters.of(5.00)), Rotation2d.k180deg), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+					kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+					kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+					kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+				),
+
+				// Align to climb
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> (new Pose2d( 
+							new Translation2d( 
+								Meters.of(Tower.leftUpright.getX()), 
+								Meters.of( Tower.leftUpright.getY() + (DriveConstants.ROBOT_WIDTH.in(Meters) / 2) + kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters))
+							), 
+							Rotation2d.k180deg
+						)
+					), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+				)
+			)
+		);
+
+		// RIGHT SIDE AUTOS:
+		autoPaths.add(
+			new AutoPath(
+				"RightBump-Intake-CloseFar-Score-RightClimb",
+
+				// Starting Pose: 
+				// new Pose2d(3.470,2.750, Rotation2d.k180deg),
+
+				// Angled Starting Pose
+				new Pose2d(3.470,2.750, new Rotation2d(Degrees.of(-41.689))),
+				
+				// Alliance -> neutral zone
+				DriveCommands.crossBump(
+					drive, 
+					vision, 
+					() -> drive.getRotation(), 
+					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
+					kBump.SETTLING_TIME
+				),
+
+				// confirm position
+				DriveCommands.alignToPoint(
+					drive, 
+
+					() -> new Pose2d(6.265,2.750, new Rotation2d(Degrees.of(-41.689))), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+				),
+				// Follow path from center of neutral zone to left of field
+				AutoPath.followPath("Right-Bump-Intake-CloseFar"),
+
+				// Align back to bump known position
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(6.200,(LinesHorizontal.rightBumpStart + LinesHorizontal.rightBumpEnd) / 2, Rotation2d.k180deg), 
+					() -> MetersPerSecond.of(2.0), 
+					() -> MetersPerSecondPerSecond.of(8.0)
+				),
+
+				// neutral zone -> alliance zone
+				DriveCommands.crossBump(
+					drive, vision, 
+					() -> drive.getRotation(), 
+					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
+					kBump.SETTLING_TIME
+				),
+
+				// Score
+				DriveCommands.alignToHeading(
+					drive, 
+					() -> DriveCommands.getRotation2d(
+						drive, 
+						new Pose2d(
+						new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+						Rotation2d.kZero
+						)
+					).plus(Rotation2d.k180deg)
+				),
+				Commands.waitTime(Seconds.of(5)),
+
+				// Align to climber prep
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(new Translation2d(Meters.of(Tower.rightUpright.getX()), Meters.of(2.450)), Rotation2d.k180deg), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+					kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+					kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+					kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+				),
+
+				// Align to climb
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> (new Pose2d(
+						new Translation2d(
+							Meters.of(Tower.rightUpright.getX()), 
+							Meters.of(
+								Tower.rightUpright.getY() - (DriveConstants.ROBOT_WIDTH.in(Meters) / 2) - kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters)
+							)
+						), 
+						Rotation2d.k180deg)
+					), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+				)
+			)
+		);
+
+		// Right Side
+		// Bump
+		// Intake from the edge of the field to the center
+		// Go back and score
+		// Climb
+		autoPaths.add(
+			new AutoPath(
+				"RightBump-Intake-FarClose-Score-RightClimb",
+
+				// Starting Pose: 
+				// new Pose2d(3.470,2.750, Rotation2d.k180deg),
+
+				// Angled Starting Pose
+				new Pose2d(3.470,2.282, new Rotation2d(Degrees.of(131.563))),
+				
+				// Alliance -> neutral zone
+				DriveCommands.crossBump(
+					drive, 
+					vision, 
+					() -> drive.getRotation(), 
+					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
+					kBump.SETTLING_TIME
+				),
+
+				// confirm position
+				DriveCommands.alignToPoint(
+					drive, 
+
+					() -> new Pose2d(6.200,2.282, new Rotation2d(Degrees.of(131.563))), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+				),
+				// Follow path from center of neutral zone to left of field
+				AutoPath.followPath("Right-Bump-Intake-FarClose"),
+
+				// Align back to bump known position
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(6.200,(LinesHorizontal.rightBumpStart + LinesHorizontal.rightBumpEnd) / 2, Rotation2d.k180deg), 
+					() -> MetersPerSecond.of(2.0), 
+					() -> MetersPerSecondPerSecond.of(8.0)
+				),
+
+				// neutral zone -> alliance zone
+				DriveCommands.crossBump(
+					drive, vision, 
+					() -> drive.getRotation(), 
+					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
+					kBump.SETTLING_TIME
+				),
+
+				// Score
+				DriveCommands.alignToHeading(
+					drive, 
+					() -> DriveCommands.getRotation2d(
+						drive, 
+						new Pose2d(
+						new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+						Rotation2d.kZero
+						)
+					).plus(Rotation2d.k180deg)
+				),
+				Commands.waitTime(Seconds.of(5)),
+
+				// Align to climber prep
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(new Translation2d(Meters.of(Tower.rightUpright.getX()), Meters.of(2.450)), Rotation2d.k180deg), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+					kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+					kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+					kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+				),
+
+				// Align to climb
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> (new Pose2d(
+						new Translation2d(
+							Meters.of(Tower.rightUpright.getX()), 
+							Meters.of(
+								Tower.rightUpright.getY() - (DriveConstants.ROBOT_WIDTH.in(Meters) / 2) - kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters)
+							)
+						), 
+						Rotation2d.k180deg)
+					), 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+				)
+			)
+		);
+
+		autoPaths.add(
+			new AutoPath(
+				"Test-Path",
+				new Pose2d(2,7,Rotation2d.k180deg),
+				DriveCommands.alignToPoint(
+					drive, 
+					() -> new Pose2d(2,7,Rotation2d.kZero), 
+					() -> MetersPerSecond.of(1), 
+					() -> MetersPerSecondPerSecond.of(2)
+				),
+				AutoPath.followPath("TestPath")
+			)
+		);
+
+		return autoPaths;
+	}
+	
 }
