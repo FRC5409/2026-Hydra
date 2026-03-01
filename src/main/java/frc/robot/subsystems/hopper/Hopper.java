@@ -30,6 +30,7 @@ public class Hopper extends SubsystemBase {
     public Hopper(HopperIO io) {
         this.io = io;
         inputs = new HopperInputsAutoLogged();
+        SmartDashboard.putData("Hopper/PID", HopperConstants.TALONFX_PID);
 
         hopperPose = new Pose3d();
 
@@ -131,7 +132,7 @@ public class Hopper extends SubsystemBase {
         Logger.processInputs("Hopper", inputs);
         hopperPose = new Pose3d(inputs.motorPosition.in(Meters), 0, 0, new Rotation3d());
         Logger.recordOutput("Components/Hopper", hopperPose);
-        SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
+        SmartDashboard.putData("Hopper/PID", HopperConstants.TALONFX_PID);
 
         if (DriverStation.isEnabled() && inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT)) {
             io.coastMode();

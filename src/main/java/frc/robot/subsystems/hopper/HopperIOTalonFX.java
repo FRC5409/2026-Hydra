@@ -53,9 +53,9 @@ public class HopperIOTalonFX implements HopperIO {
         m_mainMotorConfig.apply(m_encoderConfigs);
 
         m_pidConfig = new Slot0Configs()
-            .withKP(HopperConstants.TALONFX_PID.kP)
-            .withKI(HopperConstants.TALONFX_PID.kI)
-            .withKD(HopperConstants.TALONFX_PID.kD);
+            .withKP(HopperConstants.TALONFX_PID.getP())
+            .withKI(HopperConstants.TALONFX_PID.getI())
+            .withKD(HopperConstants.TALONFX_PID.getD());
 
         m_mainMotorConfig.apply(m_pidConfig);
 
@@ -141,6 +141,17 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.motorTemp = deviceTemp.getValueAsDouble();
         inputs.motorPosition = Inches.of(motorPosition.getValueAsDouble());
         inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
+        
+        double p = HopperConstants.TALONFX_PID.getP();
+        double i = HopperConstants.TALONFX_PID.getI();
+        double d = HopperConstants.TALONFX_PID.getD();
+
+        if (m_pidConfig.kP != p || m_pidConfig.kI != i || m_pidConfig.kD != d) {
+            m_pidConfig.kP = p;
+            m_pidConfig.kI = i;
+            m_pidConfig.kD = d;
+            m_mainMotorConfig.apply(m_pidConfig);
+        }
     }
 
 }
