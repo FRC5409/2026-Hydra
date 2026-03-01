@@ -47,10 +47,13 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import java.util.ArrayList;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -278,6 +281,39 @@ public class RobotContainer {
                                  Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
                                          .ignoringDisable(true)
                          );
+
+        if (Constants.IS_TUNING){
+            LoggedNetworkNumber driveAngleSetpoint = new LoggedNetworkNumber("DriveTuning/angleSetpoint", 0.0);
+            LoggedNetworkNumber driveTurnVelocitySetpoint = new LoggedNetworkNumber("DriveTuning/driveTurnVelocitySetpoint", 0.0);
+            LoggedNetworkNumber driveTurnVoltageSetpoint = new LoggedNetworkNumber("DriveTuning/driveTurnVoltageSetpoint", 0.0);
+
+            SmartDashboard.putData(
+                "Run Turn Setpoint",
+                Commands.run(
+                    () -> sys_drive.runTurnSetpoint(new Rotation2d(Degrees.of(driveAngleSetpoint.get()))), 
+                    sys_drive
+                )
+            );
+
+            SmartDashboard.putData(
+                "Run turn velocity",
+                Commands.run(
+                    () -> sys_drive.runTurnVelocity(RadiansPerSecond.of(driveTurnVelocitySetpoint.get())), 
+                    sys_drive
+                )
+            );
+
+            SmartDashboard.putData(
+                "Run turn voltage",
+                Commands.run(
+                    () -> sys_drive.runTurnVoltage(driveTurnVoltageSetpoint.get()), 
+                    sys_drive
+                )
+            );
+
+            
+
+        }
 
         // primaryController.povUp()
         //                 .onTrue(sys_elevator.startManualMove(2))
