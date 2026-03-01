@@ -176,7 +176,7 @@ public class Drive extends SubsystemBase {
         }
         ODOMETRY_LOCK.unlock();
         
-        // field2d.setRobotPose(getPose());
+        field2d.setRobotPose(getPose());
 
         // Stop moving when disabled
         if (DriverStation.isDisabled()) {

@@ -9,7 +9,6 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -25,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
-import frc.robot.Constants.kBump;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.generated.TunerConstants;
@@ -39,7 +37,6 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.AutoPath;
-import frc.robot.util.FieldConstants.Hub;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -48,6 +45,9 @@ import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 
 import java.util.ArrayList;
 
@@ -216,6 +216,11 @@ public class RobotContainer {
             if (Constants.CURRENT_MODE == Mode.SIM)
                 simConfig.setSimulationWorldPose(path.getStartingPose());
         }
+        if (autoChooser.get() instanceof PathPlannerAuto auto){
+            sys_drive.setPose(auto.getStartingPose());
+            if (Constants.CURRENT_MODE == Mode.SIM)
+                simConfig.setSimulationWorldPose(auto.getStartingPose());
+        }
     }
 
     /**
@@ -230,9 +235,13 @@ public class RobotContainer {
     private LoggedDashboardChooser<Command> buildAutoChooser() {
         LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>("Auto Choices");
         chooser.addDefaultOption("None", Commands.none());
-        // ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
+        ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
 
-        // autoPaths.forEach(autoPath -> chooser.addOption(autoPath.getName(), autoPath));
+        autoPaths.forEach(autoPath -> chooser.addOption(autoPath.getName(), autoPath));
+
+        for (String auto: AutoBuilder.getAllAutoNames()){
+            chooser.addOption(auto, new PathPlannerAuto(auto));
+        }
 
         if (Constants.IS_TUNING) {
             chooser.addOption(
@@ -314,31 +323,6 @@ public class RobotContainer {
             
 
         }
-
-        // primaryController.povUp()
-        //                 .onTrue(sys_elevator.startManualMove(2))
-        //                 .onFalse(sys_elevator.startManualMove(0));
-
-        // primaryController.povDown()
-        //                 .onTrue(sys_elevator.startManualMove(-2))
-        //                 .onFalse(sys_elevator.startManualMove(0));
-
-        // primaryController.povLeft()
-        //                 .onTrue(sys_elevator.zeroEncoder());
-
-        // primaryController.a()
-        //                 .onTrue(sys_elevator.goTillSpike(-2));
-        
-        // primaryController.b()
-        //                 .onTrue(sys_elevator.elevatorGo(Meters.of(3)));
-        // primaryController.x()
-        //                 .onTrue(sys_elevator.elevatorGo(Meters.of(0.5)));
-        
-
-        // primaryController.x()
-        //         .onTrue(
-
-        //         );
 
         // Switch to X pattern when X button is pressed
         // primaryController.x()
