@@ -252,10 +252,7 @@ public class RobotContainer {
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
     
-        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
-        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
-        primaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
-
+        tertiaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
         tertiaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(0.5)));
         tertiaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-0.5)));
 
