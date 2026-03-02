@@ -3,8 +3,6 @@ package frc.robot.subsystems.feeder;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.function.Supplier;
-
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -14,7 +12,7 @@ import edu.wpi.first.units.measure.Current;
 public final class FeederConstants {
         public static final int FEEDER_ID = 2;
 
-        public static final PIDConstants SIM_PID = new PIDConstants(0.0, 0, 0);
+        public static final PIDConstants SIM_PID = new PIDConstants(1, 0, 0);
         public static PIDController TALONFX_PID = new PIDController(0.0, 0.0, 0.0);
         public static final double kV = 0.0;
         public static AngularVelocity targetRPS = RotationsPerSecond.of(0.0);

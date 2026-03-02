@@ -27,7 +27,7 @@ public class Feeder extends SubsystemBase {
         inputs = new FeederInputsAutoLogged();
 
         Checkmate.register("Should spin to move FUEL towards launcher", () -> {
-            Command cmd = this.setVoltage(2);
+            Command cmd = this.runRPS(() -> RotationsPerSecond.of(10));
             cmd.initialize();
             cmd.execute();
             if(this.getVelocity().in(RotationsPerSecond) > 0) {
