@@ -21,7 +21,7 @@ public final class HopperConstants {
     public static final Current DAMAGE_DETECTION_CURRENT = Amps.of(50.0); //TODO: test on real robot
 
     public static final double kGearing = 12.0 / 1.0;
-    private static final double totalPinionRotations = 3.3; //TODO: Need values for rack and pinion
+    private static final double totalPinionRotations = 3.9;
     public static final Distance DistancePerPinionRotation = Inches.of(12.0 / totalPinionRotations);
     public static final double kRotationConverter = kGearing / DistancePerPinionRotation.in(Inches);
 
