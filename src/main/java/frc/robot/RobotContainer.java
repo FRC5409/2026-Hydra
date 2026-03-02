@@ -14,12 +14,10 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.PassingPositions;
@@ -345,7 +343,11 @@ public class RobotContainer {
         );
     }
 
-
+    /** 
+     * Command to extend both intake and hopper subsystems, with crash avoidance
+     * @author Jaden Rajan, team 5409
+     * @author John Chen, team 5409
+     */
     private Command extendIntakeAndHopper() {
         return Commands.repeatingSequence(
                 Commands.either(
@@ -365,6 +367,11 @@ public class RobotContainer {
                 .andThen(sys_hopper.fullExtend());
     }
 
+    /** 
+     * Command to retract both intake and hopper subsystems, with crash avoidance
+     * @author Jaden Rajan, team 5409
+     * @author John Chen, team 5409
+     */
     private Command retractIntakeAndHopper() {
         return Commands.repeatingSequence(
                 Commands.either(
@@ -388,6 +395,11 @@ public class RobotContainer {
     Distance intakeSetpoint;
     Distance hopperSetpoint;
 
+    /** 
+     * Command to retract both intake and hopper subsystems, while agitating hopper back and forth to help with launching fuel
+     * @author Jaden Rajan, team 5409
+     * @author John Chen, team 5409
+     */
     private Command retractAndAgitate() {
         intakeSetpoint = 
                 Inches.of(IntakeConstants.Extension.INITIAL_SETPOINT.in(Inches)
