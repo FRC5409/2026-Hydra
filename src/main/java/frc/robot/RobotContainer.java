@@ -86,6 +86,7 @@ public class RobotContainer {
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
     private final CommandXboxController secondaryController = new CommandXboxController(1);
+    private final CommandXboxController tertiaryController = new CommandXboxController(2);
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -254,6 +255,9 @@ public class RobotContainer {
         primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
         primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
         primaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
+
+        tertiaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(0.5)));
+        tertiaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-0.5)));
 
         primaryController.rightBumper()
                          .whileTrue(
