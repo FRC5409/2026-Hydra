@@ -9,12 +9,15 @@ package frc.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rectangle2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.RobotBase;
 import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.util.FieldConstants.Tower;
+import frc.robot.util.FieldConstants.*;
+import frc.robot.util.FieldConstants;
+
 
 import static edu.wpi.first.units.Units.*;
 
@@ -180,5 +183,52 @@ public final class Constants {
         // TODO: GET A REAL NUMBER NOT A GUESS
         public static final LinearVelocity BUMP_TRAVERSAL_SPEED = FeetPerSecond.of(5.5);
         public static final Time           SETTLING_TIME        = Seconds.of(1);
+    }
+
+    public static final class kField{
+        public static final Pose2d BLUE_HUB =   new Pose2d(
+                                                    new Translation2d(
+                                                            Hub.topCenterPoint.getMeasureX(),
+                                                            Hub.topCenterPoint.getMeasureY()),
+                                                    Rotation2d.kZero
+                                                );
+
+        public static final Pose2d RED_HUB =   new Pose2d(
+                                                    new Translation2d(
+                                                            Hub.oppTopCenterPoint.getMeasureX(),
+                                                            Hub.oppTopCenterPoint.getMeasureY()),
+                                                    Rotation2d.kZero
+                                                );
+
+        public static final Rectangle2d NEUTRAL_ZONE =  new Rectangle2d(
+                                                            new Translation2d(
+                                                                LeftTrench.openingTopLeft.getMeasureX(), 
+                                                                LeftTrench.openingTopLeft.getMeasureY() 
+                                                            ), 
+                                                            new Translation2d(
+                                                                RightTrench.oppOpeningTopRight.getMeasureX(),
+                                                                RightTrench.oppOpeningTopRight.getMeasureY()
+                                                            ));
+
+        public static final Rectangle2d BLUE_ALLIANCE_ZONE =  new Rectangle2d(
+                                                            new Translation2d(
+                                                                Meters.of(0.0), 
+                                                                Meters.of(FieldConstants.fieldWidth)
+                                                            ), 
+                                                            new Translation2d(
+                                                                RightTrench.openingTopRight.getMeasureX(),
+                                                                RightTrench.openingTopRight.getMeasureY()
+                                                            ));
+
+        public static final Rectangle2d RED_ALLIANCE_ZONE =  new Rectangle2d(
+                                                            new Translation2d(
+                                                                Meters.of(FieldConstants.fieldLength), 
+                                                                Meters.of(FieldConstants.fieldWidth)
+                                                            ), 
+                                                            new Translation2d(
+                                                                RightTrench.oppOpeningTopRight.getMeasureX(),
+                                                                RightTrench.oppOpeningTopRight.getMeasureY()
+                                                            ));
+        
     }
 }

@@ -431,6 +431,14 @@ public class DriveCommands {
 	);
   }
 
+  public static Distance distToHub(Drive drive){
+    Pose2d hubPose = Constants.kField.BLUE_HUB;
+    if (AutoBuilder.shouldFlip())
+        hubPose = FlippingUtil.flipFieldPose(hubPose);
+
+    return Meters.of((drive.getPose().getTranslation().getDistance(hubPose.getTranslation())));
+  }
+
   /*
    * Gets Rotation2d to target pose from drive pose
    */

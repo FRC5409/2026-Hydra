@@ -318,10 +318,7 @@ public class RobotContainer {
                     () -> sys_drive.runTurnVoltage(driveTurnVoltageSetpoint.get()), 
                     sys_drive
                 )
-            );
-
-            
-
+            );            
         }
 
         // Switch to X pattern when X button is pressed
