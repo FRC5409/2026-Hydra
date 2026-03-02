@@ -68,8 +68,8 @@ public class DriveCommands {
   private static boolean isAligned = false;
 
   /**
-   * used for the {@link DriveCommands#crossBump(Drive, Supplier, Supplier, double)} command to only start counting
-   * the timer once the robot initally leaves the ground
+   * used for the {@link DriveCommands#crossBump(Drive, Vision, Supplier, Supplier, Time)} command to only start counting
+   * the timer once the robot initially leaves the ground
   */
   public static final AtomicBoolean DID_GET_OFF_GROUND = new AtomicBoolean();
 
@@ -95,17 +95,13 @@ public class DriveCommands {
   // Increase drive speed
   public static Command setSpeedHigh(Drive drive) {
     return Commands.run(
-            () -> {
-              speedModifier = 1.0;
-            });
+            () -> speedModifier = 1.0);
   }
 
   // Decrease drive speed
   public static Command setSpeedLow(Drive drive) {
     return Commands.run(
-            () -> {
-              speedModifier = 0.5;
-            });
+            () -> speedModifier = 0.5);
     }
 
   public static void setSpeed(double speed){
@@ -389,20 +385,16 @@ public class DriveCommands {
 				drive, 
 				targetHeading
 			),
-			Commands.run(() -> {
-				drive.runVelocity(
-					ChassisSpeeds.fromFieldRelativeSpeeds(
-						new ChassisSpeeds(
-							speed.get(),
-							MetersPerSecond.of(0.0),
-							RadiansPerSecond.of(0.0)
-						), 
-						drive.getRotation())	
-				);
-			}, drive).withTimeout(2),
-			Commands.runOnce(() -> {
-				drive.stop();
-			})
+			Commands.run(() -> drive.runVelocity(
+                ChassisSpeeds.fromFieldRelativeSpeeds(
+                    new ChassisSpeeds(
+                        speed.get(),
+                        MetersPerSecond.of(0.0),
+                        RadiansPerSecond.of(0.0)
+				),
+				drive.getRotation())
+            ), drive).withTimeout(2),
+			Commands.runOnce(drive::stop)
 		);
 
 	return Commands.sequence(
@@ -411,17 +403,15 @@ public class DriveCommands {
 			targetHeading
 		),
 		Commands.runOnce(() -> DID_GET_OFF_GROUND.set(false)),
-		Commands.run(() -> {
-			drive.runVelocity(
-			    ChassisSpeeds.fromFieldRelativeSpeeds(
-                    new ChassisSpeeds(
-                        speed.get(),
-                        MetersPerSecond.of(0.0),
-                        RadiansPerSecond.of(0.0)
-                    ), 
-                    drive.getRotation())	
-	        );
-		}, drive) 
+		Commands.run(() -> drive.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+				new ChassisSpeeds(
+					speed.get(),
+					MetersPerSecond.of(0.0),
+					RadiansPerSecond.of(0.0)
+				),
+				drive.getRotation())
+        ), drive)
 		.until(() -> {
 			if (drive.getTilt().gt(Degrees.of(2.5)) && !DID_GET_OFF_GROUND.get())
 			    DID_GET_OFF_GROUND.set(true);
@@ -437,9 +427,7 @@ public class DriveCommands {
 
 			return (drive.getTilt().lte(Degrees.of(2.5)) && (System.currentTimeMillis() - lastTime.get() > timeout.in(Millisecond) || vision.hasTarget()));
 		}),
-		Commands.runOnce(() -> {
-			drive.stop();
-		})
+		Commands.runOnce(drive::stop)
 	);
   }
 

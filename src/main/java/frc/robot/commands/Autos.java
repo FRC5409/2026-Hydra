@@ -38,8 +38,8 @@ public class Autos {
 				// Alliance -> neutral zone 
 				DriveCommands.crossBump(
 					drive, 
-					vision, 
-					() -> drive.getRotation(),
+					vision,
+					drive::getRotation,
 					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
 					kBump.SETTLING_TIME
 				),
@@ -66,8 +66,8 @@ public class Autos {
 				// neutral zone -> alliance zone
 				DriveCommands.crossBump(
 					drive, 
-					vision, 
-					() -> drive.getRotation(),
+					vision,
+					drive::getRotation,
 					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
 					kBump.SETTLING_TIME
 				),
@@ -124,8 +124,8 @@ public class Autos {
 				// Alliance -> neutral zone 
 				DriveCommands.crossBump(
 					drive, 
-					vision, 
-					() -> drive.getRotation(),
+					vision,
+					drive::getRotation,
 					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
 					kBump.SETTLING_TIME
 				),
@@ -152,8 +152,8 @@ public class Autos {
 				// neutral zone -> alliance zone
 				DriveCommands.crossBump(
 					drive, 
-					vision, 
-					() -> drive.getRotation(), 
+					vision,
+					drive::getRotation,
 					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
 					kBump.SETTLING_TIME
 				),
@@ -213,8 +213,8 @@ public class Autos {
 				// Alliance -> neutral zone
 				DriveCommands.crossBump(
 					drive, 
-					vision, 
-					() -> drive.getRotation(), 
+					vision,
+					drive::getRotation,
 					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
 					kBump.SETTLING_TIME
 				),
@@ -240,8 +240,8 @@ public class Autos {
 
 				// neutral zone -> alliance zone
 				DriveCommands.crossBump(
-					drive, vision, 
-					() -> drive.getRotation(), 
+					drive, vision,
+					drive::getRotation,
 					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
 					kBump.SETTLING_TIME
 				),
@@ -306,8 +306,8 @@ public class Autos {
 				// Alliance -> neutral zone
 				DriveCommands.crossBump(
 					drive, 
-					vision, 
-					() -> drive.getRotation(), 
+					vision,
+					drive::getRotation,
 					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
 					kBump.SETTLING_TIME
 				),
@@ -333,8 +333,8 @@ public class Autos {
 
 				// neutral zone -> alliance zone
 				DriveCommands.crossBump(
-					drive, vision, 
-					() -> drive.getRotation(), 
+					drive, vision,
+					drive::getRotation,
 					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
 					kBump.SETTLING_TIME
 				),
