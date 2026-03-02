@@ -72,8 +72,9 @@ public class RebuiltTimer {
 	private GameState[] gameStrategy;
 
 //  TODO: Get accurate values
-	private final double FUEL_PER_SECOND = 7;
-	private final LinearVelocity ROBOT_SPEED = MetersPerSecond.of(4);
+	private final double            FUEL_PER_SECOND =	7;
+	private final LinearVelocity    ROBOT_SPEED     =	MetersPerSecond.of(4);
+    private final Time              CLIMB_TIME		=	Seconds.of(3);
 
 	public RebuiltTimer() {
 		this.activeHub = HubState.BOTH;
@@ -313,11 +314,14 @@ public class RebuiltTimer {
 //         Time left in hub  - Time to shoot - time to get back 
 	/**
 	 * The amount of time left to acquire in the shift based on how long it takes to score and how long it takes to get to scoring position
+     * if hub not active, doesn't account for time to score fuel
 	 * @param robotPose the current position of the robot
 	 * @return the time left in the shift available for acquiring
 	 */
 	public Time timeToAcquire(Supplier<Pose2d> robotPose){
-		return this.timeInShift.minus(Seconds.of(scoreTime())).minus(timeToPose(robotPose, () -> getClosestScoringPosition(robotPose)));
+        if (this.currentShift == MatchState.ENDGAME) return this.timeInShift.minus(Seconds.of(scoreTime())).minus(timeToPose(robotPose, () -> getClosestScoringPosition(robotPose))).minus(CLIMB_TIME);
+        if (isHubActive())	return this.timeInShift.minus(Seconds.of(scoreTime())).minus(timeToPose(robotPose, () -> getClosestScoringPosition(robotPose)));
+        else                return this.timeInShift.minus(timeToPose(robotPose, () -> getClosestScoringPosition(robotPose)));
 	}
 
 //    Time needed/left to shoot

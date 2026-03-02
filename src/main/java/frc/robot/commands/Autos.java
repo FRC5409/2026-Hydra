@@ -117,7 +117,7 @@ public class Autos {
 			new AutoPath(
 				"LeftBump-Intake-FarClose-Score-LeftClimb",
 				// Angled Start:
-				new Pose2d(3.470,5.801, new Rotation2d(Degrees.of(226.801))),            
+				new Pose2d(3.470,5.801, new Rotation2d(Degrees.of(-43.361))),            
 				// Starting Pose: 
 				// new Pose2d(3.470,5.801, Rotation2d.k180deg),
 
@@ -133,7 +133,7 @@ public class Autos {
 				// confirm position
 				DriveCommands.alignToPoint(
 					drive,
-					() -> new Pose2d(6.187,5.969, new Rotation2d(Degrees.of(226.801))), 
+					() -> new Pose2d(6.187,5.969, new Rotation2d(Degrees.of(-43.361))), 
 					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
 					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
 				),
@@ -174,7 +174,7 @@ public class Autos {
 				// Align to climber prep
 				DriveCommands.alignToPoint(
 					drive, 
-					() -> new Pose2d(new Translation2d(Meters.of(Tower.leftUpright.getX()), Meters.of(5.00)), Rotation2d.k180deg), 
+					() -> new Pose2d(new Translation2d(Meters.of(Tower.leftUpright.getX()), Meters.of(5.00)), Rotation2d.kZero), 
 					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
 					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
 					kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
@@ -190,7 +190,7 @@ public class Autos {
 								Meters.of(Tower.leftUpright.getX()), 
 								Meters.of( Tower.leftUpright.getY() + (DriveConstants.ROBOT_WIDTH.in(Meters) / 2) + kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters))
 							), 
-							Rotation2d.k180deg
+							Rotation2d.kZero
 						)
 					), 
 					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
@@ -301,7 +301,7 @@ public class Autos {
 				// new Pose2d(3.470,2.750, Rotation2d.k180deg),
 
 				// Angled Starting Pose
-				new Pose2d(3.470,2.282, new Rotation2d(Degrees.of(131.563))),
+				new Pose2d(3.470,2.282, new Rotation2d(Degrees.of(53.181))),
 				
 				// Alliance -> neutral zone
 				DriveCommands.crossBump(
@@ -316,7 +316,7 @@ public class Autos {
 				DriveCommands.alignToPoint(
 					drive, 
 
-					() -> new Pose2d(6.200,2.282, new Rotation2d(Degrees.of(131.563))), 
+					() -> new Pose2d(6.200,2.282, new Rotation2d(Degrees.of(53.181))), 
 					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
 					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
 				),
