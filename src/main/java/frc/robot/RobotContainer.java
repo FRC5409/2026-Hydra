@@ -14,10 +14,12 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.PassingPositions;
@@ -59,8 +61,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Meters;
-
-import java.util.function.Supplier;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -389,15 +389,22 @@ public class RobotContainer {
     Distance hopperSetpoint;
 
     private Command retractAndAgitate() {
-        intakeSetpoint = Inches.of(IntakeConstants.Extension.INITIAL_SETPOINT.in(Inches)+IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches));
+        intakeSetpoint = 
+                Inches.of(IntakeConstants.Extension.INITIAL_SETPOINT.in(Inches)
+                                        + IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches));
         return Commands.repeatingSequence(
-                Commands.runOnce(() -> intakeSetpoint = intakeSetpoint.minus((Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))),
-                Commands.runOnce(() -> hopperSetpoint = intakeSetpoint.plus(IntakeConstants.Extension.KILLSWITCH_TOLERANCE).minus(HopperConstants.STARTING_GAP_TO_INTAKE)),
+                Commands.runOnce(() -> 
+                        intakeSetpoint = intakeSetpoint.minus((Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))),
+                Commands.runOnce(() -> 
+                        hopperSetpoint = intakeSetpoint.plus(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
+                                                        .minus(HopperConstants.STARTING_GAP_TO_INTAKE)),
                 sys_intake.move(() -> intakeSetpoint),
                 sys_hopper.setSetpoint(() -> hopperSetpoint),
                 Commands.waitUntil(() -> sys_hopper.getPosition().isNear(hopperSetpoint, Inches.of(0.02))),
-                sys_hopper.setSetpoint(() -> hopperSetpoint.plus(Inches.of(1.0))),
-                Commands.waitUntil(() -> sys_hopper.getPosition().isNear(hopperSetpoint.plus(Inches.of(1.0)), Inches.of(0.02)))
+                sys_hopper.setSetpoint(() -> hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT)),
+                Commands.waitUntil(() -> 
+                        sys_hopper.getPosition().isNear(hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT), 
+                                                        Inches.of(0.02)))
         ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.02)))
                 .andThen(sys_hopper.fullRetract());
     }

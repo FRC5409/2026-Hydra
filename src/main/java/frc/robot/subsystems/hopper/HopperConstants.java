@@ -34,5 +34,6 @@ public final class HopperConstants {
     public static final Distance HOPPER_MIN_EXTENSION = Inches.of(0.0);
     public static final Distance HOPPER_MAX_EXTENSION = Inches.of(12.0);
     public static final Distance STARTING_GAP_TO_INTAKE = Inches.of(1.0);
+    public static final Distance EXTEND_INCREMENT = Inches.of(0.3);
 
 }
