@@ -15,5 +15,7 @@ public interface FuelGaugeIO {
 
     default Voltage getVoltage() {return Volts.of(0.0);}
 
+    default Voltage getVoltage() {return Volts.of(0.0);}
+
     default void updateInputs(FuelGaugeInputs inputs) {}
 }
