@@ -26,6 +26,8 @@ public class HopperIOTalonFX implements HopperIO {
 
     private final TalonFXConfigurator m_mainMotorConfig;
 
+    private Distance motorSetpoint;
+
     private CurrentLimitsConfigs m_currentConfig;
     private FeedbackConfigs m_encoderConfigs;
     private Slot0Configs m_pidConfig;
@@ -124,6 +126,12 @@ public class HopperIOTalonFX implements HopperIO {
     @Override
     public void setSetpoint(Distance setpoint) {
         PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Inches))));
+        motorSetpoint = setpoint;
+    }
+
+    @Override
+    public Distance getSetpoint() {
+        return motorSetpoint;
     }
 
     @Override
@@ -141,6 +149,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.motorTemp = deviceTemp.getValueAsDouble();
         inputs.motorPosition = Inches.of(motorPosition.getValueAsDouble());
         inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
+        inputs.setpoint = motorSetpoint;
         
         double p = HopperConstants.TALONFX_PID.getP();
         double i = HopperConstants.TALONFX_PID.getI();

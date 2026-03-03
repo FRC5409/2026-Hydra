@@ -25,7 +25,7 @@ public class Hopper extends SubsystemBase {
     private final HopperIO io;
     private final HopperInputsAutoLogged inputs;
     private static Pose3d hopperPose = new Pose3d();
-    public static Distance target = Inches.of(0.0);
+    private Distance position;
 
     public Hopper(HopperIO io) {
         this.io = io;
@@ -138,12 +138,17 @@ public class Hopper extends SubsystemBase {
 
         boolean overCurrent = inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT);
     
-    if (DriverStation.isEnabled() && overCurrent && !inputs.isCrashDetected) {
-        io.coastMode();
-        inputs.isCrashDetected = true;
-    } else if (!overCurrent && inputs.isCrashDetected) {
-        io.brakeMode();
-        inputs.isCrashDetected = false;
-    }
+        if(DriverStation.isEnabled()) {
+            if (overCurrent && !inputs.isCrashDetected) {
+                inputs.isCrashDetected = true;
+                position = io.getPosition();
+                io.coastMode();
+                io.setMotorVoltage(0);
+            } else if (!overCurrent && inputs.isCrashDetected) {
+                inputs.isCrashDetected = false;
+                io.brakeMode();
+                io.setSetpoint(position);
+            }
+        }
     }
 }
