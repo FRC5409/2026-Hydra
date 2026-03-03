@@ -364,7 +364,7 @@ public class RobotContainer {
                 
                 }
                 ).alongWith(sys_hopper.fullExtend())
-        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_DISTANCE, Inches.of(0.02));})
+        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_DISTANCE, Inches.of(0.25));})
                 .andThen(sys_hopper.fullExtend());
     }
 
@@ -387,7 +387,7 @@ public class RobotContainer {
                         
                         }
                 ).alongWith(sys_intake.retract())
-        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.2));})
+        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.25));})
                 .andThen(sys_hopper.fullRetract());
         
     }
@@ -417,13 +417,13 @@ public class RobotContainer {
                                         < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches)
                         ).initialize()
                 ).until(() -> sys_hopper.getPosition().isNear(
-                        hopperSetpoint, Inches.of(0.2))),
+                        hopperSetpoint, Inches.of(0.25))),
 
                 sys_hopper.setSetpoint(() -> hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT)),
                 Commands.waitUntil(() -> 
                         sys_hopper.getPosition().isNear(hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT), 
-                                                        Inches.of(0.02)))
-        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.2)))
+                                                        Inches.of(0.25)))
+        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.25)))
                 .andThen(sys_hopper.fullRetract());
     }
 
