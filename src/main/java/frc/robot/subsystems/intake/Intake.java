@@ -96,6 +96,10 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
     }
 
+    public Command move(Distance position) {
+        return Commands.runOnce(() -> intakeIO.setSetpoint(position), this);
+    }
+
     public Command stopMotor() {
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
     }
@@ -122,15 +126,25 @@ public class Intake extends SubsystemBase {
 
         );
 
-        if (DriverStation.isEnabled() && inputs.extensionTorqueCurrent.in(Amps) > Extension.CRASH_CURRENT_THRESHOLD.in(Amps)) {
-            Commands.runOnce(() -> intakeIO.coastMode(), this); //TODO
-            Logger.recordOutput("Intake/Crash Detected", true);
-        }
+        boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
+        Distance position = null;
+            
+        if (DriverStation.isEnabled()){
+            if (overCurrent && !inputs.isCrashDetected) {
+                position = getPosition();
+                inputs.isCrashDetected = true;
+                intakeIO.coastMode();
+            } else if (!overCurrent && inputs.isCrashDetected) {
+                inputs.isCrashDetected = false;
+                intakeIO.setSetpoint(position);
+                intakeIO.brakeMode();
+            }
 
         intakeIO.updateInputs(inputs);
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.PID);
 
+        }
+    
     }
-
 }

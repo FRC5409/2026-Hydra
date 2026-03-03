@@ -29,7 +29,7 @@ public final class IntakeConstants {
 
 		public static final int UPDATE_FREQUENCY = 50; // in Hz
 
-		public static final Current CRASH_CURRENT_THRESHOLD = Amps.of(50.0); //TODO
+		public static final Current CRASH_CURRENT_THRESHOLD = Amps.of(50.0); //TODO: test it
 
 	}
 
@@ -41,7 +41,5 @@ public final class IntakeConstants {
         public static final Current MAX_CURRENT = Amps.of(30.0);
         public static final double GEARING = 1.5/1.0;
         public static final Mass ROLLER_MASS = Kilograms.of(0.0813636);
-        // public static final Distance ROLLER_DRUMRADIUS = Meters.of(0.0254);
-
     }
 }

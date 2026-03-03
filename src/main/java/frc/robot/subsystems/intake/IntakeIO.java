@@ -33,6 +33,7 @@ public interface IntakeIO {
 
         public boolean isExtended = false;
         public boolean isRetracted = true;
+        public boolean isCrashDetected = false;
 
     }
     
