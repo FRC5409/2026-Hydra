@@ -16,6 +16,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -308,6 +309,10 @@ public class RobotContainer {
         secondaryController.povRight()
                         .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
   
+        SmartDashboard.putData("extend", sys_intake.extend());
+        SmartDashboard.putData("retract", sys_intake.retract());
+        SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
+        SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
