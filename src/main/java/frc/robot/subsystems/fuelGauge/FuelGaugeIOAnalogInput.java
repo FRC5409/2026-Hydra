@@ -1,10 +1,12 @@
-package frc.robot.subsystems.fuelGauge;
+package frc.robot.subsystems.fuelgauge;
 
 import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.AnalogInput;
-import frc.robot.subsystems.fuelGauge.FuelGaugeIO.FuelGaugeInputs;
+import frc.robot.subsystems.fuelgauge.FuelGaugeIO.FuelGaugeInputs;
 
 public class FuelGaugeIOAnalogInput implements FuelGaugeIO {
     private final AnalogInput ultrasonic;
@@ -14,12 +16,12 @@ public class FuelGaugeIOAnalogInput implements FuelGaugeIO {
     }
 
     @Override
-    public Distance getDistance() {
-        return Inches.of(ultrasonic.getValue());
+    public Voltage getVoltage() {
+        return Volts.of(ultrasonic.getValue());
     }
 
     @Override
     public void updateInputs(FuelGaugeInputs inputs) {
-        inputs.distance = getDistance();
+        inputs.voltage = getVoltage();
     }
 }
