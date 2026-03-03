@@ -360,7 +360,6 @@ public class RobotContainer {
                         double intakePos = sys_intake.getPosition().in(Inches);
 
                         double gap = hopperPos - intakePos;
-                        System.out.println(gap);
                         return gap < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches) && sys_hopper.getPosition() != HopperConstants.HOPPER_MAX_EXTENSION;
                 
                 }
@@ -377,14 +376,13 @@ public class RobotContainer {
     private Command retractIntakeAndHopper() {
         return Commands.repeatingSequence(
                 Commands.either(
-                        Commands.parallel(sys_hopper.stopMotor(), Commands.print("STOP")), 
+                        sys_hopper.stopMotor(), 
                         sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MIN_EXTENSION), 
                         () -> {
                                 double hopperPos = sys_hopper.getPositionIntakeZero().in(Inches);
                                 double intakePos = sys_intake.getPosition().in(Inches);
 
                                 double gap = hopperPos - intakePos;
-                                System.out.println(gap);
                                 return gap < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches) && sys_intake.getPosition() != IntakeConstants.Extension.EXTENSION_MIN_DISTANCE;
                         
                         }
