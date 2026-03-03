@@ -7,6 +7,9 @@
 
 package frc.robot;
 
+import frc.robot.Constants.DeviceID;
+
+import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -29,12 +32,17 @@ import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
 import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
+
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
-import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Meters;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -50,6 +58,7 @@ public class RobotContainer {
     protected final Launcher   sys_launcher;
 
     public static SwerveDriveSimulation simConfig;
+    private final Elevator sys_elevator;
 
 //    private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
 //    private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
@@ -74,34 +83,23 @@ public class RobotContainer {
                 sys_serializer = new Serializer(
                         new SerializerIOTalonFX(SerializerConstants.SERIALIZER_ID));
                 sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
-//                sys_vision = new Vision(new VisionIOLimelight());
-//
-//                sys_drive = new Drive(
-//                        new GyroIOPigeon2(),
-//                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
-//                        new ModuleIOTalonFX(TunerConstants.FrontRight),
-//                        new ModuleIOTalonFX(TunerConstants.BackLeft),
-//                        new ModuleIOTalonFX(TunerConstants.BackRight),
-//                        sys_vision
-//                );
+                sys_vision = new Vision(new VisionIOLimelight());
+                sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
-                sys_launcher = new Launcher(new LauncherIOTalonFX(
-                    LauncherConstants.Launcher.LAUNCHER_CAN_ID,
-                    // LauncherConstants.Launcher.LAUNCHER_SENSOR_ID,
-                    LauncherConstants.Launcher.FOLLOWER_LAUNCHER_CAN_ID,
-                    // LauncherConstants.Hood.HOOD_CAN_ID,
-                    0, // ultrasonic channel, irrelevant to this prototype
-                    LauncherConstants.Hood.HOOD_PWM_CHANNEL_1,
-                    LauncherConstants.Hood.HOOD_PWM_CHANNEL_2
-                //     LauncherConstants.Ultrasonic.DIGITAL_OUTPUT,
-                //     LauncherConstants.Hood.HOOD_SENSOR_ID
-                //     LauncherConstants.Ultrasonic.DIGITAL_INPUT
-                ));
 
+                sys_drive = new Drive(
+                        new GyroIOPigeon2(),
+                        new ModuleIOTalonFX(TunerConstants.FrontLeft),
+                        new ModuleIOTalonFX(TunerConstants.FrontRight),
+                        new ModuleIOTalonFX(TunerConstants.BackLeft),
+                        new ModuleIOTalonFX(TunerConstants.BackRight),
+                        sys_vision
+                );
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
                 sys_serializer = new Serializer(new SerializerIOSim());
+                sys_elevator = new Elevator(new ElevatorIOSim());
                 sys_feeder = new Feeder(new FeederIOSim());
 
                 final DriveTrainSimulationConfig driveConfig = DriveTrainSimulationConfig
@@ -153,6 +151,7 @@ public class RobotContainer {
 //                        new ModuleIO() {},
 //                        sys_vision);
                 sys_serializer = new Serializer(new SerializerIO() {});
+                sys_elevator = new Elevator(new ElevatorIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {});
             }
@@ -280,7 +279,35 @@ public class RobotContainer {
 
 
         primaryController.a()
-            .onTrue(sys_launcher.stopLauncher());
+                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+    
+        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
+        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
+
+        primaryController.rightBumper()
+                         .whileTrue(
+                              DriveCommands.alignToHeading(
+                                sys_drive, 
+                                () -> DriveCommands.getRotation2d(
+                                  sys_drive, 
+                                  new Pose2d(
+                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+                                    Rotation2d.kZero
+                                  )
+                                )
+                              )
+                         );
+
+        primaryController.leftBumper()
+                        .whileTrue(
+                          DriveCommands.joystickDriveAtAngle(
+                            sys_drive,
+                            () -> -primaryController.getLeftY(),
+                            () -> -primaryController.getLeftX(),
+                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
+                          )
+                        );
 
 
         primaryController.povUp()

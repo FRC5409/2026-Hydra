@@ -3,6 +3,9 @@ package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -17,12 +20,15 @@ public class Intake extends SubsystemBase {
     private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged inputs;
 
+    private static Pose3d extenderPose;
+
     public Intake(IntakeIO intakeIO) {
 
         this.intakeIO = intakeIO;
         this.inputs = new IntakeInputsAutoLogged();
+        extenderPose = new Pose3d();
 
-        Checkmate.register("Extension extend test", () -> {
+        Checkmate.register("Should fully extend Intake", () -> {
 
             double extendTarget = Extension.EXTENSION_DISTANCE.in(Meters);
 
@@ -36,7 +42,7 @@ public class Intake extends SubsystemBase {
             return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
         });
 
-        Checkmate.register("Retraction retract test", () -> {
+        Checkmate.register("Should fully retract Intake", () -> {
 
             double retractTarget = Extension.EXTENSION_MIN_DISTANCE.in(Meters);
 
@@ -51,7 +57,7 @@ public class Intake extends SubsystemBase {
         });
 
 
-        Checkmate.register("Intake roller spin test", () -> {
+        Checkmate.register("Should spin roller", () -> {
 
             intakeIO.setRollerVoltage(6.0);
 
@@ -88,9 +94,23 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
     }
 
+    public Distance getPosition() {
+        return intakeIO.getPosition();
+    }
+
     @Override
     public void periodic() {
         intakeIO.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
+        extenderPose = new Pose3d(
+
+            inputs.extensionPosition, 0.0, 0.0,
+            new Rotation3d(0.0, 0.0, Math.toRadians(0.0))
+
+        );
+
+        Logger.recordOutput("Components/Intake", extenderPose);
+
     }
+
 }
