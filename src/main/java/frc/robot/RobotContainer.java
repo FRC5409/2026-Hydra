@@ -387,7 +387,7 @@ public class RobotContainer {
                         
                         }
                 ).alongWith(sys_intake.retract())
-        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.02));})
+        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.2));})
                 .andThen(sys_hopper.fullRetract());
         
     }
@@ -401,23 +401,29 @@ public class RobotContainer {
      * @author John Chen, team 5409
      */
     private Command retractAndAgitate() {
-        intakeSetpoint = 
-                Inches.of(IntakeConstants.Extension.INITIAL_SETPOINT.in(Inches)
-                                        + IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches));
         return Commands.repeatingSequence(
+                Commands.runOnce(() -> intakeSetpoint = sys_intake.getPosition()),
                 Commands.runOnce(() -> 
                         intakeSetpoint = intakeSetpoint.minus((Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))),
                 Commands.runOnce(() -> 
                         hopperSetpoint = intakeSetpoint.plus(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
                                                         .minus(HopperConstants.STARTING_GAP_TO_INTAKE)),
                 sys_intake.move(() -> intakeSetpoint),
-                sys_hopper.setSetpoint(() -> hopperSetpoint),
-                Commands.waitUntil(() -> sys_hopper.getPosition().isNear(hopperSetpoint, Inches.of(0.02))),
+                Commands.run(() -> 
+                        Commands.either(
+                                sys_hopper.stopMotor(),
+                                sys_hopper.setSetpoint(() -> hopperSetpoint),
+                                () -> (sys_hopper.getPositionIntakeZero().in(Inches) - sys_intake.getPosition().in(Inches)) 
+                                        < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches)
+                        ).initialize()
+                ).until(() -> sys_hopper.getPosition().isNear(
+                        hopperSetpoint, Inches.of(0.2))),
+
                 sys_hopper.setSetpoint(() -> hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT)),
                 Commands.waitUntil(() -> 
                         sys_hopper.getPosition().isNear(hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT), 
                                                         Inches.of(0.02)))
-        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.02)))
+        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.2)))
                 .andThen(sys_hopper.fullRetract());
     }
 
