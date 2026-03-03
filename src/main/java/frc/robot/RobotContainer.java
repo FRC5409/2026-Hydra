@@ -312,18 +312,6 @@ public class RobotContainer {
         //                     )
         //                 );
 
-        primaryController.x()
-                        .whileTrue(
-
-                                DriveCommands.crossBump(
-                                        sys_drive,
-                                        sys_vision,
-                                        () -> Rotation2d.k180deg,
-                                        DriveCommands.getBumpSpeed(sys_drive),
-                                        500
-                                )        
-                        );
-
         secondaryController.x()
                         .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
         secondaryController.b()
