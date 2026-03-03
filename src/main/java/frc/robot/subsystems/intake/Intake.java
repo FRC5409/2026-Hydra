@@ -21,6 +21,7 @@ public class Intake extends SubsystemBase {
 
     private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged inputs;
+    private Distance position;
 
     private static Pose3d extenderPose;
 
@@ -127,7 +128,6 @@ public class Intake extends SubsystemBase {
         );
 
         boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
-        Distance position = null;
             
         if (DriverStation.isEnabled()){
             if (overCurrent && !inputs.isCrashDetected) {
@@ -135,8 +135,8 @@ public class Intake extends SubsystemBase {
                 inputs.isCrashDetected = true;
                 intakeIO.coastMode();
             } else if (!overCurrent && inputs.isCrashDetected) {
-                inputs.isCrashDetected = false;
                 intakeIO.setSetpoint(position);
+                inputs.isCrashDetected = false;
                 intakeIO.brakeMode();
             }
 
