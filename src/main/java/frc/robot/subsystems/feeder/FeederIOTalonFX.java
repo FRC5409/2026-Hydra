@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
@@ -24,6 +25,7 @@ public class FeederIOTalonFX implements FeederIO {
     private TalonFX feederMotor;
     private TalonFXConfigurator feederMotorConfig;
     private CurrentLimitsConfigs currentConfigs;
+    private FeedbackConfigs encoderConfigs;
     private Slot0Configs feederPidConfigs;
 
     private StatusSignal<AngularVelocity> feederDeviceVelocity;
@@ -40,6 +42,10 @@ public class FeederIOTalonFX implements FeederIO {
             .withSupplyCurrentLimit(FeederConstants.TALON_FX_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
         feederMotorConfig.apply(currentConfigs);
+
+         encoderConfigs = new FeedbackConfigs()
+            .withSensorToMechanismRatio(FeederConstants.kGearing);
+        feederMotorConfig.apply(encoderConfigs);
 
         feederPidConfigs = new Slot0Configs()
             .withKP(FeederConstants.TALONFX_PID.getP())

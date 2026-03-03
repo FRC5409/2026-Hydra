@@ -3,6 +3,7 @@ package frc.robot.subsystems.serializer;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
+import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.Follower;
@@ -26,6 +27,7 @@ public class SerializerIOTalonFX implements SerializerIO {
     private final TalonFXConfigurator bottomFeederMotorConfig;
 
     private CurrentLimitsConfigs currentConfigs;
+    private FeedbackConfigs encoderConfigs;
 
     private StatusSignal<AngularVelocity> indexerDeviceVelocity;
     private StatusSignal<Angle> indexerDevicePosition;
@@ -52,6 +54,10 @@ public class SerializerIOTalonFX implements SerializerIO {
             .withSupplyCurrentLimitEnable(true);
         indexerMotorConfig.apply(currentConfigs);
         bottomFeederMotorConfig.apply(currentConfigs);
+
+        encoderConfigs = new FeedbackConfigs()
+            .withSensorToMechanismRatio(SerializerConstants.kGearing);
+        bottomFeederMotorConfig.apply(encoderConfigs);
         
         indexerMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
