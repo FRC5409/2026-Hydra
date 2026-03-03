@@ -28,5 +28,7 @@ public class FuelGauge extends SubsystemBase{
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("FuelGauge", inputs);
+
+        inputs.fuel = getFuel();
     }
 }

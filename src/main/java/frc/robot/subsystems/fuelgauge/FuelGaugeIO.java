@@ -11,6 +11,8 @@ public interface FuelGaugeIO {
     @AutoLog
     class FuelGaugeInputs {
         public Voltage voltage = Volts.of(0.0);
+
+        public double fuel = 0;
     }
 
     default Voltage getVoltage() {return Volts.of(0.0);}
