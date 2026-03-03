@@ -76,10 +76,6 @@ public final class Constants {
 	public static final class kAutoAlign {
 		public static final PIDConstants ALIGN_PID = new PIDConstants(4.9, 0.0, 0.28);
 
-		// Blue HUB Position relative to a blue alliance origin
-		public static final Pose2d HUB_POSE = new Pose2d(
-				new Translation2d(Meters.of(4.620), Meters.of(4.030)), Rotation2d.kZero);
-
 		public static final Distance TRANSLATION_TOLERANCE;
 		public static final Angle    ROTATION_TOLERANCE;
 
@@ -138,7 +134,7 @@ public final class Constants {
 	}
 
 	/*
-	 * Climbing position if looking from alliance driver station
+	 * Climbing position if looking from blue alliance driver station
 	 */
 	public enum ClimbingPositions {
 		// RIGHT   (new Pose2d(new Translation2d(Meters.of(1.15), Meters.of(2.66)), Rotation2d.kZero)),
@@ -174,6 +170,10 @@ public final class Constants {
 
 		ClimbingPositions(Pose2d pose) {
 			this.pose = pose;
+		}
+
+		public Pose2d getPose(){
+			return this.pose;
 		}
 	}
 
