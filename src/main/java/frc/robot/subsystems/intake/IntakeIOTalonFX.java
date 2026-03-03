@@ -23,6 +23,8 @@ public final class IntakeIOTalonFX implements IntakeIO {
   
     private final TalonFX rollerMotor;
     private final TalonFX extensionMotor;
+    private TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration()
+        .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING));
 
     private final PositionVoltage positionControl;
 
@@ -52,11 +54,18 @@ public final class IntakeIOTalonFX implements IntakeIO {
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration()
         .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING));
 
-        extensionConfigurator.Slot0 = new Slot0Configs()
-            .withKP(Extension.PID.getP())
-            .withKI(Extension.PID.getI())
-            .withKD(Extension.PID.getD());
+        if (Extension.INTAKE_IS_TUNING) {
+            extensionConfigurator.Slot0 = new Slot0Configs()
+                .withKP(Extension.PID.getP())
+                .withKI(Extension.PID.getI())
+                .withKD(Extension.PID.getD());
             
+        } else{
+            extensionConfigurator.Slot0 = new Slot0Configs()
+                .withKP(Extension.TALONFX_PID.kP)
+                .withKI(Extension.TALONFX_PID.kI)
+                .withKD(Extension.TALONFX_PID.kD);
+        }
         extensionMotor.getConfigurator().apply(extensionConfigurator);
 
         extensionPositionSignal    = extensionMotor.getPosition();
@@ -100,7 +109,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
     }
 
     public void setSetpoint(Distance position) {
-        extensionMotor.setControl(positionControl.withPosition(position.in(Meters)));
+        extensionMotor.setControl(positionControl.withPosition(position.in(Meters)).withSlot(0));
     }
 
     public void coastMode() {
@@ -142,5 +151,17 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.rollerTemp = 0.0;
         inputs.rollerVelocity = RotationsPerSecond.of(rollerVelocitySignal.getValueAsDouble());
 
+        // if (Extension.PID.getP() != extensionConfigurator.getP() ||
+        //     Extension.PID.getI() != extensionConfigurator.getI() ||
+        //     Extension.PID.getD() != extensionConfigurator.getD()) {
+                
+        //     TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
+        //     extensionConfig.Slot0 = new Slot0Configs()
+        //         .withKP(Extension.PID.getP())
+        //         .withKI(Extension.PID.getI())
+        //         .withKD(Extension.PID.getD());
+        //     extensionMotor.getConfigurator().apply(extensionConfig);
+        
+        // }
     }
 }

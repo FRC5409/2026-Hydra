@@ -14,18 +14,18 @@ public final class IntakeConstants {
 		public static final int MOTORID = 28;
 
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
-		public static final Distance EXTENSION_DISTANCE = Meters.of(0.2794); //Needs confirmation from Design for exact extension distance
-		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146); //Needs confirmation from Design for exact extension distance
+		public static final Distance EXTENSION_DISTANCE = Meters.of(0.2794);
+		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146);
 
 		public static final PIDController PID = new PIDController(1.0,0.0,0.0);
 		public static final PIDConstants TALONFX_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
 
-		// public static final double kV = 0.0;
 		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
 		public static final Current MAX_CURRENT = Amps.of(30.0);
 		public static final double GEARING = 9.0/1.0;
 		public static final Mass INTAKE_MASS = Kilograms.of(3.1818);
 
+		public static final boolean INTAKE_IS_TUNING = false;
 
 		public static final int UPDATE_FREQUENCY = 50; // in Hz
 
