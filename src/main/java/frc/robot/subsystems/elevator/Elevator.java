@@ -29,13 +29,13 @@ public class Elevator extends SubsystemBase{
     private static Pose3d elevatorPose;
     
     private final LoggedNetworkNumber dashboardSetpoint =
-        new LoggedNetworkNumber("/Elevator/SetpointMeters", 0.0);
+        new LoggedNetworkNumber("Elevator/SetpointMeters", 0.0);
 
     private final LoggedNetworkBoolean dashboardGoToSetpoint =
-        new LoggedNetworkBoolean("/Elevator/GoToSetpoint", false);
+        new LoggedNetworkBoolean("Elevator/GoToSetpoint", false);
 
     // Setup alerts for elevator motors connection
-    private final Alert ElevatorAlert  = new Alert("The Left Elevator Motor is Disconnected " + DeviceID.CLIMBER_MOTOR, AlertType.kError);
+    private final Alert ElevatorAlert  = new Alert("The elevator motor is disconnected " + DeviceID.CLIMBER_MOTOR, AlertType.kError);
 
     public Elevator(ElevatorIO io) {
         this.io = io;
