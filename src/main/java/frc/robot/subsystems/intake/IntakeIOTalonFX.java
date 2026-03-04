@@ -9,7 +9,6 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -53,7 +52,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration()
         .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING));
 
-        if (frc.robot.Constants.IS_TUNING) {
+        if (frc.robot.Constants.IS_TUNING) { // If we are tuning, use the PID values from the Extension class, otherwise use the default TalonFX PID values
             if (Extension.INTAKE_IS_TUNING) {
                 extensionConfigurator.Slot0 = new Slot0Configs()
                     .withKP(Extension.PID.getP())

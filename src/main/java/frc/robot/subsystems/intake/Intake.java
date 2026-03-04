@@ -2,7 +2,6 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
@@ -131,11 +130,11 @@ public class Intake extends SubsystemBase {
         boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
             
         if (DriverStation.isEnabled()){
-            if (overCurrent && !inputs.isCrashDetected) {
+            if (overCurrent && !inputs.isCrashDetected) { // If current is above threshold and we haven't already detected a crash, set the setpoint to the current position to hold it there
                 position = getPosition();
                 inputs.isCrashDetected = true;
                 intakeIO.coastMode();
-            } else if (!overCurrent && inputs.isCrashDetected) {
+            } else if (!overCurrent && inputs.isCrashDetected) { // If current is no longer above threshold and we previously detected a crash, reset the setpoint to the last known position
                 intakeIO.setSetpoint(position);
                 inputs.isCrashDetected = false;
                 intakeIO.brakeMode();

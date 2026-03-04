@@ -75,9 +75,9 @@ public class IntakeIOSim implements IntakeIO {
         double volts = 0.0;
 
         if (running) {
-            double pidOut = pid.calculate(extensionSim.getPositionMeters());
-            double maxV = Math.max(Extension.MAX_VOLTAGE.in(Volts), RoboRioSim.getVInVoltage());
-            volts = MathUtil.clamp(pidOut, -maxV, maxV);
+            double pidOut = pid.calculate(extensionSim.getPositionMeters()); // Calculate the PID output based on the current position of the extension
+            double maxV = Math.max(Extension.MAX_VOLTAGE.in(Volts), RoboRioSim.getVInVoltage()); // Get the maximum voltage of the system (either the max voltage of the extension or the current voltage of the RoboRio, whichever is lower)
+            volts = MathUtil.clamp(pidOut, -maxV, maxV); // Clamp the voltage to the maximum voltage of the system
         }
 
       extensionSim.setInputVoltage(volts);
@@ -101,6 +101,6 @@ public class IntakeIOSim implements IntakeIO {
       inputs.isRollerConnected = true;
       inputs.isExtensionConnected = true;
 
-      pid.setPID(Extension.PID.getP(), Extension.PID.getI(), Extension.PID.getD());
+      pid.setPID(Extension.PID.getP(), Extension.PID.getI(), Extension.PID.getD()); // Update the PID constants in case they were changed during tuning
     }
 }
