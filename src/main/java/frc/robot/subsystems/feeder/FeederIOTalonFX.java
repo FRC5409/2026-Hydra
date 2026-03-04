@@ -44,6 +44,7 @@ public class FeederIOTalonFX implements FeederIO {
             .withSensorToMechanismRatio(FeederConstants.GEARING);
         feederMotorConfig.apply(encoderConfigs);
 
+        // Uses PID Controller if we're tuning, otherwise uses PID Constants
         final Slot0Configs feederPidConfigs = Constants.IS_TUNING 
         ? new Slot0Configs()
             .withKP(FeederConstants.PID.getP())
@@ -79,12 +80,19 @@ public class FeederIOTalonFX implements FeederIO {
         feederMotor.optimizeBusUtilization();
     }
 
-
+    /**
+     * Sets manual voltage
+     * @param voltage the assigned voltage
+     */
     @Override
     public void setMotorVoltage(double voltage) {
         feederMotor.setVoltage(voltage);
     }
 
+    /**
+     * Runs the feeder at the specified RPS
+     * @param velocity the assigned velocity to run
+     */
     @Override
     public void runRPS(Supplier<AngularVelocity> velocity) {
         VelocityVoltage velocityVoltage = new VelocityVoltage(velocity.get())
@@ -93,17 +101,25 @@ public class FeederIOTalonFX implements FeederIO {
         feederMotor.setControl(velocityVoltage);
     }
 
-
+    /**
+     * Stops the motor
+     */
     @Override
     public void stopMotor() {
         feederMotor.stopMotor();
     }
 
+    /** 
+     * Zeroes encoders if needed
+     */
     @Override
     public void zeroEncoder() {
         feederMotor.setPosition(0);
     }
 
+    /**
+     * Returns the velocity in RPS
+     */
     @Override
     public AngularVelocity getVelocityRPS() {
         return feederDeviceVelocity.getValue();

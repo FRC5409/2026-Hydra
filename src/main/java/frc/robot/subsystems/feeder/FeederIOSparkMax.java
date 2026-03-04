@@ -27,6 +27,10 @@ public class FeederIOSparkMax implements FeederIO {
         feederMotor.configure(feederMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
+    /**
+     * Sets the voltage 
+     * @param voltage the assigned voltage
+     */
     @Override
     public void setMotorVoltage(double voltage) {
         feederMotor.setVoltage(voltage);

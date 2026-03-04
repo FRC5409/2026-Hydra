@@ -21,14 +21,16 @@ public class FeederIOSim implements FeederIO {
     private final PIDController controller;
     private boolean running;
     private double numberOfRotations;
+
+    // gets the setpoint for logging
     private double simSetpoint;
 
     public FeederIOSim() {
         feederSim = new FlywheelSim(
             LinearSystemId.createFlywheelSystem(
                         motor,
-                        0.002,
-                        1
+                        0.002, // just for sim
+                        1 
                 ),
             motor
         );
@@ -40,12 +42,20 @@ public class FeederIOSim implements FeederIO {
         running = false;
     }
 
+    /**
+     * Sets the flywheel sim's voltage manually
+     * @param voltage the voltage to set
+     */
     @Override
     public void setMotorVoltage(double voltage) {
         feederSim.setInputVoltage(voltage);
         running = true;
     }
 
+    /**
+     * Sets the setpoint in RPS
+     * @param velocity the target velocity setpoint
+     */
     @Override
     public void runRPS(Supplier<AngularVelocity> velocity) {
         controller.setSetpoint(velocity.get().in(RotationsPerSecond));
@@ -53,12 +63,18 @@ public class FeederIOSim implements FeederIO {
         running = true;
     }
 
+    /**
+     * Sets the setpoint to 0.0 RPS to stop the motor
+     */
     @Override
     public void stopMotor() {
         controller.setSetpoint(0.0);
         running = false;
     }
 
+    /** Returns the velocity in RPS
+     * Gets the feeder sim's velocity in RPM and divides it by 60 to get RPS 
+     */
     @Override
     public AngularVelocity getVelocityRPS() {
         return RotationsPerSecond.of(feederSim.getAngularVelocityRPM()/60);
@@ -68,6 +84,8 @@ public class FeederIOSim implements FeederIO {
     @Override
     public void updateInputs(FeederInputs inputs) {
         double simVoltage = 0.0;
+        
+        // Calculates PID output
         if (running) {
             simVoltage = MathUtil.clamp(
                     controller.calculate(getVelocityRPS().in(RotationsPerSecond)),
