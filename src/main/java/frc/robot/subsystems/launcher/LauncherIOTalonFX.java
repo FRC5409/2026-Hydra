@@ -103,7 +103,7 @@ public class LauncherIOTalonFX implements LauncherIO {
                 LauncherConstants.Hood.MIN_PULSE_WIDTH);
 
         TalonFXConfigurator leaderConfig = leaderMotor.getConfigurator();
-        TalonFXConfigurator followerConfig = leaderMotor.getConfigurator();
+        TalonFXConfigurator followerConfig = launcherFollowerMotor.getConfigurator();
 
         launcherCANCoder.getConfigurator()
                         .apply(new CANcoderConfiguration().MagnetSensor
