@@ -1,5 +1,3 @@
-//TO DO: CONVERT METERS TO INCHES IN SIM AND TALONFX + ROTATION CONVERTER
-
 package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Inches;
@@ -16,6 +14,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.Checkmate;
@@ -25,7 +24,7 @@ public class Hopper extends SubsystemBase {
     private final HopperIO io;
     private final HopperInputsAutoLogged inputs;
     private static Pose3d hopperPose = new Pose3d();
-    private Distance position;
+    private Distance lastCrashPosition;
 
     public Hopper(HopperIO io) {
         this.io = io;
@@ -35,9 +34,7 @@ public class Hopper extends SubsystemBase {
         hopperPose = new Pose3d();
 
         Checkmate.register("Hopper extends fully", () -> {
-            Command cmd = this.fullExtend();
-            cmd.initialize();
-            cmd.execute();
+            CommandScheduler.getInstance().schedule(this.fullExtend());
             Timer.delay(2);
             Distance extensionLength = this.getPosition();
             if (extensionLength.isNear(HopperConstants.HOPPER_MAX_EXTENSION, Inches.of(0.02))) {
@@ -51,9 +48,7 @@ public class Hopper extends SubsystemBase {
         });
 
         Checkmate.register("Hopper retracts fully", () -> {
-            Command cmd = this.fullRetract();
-            cmd.initialize();
-            cmd.execute();
+            CommandScheduler.getInstance().schedule(this.fullRetract());
             Timer.delay(2);
             Distance extensionLength = this.getPosition();
             if (extensionLength.isNear(HopperConstants.HOPPER_MIN_EXTENSION, 0)) {
@@ -88,7 +83,7 @@ public class Hopper extends SubsystemBase {
     /** 
      * Positive voltage extends, Negative voltage retracts (MAX of 12 inches and MIN of 0 inches)
      */
-    public Command manualMove(double voltage) {
+    public Command setVoltage(double voltage) {
         return Commands.runOnce(() -> io.setMotorVoltage(voltage), this);
     }
 
@@ -141,13 +136,13 @@ public class Hopper extends SubsystemBase {
         if(DriverStation.isEnabled()) {
             if (overCurrent && !inputs.isCrashDetected) {
                 inputs.isCrashDetected = true;
-                position = io.getPosition();
+                lastCrashPosition = io.getPosition();
                 io.coastMode();
                 io.setMotorVoltage(0);
             } else if (!overCurrent && inputs.isCrashDetected) {
                 inputs.isCrashDetected = false;
                 io.brakeMode();
-                io.setSetpoint(position);
+                io.setSetpoint(lastCrashPosition);
             }
         }
     }

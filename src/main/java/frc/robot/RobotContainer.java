@@ -355,16 +355,10 @@ public class RobotContainer {
                 Commands.either(
                 sys_intake.stopMotor(),
                 sys_intake.extend(), 
-                () -> {
-                        double hopperPos = sys_hopper.getPositionIntakeZero().in(Inches);
-                        double intakePos = sys_intake.getPosition().in(Inches);
-
-                        double gap = hopperPos - intakePos;
-                        return gap < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches) && sys_hopper.getPosition() != HopperConstants.HOPPER_MAX_EXTENSION;
-                
-                }
+                () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE) 
+                        && !(sys_hopper.getPosition().isNear(HopperConstants.HOPPER_MAX_EXTENSION, HopperConstants.AGITATE_TOLERANCE))
                 ).alongWith(sys_hopper.fullExtend())
-        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_DISTANCE, Inches.of(0.25));})
+        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_DISTANCE, HopperConstants.AGITATE_TOLERANCE);})
                 .andThen(sys_hopper.fullExtend());
     }
 
@@ -378,16 +372,10 @@ public class RobotContainer {
                 Commands.either(
                         sys_hopper.stopMotor(), 
                         sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MIN_EXTENSION), 
-                        () -> {
-                                double hopperPos = sys_hopper.getPositionIntakeZero().in(Inches);
-                                double intakePos = sys_intake.getPosition().in(Inches);
-
-                                double gap = hopperPos - intakePos;
-                                return gap < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches) && sys_intake.getPosition() != IntakeConstants.Extension.EXTENSION_MIN_DISTANCE;
-                        
-                        }
+                        () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE) 
+                        && !(sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE))
                 ).alongWith(sys_intake.retract())
-        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.25));})
+        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE);})
                 .andThen(sys_hopper.fullRetract());
         
     }
@@ -402,28 +390,25 @@ public class RobotContainer {
      */
     private Command retractAndAgitate() {
         return Commands.repeatingSequence(
-                Commands.runOnce(() -> intakeSetpoint = sys_intake.getPosition()),
                 Commands.runOnce(() -> 
-                        intakeSetpoint = intakeSetpoint.minus((Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))),
+                        intakeSetpoint = sys_intake.getPosition().minus((Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))),
                 Commands.runOnce(() -> 
                         hopperSetpoint = intakeSetpoint.plus(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
                                                         .minus(HopperConstants.STARTING_GAP_TO_INTAKE)),
                 sys_intake.move(() -> intakeSetpoint),
-                Commands.run(() -> 
-                        Commands.either(
-                                sys_hopper.stopMotor(),
-                                sys_hopper.setSetpoint(() -> hopperSetpoint),
-                                () -> (sys_hopper.getPositionIntakeZero().in(Inches) - sys_intake.getPosition().in(Inches)) 
-                                        < IntakeConstants.Extension.KILLSWITCH_TOLERANCE.in(Inches)
-                        ).initialize()
-                ).until(() -> sys_hopper.getPosition().isNear(
-                        hopperSetpoint, Inches.of(0.25))),
+                Commands.either(
+                        sys_hopper.stopMotor(),
+                        sys_hopper.setSetpoint(() -> hopperSetpoint),
+                        () -> (sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()))
+                                        .lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
+                ).repeatedly().until(() -> sys_hopper.getPosition().isNear(
+                        hopperSetpoint, HopperConstants.AGITATE_TOLERANCE)),
 
                 sys_hopper.setSetpoint(() -> hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT)),
                 Commands.waitUntil(() -> 
                         sys_hopper.getPosition().isNear(hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT), 
-                                                        Inches.of(0.25)))
-        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Inches.of(0.25)))
+                                                        HopperConstants.AGITATE_TOLERANCE))
+        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE))
                 .andThen(sys_hopper.fullRetract());
     }
 
