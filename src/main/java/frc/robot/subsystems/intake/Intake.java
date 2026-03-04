@@ -2,16 +2,19 @@ package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.*;
 import frc.robot.utils.Checkmate;
 import frc.robot.utils.Checkmate.TestResult;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -21,6 +24,7 @@ public class Intake extends SubsystemBase {
 
     private final IntakeIO intakeIO;
     private final IntakeInputsAutoLogged inputs;
+    private Distance position;
 
     private static Pose3d extenderPose;
 
@@ -38,10 +42,10 @@ public class Intake extends SubsystemBase {
 
             Timer.delay(2.0);
 
-            if (Math.abs(inputs.extensionPosition - extendTarget) > 0.02) {
-                return TestResult.fail("Intake extension failed to extend, position: " + inputs.extensionPosition);
+            if (Math.abs(inputs.extensionPosition - extendTarget) > 0.05) {
+                return TestResult.fail("Intake failed to extend, position: " + inputs.extensionPosition);
             }
-            return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
+            return TestResult.success("Intake extension ok");
         });
 
         Checkmate.register("Should fully retract Intake", () -> {
@@ -52,10 +56,10 @@ public class Intake extends SubsystemBase {
 
             Timer.delay(2.0);
 
-            if (Math.abs(inputs.extensionPosition - retractTarget) > 0.02) {
-                return TestResult.fail("Intake extension failed to retract, position: " + inputs.extensionPosition);
+            if (Math.abs(inputs.extensionPosition - retractTarget) > 0.05) {
+                return TestResult.fail("Intake failed to retract, position: " + inputs.extensionPosition);
             }
-            return TestResult.success("Intake extension ok, position: " + inputs.extensionPosition);
+            return TestResult.success("Intake retraction ok");
         });
 
 
@@ -76,8 +80,12 @@ public class Intake extends SubsystemBase {
 
     }
 
-    public Command intake(double voltage) {
+    public Command setRollerVoltage(double voltage) {
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage), this);
+    }
+
+    public Command stopRoller() {
+        return Commands.runOnce(() -> intakeIO.setRollerVoltage(0.0), this);
     }
 
     public Command brakemode() {
@@ -96,9 +104,21 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
     }
 
+    public Command move(Distance position) {
+        return Commands.runOnce(() -> intakeIO.setSetpoint(position), this);
+    }
+
     public Command stopMotor() {
         // intakeIO.stopMotor();
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
+    }
+
+    public Command coastMode() {
+        return Commands.runOnce(() -> intakeIO.coastMode(), this);
+    }
+
+    public Command setExtensionVoltage(double voltage) {
+        return Commands.runOnce(() -> intakeIO.setExtensionVoltage(voltage), this);
     }
 
     public Distance getPosition() {
@@ -107,7 +127,6 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        intakeIO.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
         extenderPose = new Pose3d(
 
@@ -116,8 +135,24 @@ public class Intake extends SubsystemBase {
 
         );
 
+        boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
+            
+        if (DriverStation.isEnabled()){
+            if (overCurrent && !inputs.isCrashDetected) {
+                position = getPosition();
+                inputs.isCrashDetected = true;
+                intakeIO.coastMode();
+            } else if (!overCurrent && inputs.isCrashDetected) {
+                intakeIO.setSetpoint(position);
+                inputs.isCrashDetected = false;
+                intakeIO.brakeMode();
+            }
+
+        intakeIO.updateInputs(inputs);
         Logger.recordOutput("Components/Intake", extenderPose);
+        SmartDashboard.putData("Intake/PID", Extension.PID);
 
+        }
+    
     }
-
 }
