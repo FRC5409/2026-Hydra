@@ -41,7 +41,7 @@ public class FeederIOTalonFX implements FeederIO {
         feederMotorConfig.apply(currentConfigs);
 
         final FeedbackConfigs encoderConfigs = new FeedbackConfigs()
-            .withSensorToMechanismRatio(FeederConstants.kGearing);
+            .withSensorToMechanismRatio(FeederConstants.GEARING);
         feederMotorConfig.apply(encoderConfigs);
 
         final Slot0Configs feederPidConfigs = Constants.IS_TUNING 

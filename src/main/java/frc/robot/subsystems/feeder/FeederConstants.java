@@ -17,7 +17,7 @@ public final class FeederConstants {
 
         public static final double kV = 0.0;
         public static AngularVelocity targetRPS = RotationsPerSecond.of(0.0);
-        public static final double kGearing = 1.0/3.0;
+        public static final double GEARING = 1.0/3.0;
 
         public static final boolean ORTONA_FEEDER_MOTOR_INVERTED = false;
         public static final Current ORTONA_SPARK_MAX_CURRENT_LIMIT = Amps.of(30);
