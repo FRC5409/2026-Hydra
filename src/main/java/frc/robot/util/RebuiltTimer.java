@@ -6,7 +6,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 import static edu.wpi.first.units.Units.*;
+import static frc.robot.Robot.rebuiltTimer;
 
+import edu.wpi.first.wpilibj.util.Color;
 import java.util.HashMap;
 import java.util.function.Supplier;
 
@@ -19,6 +21,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.wpilibj.DriverStation;
+import frc.robot.subsystems.drive.Drive;
 
 /**
  * Timer class to keep track of hub state + additional information in 2026 game Rebuilt
@@ -67,6 +70,7 @@ public class RebuiltTimer {
 	private int fuel;
 	public Time timeInShift;
 	public boolean autoNotifSent;
+	public Color autoWinnerColor;
 
 	private HashMap<GameState, Double> gameStrat; 
 	private GameState[] gameStrategy;
@@ -75,6 +79,9 @@ public class RebuiltTimer {
 	private static final double            FUEL_PER_SECOND =	7;
 	private static final LinearVelocity    ROBOT_SPEED     =	MetersPerSecond.of(4);
     private static final Time              CLIMB_TIME		=	Seconds.of(3);
+	public static final Color				AUTO_ERROR		= 	new Color("#FFFF00");
+	private static final Color				AUTO_BLUE		= 	new Color("#0000FF");
+	private static final Color				AUTO_RED		= 	new Color("#FF0000");
 
 	public RebuiltTimer() {
 		this.activeHub = HubState.BOTH;
@@ -87,6 +94,7 @@ public class RebuiltTimer {
 		this.gameStrat = new HashMap<>();
 		this.autoNotifSent = false;
 		SmartDashboard.putBoolean("Timer/Red is active first?", redIsActiveFirst);
+		autoWinnerColor = AUTO_ERROR;
 	}
 
 	/**
@@ -97,29 +105,58 @@ public class RebuiltTimer {
 		timerFMS.start();
 	}
 
+	public void periodic(Drive drive){
+		if (autoWinner == AutoWinner.RED) this.autoWinnerColor = AUTO_RED;
+		else if (autoWinner == AutoWinner.BLUE) this.autoWinnerColor = AUTO_BLUE;
+		else this.autoWinner = AutoWinner.ERROR;
+
+		SmartDashboard.putNumber("Timer/Time In shift", getTimeInShift().in(Seconds));
+
+		SmartDashboard.putString("Timer/Current Shift", currentShift.toString());
+
+		SmartDashboard.putString("Timer/AutoWinner", autoWinnerColor.toHexString());
+
+		SmartDashboard.putString("Timer/IsHubActive", isHubActive()
+				? new Color("#00FF00").toHexString()
+				: new Color("#FF0000").toHexString());
+
+		SmartDashboard.putNumber("Timer/Fuel", getFuel());
+
+		SmartDashboard.putNumber("Timer/Time Left To Acquire",
+				timeToAcquire(
+						drive::getPose
+				).in(Seconds));
+
+		SmartDashboard.putNumber("Timer/Time to score", scoreTime());
+
+		SmartDashboard.putNumber("Timer/Time to travel",
+				timeToPose(
+						drive::getPose,
+						() -> getClosestScoringPosition(drive::getPose)
+				).in(Seconds));
+	}
+
 	/**
 	 * Gets the game specific message about who won auto from {@link DriverStation#getGameSpecificMessage()}
 	 * and returns the alliance that won auto. If no message is received or message is corrupted, returns error state.
-	 * @return the alliance that won auto, or an error state {@link AutoWinner}
 	 */
-	public AutoWinner getAutoWinner(){
+	public void getAutoWinner(){
 
 		String gameData = DriverStation.getGameSpecificMessage();
 
 		if (!gameData.isEmpty()){
 			switch (gameData.charAt(0)){
 				case 'B'-> {
-					autoWinner = AutoWinner.BLUE;
+					this.autoWinner = AutoWinner.BLUE;
 					redIsActiveFirst = true;
 				} case 'R'->{
-					autoWinner = AutoWinner.RED;
+					this.autoWinner = AutoWinner.RED;
 					redIsActiveFirst = false;
-				} default -> autoWinner = AutoWinner.ERROR;
+				} default -> this.autoWinner = AutoWinner.ERROR;
 			}
 		}
 
-		// TODO: Have an elastic notification for manual override from operator
-		if ((DriverStation.isTeleop() && gameData.isEmpty()) || autoWinner == AutoWinner.ERROR){
+		if ((DriverStation.isTeleop() && gameData.isEmpty()) || this.autoWinner == AutoWinner.ERROR){
 			Elastic.Notification autoErrorNotif = 
 				new Elastic.Notification(
 					Elastic.NotificationLevel.ERROR, 
@@ -128,12 +165,11 @@ public class RebuiltTimer {
 				);            
 			if (!autoNotifSent) Elastic.sendNotification(autoErrorNotif);
 			autoNotifSent = true;
-			autoWinner = AutoWinner.ERROR;
+			this.autoWinner = AutoWinner.ERROR;
 			redIsActiveFirst = SmartDashboard.getBoolean("Timer/Red is active first?", redIsActiveFirst);
-			if (redIsActiveFirst) autoWinner = AutoWinner.BLUE;
-			else autoWinner = AutoWinner.RED;
+			if (redIsActiveFirst) this.autoWinner = AutoWinner.BLUE;
+			else this.autoWinner = AutoWinner.RED;
 		}
-		return this.autoWinner;
 	}
 //    get match time
 //          Manual match Time or Timer class, or Fms match time
