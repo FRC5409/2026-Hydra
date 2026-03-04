@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.google.flatbuffers.Constants;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
@@ -17,14 +18,12 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;;
 
 public final class IntakeIOTalonFX implements IntakeIO {
   
     private final TalonFX rollerMotor;
     private final TalonFX extensionMotor;
-    private TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration()
-        .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING));
 
     private final PositionVoltage positionControl;
 
@@ -54,12 +53,18 @@ public final class IntakeIOTalonFX implements IntakeIO {
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration()
         .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING));
 
-        if (Extension.INTAKE_IS_TUNING) {
-            extensionConfigurator.Slot0 = new Slot0Configs()
-                .withKP(Extension.PID.getP())
-                .withKI(Extension.PID.getI())
-                .withKD(Extension.PID.getD());
-            
+        if (frc.robot.Constants.IS_TUNING) {
+            if (Extension.INTAKE_IS_TUNING) {
+                extensionConfigurator.Slot0 = new Slot0Configs()
+                    .withKP(Extension.PID.getP())
+                    .withKI(Extension.PID.getI())
+                    .withKD(Extension.PID.getD());
+            } else {
+                extensionConfigurator.Slot0 = new Slot0Configs()
+                    .withKP(Extension.TALONFX_PID.kP)
+                    .withKI(Extension.TALONFX_PID.kI)
+                    .withKD(Extension.TALONFX_PID.kD);
+            }
         } else{
             extensionConfigurator.Slot0 = new Slot0Configs()
                 .withKP(Extension.TALONFX_PID.kP)
