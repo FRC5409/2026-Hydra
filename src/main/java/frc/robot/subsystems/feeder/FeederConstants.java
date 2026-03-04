@@ -10,12 +10,11 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 
 public final class FeederConstants {
-        public static final int FEEDER_ID = 2;
 
         public static final PIDConstants SIM_PID = new PIDConstants(1, 0, 0);
         public static final PIDController PID = new PIDController(1.0,0.0,0.0);
 	public static final PIDConstants TALONFX_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
-        
+
         public static final double kV = 0.0;
         public static AngularVelocity targetRPS = RotationsPerSecond.of(0.0);
         public static final double kGearing = 1.0/3.0;
