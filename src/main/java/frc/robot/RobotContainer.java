@@ -272,8 +272,13 @@ public class RobotContainer {
                 )
         );
 
+        SmartDashboard.putNumber("Launcher Speed Offset [rps]", Launcher.getSpeedOffset().in(RotationsPerSecond));
+        SmartDashboard.putData("Update Offset Now", Commands.runOnce(() -> Launcher.setSpeedOffset(
+                RotationsPerSecond.of(SmartDashboard.getNumber("Launcher Speed Offset [rps]", 0.0)))));
+
         // TEST CODE FOR LAUNCHER PROTOTYPES
         // launch fuel w distance
+        // TODO: remove some of these when merging to main, or maybe make a DebugCommand interface
         SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
         SmartDashboard.putData(
                 "LAUNCH FUEL (DST)", sys_launcher.launchFuel(
@@ -305,7 +310,7 @@ public class RobotContainer {
         primaryController.a()
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
-    
+
         tertiaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
         tertiaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(0.5)));
         tertiaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-0.5)));
@@ -369,7 +374,16 @@ public class RobotContainer {
                            .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
         secondaryController.povRight()
                         .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
-  
+
+        // launcher speed offset
+        secondaryController.povUp()
+                           .onTrue(Launcher.incrementSpeedOffset(
+                                   LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT));
+        secondaryController.povDown()
+                           .onTrue(Launcher.incrementSpeedOffset(
+                                   LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT));
+
+
         SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
         SmartDashboard.putData("retract", sys_intake.retract());
         SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));

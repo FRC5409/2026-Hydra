@@ -38,8 +38,9 @@ public class Launcher extends SubsystemBase {
         inputs = new LauncherInputsAutoLogged();
 
         // create the logged fields
-        logInterpolation(Meters.of(0), null, -1);
+        logInterpolation(Meters.of(0), null, RPM.of(0));
         setStrategy(LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
+        Preferences.setDouble(PREF_LAUNCH_SPEED_OFFSET, getSpeedOffset().in(RotationsPerSecond));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
@@ -66,8 +67,8 @@ public class Launcher extends SubsystemBase {
      *
      * @return double [RPS]
      */
-    private static double getLaunchSpeedOffsetRps() {
-        return Preferences.getDouble(PREF_LAUNCH_SPEED_OFFSET, 0.0);
+    public static AngularVelocity getSpeedOffset() {
+        return RotationsPerSecond.of(Preferences.getDouble(PREF_LAUNCH_SPEED_OFFSET, 0.0));
     }
 
     /**
@@ -75,9 +76,25 @@ public class Launcher extends SubsystemBase {
      * when trying to launch fuel.
      *
      * @param by amount to increment offset by. can be a negative number to decrement.
+     *
+     * @see Launcher#setSpeedOffset(AngularVelocity) set/replace the constant instead
      */
-    public static void incrementLaunchSpeedOffsetRps(double by) {
-        Preferences.setDouble(PREF_LAUNCH_SPEED_OFFSET, getLaunchSpeedOffsetRps() + by);
+    public static Command incrementSpeedOffset(AngularVelocity by) {
+        return Commands.runOnce(() -> setSpeedOffset(getSpeedOffset().plus(by)));
+    }
+
+    /**
+     * Sets the operator's launch speed offset, which changes the real output speed sent to the launcher/feeder when
+     * trying to launch fuel.
+     *
+     * @param to amount to set the offset to
+     *
+     * @see Launcher#incrementSpeedOffset(AngularVelocity) increment the constant instead
+     */
+    public static void setSpeedOffset(AngularVelocity to) {
+        var speed = to.in(RotationsPerSecond);
+        Preferences.setDouble(PREF_LAUNCH_SPEED_OFFSET, speed);
+        SmartDashboard.getEntry(PREF_LAUNCH_SPEED_OFFSET).setDouble(speed);
     }
 
     /**
@@ -92,12 +109,12 @@ public class Launcher extends SubsystemBase {
         return Commands.defer(
                 () -> {
                     LaunchConfig c = strategy.interpolate(distance.get());
-                    double launchSpeed = c.speed().in(RotationsPerSecond) + getLaunchSpeedOffsetRps();
+                    AngularVelocity launchSpeed = c.speed().plus(getSpeedOffset());
                     logInterpolation(distance.get(), c, launchSpeed);
 
-                    return runVelocity(() -> RotationsPerSecond.of(launchSpeed))
+                    return runVelocity(() -> launchSpeed)
                             .alongWith(setHoodAngle(c::angle)) // set hood angle
-                            .alongWith(feeder.runRPS(launchSpeed)); // run feeder at same vel.
+                            .alongWith(feeder.runRPS(() -> launchSpeed)); // run feeder at same vel.
                 }, Set.of(this));
     }
 
@@ -109,14 +126,14 @@ public class Launcher extends SubsystemBase {
      * @param realLaunchSpeed actual launch speed sent to launcher/feeder, being the interpolated speed plus the
      *                        operator's manual offset
      */
-    private void logInterpolation(Distance distance, LaunchConfig config, double realLaunchSpeed) {
+    private void logInterpolation(Distance distance, LaunchConfig config, AngularVelocity realLaunchSpeed) {
         Logger.recordOutput("Launcher/Interpolator/TargetDistance", distance);
         Logger.recordOutput("Launcher/Interpolator/DidInterpolationSucceed", config != null);
         Logger.recordOutput(
                 "Launcher/Interpolator/TargetSpeed",
                 config == null ? RotationsPerSecond.of(0) : config.speed());
         Logger.recordOutput("Launcher/Interpolator/TargetAngle", config == null ? Radians.of(0) : config.angle());
-        Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", RotationsPerSecond.of(realLaunchSpeed));
+        Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", realLaunchSpeed);
     }
 
     private Distance computeHoodExtension(Angle angle) {
@@ -171,9 +188,7 @@ public class Launcher extends SubsystemBase {
 
         // update inputs
         io.updateInputs(inputs);
-        Logger.recordOutput(
-                "Launcher/Interpolator/OperatorSpeedOffset",
-                RotationsPerSecond.of(getLaunchSpeedOffsetRps()));
+        Logger.recordOutput("Launcher/Interpolator/OperatorSpeedOffset", getSpeedOffset());
         Logger.processInputs("Launcher", inputs);
         SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
     }
