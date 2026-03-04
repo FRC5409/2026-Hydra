@@ -33,7 +33,7 @@ public class HopperIOSim implements HopperIO {
 
         hopperSim = new ElevatorSim(
             DCMotor.getKrakenX60(1), 
-            HopperConstants.kGearing, 
+            HopperConstants.GEARING, 
             HopperConstants.HOPPER_MASS.in(Kilograms), 
             HopperConstants.HOPPER_DRUMRADIUS.in(Meters), 
             HopperConstants.HOPPER_MIN_EXTENSION.in(Meters), 

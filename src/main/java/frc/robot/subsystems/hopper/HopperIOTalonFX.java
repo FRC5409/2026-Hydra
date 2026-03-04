@@ -51,7 +51,7 @@ public class HopperIOTalonFX implements HopperIO {
         m_mainMotorConfig.apply(m_currentConfig);
 
         m_encoderConfigs = new FeedbackConfigs()
-            .withSensorToMechanismRatio(HopperConstants.kRotationConverter);
+            .withSensorToMechanismRatio(HopperConstants.GEARING);
         m_mainMotorConfig.apply(m_encoderConfigs);
 
         m_pidConfig = new Slot0Configs()
