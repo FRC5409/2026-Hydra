@@ -50,7 +50,7 @@ public class SerializerIOTalonFX implements SerializerIO {
         bottomFeederMotorConfig.apply(currentConfigs);
 
         final FeedbackConfigs encoderConfigs = new FeedbackConfigs()
-            .withSensorToMechanismRatio(SerializerConstants.kGearing);
+            .withSensorToMechanismRatio(SerializerConstants.GEARING);
         bottomFeederMotorConfig.apply(encoderConfigs);
         
         indexerMotorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
