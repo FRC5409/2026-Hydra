@@ -11,6 +11,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DeviceID;
@@ -102,7 +103,7 @@ public class Elevator extends SubsystemBase{
         io.updateInputs(inputs);
 
         if (dashboardGoToSetpoint.get()) {
-            elevatorGo(Meters.of(dashboardSetpoint.get())).schedule();
+            CommandScheduler.getInstance().schedule(elevatorGo(Meters.of(dashboardSetpoint.get())));
             dashboardGoToSetpoint.set(false);
 }
         // Safety: Stop elevator if current exceeds 50A
