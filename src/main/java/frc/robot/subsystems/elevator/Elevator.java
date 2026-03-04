@@ -4,8 +4,6 @@ import static edu.wpi.first.units.Units.*;
 
 import org.littletonrobotics.junction.Logger;
 
-import com.google.flatbuffers.Constants;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.Units;
@@ -16,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DeviceID;
+import edu.wpi.first.units.measure.Current;
 
 public class Elevator extends SubsystemBase{
 
@@ -40,6 +39,15 @@ public class Elevator extends SubsystemBase{
      */
     public Command startManualMove(double voltage) {
         return Commands.runOnce(() -> io.setMotorVoltage(voltage), this);
+    }
+
+    public Command goTillSpike(double voltage) {
+        return Commands.sequence(
+            startManualMove(voltage),
+            Commands.waitUntil(() -> isCurrentSpike()),
+            stopAll(),
+            zeroEncoder()
+        );
     }
 
     /**
@@ -67,6 +75,14 @@ public class Elevator extends SubsystemBase{
     public Command stopAll() {
         return Commands.runOnce(() -> io.stopMotor(), this);
     }
+
+    public Current getCurrent() {
+        return inputs.mainMotorTorqueCurrent;
+    }
+
+    public boolean isCurrentSpike(){
+        return inputs.mainMotorTorqueCurrent.gte(Amps.of(70)) ||inputs.mainMotorTorqueCurrent.lte(Amps.of(-70));
+    }
     
     /**
      * Gets position of the elevator
@@ -78,14 +94,15 @@ public class Elevator extends SubsystemBase{
 
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
         io.updateInputs(inputs);
+
+        // Safety: Stop elevator if torque current exceeds 70A
+        if (isCurrentSpike())
+            stopAll();
+        
         Logger.processInputs("Elevator", inputs);
         Logger.recordOutput("Components/Elevator", elevatorPose);
 
-        //Alert if motors are disconnected
         ElevatorAlert.set(!inputs.isMainMotorConnected);
-
-        elevatorPose = new Pose3d(0,0,inputs.mainMotorPosition.in(Units.Meters), new Rotation3d());
     }
 }

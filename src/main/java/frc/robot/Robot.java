@@ -8,12 +8,20 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.util.RebuiltTimer;
+import frc.robot.util.RebuiltTimer.AutoWinner;
+
+import static edu.wpi.first.units.Units.Seconds;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -28,8 +36,10 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project, you must also update the build.gradle file in the project.
  */
 public class Robot extends LoggedRobot {
-    private       Command        autonomousCommand;
-    private final RobotContainer robotContainer;
+    private         Command        autonomousCommand;
+    private final   RobotContainer robotContainer;
+    public  static  RebuiltTimer   rebuiltTimer;
+    private         Color          autoWinnerColor;
 
     // build constants are defined at compile-time, thus IntelliSense thinks "GitDirty" is unreachable.
     @SuppressWarnings("DataFlowIssue")
@@ -81,6 +91,8 @@ public class Robot extends LoggedRobot {
         VisionIOLimelight.forwardLimelightPorts();
 
         SignalLogger.enableAutoLogging(false);
+        rebuiltTimer = new RebuiltTimer();
+        autoWinnerColor = new Color("#FFFF00");
     }
 
     /** This function is called periodically during all modes. */
@@ -101,7 +113,31 @@ public class Robot extends LoggedRobot {
         Threads.setCurrentThreadPriority(false, 10);
 
         // put match time in smart dashboard
-        SmartDashboard.putNumber("Time", DriverStation.getMatchTime());
+        SmartDashboard.putNumber("Timer/Time", DriverStation.getMatchTime());
+
+        rebuiltTimer.trackShift();
+        SmartDashboard.putNumber("Timer/Time In shift", rebuiltTimer.getTimeInShift().in(Seconds));
+        
+        SmartDashboard.putString("Timer/Current Shift", rebuiltTimer.currentShift.toString());
+
+        SmartDashboard.putString("Timer/AutoWinner", autoWinnerColor.toHexString());
+
+        SmartDashboard.putString("Timer/IsHubActive", rebuiltTimer.isHubActive() ? new Color("#00FF00").toHexString() : new Color("#FF0000").toHexString());
+
+        SmartDashboard.putNumber("Timer/Fuel", rebuiltTimer.getFuel());
+
+        SmartDashboard.putNumber("Timer/Time Left To Acquire", 
+                rebuiltTimer.timeToAcquire(
+                    robotContainer.sys_drive::getPose
+                ).in(Seconds));
+
+        SmartDashboard.putNumber("Timer/Time to score", rebuiltTimer.scoreTime());
+
+        SmartDashboard.putNumber("Timer/Time to travel", 
+            rebuiltTimer.timeToPose(
+                robotContainer.sys_drive::getPose,
+                () -> rebuiltTimer.getClosestScoringPosition(robotContainer.sys_drive::getPose)
+            ).in(Seconds));
     }
 
     /** This function is called once when the robot is disabled. */
@@ -125,6 +161,9 @@ public class Robot extends LoggedRobot {
 
         if (Constants.CURRENT_MODE == Constants.Mode.SIM)
             SimulatedArena.getInstance().resetFieldForAuto();
+        autoWinnerColor = new Color("#FFFF00");
+        rebuiltTimer.autoNotifSent = false;
+        // rebuiltTimer.start();
     }
 
     /** This function is called periodically during autonomous. */
@@ -142,11 +181,22 @@ public class Robot extends LoggedRobot {
             autonomousCommand.cancel();
         }
         robotContainer.sys_drive.brakeMode();
+        rebuiltTimer.getAutoWinner();
     }
 
     /** This function is called periodically during operator control. */
     @Override
-    public void teleopPeriodic() {}
+    public void teleopPeriodic() {
+        rebuiltTimer.getAutoWinner();
+
+        if (rebuiltTimer.autoWinner == AutoWinner.BLUE)
+            autoWinnerColor = new Color("#0000FF");
+        else if (rebuiltTimer.autoWinner == AutoWinner.RED)
+            autoWinnerColor = new Color("#FF0000");
+        else
+            autoWinnerColor = new Color("#FFFF00");
+   
+    }
 
     /** This function is called once when test mode is enabled. */
     @Override
@@ -166,7 +216,6 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
-        if (Constants.CURRENT_MODE == Constants.Mode.SIM)
-            robotContainer.updateSim();
+        robotContainer.updateSim();
     }
 }
