@@ -17,6 +17,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -55,11 +56,12 @@ import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import frc.robot.subsystems.elevator.ElevatorConstants;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.units.Units.Inches;
+import frc.robot.Constants.DeviceID;
+
 import static edu.wpi.first.units.Units.Meters;
 
 /**
@@ -102,8 +104,8 @@ public class RobotContainer {
                         new HopperIOTalonFX(Constants.DeviceID.HOPPER_MOTOR_ID));
                 sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
                 sys_serializer = new Serializer(
-                        new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
-                sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
+                        new SerializerIOTalonFX(Constants.DeviceID.SERIALIZER_MOTOR, Constants.DeviceID.FEEDER_MOTOR_BOTTOM));
+                sys_feeder = new Feeder(new FeederIOTalonFX(Constants.DeviceID.FEEDER_MOTOR_TOP));
                 sys_vision = new Vision(new VisionIOLimelight());
                 sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
@@ -312,6 +314,10 @@ public class RobotContainer {
         secondaryController.povRight()
                         .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
   
+        SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
+        SmartDashboard.putData("retract", sys_intake.retract());
+        SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
+        SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition){
