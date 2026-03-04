@@ -310,7 +310,7 @@ public class RobotContainer {
         secondaryController.povRight()
                         .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
   
-        SmartDashboard.putData("extend", sys_intake.extend());
+        SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
         SmartDashboard.putData("retract", sys_intake.retract());
         SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
         SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
