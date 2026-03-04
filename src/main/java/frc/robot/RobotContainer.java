@@ -10,7 +10,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -25,19 +24,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.*;
 import frc.robot.commands.DriveCommands;
 import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
 import frc.robot.commands.Autos;
-import frc.robot.commands.DriveCommands;
-import frc.robot.Constants.kAutoAlign;
 import frc.robot.Constants.kBump;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.elevator.*;
-import frc.robot.subsystems.feeder.*;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
@@ -47,11 +41,8 @@ import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.feeder.FeederIOSim;
 import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.hopper.*;
-import frc.robot.Constants.*;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
-import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
@@ -65,11 +56,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
-import frc.robot.util.FieldConstants.Hub;
-import frc.robot.commands.*;
-
 import frc.robot.util.AutoPath;
-import frc.robot.util.FieldConstants;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -79,12 +66,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
-import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-
-import frc.robot.subsystems.elevator.*;
-
-import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.units.Units.Inches;
 import frc.robot.Constants.DeviceID;
@@ -203,8 +185,6 @@ public class RobotContainer {
                 sys_serializer = new Serializer(new SerializerIOSim());
                 sys_feeder = new Feeder(new FeederIOSim());
                 sys_hopper = new Hopper(new HopperIOSim());
-                        sys_vision
-                );
 
                 sys_launcher = new Launcher(new LauncherIOSim());
             }
