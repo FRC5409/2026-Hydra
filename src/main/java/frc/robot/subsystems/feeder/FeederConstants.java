@@ -1,7 +1,6 @@
 package frc.robot.subsystems.feeder;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.pathplanner.lib.config.PIDConstants;
 
