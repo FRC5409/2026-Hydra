@@ -72,11 +72,9 @@ public class HopperIOSim implements HopperIO {
         running = true;
     }
 
-    /** Returns hopper position in Inches */
     @Override
     public Distance getPosition() {
-        Distance positionMeters =  Meters.of(hopperSim.getPositionMeters());
-        return Inches.of(positionMeters.in(Inches));
+        return Meters.of(hopperSim.getPositionMeters());
     }
 
     @Override
@@ -119,7 +117,7 @@ public class HopperIOSim implements HopperIO {
         inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
         inputs.setpoint = simSetpoint;
 
-        slider.setLength(getPosition().in(Inches));
+        slider.setLength(getPosition().in(Meters));
         Logger.recordOutput("Hopper Slider/Mech", mechanism);
     }
 

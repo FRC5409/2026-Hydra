@@ -1,6 +1,6 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.Inches;
+import static edu.wpi.first.units.Units.Meters;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -116,7 +116,7 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public Distance getPosition() {
-        return Inches.of(motorPosition.getValueAsDouble());
+        return Meters.of(motorPosition.getValueAsDouble());
     }
 
     @Override
@@ -126,7 +126,7 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void setSetpoint(Distance setpoint) {
-        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Inches)).withSlot(0)));
+        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Meters)).withSlot(0)));
         motorSetpoint = setpoint;
     }
 
@@ -148,7 +148,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.appliedCurrent = deviceCurrent.getValue();
         inputs.torqueCurrent = torqueCurrent.getValue();
         inputs.motorTemp = deviceTemp.getValueAsDouble();
-        inputs.motorPosition = Inches.of(motorPosition.getValueAsDouble());
+        inputs.motorPosition = Meters.of(motorPosition.getValueAsDouble());
         inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
         inputs.setpoint = motorSetpoint;
     }

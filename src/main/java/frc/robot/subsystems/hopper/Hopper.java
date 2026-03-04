@@ -133,7 +133,7 @@ public class Hopper extends SubsystemBase {
 
         boolean overCurrent = inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT);
     
-        if(DriverStation.isEnabled()) {
+        if(DriverStation.isEnabled() && HopperConstants.CRASH_DETECTION_ENABLED) {
             if (overCurrent && !inputs.isCrashDetected) {
                 inputs.isCrashDetected = true;
                 lastCrashPosition = io.getPosition();
