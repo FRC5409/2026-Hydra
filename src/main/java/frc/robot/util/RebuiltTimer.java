@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 import static edu.wpi.first.units.Units.*;
-import static frc.robot.Robot.rebuiltTimer;
 
 import edu.wpi.first.wpilibj.util.Color;
 import java.util.HashMap;
@@ -108,7 +107,7 @@ public class RebuiltTimer {
 	public void periodic(Drive drive){
 		if (autoWinner == AutoWinner.RED) this.autoWinnerColor = AUTO_RED;
 		else if (autoWinner == AutoWinner.BLUE) this.autoWinnerColor = AUTO_BLUE;
-		else this.autoWinner = AutoWinner.ERROR;
+		else this.autoWinnerColor = AUTO_ERROR;
 
 		SmartDashboard.putNumber("Timer/Time In shift", getTimeInShift().in(Seconds));
 
