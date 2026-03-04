@@ -54,6 +54,15 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import static edu.wpi.first.units.Units.*;
 
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.Constants.DeviceID;
+
+
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
  * little robot logic should actually be handled in the {@link Robot} periodic methods (other than the scheduler calls).
@@ -79,6 +88,7 @@ public class RobotContainer {
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
     private final CommandXboxController secondaryController = new CommandXboxController(1);
+    private final CommandXboxController tertiaryController = new CommandXboxController(2);
 
     // Dashboard inputs
     private final LoggedDashboardChooser<Command> autoChooser;
@@ -93,10 +103,10 @@ public class RobotContainer {
             case REAL -> {
                 sys_hopper = new Hopper(
                         new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
-                sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+                sys_intake = new Intake(new IntakeIOTalonFX(DeviceID.INTAKE_ROLLER_MOTOR, DeviceID.INTAKE_EXTENSION_MOTOR));
                 sys_serializer = new Serializer(
-                        new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
-                sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
+                        new SerializerIOTalonFX(Constants.DeviceID.SERIALIZER_MOTOR, Constants.DeviceID.FEEDER_MOTOR_BOTTOM));
+                sys_feeder = new Feeder(new FeederIOTalonFX(Constants.DeviceID.FEEDER_MOTOR_TOP));
                 sys_vision = new Vision(new VisionIOLimelight());
                 sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
@@ -295,9 +305,10 @@ public class RobotContainer {
         primaryController.a()
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
-
-        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
-        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
+    
+        tertiaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
+        tertiaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(0.5)));
+        tertiaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-0.5)));
 
         primaryController.rightBumper()
                          .whileTrue(
@@ -357,15 +368,12 @@ public class RobotContainer {
         secondaryController.povLeft()
                            .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
         secondaryController.povRight()
-                           .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
-
-        // launcher offset
-        secondaryController.povUp()
-                           .onTrue(Commands.runOnce(() -> Launcher.incrementLaunchSpeedOffsetRps(
-                                   LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT)));
-        secondaryController.povDown()
-                           .onTrue(Commands.runOnce(() -> Launcher.incrementLaunchSpeedOffsetRps(
-                                   -LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT)));
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+  
+        SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
+        SmartDashboard.putData("retract", sys_intake.retract());
+        SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
+        SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {
