@@ -13,17 +13,18 @@ import static edu.wpi.first.units.Units.*;
 
 public class LauncherConstants {
     public static class Launcher {
-        public static final double        kG  = 0.0;
-        public static final double        kS  = 0.1;
-        public static final double        kV  = 0.12;
+        public static final double kG = 0.0;
+        public static final double kS = 0.1;
+        public static final double kV = 0.12;
+
         public static final PIDController PID = new PIDController(0.05, 0, 0);
 
-        public static final double LAUNCH_SPEED_OFFSET_INCREMENT = 0.02; // 1 RPM
+        public static final double MOTOR_ENCODER_GEAR_RATIO = 1.0 / 1.5;
+        public static final int    SUPPLY_CURRENT_LIMIT     = 60;
 
-        public static final LaunchStrategy DEFAULT_LAUNCH_STRATEGY = new BilinearStrategy();
+        public static final double         LAUNCH_SPEED_OFFSET_INCREMENT = 0.02; // 1 RPM
+        public static final LaunchStrategy DEFAULT_LAUNCH_STRATEGY       = new BilinearStrategy();
     }
-
-    public static final int SUPPLY_CURRENT_LIMIT = 60;
 
     public static class Hood {
         /**

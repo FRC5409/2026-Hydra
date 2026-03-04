@@ -54,24 +54,24 @@ public class LauncherIOTalonFX implements LauncherIO {
     ) {
         // Motors and sensors
         leaderMotor = new TalonFX(launcherCanID);
-        TalonFX launcherFollowerMotor = new TalonFX(launcherFollowerCanID);
-        CANcoder launcherCANCoder = new CANcoder(launcherCANCoderID);
+        TalonFX followerMotor = new TalonFX(launcherFollowerCanID);
+        CANcoder encoder = new CANcoder(launcherCANCoderID);
         hoodServo = new Servo(servoChannel);
         hoodServo2 = new Servo(servoChannel2);
         ultrasonic = new AnalogInput(ultrasonicChannel);
 
         // IOs
-        magnetHealth = launcherCANCoder.getMagnetHealth();
+        magnetHealth = encoder.getMagnetHealth();
 
         launcherTemp = leaderMotor.getDeviceTemp();
         launcherVoltage = leaderMotor.getMotorVoltage();
         launcherCurrent = leaderMotor.getSupplyCurrent();
         launcherVelocity = leaderMotor.getVelocity();
 
-        launcherFollowerTemp = launcherFollowerMotor.getDeviceTemp();
-        launcherFollowerVoltage = launcherFollowerMotor.getMotorVoltage();
-        launcherFollowerCurrent = launcherFollowerMotor.getSupplyCurrent();
-        launcherFollowerVelocity = launcherFollowerMotor.getVelocity();
+        launcherFollowerTemp = followerMotor.getDeviceTemp();
+        launcherFollowerVoltage = followerMotor.getMotorVoltage();
+        launcherFollowerCurrent = followerMotor.getSupplyCurrent();
+        launcherFollowerVelocity = followerMotor.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
                 50,
@@ -103,9 +103,9 @@ public class LauncherIOTalonFX implements LauncherIO {
                 LauncherConstants.Hood.MIN_PULSE_WIDTH);
 
         TalonFXConfigurator leaderConfig = leaderMotor.getConfigurator();
-        TalonFXConfigurator followerConfig = launcherFollowerMotor.getConfigurator();
+        TalonFXConfigurator followerConfig = followerMotor.getConfigurator();
 
-        launcherCANCoder.getConfigurator()
+        encoder.getConfigurator()
                         .apply(new CANcoderConfiguration().MagnetSensor
                                        .withSensorDirection(SensorDirectionValue.Clockwise_Positive));
 
@@ -122,7 +122,7 @@ public class LauncherIOTalonFX implements LauncherIO {
 
         // Current limit configs
         CurrentLimitsConfigs currentLimits = new CurrentLimitsConfigs()
-                .withSupplyCurrentLimit(LauncherConstants.SUPPLY_CURRENT_LIMIT)
+                .withSupplyCurrentLimit(LauncherConstants.Launcher.SUPPLY_CURRENT_LIMIT)
                 .withSupplyCurrentLimitEnable(true);
         leaderConfig.apply(currentLimits);
         followerConfig.apply(currentLimits);
@@ -136,11 +136,12 @@ public class LauncherIOTalonFX implements LauncherIO {
 
         // Feedback configs
         FeedbackConfigs feedbackConfigs = new FeedbackConfigs()
-                .withRemoteCANcoder(launcherCANCoder);
+                .withRotorToSensorRatio(LauncherConstants.Launcher.MOTOR_ENCODER_GEAR_RATIO)
+                .withRemoteCANcoder(encoder);
         leaderConfig.apply(feedbackConfigs);
         followerConfig.apply(feedbackConfigs);
 
-        launcherFollowerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Opposed));
+        followerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Opposed));
     }
 
     // Run systems
