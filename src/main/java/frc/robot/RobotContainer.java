@@ -54,11 +54,14 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
+import frc.robot.subsystems.elevator.*;
+
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.Constants.DeviceID;
+
 import java.util.ArrayList;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -84,6 +87,7 @@ public class RobotContainer {
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
     private final CommandXboxController secondaryController = new CommandXboxController(1);
+    private final CommandXboxController tertiaryController = new CommandXboxController(2);
 
     private final Alert primaryDisconnectedAlert   = new Alert(
             "Primary Controller Disconnected!",
@@ -107,10 +111,12 @@ public class RobotContainer {
             case REAL -> {
                 sys_hopper = new Hopper(
                         new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
-                sys_intake = new Intake(new IntakeIOTalonFX(IntakeConstants.Roller.MOTORID, IntakeConstants.Extension.MOTORID));
+
+                sys_intake = new Intake(new IntakeIOTalonFX(DeviceID.INTAKE_ROLLER_MOTOR, DeviceID.INTAKE_EXTENSION_MOTOR));
+
                 sys_serializer = new Serializer(
-                        new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
-                sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));
+                        new SerializerIOTalonFX(Constants.DeviceID.SERIALIZER_MOTOR, Constants.DeviceID.FEEDER_MOTOR_BOTTOM));
+                sys_feeder = new Feeder(new FeederIOTalonFX(Constants.DeviceID.FEEDER_MOTOR_TOP));
                 sys_vision = new Vision(new VisionIOLimelight());
                 sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
@@ -332,6 +338,15 @@ public class RobotContainer {
     
         primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
         primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
+
+        tertiaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
+        tertiaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(0.5)));
+        tertiaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-0.5)));
+  
+        SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
+        SmartDashboard.putData("retract", sys_intake.retract());
+        SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
+        SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {
