@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.Constants;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
@@ -27,11 +28,6 @@ public class HopperIOTalonFX implements HopperIO {
     private final TalonFXConfigurator m_mainMotorConfig;
 
     private Distance motorSetpoint;
-
-    private CurrentLimitsConfigs m_currentConfig;
-    private FeedbackConfigs m_encoderConfigs;
-    private Slot0Configs m_pidConfig;
-
     private PositionVoltage m_request;
     
     private final StatusSignal<Angle> motorPosition;
@@ -45,19 +41,24 @@ public class HopperIOTalonFX implements HopperIO {
 
         m_mainMotorConfig = m_mainMotor.getConfigurator();
 
-        m_currentConfig = new CurrentLimitsConfigs()
+        final CurrentLimitsConfigs m_currentConfig = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(HopperConstants.CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
         m_mainMotorConfig.apply(m_currentConfig);
 
-        m_encoderConfigs = new FeedbackConfigs()
+        final FeedbackConfigs m_encoderConfigs = new FeedbackConfigs()
             .withSensorToMechanismRatio(HopperConstants.GEARING);
         m_mainMotorConfig.apply(m_encoderConfigs);
 
-        m_pidConfig = new Slot0Configs()
-            .withKP(HopperConstants.TALONFX_PID.getP())
-            .withKI(HopperConstants.TALONFX_PID.getI())
-            .withKD(HopperConstants.TALONFX_PID.getD());
+        final Slot0Configs m_pidConfig = Constants.IS_TUNING
+        ? new Slot0Configs()
+            .withKP(HopperConstants.PID.getP())
+            .withKI(HopperConstants.PID.getI())
+            .withKD(HopperConstants.PID.getD())
+        : new Slot0Configs()
+            .withKP(HopperConstants.TALONFX_PID.kP)
+            .withKI(HopperConstants.TALONFX_PID.kI)
+            .withKD(HopperConstants.TALONFX_PID.kD);
 
         m_mainMotorConfig.apply(m_pidConfig);
 
@@ -125,7 +126,7 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void setSetpoint(Distance setpoint) {
-        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Inches))));
+        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Inches)).withSlot(0)));
         motorSetpoint = setpoint;
     }
 
@@ -150,17 +151,6 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.motorPosition = Inches.of(motorPosition.getValueAsDouble());
         inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
         inputs.setpoint = motorSetpoint;
-        
-        double p = HopperConstants.TALONFX_PID.getP();
-        double i = HopperConstants.TALONFX_PID.getI();
-        double d = HopperConstants.TALONFX_PID.getD();
-
-        if (m_pidConfig.kP != p || m_pidConfig.kI != i || m_pidConfig.kD != d) {
-            m_pidConfig.kP = p;
-            m_pidConfig.kI = i;
-            m_pidConfig.kD = d;
-            m_mainMotorConfig.apply(m_pidConfig);
-        }
     }
 
 }
