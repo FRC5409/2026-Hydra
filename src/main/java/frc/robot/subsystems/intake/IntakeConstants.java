@@ -6,13 +6,11 @@ import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.Voltage;
 import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.config.PIDConstants;
+import frc.robot.Constants.DeviceID;
 
 public final class IntakeConstants {
 
 	public static final class Extension {
-
-		public static final int MOTORID = 28;
-
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
 		public static final Distance EXTENSION_DISTANCE = Meters.of(0.2794);
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146);
@@ -34,9 +32,6 @@ public final class IntakeConstants {
 	}
 
     public static final class Roller {
-
-		public static final int MOTORID = 29;
-
         public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
         public static final Current MAX_CURRENT = Amps.of(30.0);
         public static final double GEARING = 1.5/1.0;

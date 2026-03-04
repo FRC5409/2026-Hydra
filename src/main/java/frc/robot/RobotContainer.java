@@ -56,6 +56,7 @@ import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import frc.robot.Constants.DeviceID;
 
 import static edu.wpi.first.units.Units.Meters;
 
@@ -97,7 +98,7 @@ public class RobotContainer {
             case REAL -> {
                 sys_hopper = new Hopper(
                         new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
-                sys_intake = new Intake(new IntakeIOTalonFX(Roller.MOTORID, Extension.MOTORID));
+                sys_intake = new Intake(new IntakeIOTalonFX(DeviceID.INTAKE_ROLLER_MOTOR, DeviceID.INTAKE_EXTENSION_MOTOR));
                 sys_serializer = new Serializer(
                         new SerializerIOTalonFX(SerializerConstants.INDEXER_ID));
                 sys_feeder = new Feeder(new FeederIOTalonFX(FeederConstants.FEEDER_ID));

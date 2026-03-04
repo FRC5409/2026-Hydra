@@ -151,17 +151,5 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.rollerTemp = 0.0;
         inputs.rollerVelocity = RotationsPerSecond.of(rollerVelocitySignal.getValueAsDouble());
 
-        // if (Extension.PID.getP() != extensionConfigurator.getP() ||
-        //     Extension.PID.getI() != extensionConfigurator.getI() ||
-        //     Extension.PID.getD() != extensionConfigurator.getD()) {
-                
-        //     TalonFXConfiguration extensionConfig = new TalonFXConfiguration();
-        //     extensionConfig.Slot0 = new Slot0Configs()
-        //         .withKP(Extension.PID.getP())
-        //         .withKI(Extension.PID.getI())
-        //         .withKD(Extension.PID.getD());
-        //     extensionMotor.getConfigurator().apply(extensionConfig);
-        
-        // }
     }
 }
