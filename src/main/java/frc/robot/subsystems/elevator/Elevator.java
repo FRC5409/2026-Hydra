@@ -53,7 +53,7 @@ public class Elevator extends SubsystemBase{
     public Command goTillSpike(double voltage) {
         return Commands.sequence(
             startManualMove(voltage),
-            Commands.waitUntil(() -> getCurrent().gte(Amps.of(50))),
+            Commands.waitUntil(() -> getCurrent().gte(ElevatorConstants.SPIKE_CURRENT)),
             stopAll(),
             zeroEncoder()
         );
@@ -106,7 +106,7 @@ public class Elevator extends SubsystemBase{
             dashboardGoToSetpoint.set(false);
 }
         // Safety: Stop elevator if current exceeds 50A
-        if (inputs.mainAppliedCurrent.gte(Amps.of(50))) {
+        if (inputs.mainAppliedCurrent.gte(ElevatorConstants.SPIKE_CURRENT)) {
             io.stopMotor();
         }
 
