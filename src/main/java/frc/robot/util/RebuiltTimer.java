@@ -72,9 +72,9 @@ public class RebuiltTimer {
 	private GameState[] gameStrategy;
 
 //  TODO: Get accurate values
-	private final double            FUEL_PER_SECOND =	7;
-	private final LinearVelocity    ROBOT_SPEED     =	MetersPerSecond.of(4);
-    private final Time              CLIMB_TIME		=	Seconds.of(3);
+	private static final double            FUEL_PER_SECOND =	7;
+	private static final LinearVelocity    ROBOT_SPEED     =	MetersPerSecond.of(4);
+    private static final Time              CLIMB_TIME		=	Seconds.of(3);
 
 	public RebuiltTimer() {
 		this.activeHub = HubState.BOTH;
