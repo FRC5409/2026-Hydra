@@ -19,38 +19,41 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import frc.robot.Constants;
 
 public class FeederIOTalonFX implements FeederIO {
     
-    private TalonFX feederMotor;
-    private TalonFXConfigurator feederMotorConfig;
-    private CurrentLimitsConfigs currentConfigs;
-    private FeedbackConfigs encoderConfigs;
-    private Slot0Configs feederPidConfigs;
+    private final TalonFX feederMotor;
 
-    private StatusSignal<AngularVelocity> feederDeviceVelocity;
-    private StatusSignal<Angle> feederDevicePosition;
-    private StatusSignal<Voltage> feederDeviceVoltage;
-    private StatusSignal<Current> feederDeviceCurrent;
-    private StatusSignal<Temperature> feederDeviceTemp;
+    private final StatusSignal<AngularVelocity> feederDeviceVelocity;
+    private final StatusSignal<Angle> feederDevicePosition;
+    private final StatusSignal<Voltage> feederDeviceVoltage;
+    private final StatusSignal<Current> feederDeviceCurrent;
+    private final StatusSignal<Temperature> feederDeviceTemp;
 
     public FeederIOTalonFX(int feederID) {
         feederMotor = new TalonFX(feederID);
-        feederMotorConfig = feederMotor.getConfigurator();
+        final TalonFXConfigurator feederMotorConfig = feederMotor.getConfigurator();
 
-        currentConfigs = new CurrentLimitsConfigs()
+        final CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(FeederConstants.TALON_FX_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
         feederMotorConfig.apply(currentConfigs);
 
-         encoderConfigs = new FeedbackConfigs()
+        final FeedbackConfigs encoderConfigs = new FeedbackConfigs()
             .withSensorToMechanismRatio(FeederConstants.kGearing);
         feederMotorConfig.apply(encoderConfigs);
 
-        feederPidConfigs = new Slot0Configs()
-            .withKP(FeederConstants.TALONFX_PID.getP())
-            .withKI(FeederConstants.TALONFX_PID.getI())
-            .withKD(FeederConstants.TALONFX_PID.getD())
+        final Slot0Configs feederPidConfigs = Constants.IS_TUNING 
+        ? new Slot0Configs()
+            .withKP(FeederConstants.PID.getP())
+            .withKI(FeederConstants.PID.getI())
+            .withKD(FeederConstants.PID.getD())
+            .withKV(FeederConstants.kV)
+        : new Slot0Configs()
+            .withKP(FeederConstants.TALONFX_PID.kP)
+            .withKI(FeederConstants.TALONFX_PID.kI)
+            .withKD(FeederConstants.TALONFX_PID.kD)
             .withKV(FeederConstants.kV);
         feederMotorConfig.apply(feederPidConfigs);
 
@@ -120,18 +123,6 @@ public class FeederIOTalonFX implements FeederIO {
         inputs.appliedVoltage = feederDeviceVoltage.getValue();
         inputs.appliedCurrent = feederDeviceCurrent.getValue();
         inputs.motorTemperature = feederDeviceTemp.getValueAsDouble();
-
-        double p = FeederConstants.TALONFX_PID.getP();
-        double i = FeederConstants.TALONFX_PID.getI();
-        double d = FeederConstants.TALONFX_PID.getD();
-
-
-        if (feederPidConfigs.kP != p || feederPidConfigs.kI != i || feederPidConfigs.kD != d) {
-            feederPidConfigs.kP = p;
-            feederPidConfigs.kI = i;
-            feederPidConfigs.kD = d;
-            feederMotorConfig.apply(feederPidConfigs);
-        }
     }
 
 }

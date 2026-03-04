@@ -23,12 +23,6 @@ public class SerializerIOTalonFX implements SerializerIO {
     private final TalonFX m_indexerMotor;
     private final TalonFX m_BottomFeederMotor;
 
-    private final TalonFXConfigurator indexerMotorConfig;
-    private final TalonFXConfigurator bottomFeederMotorConfig;
-
-    private CurrentLimitsConfigs currentConfigs;
-    private FeedbackConfigs encoderConfigs;
-
     private StatusSignal<AngularVelocity> indexerDeviceVelocity;
     private StatusSignal<Angle> indexerDevicePosition;
     private StatusSignal<Voltage> indexerDeviceVoltage;
@@ -46,16 +40,16 @@ public class SerializerIOTalonFX implements SerializerIO {
         m_indexerMotor = new TalonFX(indexerId);
         m_BottomFeederMotor = new TalonFX(bottomFeederId);
 
-        indexerMotorConfig = m_indexerMotor.getConfigurator();
-        bottomFeederMotorConfig = m_BottomFeederMotor.getConfigurator();
+        final TalonFXConfigurator indexerMotorConfig = m_indexerMotor.getConfigurator();
+        final TalonFXConfigurator bottomFeederMotorConfig = m_BottomFeederMotor.getConfigurator();
 
-        currentConfigs = new CurrentLimitsConfigs()
+        final CurrentLimitsConfigs currentConfigs = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(SerializerConstants.TALON_FX_CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
         indexerMotorConfig.apply(currentConfigs);
         bottomFeederMotorConfig.apply(currentConfigs);
 
-        encoderConfigs = new FeedbackConfigs()
+        final FeedbackConfigs encoderConfigs = new FeedbackConfigs()
             .withSensorToMechanismRatio(SerializerConstants.kGearing);
         bottomFeederMotorConfig.apply(encoderConfigs);
         

@@ -20,7 +20,7 @@ public class Feeder extends SubsystemBase {
     private FeederIO io;
     
     public Feeder(FeederIO io) {
-        SmartDashboard.putData("Feeder/PID", FeederConstants.TALONFX_PID);
+        SmartDashboard.putData("Feeder/PID", FeederConstants.PID);
         SmartDashboard.putNumber("Feeder/RPS", 0.0);
 
         this.io = io;
