@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,6 +23,10 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.*;
 import frc.robot.commands.DriveCommands;
+import frc.robot.Constants.ClimbingPositions;
+import frc.robot.Constants.PassingPositions;
+import frc.robot.Constants.kAutoAlign;
+import frc.robot.Constants.kBump;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.Elevator;
@@ -34,6 +39,9 @@ import frc.robot.subsystems.feeder.FeederIOSim;
 import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.hopper.*;
 import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
@@ -48,6 +56,8 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.FieldConstants.Hub;
+import frc.robot.commands.*;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -55,6 +65,9 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import static edu.wpi.first.units.Units.Inches;
+import frc.robot.Constants.DeviceID;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -98,11 +111,11 @@ public class RobotContainer {
             // Real robot, instantiate hardware IO implementations
             case REAL -> {
                 sys_hopper = new Hopper(
-                        new HopperIOTalonFX(HopperConstants.MAIN_MOTOR_ID, HopperConstants.FOLLOWER_MOTOR_ID));
+                        new HopperIOTalonFX(DeviceID.HOPPER_MOTOR_ID));
                 sys_intake = new Intake(new IntakeIOTalonFX(DeviceID.INTAKE_ROLLER_MOTOR, DeviceID.INTAKE_EXTENSION_MOTOR));
                 sys_serializer = new Serializer(
-                        new SerializerIOTalonFX(Constants.DeviceID.SERIALIZER_MOTOR, Constants.DeviceID.FEEDER_MOTOR_BOTTOM));
-                sys_feeder = new Feeder(new FeederIOTalonFX(Constants.DeviceID.FEEDER_MOTOR_TOP));
+                        new SerializerIOTalonFX(DeviceID.SERIALIZER_MOTOR, DeviceID.FEEDER_MOTOR_BOTTOM));
+                sys_feeder = new Feeder(new FeederIOTalonFX(DeviceID.FEEDER_MOTOR_TOP));
                 sys_vision = new Vision(new VisionIOLimelight());
                 sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
@@ -413,6 +426,73 @@ public class RobotContainer {
                     Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
                 }
         );
+    }
+
+    /** 
+     * Command to extend both intake and hopper subsystems, with crash avoidance
+     * @author Jaden Rajan, team 5409
+     * @author John Chen, team 5409
+     */
+    private Command extendIntakeAndHopper() {
+        return Commands.repeatingSequence(
+                Commands.either(
+                sys_intake.stopMotor(),
+                sys_intake.extend(), 
+                () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE) 
+                        && !(sys_hopper.getPosition().isNear(HopperConstants.HOPPER_MAX_EXTENSION, HopperConstants.AGITATE_TOLERANCE))
+                ).alongWith(sys_hopper.fullExtend())
+        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_DISTANCE, HopperConstants.AGITATE_TOLERANCE);})
+                .andThen(sys_hopper.fullExtend());
+    }
+
+    /** 
+     * Command to retract both intake and hopper subsystems, with crash avoidance
+     * @author Jaden Rajan, team 5409
+     * @author John Chen, team 5409
+     */
+    private Command retractIntakeAndHopper() {
+        return Commands.repeatingSequence(
+                Commands.either(
+                        sys_hopper.stopMotor(), 
+                        sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MIN_EXTENSION), 
+                        () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE) 
+                        && !(sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE))
+                ).alongWith(sys_intake.retract())
+        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE);})
+                .andThen(sys_hopper.fullRetract());
+        
+    }
+
+    Distance intakeSetpoint;
+    Distance hopperSetpoint;
+
+    /** 
+     * Command to retract both intake and hopper subsystems, while agitating hopper back and forth to help with launching fuel
+     * @author Jaden Rajan, team 5409
+     * @author John Chen, team 5409
+     */
+    private Command retractAndAgitate() {
+        return Commands.repeatingSequence(
+                Commands.runOnce(() -> 
+                        intakeSetpoint = sys_intake.getPosition().minus((Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))),
+                Commands.runOnce(() -> 
+                        hopperSetpoint = intakeSetpoint.plus(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
+                                                        .minus(HopperConstants.STARTING_GAP_TO_INTAKE)),
+                sys_intake.move(() -> intakeSetpoint),
+                Commands.either(
+                        sys_hopper.stopMotor(),
+                        sys_hopper.setSetpoint(() -> hopperSetpoint),
+                        () -> (sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()))
+                                        .lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
+                ).repeatedly().until(() -> sys_hopper.getPosition().isNear(
+                        hopperSetpoint, HopperConstants.AGITATE_TOLERANCE)),
+
+                sys_hopper.setSetpoint(() -> hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT)),
+                Commands.waitUntil(() -> 
+                        sys_hopper.getPosition().isNear(hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT), 
+                                                        HopperConstants.AGITATE_TOLERANCE))
+        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE))
+                .andThen(sys_hopper.fullRetract());
     }
 
     /**
