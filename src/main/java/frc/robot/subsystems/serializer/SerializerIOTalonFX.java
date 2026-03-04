@@ -23,17 +23,17 @@ public class SerializerIOTalonFX implements SerializerIO {
     private final TalonFX m_indexerMotor;
     private final TalonFX m_BottomFeederMotor;
 
-    private StatusSignal<AngularVelocity> indexerDeviceVelocity;
-    private StatusSignal<Angle> indexerDevicePosition;
-    private StatusSignal<Voltage> indexerDeviceVoltage;
-    private StatusSignal<Current> indexerDeviceCurrent;
-    private StatusSignal<Temperature> indexerDeviceTemp;
+    private final StatusSignal<AngularVelocity> indexerDeviceVelocity;
+    private final StatusSignal<Angle> indexerDevicePosition;
+    private final StatusSignal<Voltage> indexerDeviceVoltage;
+    private final StatusSignal<Current> indexerDeviceCurrent;
+    private final StatusSignal<Temperature> indexerDeviceTemp;
 
-    private StatusSignal<AngularVelocity> bottomFeederDeviceVelocity;
-    private StatusSignal<Angle> bottomFeederDevicePosition;
-    private StatusSignal<Voltage> bottomFeederDeviceVoltage;
-    private StatusSignal<Current> bottomFeederDeviceCurrent;
-    private StatusSignal<Temperature> bottomFeederDeviceTemp;
+    private final StatusSignal<AngularVelocity> bottomFeederDeviceVelocity;
+    private final StatusSignal<Angle> bottomFeederDevicePosition;
+    private final StatusSignal<Voltage> bottomFeederDeviceVoltage;
+    private final StatusSignal<Current> bottomFeederDeviceCurrent;
+    private final StatusSignal<Temperature> bottomFeederDeviceTemp;
 
 
     public SerializerIOTalonFX(int indexerId, int bottomFeederId) {
