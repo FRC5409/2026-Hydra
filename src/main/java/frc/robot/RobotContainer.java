@@ -7,6 +7,7 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -19,10 +20,13 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.*;
+import frc.robot.commands.DriveCommands;
 import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
@@ -34,6 +38,14 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.subsystems.feeder.*;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.feeder.FeederIOSim;
+import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.hopper.*;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.intake.Intake;
@@ -43,7 +55,12 @@ import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.subsystems.intake.IntakeIO;
 import frc.robot.subsystems.intake.IntakeIOSim;
 import frc.robot.subsystems.intake.IntakeIOTalonFX;
-import frc.robot.subsystems.serializer.*;
+import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
+import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerIO;
+import frc.robot.subsystems.serializer.SerializerIOSim;
+import frc.robot.subsystems.serializer.SerializerIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
@@ -89,13 +106,16 @@ public class RobotContainer {
     protected final Serializer sys_serializer;
     protected final Feeder     sys_feeder;
     protected final Hopper     sys_hopper;
-    protected final Elevator   sys_elevator;
+   
+    protected final Launcher   sys_launcher;
+    private final   Elevator   sys_elevator;
 
     public static SwerveDriveSimulation simConfig;
 
     private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
     private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
     private ClimbingPositions selectedClimbingPrepPosition = ClimbingPositions.LEFT_PREP;
+
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -132,7 +152,6 @@ public class RobotContainer {
                 sys_vision = new Vision(new VisionIOLimelight());
                 sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
-
                 sys_drive = new Drive(
                         new GyroIOPigeon2(),
                         new ModuleIOTalonFX(TunerConstants.FrontLeft),
@@ -141,6 +160,14 @@ public class RobotContainer {
                         new ModuleIOTalonFX(TunerConstants.BackRight),
                         sys_vision
                 );
+
+                sys_launcher = new Launcher(new LauncherIOTalonFX(
+                        DeviceID.LAUNCHER_CANCODER,
+                        DeviceID.LAUNCHER_MOTOR_1,
+                        DeviceID.LAUNCHER_MOTOR_2,
+                        DeviceID.LAUNCHER_ULTRASONIC_CHANNEL,
+                        DeviceID.LAUNCHER_HOOD_SERVO_1,
+                        DeviceID.LAUNCHER_HOOD_SERVO_2));
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -176,6 +203,10 @@ public class RobotContainer {
                 sys_serializer = new Serializer(new SerializerIOSim());
                 sys_feeder = new Feeder(new FeederIOSim());
                 sys_hopper = new Hopper(new HopperIOSim());
+                        sys_vision
+                );
+
+                sys_launcher = new Launcher(new LauncherIOSim());
             }
             // Replayed robot, disable IO implementations
             default -> {
@@ -192,11 +223,13 @@ public class RobotContainer {
                 sys_serializer = new Serializer(new SerializerIO() {});
                 sys_elevator = new Elevator(new ElevatorIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
+                sys_launcher = new Launcher(new LauncherIO() {});
             }
         }
 
         // Set up auto routines
         autoChooser = buildAutoChooser();
+        buildLaunchStrategyChooser();
 
         // Configure the button bindings
         configureButtonBindings();
@@ -239,6 +272,22 @@ public class RobotContainer {
             if (Constants.CURRENT_MODE == Mode.SIM)
                 simConfig.setSimulationWorldPose(auto.getStartingPose());
         }
+    }
+
+    /**
+     * builds the dashboard command chooser ({@link LoggedDashboardChooser}) for picking launch strategies.
+     *
+     * @return the logged dashboard chooser
+     */
+    public LoggedDashboardChooser<Command> buildLaunchStrategyChooser() {
+        LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>("Launch Strategy");
+
+        for (LaunchStrategy strategy: LaunchStrategy.getLaunchStrategies())
+            chooser.addOption(strategy.getName(), Commands.runOnce(() -> sys_launcher.setStrategy(strategy)));
+
+        chooser.onChange(CommandScheduler.getInstance()::schedule);
+
+        return chooser;
     }
 
     /**
@@ -338,6 +387,35 @@ public class RobotContainer {
                 )
             );            
         }
+        SmartDashboard.putNumber("Launcher Speed Offset [rps]", Launcher.getSpeedOffset().in(RotationsPerSecond));
+        SmartDashboard.putData("Update Offset Now", Commands.runOnce(() -> Launcher.setSpeedOffset(
+                RotationsPerSecond.of(SmartDashboard.getNumber("Launcher Speed Offset [rps]", 0.0)))));
+
+        // TEST CODE FOR LAUNCHER PROTOTYPES
+        // launch fuel w distance
+        // TODO: remove some of these when merging to main, or maybe make a DebugCommand interface
+        SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
+        SmartDashboard.putData(
+                "LAUNCH FUEL (DST)", sys_launcher.launchFuel(
+                        () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0)), sys_feeder));
+
+        SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
+
+        // launch fuel w speed
+        SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
+        SmartDashboard.putData(
+                "LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
+                        () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
+
+        SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
+
+        SmartDashboard.putNumber("Hood Angle [deg]", 0);
+        SmartDashboard.putData(
+                "Set Hood Angle", sys_launcher.setHoodAngle(() ->
+                                                                    Degrees.of(
+                                                                            SmartDashboard.getNumber(
+                                                                                    "Hood Angle [deg]",
+                                                                                    0))));
 
         // Switch to X pattern when X button is pressed
         primaryController.x()
@@ -347,9 +425,6 @@ public class RobotContainer {
         primaryController.a()
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
-    
-        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
-        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
 
         tertiaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
         tertiaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(0.5)));
@@ -378,15 +453,14 @@ public class RobotContainer {
         );
     }
 
-    private Command prepPassingPositionCommand(PassingPositions passingPosition){
+    private Command prepPassingPositionCommand(PassingPositions passingPosition) {
         return Commands.runOnce(
                 () -> {
-                        Logger.recordOutput("Passing Position", passingPosition);
+                    Logger.recordOutput("Passing Position", passingPosition);
 
-                        selectedPassingPosition = passingPosition;
+                    selectedPassingPosition = passingPosition;
 
-                        Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
-
+                    Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
                 }
         );
     }
