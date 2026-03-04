@@ -18,6 +18,7 @@ public class Feeder extends SubsystemBase {
 
     private FeederInputsAutoLogged inputs;
     private FeederIO io;
+    private static AngularVelocity targetRPS;
     
     public Feeder(FeederIO io) {
         SmartDashboard.putData("Feeder/PID", FeederConstants.PID);
@@ -72,6 +73,6 @@ public class Feeder extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Feeder", inputs);
-        FeederConstants.targetRPS = RotationsPerSecond.of(SmartDashboard.getNumber("Feeder/RPS", 0));
+        targetRPS = RotationsPerSecond.of(SmartDashboard.getNumber("Feeder/RPS", 0));
     }
 }

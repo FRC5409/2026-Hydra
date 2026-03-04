@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.pathplanner.lib.config.PIDConstants;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 
 public final class FeederConstants {
@@ -16,7 +15,6 @@ public final class FeederConstants {
 	public static final PIDConstants TALONFX_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
 
         public static final double kV = 0.0;
-        public static AngularVelocity targetRPS = RotationsPerSecond.of(0.0);
         public static final double GEARING = 1.0/3.0;
 
         public static final boolean ORTONA_FEEDER_MOTOR_INVERTED = false;
