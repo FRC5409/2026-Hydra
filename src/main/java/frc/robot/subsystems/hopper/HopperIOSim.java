@@ -20,9 +20,10 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 
 public class HopperIOSim implements HopperIO {
     private boolean running;
-    private final ElevatorSim hopperSim;
+    private final ElevatorSim hopperSim; // ElevatorSim but without gravity, 
+                                        // basically simulates a side to side elevator instead of an up down
     private final PIDController pid;
-    private double inputVoltage = 0.0;
+    private double inputVoltage = 0.0; // For manually testing voltage in Sim
     private Distance simSetpoint;
 
     private final LoggedMechanismRoot2d root;
@@ -45,12 +46,16 @@ public class HopperIOSim implements HopperIO {
         pid = new PIDController(HopperConstants.SIM_PID.kP, HopperConstants.SIM_PID.kI, HopperConstants.SIM_PID.kD);
         running = false;
 
+        //Mechanism in the form of a line that extends or retracts to visualize the hopper's position
         mechanism = new LoggedMechanism2d(14, 2);
         root = mechanism.getRoot("Hopper", 1, 1);
         slider = new LoggedMechanismLigament2d("Arm", 0.3, 0);
         root.append(slider);
     }
 
+    /**
+     * Applies voltage to the elevatorSim
+     */
     @Override
     public void setMotorVoltage(double voltage) {
         hopperSim.setInputVoltage(voltage);
@@ -58,6 +63,9 @@ public class HopperIOSim implements HopperIO {
         running = true;
     }
 
+    /**
+     * Stops the elevatorSim by applying no volts
+     */
     @Override
     public void stopMotor() {
         //pid.reset();
@@ -65,6 +73,9 @@ public class HopperIOSim implements HopperIO {
         running = false;
     }
 
+    /**
+     * Sets the setpoint for the PID
+     */
     @Override
     public void setSetpoint(Distance setpoint) {
         pid.setSetpoint(setpoint.in(Meters));
@@ -72,16 +83,27 @@ public class HopperIOSim implements HopperIO {
         running = true;
     }
 
+    /**
+     * Gets the elevatorSim's current position in meters
+     */
     @Override
     public Distance getPosition() {
         return Meters.of(hopperSim.getPositionMeters());
     }
 
+    /**
+     * Gets the elevatorSim's current position in meters, 
+     * then adds the gap to the intake 
+     * to get the position relative to the intake's zero point
+     */
     @Override
     public Distance getPositionIntakeZero() {
         return getPosition().plus(HopperConstants.STARTING_GAP_TO_INTAKE);
     }
 
+    /**
+     * Gets the assigned setpoint
+     */
     public Distance getSetpoint() {
         return simSetpoint;
     }
@@ -117,8 +139,8 @@ public class HopperIOSim implements HopperIO {
         inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
         inputs.setpoint = simSetpoint;
 
-        slider.setLength(getPosition().in(Meters));
-        Logger.recordOutput("Hopper Slider/Mech", mechanism);
+        slider.setLength(getPosition().in(Meters)); // Sets the slider's length to visualize the hopper's position
+        Logger.recordOutput("Hopper Slider/Mech", mechanism); // Puts the slider to AdvantageScope
     }
 
 
