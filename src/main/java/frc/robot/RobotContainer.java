@@ -399,28 +399,37 @@ public class RobotContainer {
 
         // Switch to X pattern when X button is pressed
         SmartDashboard.putNumber("SerializerVoltage", 0.0);
-        primaryController.x()
-                        .onTrue(sys_serializer.setVoltage(5))
-                        .onFalse(sys_serializer.setVoltage(0));
+        // primaryController.x()
+        //                 .onTrue(sys_serializer.setVoltage(5))
+        //                 .onFalse(sys_serializer.setVoltage(0));
+
         // Switch To Bump Speed Modifier
         // primaryController.a()
         //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
         //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
-        tertiaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
-        tertiaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(0.5)));
-        tertiaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-0.5)));
+        primaryController.x()
+            .onTrue(sys_elevator.goTillSpike(-1));
 
         primaryController.povUp()
-                        .onTrue(sys_intake.setExtensionVoltage(3))
-                        .onFalse(sys_intake.setExtensionVoltage(0));
+        .onTrue(sys_elevator.startManualMove(0.5))
+        .onFalse(sys_elevator.startManualMove(0));
 
-        
         primaryController.povDown()
-                        .onTrue(sys_intake.setExtensionVoltage(-3))
-                        .onFalse(sys_intake.setExtensionVoltage(0));
+        .onTrue(sys_elevator.startManualMove(-0.5))
+        .onFalse(sys_elevator.startManualMove(0));
 
-        primaryController.a().onTrue(sys_intake.move(hopperSetpoint));
+        primaryController.a()
+                .onTrue(sys_elevator.elevatorGo(Meters.of(1.0),0));
+        
+        primaryController.y()
+                .onTrue(sys_elevator.elevatorGo(Meters.of(0.05),0));
+        
+        // primaryController.povUp().onTrue(sys_feeder.setVoltage(3))
+        //         .onFalse(sys_feeder.setVoltage(0));
+            
+        // primaryController.a().onTrue(sys_feeder.runRPS(() -> sys_feeder.targetRPS))
+        // .onFalse(sys_feeder.setVoltage(0));
   
         SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
         SmartDashboard.putData("retract", sys_intake.retract());
