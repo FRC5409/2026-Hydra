@@ -3,9 +3,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.config.PIDConstants;
+import frc.robot.Constants.DeviceID;
 
 public final class IntakeConstants {
 
@@ -23,6 +25,14 @@ public final class IntakeConstants {
 		public static final Mass INTAKE_MASS = Kilograms.of(3.1818);
 
 		public static final boolean INTAKE_IS_TUNING = false;
+
+        public static final Distance RETRACT_INCREMENT = Meters.of(0.0254);
+		public static final Distance EXTEND_INCREMENT = Meters.of(0.0127);
+		public static final Distance INITIAL_SETPOINT = Meters.of(0.254);
+
+		public static final Distance KILLSWITCH_TOLERANCE = Meters.of(0.0508);
+
+		public static final Time WAIT_TIME = Seconds.of(0.01);
 
 		public static final int UPDATE_FREQUENCY = 50; // in Hz
 

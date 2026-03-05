@@ -21,6 +21,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.util.PhoenixUtil;
 
 public class ElevatorIOTalonFX implements ElevatorIO {
 
@@ -39,6 +40,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
     private StatusSignal<Voltage> mainMotorVoltage;
     private StatusSignal<Current> mainMotorCurrent;
     private StatusSignal<Temperature> mainMotorTemp;
+    private StatusSignal<Current> mainMotorTorqueCurrent;
 
 
     public ElevatorIOTalonFX(int mainMotorID) {
@@ -63,7 +65,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         m_motorConfig.apply(m_pidConfig);
 
-        m_motorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+        m_motorConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
 
         m_motor.setNeutralMode(NeutralModeValue.Brake);
 
@@ -75,6 +77,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         mainMotorVoltage = m_motor.getMotorVoltage();
         mainMotorCurrent = m_motor.getSupplyCurrent();
         mainMotorTemp  = m_motor.getDeviceTemp();
+        mainMotorTorqueCurrent = m_motor.getTorqueCurrent();
 
         // Update all the values
         BaseStatusSignal.setUpdateFrequencyForAll(
@@ -82,7 +85,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             motorPosition,
             mainMotorVoltage,
             mainMotorCurrent,
-            mainMotorTemp
+            mainMotorTemp,
+            mainMotorTorqueCurrent
         );
 
         m_motor.optimizeBusUtilization();
@@ -128,7 +132,8 @@ public class ElevatorIOTalonFX implements ElevatorIO {
      */
     @Override
     public void setSetpoint(Distance setpoint) {
-        m_motor.setControl(m_request.withPosition(setpoint.in(Meters)));
+        PhoenixUtil.tryUntilOk(3,() -> m_motor.setControl(m_request.withPosition(setpoint.in(Meters))));;
+
     }
 
     /**
@@ -142,12 +147,14 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             motorPosition,
             mainMotorVoltage, 
             mainMotorCurrent, 
-            mainMotorTemp
+            mainMotorTemp,
+            mainMotorTorqueCurrent
         ).isOK();
-        inputs.mainAppliedVoltage = Units.Volts.of(mainMotorVoltage.getValueAsDouble());
-        inputs.mainAppliedCurrent = Units.Amps.of(Math.abs(mainMotorCurrent.getValueAsDouble()));
+        inputs.mainAppliedVoltage = mainMotorVoltage.getValue();
+        inputs.mainAppliedCurrent = mainMotorCurrent.getValue();
         inputs.mainMotorTemperature = mainMotorTemp.getValueAsDouble();
         inputs.mainMotorPosition = Units.Meters.of(motorPosition.getValueAsDouble());
+        inputs.mainMotorTorqueCurrent = mainMotorTorqueCurrent.getValue();
         
     }
 }

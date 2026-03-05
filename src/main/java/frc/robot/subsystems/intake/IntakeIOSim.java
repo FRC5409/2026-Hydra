@@ -80,8 +80,10 @@ public class IntakeIOSim implements IntakeIO {
  */
     @Override
     public void stopMotor() {
+      pid.reset();
       running = false;
       rollerVoltage = 0.0;
+      setExtensionVoltage(0);
     }
 /**
  * Updates the inputs of the intake subsystem
@@ -106,15 +108,15 @@ public class IntakeIOSim implements IntakeIO {
       inputs.isRetracted = extensionSim.getPositionMeters() <= Extension.EXTENSION_MIN_DISTANCE.in(Meters) + 0.01;
       inputs.extensionVelocity = MetersPerSecond.of(extensionSim.getVelocityMetersPerSecond());
       inputs.extensionCurrent = Amps.of(extensionSim.getCurrentDrawAmps());
-      inputs.extensionTorqueCurrent = Amps.of(extensionSim.getCurrentDrawAmps() * 0.5); 
+      inputs.extensionTorqueCurrent = Amps.of(extensionSim.getCurrentDrawAmps() * 0.5);
       inputs.isExtensionRunning = running;
       inputs.extensionVolts = Volts.of(volts);
-      inputs.extensionTemp = 25.0; 
+      inputs.extensionTemp = 25.0;
 
-      inputs.rollerCurrent = Amps.of(rollerVoltage / 12.0 * 20.0); 
+      inputs.rollerCurrent = Amps.of(rollerVoltage / 12.0 * 20.0);
       inputs.rollerVolts = Volts.of(rollerVoltage);
       inputs.rollerTemp = 25.0;
-      inputs.rollerVelocity = RotationsPerSecond.of(rollerVoltage / 12.0 * 5000.0); 
+      inputs.rollerVelocity = RotationsPerSecond.of(rollerVoltage / 12.0 * 5000.0);
 
       inputs.isRollerConnected = true;
       inputs.isExtensionConnected = true;
