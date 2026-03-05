@@ -412,11 +412,11 @@ public class RobotContainer {
             .onTrue(sys_elevator.goTillSpike(-1));
 
         primaryController.povUp()
-        .onTrue(sys_elevator.startManualMove(0.5))
+        .onTrue(sys_elevator.startManualMove(1.0))
         .onFalse(sys_elevator.startManualMove(0));
 
         primaryController.povDown()
-        .onTrue(sys_elevator.startManualMove(-0.5))
+        .onTrue(sys_elevator.startManualMove(-1.0))
         .onFalse(sys_elevator.startManualMove(0));
 
         primaryController.a()
@@ -424,7 +424,47 @@ public class RobotContainer {
         
         primaryController.y()
                 .onTrue(sys_elevator.elevatorGo(Meters.of(0.05),0));
-        
+
+        secondaryController.povLeft()
+                .onTrue(sys_hopper.setVoltage(-2))
+                .onFalse(sys_hopper.setVoltage(0));
+
+        secondaryController.povRight()
+                .onTrue(sys_hopper.setVoltage(2))
+                .onFalse(sys_hopper.setVoltage(0));
+
+        secondaryController.y()
+                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(1)))
+                .onFalse(sys_hopper.setVoltage(0));
+        secondaryController.a()
+                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.5)))
+                .onFalse(sys_hopper.setVoltage(0));
+
+        tertiaryController.povRight()
+                .onTrue(sys_intake.setExtensionVoltage(1))
+                .onFalse(sys_intake.setExtensionVoltage(0));
+
+        tertiaryController.povLeft()
+                .onTrue(sys_intake.setExtensionVoltage(-1))
+                .onFalse(sys_intake.setExtensionVoltage(0));
+
+        tertiaryController.b()
+                .onTrue(sys_intake.move(Meters.of(1.0)))
+                .onFalse(sys_intake.setExtensionVoltage(0));
+
+        tertiaryController.x()
+                .onTrue(sys_intake.move(Meters.of(0.5)))
+                .onFalse(sys_intake.setExtensionVoltage(0));
+
+        tertiaryController.y()
+                .onTrue(sys_intake.setRollerVoltage(2))
+                .onFalse(sys_intake.setRollerVoltage(0));
+
+        tertiaryController.a()
+                .onTrue(sys_intake.setRollerVoltage(-2))
+                .onFalse(sys_intake.setRollerVoltage(0));
+
+
         // primaryController.povUp().onTrue(sys_feeder.setVoltage(3))
         //         .onFalse(sys_feeder.setVoltage(0));
             
