@@ -20,6 +20,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import frc.robot.Constants;
+import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
@@ -137,6 +138,15 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void updateInputs(HopperInputs inputs) {
+        if (Constants.IS_TUNING) {
+            m_mainMotor.getConfigurator().apply(
+                    new Slot0Configs()
+                            .withKP(HopperConstants.PID.getP())
+                            .withKI(HopperConstants.PID.getI())
+                            .withKD(HopperConstants.PID.getD())
+                            .withKS(HopperConstants.KS.get())
+                            .withKV(HopperConstants.KV.get()));
+        }
 
         inputs.isMotorConnected = BaseStatusSignal.refreshAll(
             motorPosition,

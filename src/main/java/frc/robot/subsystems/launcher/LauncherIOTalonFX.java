@@ -13,6 +13,8 @@ import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import frc.robot.Constants;
+import frc.robot.subsystems.intake.IntakeConstants;
 
 import java.util.function.Supplier;
 
@@ -22,6 +24,7 @@ import static edu.wpi.first.units.Units.Volts;
 public class LauncherIOTalonFX implements LauncherIO {
     // Motors and sensors
     private final TalonFX     leaderMotor;
+    private final TalonFX followerMotor;
     private final Servo       hoodServo;
     private final Servo       hoodServo2;
     private final AnalogInput ultrasonic;
@@ -54,7 +57,7 @@ public class LauncherIOTalonFX implements LauncherIO {
     ) {
         // Motors and sensors
         leaderMotor = new TalonFX(launcherCanID);
-        TalonFX followerMotor = new TalonFX(launcherFollowerCanID);
+        followerMotor = new TalonFX(launcherFollowerCanID);
         CANcoder encoder = new CANcoder(launcherCANCoderID);
         hoodServo = new Servo(servoChannel);
         hoodServo2 = new Servo(servoChannel2);
@@ -206,6 +209,17 @@ public class LauncherIOTalonFX implements LauncherIO {
 
     @Override
     public void updateInputs(LauncherInputs inputs) {
+        if (Constants.IS_TUNING && IntakeConstants.Extension.INTAKE_IS_TUNING) {
+            var slot0 = new Slot0Configs()
+                            .withKP(IntakeConstants.Extension.PID.getP())
+                            .withKI(IntakeConstants.Extension.PID.getI())
+                            .withKD(IntakeConstants.Extension.PID.getD())
+                            .withKS(IntakeConstants.Extension.KS.get())
+                            .withKV(IntakeConstants.Extension.KV.get());
+            leaderMotor.getConfigurator().apply(slot0);
+            followerMotor.getConfigurator().apply(slot0);
+        }
+
         // Launcher
         inputs.isCANCoderConnected = BaseStatusSignal.refreshAll(magnetHealth).isOK();
         inputs.magnetHealth = magnetHealth.getValue();

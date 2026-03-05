@@ -9,6 +9,7 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Per;
 import frc.robot.subsystems.launcher.interpolator.BilinearStrategy;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -18,7 +19,9 @@ public class LauncherConstants {
         public static final double kS = 0.1;
         public static final double kV = 0.12;
 
-        public static final PIDController PID = new PIDController(0.05, 0, 0);
+        public static final PIDController       PID = new PIDController(0.05, 0, 0);
+        public static final LoggedNetworkNumber KS  = new LoggedNetworkNumber("kS", 0.0);
+        public static final LoggedNetworkNumber KV  = new LoggedNetworkNumber("kV", 0.0);
 
         public static final double MOTOR_ENCODER_GEAR_RATIO = 1.0 / 1.5;
         public static final int    SUPPLY_CURRENT_LIMIT     = 60;

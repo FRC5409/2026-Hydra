@@ -74,7 +74,7 @@ public class ElevatorIOTalonFX implements ElevatorIO {
             .withKP(ElevatorConstants.TALONFX_FAST_PID.kP)
             .withKI(ElevatorConstants.TALONFX_FAST_PID.kI)
             .withKD(ElevatorConstants.TALONFX_FAST_PID.kD)
-            .withKG(ElevatorConstants.kG);        
+            .withKG(ElevatorConstants.kG);
 
         m_motorConfig.apply(m_pidSlowConfig);
         m_motorConfig.apply(m_pidFastConfig);
@@ -156,11 +156,13 @@ public class ElevatorIOTalonFX implements ElevatorIO {
      */
     @Override
     public void updateInputs(ElevatorInputs inputs) {
-        m_pidFastConfig = new Slot1Configs()
-            .withKP(fastKP.get())
-            .withKI(fastkI.get())
-            .withKD(fastkD.get())
-            .withKG(kG.get());
+        m_motor.getConfigurator().apply(
+                new Slot1Configs()
+                        .withKP(fastKP.get())
+                        .withKI(fastkI.get())
+                        .withKD(fastkD.get())
+                        .withKG(kG.get()));
+
         //Update all variables values for the main motors
         inputs.isMainMotorConnected = BaseStatusSignal.refreshAll(
             motorPosition,

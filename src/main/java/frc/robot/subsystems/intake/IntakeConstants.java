@@ -7,7 +7,7 @@ import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.units.measure.Voltage;
 import static edu.wpi.first.units.Units.*;
 import com.pathplanner.lib.config.PIDConstants;
-import frc.robot.Constants.DeviceID;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 public final class IntakeConstants {
 
@@ -16,8 +16,10 @@ public final class IntakeConstants {
 		public static final Distance EXTENSION_DISTANCE = Meters.of(0.2794);
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(0.289146);
 
-		public static final PIDController PID = new PIDController(1.0,0.0,0.0);
-		public static final PIDConstants TALONFX_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
+		public static final PIDController       PID = new PIDController(1.0,0.0,0.0);
+        public static final LoggedNetworkNumber KS  = new LoggedNetworkNumber("kS", 0.0);
+        public static final LoggedNetworkNumber KV  = new LoggedNetworkNumber("kV", 0.0);
+		public static final PIDConstants        TALONFX_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
 
 		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
 		public static final Current MAX_CURRENT = Amps.of(30.0);

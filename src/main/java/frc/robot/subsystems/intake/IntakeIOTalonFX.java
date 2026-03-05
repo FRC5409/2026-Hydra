@@ -3,23 +3,19 @@ import static edu.wpi.first.units.Units.*;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
-import com.ctre.phoenix6.configs.FeedbackConfigs;
-import com.ctre.phoenix6.configs.MotorOutputConfigs;
-import com.ctre.phoenix6.configs.Slot0Configs;
-import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.configs.*;
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.google.flatbuffers.Constants;
 
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.units.measure.AngularVelocity;
+import frc.robot.Constants;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;;
 
 public final class IntakeIOTalonFX implements IntakeIO {
@@ -57,18 +53,11 @@ public final class IntakeIOTalonFX implements IntakeIO {
             .withSensorToMechanismRatio(Extension.GEARING)
         );
 
-        if (frc.robot.Constants.IS_TUNING) {
-            if (Extension.INTAKE_IS_TUNING) {
-                extensionConfigurator.Slot0 = new Slot0Configs()
-                    .withKP(Extension.PID.getP())
-                    .withKI(Extension.PID.getI())
-                    .withKD(Extension.PID.getD());
-            } else {
-                extensionConfigurator.Slot0 = new Slot0Configs()
-                    .withKP(Extension.TALONFX_PID.kP)
-                    .withKI(Extension.TALONFX_PID.kI)
-                    .withKD(Extension.TALONFX_PID.kD);
-            }
+        if (frc.robot.Constants.IS_TUNING && Extension.INTAKE_IS_TUNING) {
+            extensionConfigurator.Slot0 = new Slot0Configs()
+                .withKP(Extension.PID.getP())
+                .withKI(Extension.PID.getI())
+                .withKD(Extension.PID.getD());
         } else{
             extensionConfigurator.Slot0 = new Slot0Configs()
                 .withKP(Extension.TALONFX_PID.kP)
@@ -144,6 +133,15 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
     @Override
     public void updateInputs(IntakeIO.IntakeInputs inputs) {
+        if (Constants.IS_TUNING && Extension.INTAKE_IS_TUNING) {
+            extensionMotor.getConfigurator().apply(
+                    new Slot0Configs()
+                            .withKP(IntakeConstants.Extension.PID.getP())
+                            .withKI(IntakeConstants.Extension.PID.getI())
+                            .withKD(IntakeConstants.Extension.PID.getD())
+                            .withKS(IntakeConstants.Extension.KS.get())
+                            .withKV(IntakeConstants.Extension.KV.get()));
+        }
 
         inputs.isExtensionConnected = BaseStatusSignal.refreshAll(
                 extensionPositionSignal,

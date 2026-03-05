@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /* ALL TEST VALUES */
 public final class HopperConstants {
@@ -24,7 +25,9 @@ public final class HopperConstants {
     public static final Distance HOPPER_DRUMRADIUS = Meters.of(1.0);
     public static final Mass HOPPER_MASS = Pounds.of(10.561);
 
-    public static final PIDController PID = new PIDController(0.0, 0.0, 0.0);
+    public static final     PIDController       PID = new PIDController(0.0, 0.0, 0.0);
+    public static final     LoggedNetworkNumber KS  = new LoggedNetworkNumber("kS", 0.0);
+    public static final LoggedNetworkNumber KV  = new LoggedNetworkNumber("kV", 0.0);
     public static final PIDConstants TALONFX_PID = new PIDConstants(PID.getP(), PID.getI(), PID.getD());
     public static final PIDConstants SIM_PID = new PIDConstants(4, 0, 3);
 
