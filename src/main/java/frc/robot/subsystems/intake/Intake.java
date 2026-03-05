@@ -1,8 +1,5 @@
 package frc.robot.subsystems.intake;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Distance;
@@ -10,12 +7,17 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.intake.IntakeConstants.*;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.utils.Checkmate;
 import frc.robot.utils.Checkmate.TestResult;
-import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.function.Supplier;
+
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
 
 public class Intake extends SubsystemBase {
 
@@ -91,10 +93,10 @@ public class Intake extends SubsystemBase {
     public Command stopRoller() {
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(0.0), this);
     }
-/**
- * Sets the brake mode of the extension motor. In brake mode, the motor will resist being moved when no voltage is applied, which can help hold the intake in place when extended.
- * @return A command that sets the extension motor to brake mode when executed.
- */
+    /**
+     * Sets the brake mode of the extension motor. In brake mode, the motor will resist being moved when no voltage is applied, which can help hold the intake in place when extended.
+     * @return A command that sets the extension motor to brake mode when executed.
+     */
     public Command brakemode() {
         return Commands.runOnce(() -> intakeIO.brakeMode(), this);
     }
@@ -112,13 +114,13 @@ public class Intake extends SubsystemBase {
     public Command retract() {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
     }
-/**
- * Moves the intake to a specific position. This command will set the extension motor's setpoint to the given position, which should cause the intake to move to that position when executed.
- * @param position The position to move the intake to.
- * @return A command that moves the intake to the specified position when executed.
- */
-    public Command move(Distance position) {
-        return Commands.runOnce(() -> intakeIO.setSetpoint(position), this);
+    /**
+     * Moves the intake to a specific position. This command will set the extension motor's setpoint to the given position, which should cause the intake to move to that position when executed.
+     * @param setpoint The position to move the intake to.
+     * @return A command that moves the intake to the specified position when executed.
+     */
+    public Command move(Supplier<Distance> setpoint) {
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(setpoint.get().in(Meters))), this);
     }
 /**
  * Stops the extension motor by setting its voltage to 0.0 volts. This command will cause the intake to stop moving when executed, but it will not change the current setpoint of the extension motor, so if the intake is extended or retracted and then this command is executed, the intake will hold its position rather than moving back to a default position.
@@ -153,6 +155,7 @@ public class Intake extends SubsystemBase {
  */
     @Override
     public void periodic() {
+        intakeIO.updateInputs(inputs);
         Logger.processInputs("Intake", inputs);
         extenderPose = new Pose3d(
 
@@ -162,13 +165,13 @@ public class Intake extends SubsystemBase {
         );
 
         boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
-            
+
         if (DriverStation.isEnabled()){
-            if (overCurrent && !inputs.isCrashDetected) { 
+            if (overCurrent && !inputs.isCrashDetected) {
                 position = getPosition();
                 inputs.isCrashDetected = true;
                 intakeIO.coastMode();
-            } else if (!overCurrent && inputs.isCrashDetected) { 
+            } else if (!overCurrent && inputs.isCrashDetected) {
                 intakeIO.setSetpoint(position);
                 inputs.isCrashDetected = false;
                 intakeIO.brakeMode();
@@ -179,6 +182,6 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putData("Intake/PID", Extension.PID);
 
         }
-    
+
     }
 }
