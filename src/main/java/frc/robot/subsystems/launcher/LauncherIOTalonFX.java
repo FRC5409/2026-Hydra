@@ -130,7 +130,7 @@ public class LauncherIOTalonFX implements LauncherIO {
         // Motor output configs
         leaderConfig.apply(new MotorOutputConfigs()
                                    .withNeutralMode(NeutralModeValue.Coast)
-                                   .withInverted(InvertedValue.CounterClockwise_Positive));
+                                   .withInverted(InvertedValue.Clockwise_Positive));
         followerConfig.apply(new MotorOutputConfigs()
                                      .withNeutralMode(NeutralModeValue.Coast));
 

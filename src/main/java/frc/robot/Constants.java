@@ -49,20 +49,20 @@ public final class Constants {
         public static final int INTAKE_ROLLER_MOTOR    = 29;
 
         // LAUNCHER
-        public static final int LAUNCHER_CANCODER     = 1;
+        public static final int LAUNCHER_CANCODER     = 26;
         public static final int LAUNCHER_MOTOR_1      = 24;
         public static final int LAUNCHER_MOTOR_2      = 25;
-        public static final int LAUNCHER_HOOD_SERVO_1 = 4;
-        public static final int LAUNCHER_HOOD_SERVO_2 = 5;
+        public static final int LAUNCHER_HOOD_SERVO_1 = 8;
+        public static final int LAUNCHER_HOOD_SERVO_2 = 9;
         public static final int LAUNCHER_ULTRASONIC_CHANNEL = 1;
 
 
         // FEEDER
-        public static final int FEEDER_MOTOR_TOP    = 0; // TODO: jaden will update these
-        public static final int FEEDER_MOTOR_BOTTOM = 0;
+        public static final int FEEDER_MOTOR_TOP    = 33; // TODO: jaden will update these
+        public static final int FEEDER_MOTOR_BOTTOM = 27;
 
         // HOPPER
-        public static final int HOPPER_MOTOR_ID     = 20;
+        public static final int HOPPER_MOTOR_ID     = 30;
 
         // SERIALIZER
         public static final int SERIALIZER_MOTOR = 31;

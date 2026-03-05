@@ -398,22 +398,37 @@ public class RobotContainer {
                                                                                     0))));
 
         // Switch to X pattern when X button is pressed
+        SmartDashboard.putNumber("SerializerVoltage", 0.0);
         primaryController.x()
-                         .onTrue(Commands.runOnce(sys_drive::stopWithX, sys_drive));
-
+                        .onTrue(sys_serializer.setVoltage(5))
+                        .onFalse(sys_serializer.setVoltage(0));
         // Switch To Bump Speed Modifier
-        primaryController.a()
-                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
-                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+        // primaryController.a()
+        //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+        //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
         tertiaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
         tertiaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(0.5)));
         tertiaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-0.5)));
+
+        primaryController.povUp()
+                        .onTrue(sys_intake.setExtensionVoltage(3))
+                        .onFalse(sys_intake.setExtensionVoltage(0));
+
+        
+        primaryController.povDown()
+                        .onTrue(sys_intake.setExtensionVoltage(-3))
+                        .onFalse(sys_intake.setExtensionVoltage(0));
+
+        primaryController.a().onTrue(sys_intake.move(hopperSetpoint));
   
         SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
         SmartDashboard.putData("retract", sys_intake.retract());
         SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
         SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
+        SmartDashboard.putData("Intake/Coast", sys_intake.coastMode());
+        SmartDashboard.putData("Intake/Brake", sys_intake.brakemode());
+        // SmartDashboard.putData(("sys_drive"));
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {

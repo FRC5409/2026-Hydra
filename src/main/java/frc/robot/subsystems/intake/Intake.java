@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 
 import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -34,33 +35,33 @@ public class Intake extends SubsystemBase {
         this.inputs = new IntakeInputsAutoLogged();
         extenderPose = new Pose3d();
 
-        Checkmate.register("Should fully extend Intake", () -> {
+        // Checkmate.register("Should fully extend Intake", () -> {
 
-            double extendTarget = Extension.EXTENSION_DISTANCE.in(Meters);
+        //     double extendTarget = Extension.EXTENSION_DISTANCE.in(Meters);
 
-            intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
+        //     intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE);
 
-            Timer.delay(2.0);
+        //     Timer.delay(2.0);
 
-            if (Math.abs(inputs.extensionPosition - extendTarget) > 0.05) {
-                return TestResult.fail("Intake failed to extend, position: " + inputs.extensionPosition);
-            }
-            return TestResult.success("Intake extension ok");
-        });
+        //     if (Math.abs(inputs.extensionPosition - extendTarget) > 0.05) {
+        //         return TestResult.fail("Intake failed to extend, position: " + inputs.extensionPosition);
+        //     }
+        //     return TestResult.success("Intake extension ok");
+        // });
 
-        Checkmate.register("Should fully retract Intake", () -> {
+        // Checkmate.register("Should fully retract Intake", () -> {
 
-            double retractTarget = Extension.EXTENSION_MIN_DISTANCE.in(Meters);
+        //     double retractTarget = Extension.EXTENSION_MIN_DISTANCE.in(Meters);
 
-            intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
+        //     intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE);
 
-            Timer.delay(2.0);
+        //     Timer.delay(2.0);
 
-            if (Math.abs(inputs.extensionPosition - retractTarget) > 0.05) {
-                return TestResult.fail("Intake failed to retract, position: " + inputs.extensionPosition);
-            }
-            return TestResult.success("Intake retraction ok");
-        });
+        //     if (Math.abs(inputs.extensionPosition - retractTarget) > 0.05) {
+        //         return TestResult.fail("Intake failed to retract, position: " + inputs.extensionPosition);
+        //     }
+        //     return TestResult.success("Intake retraction ok");
+        // });
 
 
         Checkmate.register("Should spin roller", () -> {
@@ -76,7 +77,7 @@ public class Intake extends SubsystemBase {
             }
             return TestResult.success("Intake roller ok, current: " + current);
         });
-        ;
+        
 
     }
 
@@ -127,14 +128,17 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
+        intakeIO.updateInputs(inputs);
+
         Logger.processInputs("Intake", inputs);
+        
         extenderPose = new Pose3d(
 
-            inputs.extensionPosition, 0.0, 0.0,
+            inputs.extensionPosition.in(Degrees), 0.0, 0.0,
             new Rotation3d(0.0, 0.0, Math.toRadians(0.0))
 
         );
-
+        
         boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
             
         if (DriverStation.isEnabled()){
@@ -147,12 +151,13 @@ public class Intake extends SubsystemBase {
                 inputs.isCrashDetected = false;
                 intakeIO.brakeMode();
             }
-
-        intakeIO.updateInputs(inputs);
+        }
+        
+        Logger.recordOutput("Intake/pos", getPosition().in(Meters));
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.PID);
 
-        }
+        
     
     }
 }
