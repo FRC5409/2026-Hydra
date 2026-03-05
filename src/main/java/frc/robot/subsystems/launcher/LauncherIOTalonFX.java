@@ -228,9 +228,9 @@ public class LauncherIOTalonFX implements LauncherIO {
                 launcherFollowerVelocity
         ).isOK();
         inputs.launcherFollowerTemperature = launcherTemp.getValueAsDouble();
-        inputs.launcherFollowerVoltage = launcherVoltage.getValue();
-        inputs.launcherFollowerCurrent = launcherCurrent.getValue();
-        inputs.launcherFollowerVelocity = launcherVelocity.getValue();
+        inputs.launcherFollowerVoltage = launcherFollowerVoltage.getValue();
+        inputs.launcherFollowerCurrent = launcherFollowerCurrent.getValue();
+        inputs.launcherFollowerVelocity = launcherFollowerVelocity.getValue();
 
         // Hood
         inputs.hoodServo1Pos = Millimeters.of(servo1CurPos);
