@@ -119,8 +119,8 @@ public class Intake extends SubsystemBase {
 * @param position The position to move the intake to.
  * @return A command that moves the intake to the specified position when executed.
  */
-    public Command move(Distance position) {
-        return Commands.runOnce(() -> intakeIO.setSetpoint(position), this);
+    public Command move(Supplier<Distance> setpoint) {
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(setpoint.get().in(Meters))), this);
     }
 /**
 * Stops the motors
