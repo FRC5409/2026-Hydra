@@ -37,23 +37,23 @@ public interface IntakeIO {
 
     }
 /**
- * Sets the voltage of the extension motor to the specified value. This method can be used to manually control the extension of the intake by applying a specific voltage to the motor. Positive voltage should extend the intake, while negative voltage should retract it.
- * @param voltage The voltage to set the extension motor to, in volts. Should be between -12 and 12.
+* Sets voltage of extension
+* @param voltage The voltage to set the extension motor to, in volts. Should be between -12 and 12.
  */
     public default void setExtensionVoltage(double voltage) {}
 /**
- * Sets the voltage of the roller motor to the specified value. This method can be used to manually control the spinning of the intake roller by applying a specific voltage to the motor. Positive voltage should spin the roller in one direction, while negative voltage should spin it in the opposite direction.
- * @param voltage The voltage to set the roller motor to, in volts. Should be between -12 and 12.
+* Sets voltage of roller
+* @param voltage The voltage to set the roller motor to, in volts. Should be between -12 and 12.
  */
     public default void setRollerVoltage(double voltage) {}
 /**
- * Updates the inputs of the intake subsystem by reading sensor values and other relevant information from the hardware. This method should be called periodically to ensure that the inputs are up to date and can be used for feedback control or monitoring the state of the intake during operation.
- * @param inputs The inputs object to update with the latest sensor values and other relevant information.
+* Updates inputs
+* @param inputs The inputs object to update with the latest sensor values and other relevant information.
  */
     public default void updateInputs(IntakeInputs inputs) {}
 /**
- * Gets the current drawn by the extension motor. This method can be used to monitor the current being drawn by the extension motor, which can provide information about the load on the motor and help detect potential issues such as stalling or overloading. The current is returned as a Current object, which can be used for feedback control or monitoring purposes.
- * @return The current drawn by the extension motor, in amps.
+* Gets current of motor
+* @return The current drawn by the extension motor, in amps.
  */
     public default Current getMotorCurrent() {
         return Amps.of(0.0);
