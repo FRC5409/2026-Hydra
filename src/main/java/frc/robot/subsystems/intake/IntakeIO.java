@@ -59,38 +59,38 @@ public interface IntakeIO {
         return Amps.of(0.0);
     }
 /**
- * Sets the position setpoint for the extension motor. This method can be used to control the extension of the intake by setting a desired position for the extension motor to reach. The position is specified as a Distance object, which can be used for feedback control to move the intake to the desired position during operation.
- * @param position The position to set the extension motor to, in meters.
+* Moves intake to setpoint
+* @param position The position to set the extension motor to, in meters.
  */
     public default void setSetpoint(Distance position) {}
 /**
- * Sets the coast mode of the extension motor. In coast mode, the motor will not resist being moved when no voltage is applied, which can allow the intake to be moved more freely when extended. This method can be used to switch the extension motor to coast mode for easier manual control of the intake extension during operation.
- * @return A command that sets the extension motor to coast mode when executed.
+* Sets both motors to coastMode
+* @return A command that sets the extension motor to coast mode when executed.
  */
     public default void coastMode() {}
 /**
- * Sets the brake mode of the extension motor. In brake mode, the motor will resist being moved when no voltage is applied, which can help hold the intake in place when extended or retracted. This method can be used to switch the extension motor to brake mode for better control and stability of the intake during operation.
- * @return A command that sets the extension motor to brake mode when executed.
+* Sets both motors to brakeMode
+* @return A command that sets the extension motor to brake mode when executed.
  */
     public default void brakeMode() {}
 /**
- * Extends the intake by setting the appropriate voltage or position setpoint for the extension motor. This method can be used to extend the intake to a predefined position or by applying a specific voltage to the extension motor, depending on the implementation of the method. The exact behavior of this method will depend on how it is implemented in the concrete class that implements the IntakeIO interface.
- * @return A command that extends the intake when executed.
+* Extends the intake 
+* @return A command that extends the intake when executed.
  */
     public default void extend() {}
 /**
- * Retracts the intake by setting the appropriate voltage or position setpoint for the extension motor. This method can be used to retract the intake to a predefined position or by applying a specific voltage to the extension motor, depending on the implementation of the method. The exact behavior of this method will depend on how it is implemented in the concrete class that implements the IntakeIO interface.
- * @return A command that retracts the intake when executed.
+* Retracts the intake
+* @return A command that retracts the intake when executed.
  */
     public default void retract() {}
 /**
- * Stops the extension motor by setting its voltage to 0.0 volts. This method can be used to stop the movement of the intake extension when executed, but it will not change the current setpoint of the extension motor, so if the intake is extended or retracted and then this method is executed, the intake will hold its position rather than moving back to a default position.
- * @return A command that stops the extension motor when executed.
+* Stops the motor
+* @return A command that stops the extension motor when executed.
  */
     public default void stopMotor() {}
 /**
- * Gets the current position of the intake extension. This method will return the current position of the intake extension as a Distance object, which can be used for feedback control or monitoring the intake's position during operation. The exact behavior of this method will depend on how it is implemented in the concrete class that implements the IntakeIO interface, but it should provide an accurate measurement of the current position of the intake extension.
- * @return The current position of the intake extension, in meters.
+* Gets the position of the intake extension
+* @return The current position of the intake extension, in meters.
  */
     public default Distance getPosition() {  return null; }
 
