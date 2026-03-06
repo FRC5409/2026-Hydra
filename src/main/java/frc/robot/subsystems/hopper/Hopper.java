@@ -29,7 +29,7 @@ public class Hopper extends SubsystemBase {
     public Hopper(HopperIO io) {
         this.io = io;
         inputs = new HopperInputsAutoLogged();
-        SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
+        // SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
 
         hopperPose = new Pose3d();
 
@@ -119,7 +119,7 @@ public class Hopper extends SubsystemBase {
     }
 
     public Command setSetpoint(Supplier<Distance> setpoint) {
-        return Commands.runOnce(() -> io.setSetpoint(Inches.of(setpoint.get().in(Inches))));
+        return Commands.runOnce(() -> io.setSetpoint(setpoint.get()));
     }
 
     @Override
@@ -129,7 +129,7 @@ public class Hopper extends SubsystemBase {
         Logger.processInputs("Hopper", inputs);
         hopperPose = new Pose3d(inputs.motorPosition.in(Meters), 0, 0, new Rotation3d());
         Logger.recordOutput("Components/Hopper", hopperPose);
-        SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
+        // SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
 
         boolean overCurrent = inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT);
     

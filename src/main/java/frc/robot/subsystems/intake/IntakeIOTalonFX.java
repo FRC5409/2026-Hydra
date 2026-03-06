@@ -1,6 +1,8 @@
 package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.*;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.*;
@@ -53,17 +55,12 @@ public final class IntakeIOTalonFX implements IntakeIO {
             .withSensorToMechanismRatio(Extension.GEARING)
         );
 
-        if (frc.robot.Constants.IS_TUNING && Extension.INTAKE_IS_TUNING) {
-            extensionConfigurator.Slot0 = new Slot0Configs()
-                .withKP(Extension.PID.getP())
-                .withKI(Extension.PID.getI())
-                .withKD(Extension.PID.getD());
-        } else{
-            extensionConfigurator.Slot0 = new Slot0Configs()
-                .withKP(Extension.TALONFX_PID.kP)
-                .withKI(Extension.TALONFX_PID.kI)
-                .withKD(Extension.TALONFX_PID.kD);
-        }
+    
+        extensionConfigurator.Slot0 = new Slot0Configs()
+            .withKP(Extension.TALONFX_PID.kP)
+            .withKI(Extension.TALONFX_PID.kI)
+            .withKD(Extension.TALONFX_PID.kD);
+        
         extensionConfigurator.withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
         extensionMotor.getConfigurator().apply(extensionConfigurator);
                 
@@ -110,6 +107,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
     public void setSetpoint(Distance position) {
         extensionMotor.setControl(positionControl.withPosition(position.in(Meters)).withSlot(0));
+        Logger.recordOutput("Intake/setpoint", position);
     }
 
     public void coastMode() {
@@ -133,16 +131,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
     @Override
     public void updateInputs(IntakeIO.IntakeInputs inputs) {
-        if (Constants.IS_TUNING && Extension.INTAKE_IS_TUNING) {
-            extensionMotor.getConfigurator().apply(
-                    new Slot0Configs()
-                            .withKP(IntakeConstants.Extension.PID.getP())
-                            .withKI(IntakeConstants.Extension.PID.getI())
-                            .withKD(IntakeConstants.Extension.PID.getD())
-                            .withKS(IntakeConstants.Extension.KS.get())
-                            .withKV(IntakeConstants.Extension.KV.get()));
-        }
-
         inputs.isExtensionConnected = BaseStatusSignal.refreshAll(
                 extensionPositionSignal,
                 extensionTemperatureSignal,
@@ -157,7 +145,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.extensionTorqueCurrent = Amps.of(extensionTorqueCurrentSignal.getValueAsDouble());
         inputs.extensionTemp = extensionTemperatureSignal.getValueAsDouble();
 
-        inputs.extensionPosition =  extensionPositionSignal.getValue();
+        inputs.extensionPosition = Meters.of(extensionPositionSignal.getValueAsDouble());
 
         inputs.extensionVelocity = MetersPerSecond.of(extensionVelocitySignal.getValueAsDouble());
         inputs.isExtensionRunning = Math.abs(extensionVoltageSignal.getValueAsDouble()) > 0.1;

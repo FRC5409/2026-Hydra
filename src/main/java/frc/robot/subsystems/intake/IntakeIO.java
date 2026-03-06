@@ -26,7 +26,7 @@ public interface IntakeIO {
         public Current extensionCurrent = Amps.of(0.0);
         public double extensionTemp = 0.0;
         public LinearVelocity extensionVelocity = MetersPerSecond.of(0.0);
-        public Angle extensionPosition = Degrees.of(0.0);
+        public Distance extensionPosition = Meters.of(0.0);
         public Current extensionTorqueCurrent = Amps.of(0.0);
 
         public boolean isExtended = false;

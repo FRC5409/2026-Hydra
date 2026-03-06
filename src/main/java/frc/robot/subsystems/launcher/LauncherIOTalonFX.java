@@ -209,16 +209,16 @@ public class LauncherIOTalonFX implements LauncherIO {
 
     @Override
     public void updateInputs(LauncherInputs inputs) {
-        if (Constants.IS_TUNING && IntakeConstants.Extension.INTAKE_IS_TUNING) {
-            var slot0 = new Slot0Configs()
-                            .withKP(IntakeConstants.Extension.PID.getP())
-                            .withKI(IntakeConstants.Extension.PID.getI())
-                            .withKD(IntakeConstants.Extension.PID.getD())
-                            .withKS(IntakeConstants.Extension.KS.get())
-                            .withKV(IntakeConstants.Extension.KV.get());
-            leaderMotor.getConfigurator().apply(slot0);
-            followerMotor.getConfigurator().apply(slot0);
-        }
+        // if (Constants.IS_TUNING && IntakeConstants.Extension.INTAKE_IS_TUNING) {
+        //     var slot0 = new Slot0Configs()
+        //                     .withKP(IntakeConstants.Extension.PID.getP())
+        //                     .withKI(IntakeConstants.Extension.PID.getI())
+        //                     .withKD(IntakeConstants.Extension.PID.getD())
+        //                     .withKS(IntakeConstants.Extension.KS.get())
+        //                     .withKV(IntakeConstants.Extension.KV.get());
+        //     leaderMotor.getConfigurator().apply(slot0);
+        //     followerMotor.getConfigurator().apply(slot0);
+        // }
 
         // Launcher
         inputs.isCANCoderConnected = BaseStatusSignal.refreshAll(magnetHealth).isOK();

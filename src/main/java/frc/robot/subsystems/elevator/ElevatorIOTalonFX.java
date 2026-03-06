@@ -146,7 +146,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
      */
     @Override
     public void setSetpoint(Distance setpoint,int slot) {
-        PhoenixUtil.tryUntilOk(3,() -> m_motor.setControl(m_request.withPosition(setpoint.in(Meters)).withSlot(slot)));;
+        PhoenixUtil.tryUntilOk(3,
+        () -> m_motor.setControl(m_request.withPosition(setpoint.in(Meters))
+        .withSlot(slot)));;
 
     }
 
@@ -156,12 +158,12 @@ public class ElevatorIOTalonFX implements ElevatorIO {
      */
     @Override
     public void updateInputs(ElevatorInputs inputs) {
-        m_motor.getConfigurator().apply(
-                new Slot1Configs()
-                        .withKP(fastKP.get())
-                        .withKI(fastkI.get())
-                        .withKD(fastkD.get())
-                        .withKG(kG.get()));
+        // m_motor.getConfigurator().apply(
+        //         new Slot1Configs()
+        //                 .withKP(fastKP.get())
+        //                 .withKI(fastkI.get())
+        //                 .withKD(fastkD.get())
+        //                 .withKG(kG.get()));
 
         //Update all variables values for the main motors
         inputs.isMainMotorConnected = BaseStatusSignal.refreshAll(

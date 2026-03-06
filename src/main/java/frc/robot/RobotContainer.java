@@ -434,11 +434,13 @@ public class RobotContainer {
                 .onFalse(sys_hopper.setVoltage(0));
 
         secondaryController.y()
-                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(1)))
+                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(2.6)))
                 .onFalse(sys_hopper.setVoltage(0));
         secondaryController.a()
-                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.5)))
+                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.3)))
                 .onFalse(sys_hopper.setVoltage(0));
+
+
 
         tertiaryController.povRight()
                 .onTrue(sys_intake.setExtensionVoltage(1))
@@ -448,20 +450,21 @@ public class RobotContainer {
                 .onTrue(sys_intake.setExtensionVoltage(-1))
                 .onFalse(sys_intake.setExtensionVoltage(0));
 
+                // Expected extension and retract values
         tertiaryController.b()
-                .onTrue(sys_intake.move(Meters.of(1.0)))
+                .onTrue(sys_intake.move(Meters.of(3.35)))
                 .onFalse(sys_intake.setExtensionVoltage(0));
 
         tertiaryController.x()
-                .onTrue(sys_intake.move(Meters.of(0.5)))
+                .onTrue(sys_intake.move(Meters.of(0.05)))
                 .onFalse(sys_intake.setExtensionVoltage(0));
 
         tertiaryController.y()
-                .onTrue(sys_intake.setRollerVoltage(2))
+                .onTrue(sys_intake.setRollerVoltage(6))
                 .onFalse(sys_intake.setRollerVoltage(0));
 
         tertiaryController.a()
-                .onTrue(sys_intake.setRollerVoltage(-2))
+                .onTrue(sys_intake.setRollerVoltage(-6))
                 .onFalse(sys_intake.setRollerVoltage(0));
 
 
@@ -470,6 +473,10 @@ public class RobotContainer {
             
         // primaryController.a().onTrue(sys_feeder.runRPS(() -> sys_feeder.targetRPS))
         // .onFalse(sys_feeder.setVoltage(0));
+
+        SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remhoppeove when main
+        SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remhoppeove when main
+
   
         SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
         SmartDashboard.putData("retract", sys_intake.retract());

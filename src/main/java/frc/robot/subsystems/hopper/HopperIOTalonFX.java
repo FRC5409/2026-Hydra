@@ -2,6 +2,9 @@ package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -19,7 +22,11 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.util.PhoenixUtil;
 
@@ -42,6 +49,27 @@ public class HopperIOTalonFX implements HopperIO {
 
         m_mainMotorConfig = m_mainMotor.getConfigurator();
 
+        // SmartDashboard.putData("Publish PIDFF", Commands.runOnce(() -> 
+        //     m_mainMotor.getConfigurator().apply(
+        //                 new Slot0Configs()
+        //                         .withKP(HopperConstants.PID.getP())
+        //                         .withKI(HopperConstants.PID.getI())
+        //                         .withKD(HopperConstants.PID.getD())
+        //                         .withKS(HopperConstants.KS.get())
+        //                         .withKV(HopperConstants.KV.get()))));
+
+        // LoggedNetworkBoolean isTrue = new LoggedNetworkBoolean("Hopper/Publish", false);
+
+        // new Trigger( () -> isTrue.get())
+        // .onTrue(Commands.runOnce(() -> 
+        //     m_mainMotor.getConfigurator().apply(
+        //                 new Slot0Configs()
+        //                         .withKP(HopperConstants.PID.getP())
+        //                         .withKI(HopperConstants.PID.getI())
+        //                         .withKD(HopperConstants.PID.getD())
+        //                         .withKS(HopperConstants.KS.get())
+        //                         .withKV(HopperConstants.KV.get()))));
+
         final CurrentLimitsConfigs m_currentConfig = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(HopperConstants.CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
@@ -51,12 +79,13 @@ public class HopperIOTalonFX implements HopperIO {
             .withSensorToMechanismRatio(HopperConstants.GEARING);
         m_mainMotorConfig.apply(m_encoderConfigs);
 
-        final Slot0Configs m_pidConfig = Constants.IS_TUNING
-        ? new Slot0Configs()
-            .withKP(HopperConstants.PID.getP())
-            .withKI(HopperConstants.PID.getI())
-            .withKD(HopperConstants.PID.getD())
-        : new Slot0Configs()
+        final Slot0Configs m_pidConfig =
+        //  Constants.IS_TUNING
+        // ? new Slot0Configs()
+        //     .withKP(HopperConstants.PID.getP())
+        //     .withKI(HopperConstants.PID.getI())
+        //     .withKD(HopperConstants.PID.getD()):
+        new Slot0Configs()
             .withKP(HopperConstants.TALONFX_PID.kP)
             .withKI(HopperConstants.TALONFX_PID.kI)
             .withKD(HopperConstants.TALONFX_PID.kD);
@@ -127,8 +156,11 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void setSetpoint(Distance setpoint) {
-        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Meters)).withSlot(0)));
+        PhoenixUtil.tryUntilOk(3, 
+        () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Meters))
+        .withSlot(0)));
         motorSetpoint = setpoint;
+
     }
 
     @Override
@@ -138,16 +170,6 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void updateInputs(HopperInputs inputs) {
-        if (Constants.IS_TUNING) {
-            m_mainMotor.getConfigurator().apply(
-                    new Slot0Configs()
-                            .withKP(HopperConstants.PID.getP())
-                            .withKI(HopperConstants.PID.getI())
-                            .withKD(HopperConstants.PID.getD())
-                            .withKS(HopperConstants.KS.get())
-                            .withKV(HopperConstants.KV.get()));
-        }
-
         inputs.isMotorConnected = BaseStatusSignal.refreshAll(
             motorPosition,
             deviceVoltage, 
