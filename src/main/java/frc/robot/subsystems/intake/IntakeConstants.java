@@ -13,7 +13,7 @@ public final class IntakeConstants {
 
 	public static final class Extension {
 		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
-		public static final Distance EXTENSION_DISTANCE = Meters.of(0.35);
+		public static final Distance EXTENSION_DISTANCE = Meters.of(3.4);
 
 		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(3.4);
 
@@ -23,7 +23,7 @@ public final class IntakeConstants {
 
 
 		
-		public static final PIDConstants        TALONFX_PID = new PIDConstants(5.5,0.75,0); // <------------------
+		public static final PIDConstants        TALONFX_PID = new PIDConstants(5.5,0.75,0);
 
 
 		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);

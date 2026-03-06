@@ -408,56 +408,83 @@ public class RobotContainer {
         //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
         //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
-        primaryController.x()
-            .onTrue(sys_elevator.goTillSpike(-1));
+        // primaryController.x()
+        //     .onTrue(sys_elevator.goTillSpike(-1));
+
+        // primaryController.povUp()
+        // .onTrue(sys_elevator.startManualMove(1.0))
+        // .onFalse(sys_elevator.startManualMove(0));
+
+        // primaryController.povDown()
+        // .onTrue(sys_elevator.startManualMove(-1.0))
+        // .onFalse(sys_elevator.startManualMove(0));
+
+        // primaryController.a()
+        //         .onTrue(sys_elevator.elevatorGo(Meters.of(1.0),0));
+        
+        // primaryController.y()
+        //         .onTrue(sys_elevator.elevatorGo(Meters.of(0.05),0));
 
         primaryController.povUp()
-        .onTrue(sys_elevator.startManualMove(1.0))
-        .onFalse(sys_elevator.startManualMove(0));
-
-        primaryController.povDown()
-        .onTrue(sys_elevator.startManualMove(-1.0))
-        .onFalse(sys_elevator.startManualMove(0));
-
-        primaryController.a()
-                .onTrue(sys_elevator.elevatorGo(Meters.of(1.0),0));
-        
-        primaryController.y()
-                .onTrue(sys_elevator.elevatorGo(Meters.of(0.05),0));
-
-        secondaryController.povLeft()
                 .onTrue(sys_hopper.setVoltage(-2))
                 .onFalse(sys_hopper.setVoltage(0));
 
-        secondaryController.povRight()
+        primaryController.povDown()
                 .onTrue(sys_hopper.setVoltage(2))
                 .onFalse(sys_hopper.setVoltage(0));
 
-        secondaryController.y()
+        primaryController.povLeft()
+                .onTrue(sys_intake.setExtensionVoltage(-2))
+                .onFalse(sys_intake.setExtensionVoltage(0));
+        
+        primaryController.povRight()
+                .onTrue(sys_intake.setExtensionVoltage(2))
+                .onFalse(sys_intake.setExtensionVoltage(0));
+		
+		primaryController.y()
                 .onTrue(sys_hopper.setSetpoint(() -> Meters.of(2.6)))
                 .onFalse(sys_hopper.setVoltage(0));
-        secondaryController.a()
+        primaryController.a()
                 .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.3)))
                 .onFalse(sys_hopper.setVoltage(0));
 
-
-
-        tertiaryController.povRight()
-                .onTrue(sys_intake.setExtensionVoltage(1))
-                .onFalse(sys_intake.setExtensionVoltage(0));
-
-        tertiaryController.povLeft()
-                .onTrue(sys_intake.setExtensionVoltage(-1))
-                .onFalse(sys_intake.setExtensionVoltage(0));
-
-                // Expected extension and retract values
-        tertiaryController.b()
+        primaryController.b()
                 .onTrue(sys_intake.move(Meters.of(3.35)))
                 .onFalse(sys_intake.setExtensionVoltage(0));
 
-        tertiaryController.x()
+        primaryController.x()
                 .onTrue(sys_intake.move(Meters.of(0.05)))
                 .onFalse(sys_intake.setExtensionVoltage(0));
+
+        // secondaryController.b()
+        //         .onTrue(getAutonomousCommand());
+
+        
+
+
+
+        // secondaryController.povLeft()
+        //         .onTrue(sys_hopper.setVoltage(-2))
+        //         .onFalse(sys_hopper.setVoltage(0));
+
+        // secondaryController.povRight()
+        //         .onTrue(sys_hopper.setVoltage(2))
+        //         .onFalse(sys_hopper.setVoltage(0));
+
+        
+
+
+
+        // tertiaryController.povRight()
+        //         .onTrue(sys_intake.setExtensionVoltage(1))
+        //         .onFalse(sys_intake.setExtensionVoltage(0));
+
+        // tertiaryController.povLeft()
+        //         .onTrue(sys_intake.setExtensionVoltage(-1))
+        //         .onFalse(sys_intake.setExtensionVoltage(0));
+
+        //         // Expected extension and retract values
+        
 
         tertiaryController.y()
                 .onTrue(sys_intake.setRollerVoltage(6))
@@ -477,13 +504,15 @@ public class RobotContainer {
         SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remhoppeove when main
         SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remhoppeove when main
 
+        SmartDashboard.putData("Intake/Coast", sys_intake.coastMode().ignoringDisable(true));
+        SmartDashboard.putData("Intake/Brake", sys_intake.brakemode().ignoringDisable(true));
   
+
         SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
         SmartDashboard.putData("retract", sys_intake.retract());
         SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
         SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
-        SmartDashboard.putData("Intake/Coast", sys_intake.coastMode());
-        SmartDashboard.putData("Intake/Brake", sys_intake.brakemode());
+        
         // SmartDashboard.putData(("sys_drive"));
     }
 
@@ -562,7 +591,7 @@ public class RobotContainer {
     private Command retractAndAgitate() {
         return Commands.repeatingSequence(
                 Commands.runOnce(() -> 
-                        intakeSetpoint = sys_intake.getPosition().minus((Inches.of(IntakeConstants.Extension.RETRACT_INCREMENT.in(Inches))))),
+                        intakeSetpoint = sys_intake.getPosition().minus(IntakeConstants.Extension.RETRACT_INCREMENT)),
                 Commands.runOnce(() -> 
                         hopperSetpoint = intakeSetpoint.plus(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
                                                         .minus(HopperConstants.STARTING_GAP_TO_INTAKE)),
@@ -574,7 +603,6 @@ public class RobotContainer {
                                         .lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
                 ).repeatedly().until(() -> sys_hopper.getPosition().isNear(
                         hopperSetpoint, HopperConstants.AGITATE_TOLERANCE)),
-
                 sys_hopper.setSetpoint(() -> hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT)),
                 Commands.waitUntil(() -> 
                         sys_hopper.getPosition().isNear(hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT), 

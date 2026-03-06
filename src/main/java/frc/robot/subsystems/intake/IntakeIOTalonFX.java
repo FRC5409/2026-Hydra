@@ -49,6 +49,8 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
         positionControl = new PositionVoltage(0.0);
 
+        
+
         TalonFXConfiguration extensionConfigurator = new TalonFXConfiguration()
         .withFeedback(
             new FeedbackConfigs()
@@ -62,7 +64,10 @@ public final class IntakeIOTalonFX implements IntakeIO {
             .withKD(Extension.TALONFX_PID.kD);
         
         extensionConfigurator.withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
+
         extensionMotor.getConfigurator().apply(extensionConfigurator);
+
+        rollerMotor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast));
                 
 
         extensionPositionSignal    = extensionMotor.getPosition();
@@ -91,6 +96,8 @@ public final class IntakeIOTalonFX implements IntakeIO {
             rollerVoltageSignal,
             rollerCurrentSignal
         );
+
+        extensionMotor.setPosition(0);
 
         rollerMotor.optimizeBusUtilization();
         extensionMotor.optimizeBusUtilization();

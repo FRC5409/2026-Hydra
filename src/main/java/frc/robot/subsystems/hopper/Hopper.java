@@ -114,6 +114,11 @@ public class Hopper extends SubsystemBase {
         return io.getPositionIntakeZero();
     }
 
+    public Distance getRelativeIntakeDistance(Distance hopperPosition){
+        Distance intakePosition = hopperPosition.times(1.48);
+        return intakePosition;
+    }
+
     public Distance getSetpoint(){
         return io.getSetpoint();
     }
@@ -129,6 +134,8 @@ public class Hopper extends SubsystemBase {
         Logger.processInputs("Hopper", inputs);
         hopperPose = new Pose3d(inputs.motorPosition.in(Meters), 0, 0, new Rotation3d());
         Logger.recordOutput("Components/Hopper", hopperPose);
+
+        Logger.recordOutput("RelativeIntakePosition", getRelativeIntakeDistance(getPosition()));
         // SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
 
         boolean overCurrent = inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT);
