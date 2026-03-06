@@ -114,6 +114,10 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> intakeIO.stopMotor(), this);
     }
 
+    public Distance getSetpoint(){
+        return inputs.extensionSetpoint;
+    }
+
     public Command coastMode() {
         return Commands.runOnce(() -> intakeIO.coastMode(), this);
     }

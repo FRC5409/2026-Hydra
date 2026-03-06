@@ -25,6 +25,8 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX rollerMotor;
     private final TalonFX extensionMotor;
 
+    private Distance setpoint = Meters.of(0.0);
+
     private final PositionVoltage positionControl;
 
     private final StatusSignal<Angle>       rollerPositionSignal;
@@ -114,6 +116,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
     public void setSetpoint(Distance position) {
         extensionMotor.setControl(positionControl.withPosition(position.in(Meters)).withSlot(0));
+        setpoint = position;
         Logger.recordOutput("Intake/setpoint", position);
     }
 
@@ -171,6 +174,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.rollerCurrent = Amps.of(rollerCurrentSignal.getValueAsDouble());
         inputs.rollerTemp = rollerTemperatureSignal.getValueAsDouble();
         inputs.rollerVelocity = RotationsPerSecond.of(rollerVelocitySignal.getValueAsDouble());
+        inputs.extensionSetpoint = setpoint;
 
     }
 }

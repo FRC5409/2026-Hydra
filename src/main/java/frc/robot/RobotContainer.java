@@ -444,9 +444,12 @@ public class RobotContainer {
 		primaryController.y()
                 .onTrue(sys_hopper.setSetpoint(() -> Meters.of(2.6)))
                 .onFalse(sys_hopper.setVoltage(0));
+        // primaryController.a()
+        //         .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.3)))
+        //         .onFalse(sys_hopper.setVoltage(0));
         primaryController.a()
-                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.3)))
-                .onFalse(sys_hopper.setVoltage(0));
+                .onTrue(agitate())
+                .onFalse(Commands.parallel(sys_hopper.setVoltage(0), sys_intake.setExtensionVoltage(0)));
 
         primaryController.b()
                 .onTrue(sys_intake.move(Meters.of(3.35)))
@@ -609,6 +612,27 @@ public class RobotContainer {
                                                         HopperConstants.AGITATE_TOLERANCE))
         ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE))
                 .andThen(sys_hopper.fullRetract());
+    }
+
+    private Command agitate(){
+        return Commands.repeatingSequence(
+            Commands.parallel(
+                    sys_intake.move(sys_intake.getPosition().minus(Meters.of(0.29))),
+                    sys_hopper.setSetpoint(() -> sys_hopper.getPosition().minus(Meters.of(0.21)))
+            ),
+            Commands.waitUntil(
+                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+                && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+            ),
+            Commands.parallel(
+                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().plus(Meters.of(0.1))),
+                sys_intake.move(sys_intake.getPosition().plus(Meters.of(0.15)))
+            ),
+            Commands.waitUntil(
+                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+                && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+            )
+        );
     }
 
     /**
