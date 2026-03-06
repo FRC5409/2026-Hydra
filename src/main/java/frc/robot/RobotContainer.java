@@ -515,7 +515,7 @@ public class RobotContainer {
         SmartDashboard.putData("retract", sys_intake.retract());
         SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
         SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
-        
+
         // SmartDashboard.putData(("sys_drive"));
     }
 
@@ -615,21 +615,31 @@ public class RobotContainer {
     }
 
     private Command agitate(){
-        return Commands.repeatingSequence(
-            Commands.parallel(
-                    sys_intake.move(sys_intake.getPosition().minus(Meters.of(0.29))),
-                    sys_hopper.setSetpoint(() -> sys_hopper.getPosition().minus(Meters.of(0.21)))
-            ).until(
-                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-            ),
-            Commands.parallel(
-                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().plus(Meters.of(0.1))),
-                sys_intake.move(sys_intake.getPosition().plus(Meters.of(0.15)))
-            ).until(
-                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-            )
+        return Commands.sequence(
+                sys_hopper.setSetpoint(() -> Meters.of(2.6)),
+                sys_intake.move(Meters.of(3.35)),
+                Commands.waitUntil(
+                                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+                                        && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+                ),
+                Commands.repeatingSequence(
+                        Commands.parallel(
+                                sys_intake.move(() -> sys_intake.getPosition().minus(Meters.of(0.29))),
+                                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().minus(Meters.of(0.21)))
+                        ),
+                        Commands.waitUntil(
+                                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+                                        && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+                        ),
+                        Commands.parallel(
+                                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().plus(Meters.of(0.1))),
+                                sys_intake.move(() -> sys_intake.getPosition().plus(Meters.of(0.15)))
+                        ),
+                        Commands.waitUntil(
+                                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+                                        && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+                        )
+                )
         );
     }
 

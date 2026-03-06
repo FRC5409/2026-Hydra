@@ -1,6 +1,7 @@
 package frc.robot.subsystems.intake;
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.math.MathUtil;
 import org.littletonrobotics.junction.Logger;
 
 import com.ctre.phoenix6.BaseStatusSignal;
@@ -115,6 +116,8 @@ public final class IntakeIOTalonFX implements IntakeIO {
     }
 
     public void setSetpoint(Distance position) {
+        // position = Math.clamp();
+        position = Meters.of(MathUtil.clamp(position.in(Meters), 0, Extension.EXTENSION_MAX_DISTANCE.in(Meters)));
         extensionMotor.setControl(positionControl.withPosition(position.in(Meters)).withSlot(0));
         setpoint = position;
         Logger.recordOutput("Intake/setpoint", position);
