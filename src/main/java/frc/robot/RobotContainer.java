@@ -415,10 +415,6 @@ public class RobotContainer {
         secondaryController.rightTrigger()
                            .onTrue(sys_launcher.launchFuel(() -> DriveCommands.distToHub(sys_drive), sys_feeder));
 
-        // TODO: test code, comment out
-        secondaryController.leftTrigger()
-                           .onTrue(sys_launcher.launchFuel(() -> Meters.of(3), sys_feeder));
-
         secondaryController.x()
                 .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
                 .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
