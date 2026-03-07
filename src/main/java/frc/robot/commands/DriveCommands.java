@@ -56,8 +56,8 @@ import com.pathplanner.lib.util.FlippingUtil;
 public class DriveCommands {
   private static final double DEADBAND = 0.1;
   private static final double TRIGGER_DEADBAND = 0.01;
-  private static final double ANGLE_KP = 7.0;
-  private static final double ANGLE_KD = 0.4;
+  private static final double ANGLE_KP = 5.0; // 7
+  private static final double ANGLE_KD = 0.1; // 0.4
   private static final double ANGLE_MAX_VELOCITY = 8.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
   private static final double FF_START_DELAY = 2.0; // Secs
@@ -327,7 +327,6 @@ public class DriveCommands {
 
   @SuppressWarnings("resource")
   public static Command alignToHeading(Drive drive, Supplier<Rotation2d> target){
-
     PIDController headingController =
       new PIDController(
         ANGLE_KP, 
@@ -350,32 +349,44 @@ public class DriveCommands {
 
         double omega = 
           headingController.calculate(robotRotation.getRadians(), targetRotation.getRadians());
+        
+        // if (omega < 0.1) // some tuned value
+        //     omega = 0;
 
-        drive.runVelocity(drive.getFieldRelativeSpeeds(omega));
+        drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(0.0,0.0, omega, drive.getRotation()));
 
         Logger.recordOutput("AutoAlign/TargetRotation", targetRotation);
         Logger.recordOutput("AutoAlign/OmegaOutput", omega);
 
       }, drive)
-    ).until(() -> {
-        Rotation2d robotRotation = drive.getRotation();
-        Rotation2d targetRotation = target.get();
-
-        Angle difference = AlignHelper.rotationDifference(targetRotation, robotRotation);
-
-        AngularVelocity rotationSpeed = RadiansPerSecond.of(drive.getChassisSpeeds().omegaRadiansPerSecond);
-
-        Logger.recordOutput("AutoAlign/Angle To Alignment [degrees]", difference.in(Degrees));
-        Logger.recordOutput("AutoAlign/Velocity [degrees per s]", rotationSpeed.in(DegreesPerSecond));
-
-        return difference.lte(kAutoAlign.ROTATION_TOLERANCE);
-
-    }).andThen(
-        Commands.runOnce(() -> {
-          drive.stop();
-          isAligned = true;
-        }, drive)
     );
+    // CLAMP OUTPUT less than 0.5v then set to 0
+    // .until(() -> {
+    //     Rotation2d robotRotation = drive.getRotation();
+    //     Rotation2d targetRotation = target.get();
+
+    //     Angle difference = AlignHelper.rotationDifference(targetRotation, robotRotation);
+
+    //     AngularVelocity rotationSpeed = RadiansPerSecond.of(drive.getChassisSpeeds().omegaRadiansPerSecond);
+
+    //     Logger.recordOutput("AutoAlign/Angle To Alignment [degrees]", difference.in(Degrees));
+    //     Logger.recordOutput("AutoAlign/Velocity [degrees per s]", rotationSpeed.in(DegreesPerSecond));
+
+    //     if (difference.lte(kAutoAlign.ROTATION_TOLERANCE)
+    //             && rotationSpeed.lte(kAutoAlign.ROTATION_VELOCITY_TOLERANCE))
+    //         alignedCounter[0]++;
+        
+
+    //     return difference.lte(kAutoAlign.ROTATION_TOLERANCE)
+    //             && rotationSpeed.lte(kAutoAlign.ROTATION_VELOCITY_TOLERANCE);
+
+    // })
+    // .andThen(
+    //     Commands.runOnce(() -> {
+    //       drive.stop();
+    //       isAligned = true;
+    //     }, drive)
+    // );
   }
 
   public static Command crossBump(Drive drive, Vision vision, Supplier<Rotation2d> targetHeading, Supplier<LinearVelocity> speed, Time timeout){
@@ -433,8 +444,8 @@ public class DriveCommands {
 
   public static Distance distToHub(Drive drive){
     Pose2d hubPose = Constants.kField.BLUE_HUB;
-    if (AutoBuilder.shouldFlip())
-        hubPose = FlippingUtil.flipFieldPose(hubPose);
+   if (AutoBuilder.shouldFlip())
+       hubPose = Constants.kField.RED_HUB;
 
     return Meters.of((drive.getPose().getTranslation().getDistance(hubPose.getTranslation())));
   }

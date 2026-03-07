@@ -28,6 +28,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
+import frc.robot.Constants.kField;
 import frc.robot.commands.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
@@ -385,16 +386,32 @@ public class RobotContainer {
                 "LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
                         () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
-        primaryController.y()
-                        .onTrue(sys_launcher.runVelocity(
-                                () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
-                        .onFalse(sys_launcher.stopLauncher());
+//        secondaryController.y()
+//                        .onTrue(sys_launcher.runVelocity(
+//                                () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
+//                        .onFalse(sys_launcher.stopLauncher());
 
-        primaryController.a()
+        secondaryController.a()
                 .onTrue(sys_serializer.setVoltage(8))
                 .onTrue(sys_intake.setRollerVoltage(10))
                 .onFalse(sys_serializer.setVoltage(0))
                 .onFalse(sys_intake.setRollerVoltage(0));
+
+        final double[] launchSpeed = {50};
+        Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+
+        secondaryController.povUp()
+             .onTrue(Commands.runOnce(() -> {
+				 launchSpeed[0] += 0.5;
+                 Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+			 }));
+
+         secondaryController.povDown()
+                 .onTrue(Commands.runOnce(() -> {
+					 launchSpeed[0] -= 0.5;
+                     Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+				 }));
+
 
 //        primaryController.povUp()
 //                        .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(100)));
@@ -403,18 +420,20 @@ public class RobotContainer {
 //        primaryController.povDown()
 //                .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(0)));
 
-        primaryController.x()
-                .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
-                .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
-                .onFalse(sys_feeder.stopMotor())
-                .onFalse(sys_launcher.stopLauncher());
+        secondaryController.x()
+                .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
+                .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
 
-        primaryController.b()
-                .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(20)))
-                .onFalse(sys_launcher.stopLauncher());
+
+        secondaryController.b()
+                .onTrue(sys_feeder.stopMotor())
+                .onTrue(sys_launcher.stopLauncher());
+
+
+        secondaryController.y()
+                .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
 
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
-
         
 
         SmartDashboard.putNumber("Hood Angle [mm]", 0);
@@ -427,6 +446,17 @@ public class RobotContainer {
 
         // Switch to X pattern when X button is pressed
         SmartDashboard.putNumber("SerializerVoltage", 0.0);
+
+        primaryController.rightBumper()
+                .whileTrue(
+                    DriveCommands.alignToHeading(
+                        sys_drive, 
+                        () -> DriveCommands.getRotation2d(
+                            sys_drive, 
+                            kField.BLUE_HUB).plus(Rotation2d.k180deg)
+                        )
+                );
+                // .onFalse(Commands.runOnce(() -> sys_drive.stop()));
         // primaryController.x()
         //                 .onTrue(sys_serializer.setVoltage(5))
         //                 .onFalse(sys_serializer.setVoltage(0));

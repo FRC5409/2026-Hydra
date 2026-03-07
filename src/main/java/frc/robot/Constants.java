@@ -26,7 +26,7 @@ import static edu.wpi.first.units.Units.*;
 public final class Constants {
     public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
 
-    public static final boolean IS_TUNING = true;
+    public static final boolean IS_TUNING = false;
 
     public enum Mode {
         /** Running on a real robot. */
@@ -76,6 +76,7 @@ public final class Constants {
 
         public static final Distance TRANSLATION_TOLERANCE;
         public static final Angle    ROTATION_TOLERANCE;
+        public static final AngularVelocity    ROTATION_VELOCITY_TOLERANCE;
 
         public static final Distance TRANSLATION_TOLERANCE_CLIMB_PREP;
         public static final Angle    ROTATION_TOLERANCE_CLIMB_PREP;
@@ -92,12 +93,14 @@ public final class Constants {
             if (IS_TUNING) {
                 TRANSLATION_TOLERANCE = Centimeters.of(0.00);
                 ROTATION_TOLERANCE = Degrees.of(0.00);
+                ROTATION_VELOCITY_TOLERANCE = DegreesPerSecond.of(0.0);
 
                 TRANSLATION_TOLERANCE_CLIMB_PREP = Centimeter.of(0.0);
                 ROTATION_TOLERANCE_CLIMB_PREP = Degrees.of(0.00);
             } else {
                 TRANSLATION_TOLERANCE = Centimeters.of(2.00);
                 ROTATION_TOLERANCE = Degrees.of(1.25);
+                ROTATION_VELOCITY_TOLERANCE = DegreesPerSecond.of(10.0);
 
                 //Tune to allow the climber prep pose to only affect approach hoodExtension
                 TRANSLATION_TOLERANCE_CLIMB_PREP = Centimeters.of(2.00);
