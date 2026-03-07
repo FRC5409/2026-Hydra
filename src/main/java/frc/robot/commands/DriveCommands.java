@@ -390,12 +390,13 @@ public class DriveCommands {
   }
 
   public static Command crossBump(Drive drive, Vision vision, Supplier<Rotation2d> targetHeading, Supplier<LinearVelocity> speed, Time timeout){
+    //  -----------------SIM----------------
     if (Constants.CURRENT_MODE == Mode.SIM)
         return Commands.sequence(
-            DriveCommands.alignToHeading(
-                drive, 
-                targetHeading
-            ),
+            // DriveCommands.alignToHeading(
+            //     drive, 
+            //     targetHeading
+            // ),
             Commands.run(() -> drive.runVelocity(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                     new ChassisSpeeds(
@@ -408,11 +409,12 @@ public class DriveCommands {
             Commands.runOnce(drive::stop)
         );
 
+    // ---------- REAL -----------
     return Commands.sequence(
-        DriveCommands.alignToHeading(
-            drive, 
-            targetHeading
-        ),
+        // DriveCommands.alignToHeading(
+        //     drive, 
+        //     targetHeading
+        // ),
         Commands.runOnce(() -> DID_GET_OFF_GROUND.set(false)),
         Commands.run(() -> drive.runVelocity(
             ChassisSpeeds.fromFieldRelativeSpeeds(
@@ -434,9 +436,11 @@ public class DriveCommands {
                 lastTime.set(System.currentTimeMillis());
             }
 
-            Logger.recordOutput("Drive/BumpTimer", System.currentTimeMillis() - lastTime.get());
+            double dt= System.currentTimeMillis() - lastTime.get();
+            Logger.recordOutput("Drive/BumpTimer", dt);
+            Logger.recordOutput("Drive/BumpTimeout", timeout.in(Millisecond));
 
-            return (drive.getTilt().lte(Degrees.of(2.5)) && (System.currentTimeMillis() - lastTime.get() > timeout.in(Millisecond) || vision.hasTarget()));
+            return (drive.getTilt().lte(Degrees.of(2.5)) && (dt > timeout.in(Millisecond) || vision.hasTarget()));
         }),
         Commands.runOnce(drive::stop)
     );

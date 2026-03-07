@@ -8,6 +8,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -28,6 +29,8 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
+import frc.robot.Constants.kAutoAlign;
+import frc.robot.Constants.kBump;
 import frc.robot.Constants.kField;
 import frc.robot.commands.Autos;
 import frc.robot.generated.TunerConstants;
@@ -81,15 +84,16 @@ import static edu.wpi.first.units.Units.*;
  */
 public class RobotContainer {
     // Subsystems
-    protected final Drive      sys_drive;
-    protected final Vision     sys_vision;
-    protected final Intake     sys_intake;
-    protected final Serializer sys_serializer;
-    protected final Feeder     sys_feeder;
-    protected final Hopper     sys_hopper;
+    // TODO: make these protected later when gamecommands are here
+    public final Drive      sys_drive;
+    public final Vision     sys_vision;
+    public final Intake     sys_intake;
+    public final Serializer sys_serializer;
+    public final Feeder     sys_feeder;
+    public final Hopper     sys_hopper;
    
-    protected final Launcher   sys_launcher;
-    private final   Elevator   sys_elevator;
+    public final Launcher   sys_launcher;
+    public final   Elevator   sys_elevator;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -281,7 +285,16 @@ public class RobotContainer {
     private LoggedDashboardChooser<Command> buildAutoChooser() {
         LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>("Auto Choices");
         chooser.addDefaultOption("None", Commands.none());
-        ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
+        ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(
+            sys_drive, 
+            sys_vision,
+            sys_launcher,
+            sys_feeder,
+            sys_intake,
+            sys_hopper,
+            sys_elevator,
+            this
+        );
 
         autoPaths.forEach(autoPath -> chooser.addOption(autoPath.getName(), autoPath));
 
@@ -386,31 +399,28 @@ public class RobotContainer {
                 "LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
                         () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
-    //    secondaryController.y()
-    //                    .onTrue(sys_launcher.runVelocity(
-    //                            () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
-    //                    .onFalse(sys_launcher.stopLauncher());
+        secondaryController.a()
+                         .onTrue(sys_serializer.setVoltage(8))
+                         .onTrue(sys_intake.setRollerVoltage(10))
+                         .onFalse(sys_serializer.setVoltage(0))
+                         .onFalse(sys_intake.setRollerVoltage(0));
 
-       secondaryController.a()
-                        .onTrue(sys_serializer.setVoltage(8))
-                        .onTrue(sys_intake.setRollerVoltage(10))
-                        .onFalse(sys_serializer.setVoltage(0))
-                        .onFalse(sys_intake.setRollerVoltage(0));
+         final double[] launchSpeed = {50};
+         Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
 
-        final double[] launchSpeed = {50};
-        Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+         secondaryController.povUp()
+              .onTrue(Commands.runOnce(() -> {
+	 			 launchSpeed[0] += 0.5;
+                  Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+	 		 }));
 
-        secondaryController.povUp()
-             .onTrue(Commands.runOnce(() -> {
-				 launchSpeed[0] += 0.5;
-                 Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
-			 }));
+          secondaryController.povDown()
+                  .onTrue(Commands.runOnce(() -> {
+	 				 launchSpeed[0] -= 0.5;
+                      Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+	 			 }));
 
-         secondaryController.povDown()
-                 .onTrue(Commands.runOnce(() -> {
-					 launchSpeed[0] -= 0.5;
-                     Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
-				 }));
+        
 
         secondaryController.rightTrigger()
                            .onTrue(sys_launcher.launchFuel(() -> DriveCommands.distToHub(sys_drive), sys_feeder));
@@ -420,30 +430,47 @@ public class RobotContainer {
                 .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
 
 
-        secondaryController.b()
-                .onTrue(sys_feeder.stopMotor())
-                .onTrue(sys_launcher.stopLauncher());
+         secondaryController.b()
+                 .onTrue(sys_feeder.stopMotor())
+                 .onTrue(sys_launcher.stopLauncher());
 
         secondaryController.y()
                 .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
 
-        primaryController.a()
-                 .onTrue(sys_intake.setRollerVoltage(8));
+    primaryController.a()
+            .whileTrue(
+                DriveCommands.alignToPoint(
+                    sys_drive, 
+                    () -> FlippingUtil.flipFieldPose(new Pose2d(14,2, Rotation2d.fromRadians(-0.36))),
+                    () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+                    () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+                )
+            );
 
-        primaryController.b()
-                 .onTrue(sys_hopper.setSetpoint(() -> Centimeters.of(27)));
-        primaryController.x()
-                 .onTrue(sys_intake.move(() -> Centimeters.of(23.5)));
+    primaryController.x()
+            .whileTrue(
+                    DriveCommands.crossBump(
+                            sys_drive,
+                            sys_vision,
+                            sys_drive::getRotation,
+                            () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED),
+                            Milliseconds.of(0.5)
+                    )
+            );
 
-        
-                 
+    primaryController.b()
+            .whileTrue(
+                    DriveCommands.crossBump(
+                            sys_drive,
+                            sys_vision,
+                            sys_drive::getRotation,
+                            () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)),
+                            Milliseconds.of(0.5)
+                    )
+            );
 
-        primaryController.povUp()
-                .onTrue(sys_intake.setRollerVoltage(0));
-        primaryController.povDown()
-                 .onTrue(sys_intake.setExtensionVoltage(0));
-        primaryController.povLeft()
-                 .onTrue(sys_hopper.setVoltage(0));
+
+
     //    primaryController.povUp()
     //                    .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(100)));
     //     primaryController.povUp()
@@ -465,15 +492,7 @@ public class RobotContainer {
         // Switch to X pattern when X button is pressed
         SmartDashboard.putNumber("SerializerVoltage", 0.0);
 
-        primaryController.rightBumper()
-                .whileTrue(
-                    DriveCommands.alignToHeading(
-                        sys_drive, 
-                        () -> DriveCommands.getRotation2d(
-                            sys_drive, 
-                            kField.BLUE_HUB).plus(Rotation2d.k180deg)
-                        )
-                );
+        
                 // .onFalse(Commands.runOnce(() -> sys_drive.stop()));
         // primaryController.x()
         //                 .onTrue(sys_serializer.setVoltage(5))
@@ -658,6 +677,20 @@ public class RobotContainer {
                 .andThen(sys_hopper.fullExtend());
     }
 
+    public Command hopperAndIntake(){
+        return Commands.sequence(
+                        sys_hopper.setSetpoint(() -> Centimeters.of(27)),
+                        Commands.parallel(
+                            sys_intake.move(() -> Centimeters.of(23.5)),
+                            sys_intake.setRollerVoltage(8)
+                        )
+                    );
+    }
+
+    public Command serialize(double voltage){
+        return sys_serializer.setVoltage(voltage);
+    }
+
     /** 
      * Command to retract both intake and hopper subsystems, with crash avoidance
      * @author Jaden Rajan, team 5409
@@ -745,7 +778,7 @@ public class RobotContainer {
 
         Distance extendPoint = Centimeters.of(23.5);
         Distance retractPoint = extendPoint.minus(Centimeters.of(7.5));
-        private Command agitateIntake(double rollerVoltage) {
+        public Command agitateIntake(double rollerVoltage) {
 
                 return Commands.parallel(
                     sys_intake.setRollerVoltage(rollerVoltage),

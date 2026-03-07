@@ -72,7 +72,12 @@ public final class Constants {
     }
 
     public static final class kAutoAlign {
-        public static final PIDConstants ALIGN_PID = new PIDConstants(4.9, 0.0, 0.28);
+        public static final PIDConstants ALIGN_PID = 
+        new PIDConstants
+        (1.75, 
+        0.0, 
+        0.28);
+        // 4.9, 0, 0.28
 
         public static final Distance TRANSLATION_TOLERANCE;
         public static final Angle    ROTATION_TOLERANCE;
@@ -97,14 +102,18 @@ public final class Constants {
 
                 TRANSLATION_TOLERANCE_CLIMB_PREP = Centimeter.of(0.0);
                 ROTATION_TOLERANCE_CLIMB_PREP = Degrees.of(0.00);
+
+
             } else {
-                TRANSLATION_TOLERANCE = Centimeters.of(2.00);
+
+                TRANSLATION_TOLERANCE = Centimeters.of(4.00);
                 ROTATION_TOLERANCE = Degrees.of(1.25);
                 ROTATION_VELOCITY_TOLERANCE = DegreesPerSecond.of(10.0);
 
                 //Tune to allow the climber prep pose to only affect approach hoodExtension
                 TRANSLATION_TOLERANCE_CLIMB_PREP = Centimeters.of(2.00);
                 ROTATION_TOLERANCE_CLIMB_PREP = Degrees.of(1.25);
+
             }
         }
 
