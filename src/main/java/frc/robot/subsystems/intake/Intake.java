@@ -79,36 +79,36 @@ public class Intake extends SubsystemBase {
     }
 
     public Command setRollerVoltage(double voltage) {
-        return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage), this);
+        return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage));
     }
 
     public Command stopRoller() {
-        return Commands.runOnce(() -> intakeIO.setRollerVoltage(0.0), this);
+        return Commands.runOnce(() -> intakeIO.setRollerVoltage(0.0));
     }
 
     public Command brakemode() {
-        return Commands.runOnce(() -> intakeIO.brakeMode(), this);
+        return Commands.runOnce(() -> intakeIO.brakeMode());
     }
 
     public Command extend() {
-        return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE), this);
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE));
     }
 
     public Command move(Supplier<Distance> setpoint) {
-        return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(setpoint.get().in(Meters))), this);
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Meters.of(setpoint.get().in(Meters))));
     }
 
     public Command retract() {
-        return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE), this);
+        return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_MIN_DISTANCE));
     }
 
     public Command move(Distance position) {
-        return Commands.runOnce(() -> intakeIO.setSetpoint(position), this);
+        return Commands.runOnce(() -> intakeIO.setSetpoint(position));
     }
 
     public Command stopMotor() {
         // intakeIO.stopMotor();
-        return Commands.runOnce(() -> intakeIO.stopMotor(), this);
+        return Commands.runOnce(() -> intakeIO.stopMotor());
     }
 
     public Distance getSetpoint(){
@@ -116,11 +116,11 @@ public class Intake extends SubsystemBase {
     }
 
     public Command coastMode() {
-        return Commands.runOnce(() -> intakeIO.coastMode(), this);
+        return Commands.runOnce(() -> intakeIO.coastMode());
     }
 
     public Command setExtensionVoltage(double voltage) {
-        return Commands.runOnce(() -> intakeIO.setExtensionVoltage(voltage), this);
+        return Commands.runOnce(() -> intakeIO.setExtensionVoltage(voltage));
     }
 
     public Distance getPosition() {

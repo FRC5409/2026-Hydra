@@ -391,11 +391,11 @@ public class RobotContainer {
 //                                () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
 //                        .onFalse(sys_launcher.stopLauncher());
 
-        secondaryController.a()
-                .onTrue(sys_serializer.setVoltage(8))
-                .onTrue(sys_intake.setRollerVoltage(10))
-                .onFalse(sys_serializer.setVoltage(0))
-                .onFalse(sys_intake.setRollerVoltage(0));
+        // secondaryController.a()
+        //         .onTrue(sys_serializer.setVoltage(8))
+        //         .onTrue(sys_intake.setRollerVoltage(10))
+        //         .onFalse(sys_serializer.setVoltage(0))
+        //         .onFalse(sys_intake.setRollerVoltage(0));
 
         final double[] launchSpeed = {50};
         Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
@@ -420,18 +420,18 @@ public class RobotContainer {
 //        primaryController.povDown()
 //                .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(0)));
 
-        secondaryController.x()
-                .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
-                .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
+        // secondaryController.x()
+        //         .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
+        //         .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
 
 
-        secondaryController.b()
-                .onTrue(sys_feeder.stopMotor())
-                .onTrue(sys_launcher.stopLauncher());
+        // secondaryController.b()
+        //         .onTrue(sys_feeder.stopMotor())
+        //         .onTrue(sys_launcher.stopLauncher());
 
 
-        secondaryController.y()
-                .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
+        // secondaryController.y()
+        //         .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
 
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
         
@@ -549,24 +549,29 @@ public class RobotContainer {
         //         // Expected extension and retract values
         
 
-        tertiaryController.y()
+        secondaryController.y()
                 .onTrue(sys_intake.setRollerVoltage(6))
                 .onFalse(sys_intake.setRollerVoltage(0));
 
-        tertiaryController.a()
+        secondaryController.a()
                 .onTrue(sys_intake.setRollerVoltage(-6))
                 .onFalse(sys_intake.setRollerVoltage(0));
 
         primaryController.y()
-                        .onTrue(sys_hopper.setSetpoint(() -> Centimeters.of(26)))
+                        .onTrue(sys_hopper.setSetpoint(() -> Centimeters.of(27)))
                         .onFalse(sys_hopper.setVoltage(0));
         primaryController.a()
-                .onTrue(sys_intake.move(() -> Centimeters.of(0.22)))
+                .onTrue(sys_intake.move(() -> Centimeters.of(23.5)))
                 .onFalse(sys_intake.setExtensionVoltage(0));
+                
         primaryController.povDown()
-                .onTrue(agitateIntake())
+                .onTrue(agitateIntake(8))
                 .onFalse(sys_intake.setExtensionVoltage(0));
 
+        primaryController.povUp()
+                .onTrue(runIntakeIn(1))
+                .onFalse(sys_intake.setExtensionVoltage(0))
+                .onFalse(sys_intake.setRollerVoltage(0));
 
         // primaryController.povUp().onTrue(sys_feeder.setVoltage(3))
         //         .onFalse(sys_feeder.setVoltage(0));
@@ -720,15 +725,27 @@ public class RobotContainer {
         );
     }
 
-        Distance extendPoint = Centimeters.of(22);
-        Distance retractPoint = extendPoint.minus(Centimeters.of(1.5));
-        private Command agitateIntake() {
-                return Commands.repeatingSequence(
+        Distance extendPoint = Centimeters.of(23.5);
+        Distance retractPoint = extendPoint.minus(Centimeters.of(7.5));
+        private Command agitateIntake(double rollerVoltage) {
+
+                return Commands.parallel(
+                    sys_intake.setRollerVoltage(rollerVoltage),
+                    Commands.repeatingSequence(
                         sys_intake.move(() -> retractPoint),
-                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractPoint, Centimeters.of(0.2))),
+                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractPoint, Centimeters.of(1.0))),
                         sys_intake.move(() -> extendPoint),
-                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(extendPoint, Centimeters.of(0.2)))
+                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(extendPoint, Centimeters.of(1.0)))
+                    )
                 );
+        }
+
+        private Command runIntakeIn(double voltage){
+            return Commands.sequence(
+                sys_intake.setExtensionVoltage(voltage),
+                Commands.waitUntil(() -> sys_intake.getPosition().isNear(Centimeters.of(1), Centimeters.of(1))),
+                sys_intake.setExtensionVoltage(0)
+            );
         }
 
     /**

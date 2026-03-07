@@ -115,11 +115,10 @@ public final class IntakeIOTalonFX implements IntakeIO {
     }
 
     public void setSetpoint(Distance position) {
-        
-        position = Meters.of(MathUtil.clamp(position.in(Meters)* (1/IntakeConstants.Extension.UNIT_CONVERSION_FACTOR), 0, Extension.EXTENSION_MAX_DISTANCE.in(Meters)));
-        extensionMotor.setControl(positionControl.withPosition(position.in(Meters)).withSlot(0));
         setpoint = position;
         Logger.recordOutput("Intake/setpoint", position);
+        position = Meters.of(MathUtil.clamp(position.in(Meters)* (1/IntakeConstants.Extension.UNIT_CONVERSION_FACTOR), 0, Extension.EXTENSION_MAX_DISTANCE.in(Meters)));
+        extensionMotor.setControl(positionControl.withPosition(position.in(Meters)).withSlot(0));
     }
 
     public void coastMode() {
