@@ -412,6 +412,9 @@ public class RobotContainer {
                      Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
 				 }));
 
+        secondaryController.rightTrigger()
+                           .onTrue(sys_launcher.launchFuel(() -> DriveCommands.distToHub(sys_drive), sys_feeder));
+
         secondaryController.x()
                 .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
                 .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
@@ -420,7 +423,6 @@ public class RobotContainer {
         secondaryController.b()
                 .onTrue(sys_feeder.stopMotor())
                 .onTrue(sys_launcher.stopLauncher());
-
 
         secondaryController.y()
                 .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));

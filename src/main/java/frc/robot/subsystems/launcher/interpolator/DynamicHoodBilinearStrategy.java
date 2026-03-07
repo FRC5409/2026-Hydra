@@ -3,13 +3,12 @@ package frc.robot.subsystems.launcher.interpolator;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.*;
 
 /**
- * Interpolates a {@link LaunchConfig} (angular velocity and shoot hoodExtension) given a displacement to shoot the fuel.
+ * Interpolates a {@link LaunchConfig} (angular velocity and shoot hoodExtension) given a displacement to shoot the
+ * fuel.
  * <p>
  * The angular velocity and launch hoodExtension are separated into 2 different functions, only correlated by the common
  * independent variable (distance).
@@ -17,6 +16,7 @@ import static edu.wpi.first.units.Units.*;
  * @author Logan Dhillon, FRC 5409 Chargers
  * @apiNote This strategy internally uses a {@link BilinearStrategy}; the test points in the {@link BilinearStrategy}
  * will be used here.
+ * @deprecated This strategy was ruled performatively impractical and will not be updated since Feb. 2026.
  */
 public class DynamicHoodBilinearStrategy extends BilinearStrategy {
     private static final Angle ANGLE_ADJUSTMENT = Degrees.of(5);
@@ -67,7 +67,8 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
 //                lastConfig.hoodExtension()
 //        );
 //        Logger.recordOutput("Launcher/Interpolator/DynamicHoodAdjustment", err);
-//        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> lastConfig.hoodExtension().plus(err)));
+//        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> lastConfig.hoodExtension().plus
+//        (err)));
     }
 
     @Override
