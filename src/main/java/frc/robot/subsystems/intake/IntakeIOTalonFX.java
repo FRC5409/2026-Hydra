@@ -18,7 +18,6 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.units.measure.AngularVelocity;
-import frc.robot.Constants;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;;
 
 public final class IntakeIOTalonFX implements IntakeIO {
@@ -116,8 +115,8 @@ public final class IntakeIOTalonFX implements IntakeIO {
     }
 
     public void setSetpoint(Distance position) {
-        // position = Math.clamp();
-        position = Meters.of(MathUtil.clamp(position.in(Meters), 0, Extension.EXTENSION_MAX_DISTANCE.in(Meters)));
+        
+        position = Meters.of(MathUtil.clamp(position.in(Meters)* (1/IntakeConstants.Extension.UNIT_CONVERSION_FACTOR), 0, Extension.EXTENSION_MAX_DISTANCE.in(Meters)));
         extensionMotor.setControl(positionControl.withPosition(position.in(Meters)).withSlot(0));
         setpoint = position;
         Logger.recordOutput("Intake/setpoint", position);
@@ -139,7 +138,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
     }
 
     public Distance getPosition() {
-        return Meters.of(extensionPositionSignal.getValueAsDouble());
+        return Meters.of(extensionPositionSignal.getValueAsDouble() * Extension.UNIT_CONVERSION_FACTOR);
     }
 
     @Override
@@ -158,7 +157,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.extensionTorqueCurrent = Amps.of(extensionTorqueCurrentSignal.getValueAsDouble());
         inputs.extensionTemp = extensionTemperatureSignal.getValueAsDouble();
 
-        inputs.extensionPosition = Meters.of(extensionPositionSignal.getValueAsDouble());
+        inputs.extensionPosition = getPosition();
 
         inputs.extensionVelocity = MetersPerSecond.of(extensionVelocitySignal.getValueAsDouble());
         inputs.isExtensionRunning = Math.abs(extensionVoltageSignal.getValueAsDouble()) > 0.1;

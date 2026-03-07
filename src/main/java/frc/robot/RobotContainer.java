@@ -440,23 +440,25 @@ public class RobotContainer {
         primaryController.povRight()
                 .onTrue(sys_intake.setExtensionVoltage(2))
                 .onFalse(sys_intake.setExtensionVoltage(0));
+
+
 		
 		primaryController.y()
-                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(2.6)))
+                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.26)))
                 .onFalse(sys_hopper.setVoltage(0));
         // primaryController.a()
-        //         .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.3)))
+        //         .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.01)))
         //         .onFalse(sys_hopper.setVolta`ge(0));
         primaryController.a()
                 .onTrue(agitate())
                 .onFalse(Commands.parallel(sys_hopper.setVoltage(0), sys_intake.setExtensionVoltage(0)));
 
         primaryController.b()
-                .onTrue(sys_intake.move(Meters.of(3.35)))
+                .onTrue(sys_intake.move(Meters.of(0.22)))
                 .onFalse(sys_intake.setExtensionVoltage(0));
 
         primaryController.x()
-                .onTrue(sys_intake.move(Meters.of(0.05)))
+                .onTrue(sys_intake.move(Meters.of(0.01)))
                 .onFalse(sys_intake.setExtensionVoltage(0));
 
         // secondaryController.b()
@@ -615,31 +617,38 @@ public class RobotContainer {
     }
 
     private Command agitate(){
-        return Commands.sequence(
-                sys_hopper.setSetpoint(() -> Meters.of(2.6)),
-                sys_intake.move(Meters.of(3.35)),
-                Commands.waitUntil(
-                                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                                        && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                ),
+        return
+//                Commands.sequence(
+//                sys_hopper.setSetpoint(() -> Meters.of(2.6)),
+//                sys_intake.move(Meters.of(3.35)),
+//                Commands.waitUntil(
+//                                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+//                                        && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
+//                ),
                 Commands.repeatingSequence(
                         Commands.parallel(
-                                sys_intake.move(() -> sys_intake.getPosition().minus(Meters.of(0.29))),
-                                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().minus(Meters.of(0.21)))
+                                sys_intake.move(() -> sys_intake.getPosition().minus(Centimeters.of(2.5))),
+                                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().minus(Centimeters.of(2.5))),
+                                Commands.print("pulling in")
                         ),
+                        Commands.print("Waiting"),
                         Commands.waitUntil(
                                 () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
                                         && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
                         ),
+                        Commands.print("done waiting"),
                         Commands.parallel(
-                                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().plus(Meters.of(0.1))),
-                                sys_intake.move(() -> sys_intake.getPosition().plus(Meters.of(0.15)))
+                                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().plus(Centimeters.of(1.0))),
+                                sys_intake.move(() -> sys_intake.getPosition().plus(Centimeters.of(1.0))),
+                                Commands.print("pushing out")
                         ),
+                        Commands.print("waiting 2"),
                         Commands.waitUntil(
                                 () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
                                         && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                        )
-                )
+                        ),
+                        Commands.print("done waiting")
+//                )
         );
     }
 

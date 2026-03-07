@@ -1,17 +1,12 @@
 package frc.robot.subsystems.hopper;
 
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Inches;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.*;
 
 import com.pathplanner.lib.config.PIDConstants;
 
-import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 /* ALL TEST VALUES */
 public final class HopperConstants {
@@ -27,6 +22,7 @@ public final class HopperConstants {
 
     public static final PIDConstants TALONFX_PID = new PIDConstants(4.5,0.55,0);
 
+    public static final double UNIT_CONVERSION_FACTOR = 0.29/2.715;
 
     public static final PIDConstants SIM_PID = new PIDConstants(4, 0, 3);
 
@@ -34,6 +30,6 @@ public final class HopperConstants {
     public static final Distance HOPPER_MAX_EXTENSION = Meters.of(2.7);
     public static final Distance STARTING_GAP_TO_INTAKE = Meters.of(0.0);
     public static final Distance EXTEND_INCREMENT = Inches.of(0.3);
-    public static final Distance AGITATE_TOLERANCE = Meters.of(0.001);
+    public static final Distance AGITATE_TOLERANCE = Millimeters.of(1);
 
 }

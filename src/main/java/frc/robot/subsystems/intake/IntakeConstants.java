@@ -21,14 +21,14 @@ public final class IntakeConstants {
         public static final LoggedNetworkNumber KS  = new LoggedNetworkNumber("Intake/kS", 0.0);
         public static final LoggedNetworkNumber KV  = new LoggedNetworkNumber("Intake/kV", 0.0);
 
-
-		
 		public static final PIDConstants        TALONFX_PID = new PIDConstants(5.5,0.75,0);
+
 
 
 		public static final Voltage MAX_VOLTAGE = Volts.of(12.0);
 		public static final Current MAX_CURRENT = Amps.of(30.0);
 		public static final double GEARING = 9.0/1.0;
+		public static final double UNIT_CONVERSION_FACTOR = 0.11/1.58;
 		public static final Mass INTAKE_MASS = Kilograms.of(3.1818);
 		// public static final Distance INTAKE_DRUMRADIUS = Meters.of(0.0254);
 		// public static final Distance INTAKE_MIN_DISTANCE = Meters.of(0.0);

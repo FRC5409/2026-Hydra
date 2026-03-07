@@ -2,8 +2,7 @@ package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Meters;
 
-import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+import java.util.function.Supplier;
 
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
@@ -17,17 +16,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants;
-import frc.robot.subsystems.elevator.ElevatorConstants;
-import frc.robot.subsystems.intake.IntakeConstants;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
@@ -146,7 +141,7 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public Distance getPosition() {
-        return Meters.of(motorPosition.getValueAsDouble());
+        return Meters.of(motorPosition.getValueAsDouble() * HopperConstants.UNIT_CONVERSION_FACTOR);
     }
 
     @Override
@@ -155,11 +150,12 @@ public class HopperIOTalonFX implements HopperIO {
     }
 
     @Override
-    public void setSetpoint(Distance setpoint) {
+    public void setSetpoint(Supplier<Distance> setpoint) {
+        Distance setpointNew = Meters.of(MathUtil.clamp(setpoint.get().in(Meters)/HopperConstants.UNIT_CONVERSION_FACTOR, 0, Extension.EXTENSION_MAX_DISTANCE.in(Meters)));
         PhoenixUtil.tryUntilOk(3, 
-        () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Meters))
+        () -> m_mainMotor.setControl(m_request.withPosition(setpointNew.in(Meters))
         .withSlot(0)));
-        motorSetpoint = setpoint;
+        motorSetpoint = setpointNew;
 
     }
 
@@ -180,7 +176,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.appliedCurrent = deviceCurrent.getValue();
         inputs.torqueCurrent = torqueCurrent.getValue();
         inputs.motorTemp = deviceTemp.getValueAsDouble();
-        inputs.motorPosition = Meters.of(motorPosition.getValueAsDouble());
+        inputs.motorPosition = getPosition();
         inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
         inputs.setpoint = motorSetpoint;
     }
