@@ -386,16 +386,16 @@ public class RobotContainer {
                 "LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
                         () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
-//        secondaryController.y()
-//                        .onTrue(sys_launcher.runVelocity(
-//                                () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
-//                        .onFalse(sys_launcher.stopLauncher());
+    //    secondaryController.y()
+    //                    .onTrue(sys_launcher.runVelocity(
+    //                            () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
+    //                    .onFalse(sys_launcher.stopLauncher());
 
-        // secondaryController.a()
-        //         .onTrue(sys_serializer.setVoltage(8))
-        //         .onTrue(sys_intake.setRollerVoltage(10))
-        //         .onFalse(sys_serializer.setVoltage(0))
-        //         .onFalse(sys_intake.setRollerVoltage(0));
+       secondaryController.a()
+                        .onTrue(sys_serializer.setVoltage(8))
+                        .onTrue(sys_intake.setRollerVoltage(10))
+                        .onFalse(sys_serializer.setVoltage(0))
+                        .onFalse(sys_intake.setRollerVoltage(0));
 
         final double[] launchSpeed = {50};
         Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
@@ -412,26 +412,42 @@ public class RobotContainer {
                      Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
 				 }));
 
-
-//        primaryController.povUp()
-//                        .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(100)));
-        // primaryController.povUp()
-//                        .onFalse(Commands.runOnce(() -> SmartDashboard.putNumber("LAUNCHER SPEED [rps]", SmartDashboard.getNumber("LAUNCHER SPEED [rps]") + 5)));
-//        primaryController.povDown()
-//                .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(0)));
-
-        // secondaryController.x()
-        //         .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
-        //         .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
+        secondaryController.x()
+                .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
+                .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
 
 
-        // secondaryController.b()
-        //         .onTrue(sys_feeder.stopMotor())
-        //         .onTrue(sys_launcher.stopLauncher());
+        secondaryController.b()
+                .onTrue(sys_feeder.stopMotor())
+                .onTrue(sys_launcher.stopLauncher());
 
 
-        // secondaryController.y()
-        //         .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
+        secondaryController.y()
+                .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
+
+        primaryController.a()
+                 .onTrue(sys_intake.setRollerVoltage(8));
+
+        primaryController.b()
+                 .onTrue(sys_hopper.setSetpoint(() -> Centimeters.of(27)));
+        primaryController.x()
+                 .onTrue(sys_intake.move(() -> Centimeters.of(23.5)));
+
+        
+                 
+
+        primaryController.povUp()
+                .onTrue(sys_intake.setRollerVoltage(0));
+        primaryController.povDown()
+                 .onTrue(sys_intake.setExtensionVoltage(0));
+        primaryController.povLeft()
+                 .onTrue(sys_hopper.setVoltage(0));
+    //    primaryController.povUp()
+    //                    .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(100)));
+    //     primaryController.povUp()
+    //                    .onFalse(Commands.runOnce(() -> SmartDashboard.putNumber("LAUNCHER SPEED [rps]", SmartDashboard.getNumber("LAUNCHER SPEED [rps]") + 5)));
+    //    primaryController.povDown()
+    //            .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(0)));
 
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
         
@@ -549,29 +565,29 @@ public class RobotContainer {
         //         // Expected extension and retract values
         
 
-        secondaryController.y()
-                .onTrue(sys_intake.setRollerVoltage(6))
-                .onFalse(sys_intake.setRollerVoltage(0));
+        // secondaryController.y()
+        //         .onTrue(sys_intake.setRollerVoltage(6))
+        //         .onFalse(sys_intake.setRollerVoltage(0));
 
-        secondaryController.a()
-                .onTrue(sys_intake.setRollerVoltage(-6))
-                .onFalse(sys_intake.setRollerVoltage(0));
+        // secondaryController.a()
+        //         .onTrue(sys_intake.setRollerVoltage(-6))
+        //         .onFalse(sys_intake.setRollerVoltage(0));
 
-        primaryController.y()
-                        .onTrue(sys_hopper.setSetpoint(() -> Centimeters.of(27)))
-                        .onFalse(sys_hopper.setVoltage(0));
-        primaryController.a()
-                .onTrue(sys_intake.move(() -> Centimeters.of(23.5)))
-                .onFalse(sys_intake.setExtensionVoltage(0));
+        // primaryController.y()
+        //                 .onTrue(sys_hopper.setSetpoint(() -> Centimeters.of(27)))
+        //                 .onFalse(sys_hopper.setVoltage(0));
+        // primaryController.a()
+        //         .onTrue(sys_intake.move(() -> Centimeters.of(23.5)))
+        //         .onFalse(sys_intake.setExtensionVoltage(0));
                 
-        primaryController.povDown()
-                .onTrue(agitateIntake(8))
-                .onFalse(sys_intake.setExtensionVoltage(0));
+        // primaryController.povDown()
+        //         .onTrue(agitateIntake(8))
+        //         .onFalse(sys_intake.setExtensionVoltage(0));
 
-        primaryController.povUp()
-                .onTrue(runIntakeIn(1))
-                .onFalse(sys_intake.setExtensionVoltage(0))
-                .onFalse(sys_intake.setRollerVoltage(0));
+        // primaryController.povUp()
+        //         .onTrue(runIntakeIn(1))
+        //         .onFalse(sys_intake.setExtensionVoltage(0))
+        //         .onFalse(sys_intake.setRollerVoltage(0));
 
         // primaryController.povUp().onTrue(sys_feeder.setVoltage(3))
         //         .onFalse(sys_feeder.setVoltage(0));
