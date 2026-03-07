@@ -82,7 +82,7 @@ public final class Constants {
 
         public static final LinearVelocity VELOCITY_TOLERANCE            = MetersPerSecond.of(0.18);
         public static final LinearVelocity AUTO_VELOCITY_TOLERANCE       = MetersPerSecond.of(0.15);
-        //Tune to allow the climber prep pose to only affect approach angle + keep velocity
+        //Tune to allow the climber prep pose to only affect approach hoodExtension + keep velocity
         public static final LinearVelocity VELOCITY_TOLERANCE_CLIMB_PREP = MetersPerSecond.of(1);
 
         public static final AngularVelocity AUTO_ANGULAR_VELOCITY_TOLERANCE = DegreesPerSecond.of(0.15);
@@ -99,7 +99,7 @@ public final class Constants {
                 TRANSLATION_TOLERANCE = Centimeters.of(2.00);
                 ROTATION_TOLERANCE = Degrees.of(1.25);
 
-                //Tune to allow the climber prep pose to only affect approach angle
+                //Tune to allow the climber prep pose to only affect approach hoodExtension
                 TRANSLATION_TOLERANCE_CLIMB_PREP = Centimeters.of(2.00);
                 ROTATION_TOLERANCE_CLIMB_PREP = Degrees.of(1.25);
             }

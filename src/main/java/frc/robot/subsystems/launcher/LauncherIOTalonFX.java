@@ -11,8 +11,11 @@ import com.ctre.phoenix6.signals.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.*;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.subsystems.intake.IntakeConstants;
 
@@ -33,6 +36,8 @@ public class LauncherIOTalonFX implements LauncherIO {
     private double servo2CurPos;
     private double servo1Setpoint;
     private double servo2Setpoint;
+    private double servo1DisabledSetpoint;
+    private double servo2DisabledSetpoint;
 
     // status signals
     private final StatusSignal<MagnetHealthValue> magnetHealth;
@@ -114,12 +119,11 @@ public class LauncherIOTalonFX implements LauncherIO {
 
         // Slot configs
         Slot0Configs motorTuning = new Slot0Configs()
-                .withKP(LauncherConstants.Launcher.PID.getP())
-                .withKI(LauncherConstants.Launcher.PID.getI())
-                .withKD(LauncherConstants.Launcher.PID.getD())
+                .withKP(LauncherConstants.Launcher.PID.kP)
+                .withKI(LauncherConstants.Launcher.PID.kI)
+                .withKD(LauncherConstants.Launcher.PID.kD)
                 .withKV(LauncherConstants.Launcher.kV)
-                .withKS(LauncherConstants.Launcher.kS)
-                .withKG(LauncherConstants.Launcher.kG);
+                .withKS(LauncherConstants.Launcher.kS);
         leaderConfig.apply(motorTuning);
         followerConfig.apply(motorTuning);
 
@@ -145,11 +149,25 @@ public class LauncherIOTalonFX implements LauncherIO {
         followerConfig.apply(feedbackConfigs);
 
         followerMotor.setControl(new Follower(launcherCanID, MotorAlignmentValue.Opposed));
+
+//        new Trigger(DriverStation::isDisabled).onTrue(Commands.runOnce(() -> {
+//            // update disabled pos to store
+//            servo1DisabledSetpoint = servo1Setpoint;
+//            servo2DisabledSetpoint = servo2Setpoint;
+//            // and update the real setpoint
+//            servo1Setpoint = servo1CurPos;
+//            servo2Setpoint = servo2CurPos;
+//        })).onFalse(Commands.runOnce(() -> {
+//            // restore disabled setpoints
+//            servo1Setpoint = servo2DisabledSetpoint;
+//            servo2Setpoint = servo2DisabledSetpoint;
+//        }));
     }
 
     // Run systems
     @Override
     public void runVelocity(Supplier<AngularVelocity> velocity) {
+
         leaderMotor.setControl(
                 new VelocityVoltage(velocity.get())
                         .withSlot(0)
@@ -176,7 +194,7 @@ public class LauncherIOTalonFX implements LauncherIO {
         servo1Setpoint = appliedSetpoint;
         appliedSetpoint = (targetSetpoint / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;
         hoodServo.setSpeed(appliedSetpoint);
-
+        
         appliedSetpoint = MathUtil.clamp(targetSetpoint, 0, LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters));
         servo2Setpoint = appliedSetpoint;
         appliedSetpoint = (targetSetpoint / LauncherConstants.Hood.MAX_EXTENSION.in(Millimeters) * 2) - 1;

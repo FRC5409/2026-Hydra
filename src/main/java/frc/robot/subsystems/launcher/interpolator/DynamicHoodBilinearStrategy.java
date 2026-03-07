@@ -9,9 +9,9 @@ import org.littletonrobotics.junction.Logger;
 import static edu.wpi.first.units.Units.*;
 
 /**
- * Interpolates a {@link LaunchConfig} (angular velocity and shoot angle) given a displacement to shoot the fuel.
+ * Interpolates a {@link LaunchConfig} (angular velocity and shoot hoodExtension) given a displacement to shoot the fuel.
  * <p>
- * The angular velocity and launch angle are separated into 2 different functions, only correlated by the common
+ * The angular velocity and launch hoodExtension are separated into 2 different functions, only correlated by the common
  * independent variable (distance).
  *
  * @author Logan Dhillon, FRC 5409 Chargers
@@ -33,9 +33,9 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
      *
      * @param targetVelocity target/theoretical velocity
      * @param realVelocity   actual velocity of the motor
-     * @param hoodAngle      measured hood angle
+     * @param hoodAngle      measured hood hoodExtension
      *
-     * @return new hood angle
+     * @return new hood hoodExtension
      */
     public Angle computeHoodAdjustment(
             AngularVelocity targetVelocity,
@@ -57,17 +57,17 @@ public class DynamicHoodBilinearStrategy extends BilinearStrategy {
 
     @Override
     public void periodic() {
-        if (lastConfig == null) return;
-
-        // update hood before returning interpolation
-        Angle err = computeHoodAdjustment(
-                lastConfig.speed(),
-                this.launcher.getVelocity(),
-                this.launcher.getHoodAngle(),
-                lastConfig.angle()
-        );
-        Logger.recordOutput("Launcher/Interpolator/DynamicHoodAdjustment", err);
-        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> lastConfig.angle().plus(err)));
+//        if (lastConfig == null) return;
+//
+//        // update hood before returning interpolation
+//        Angle err = computeHoodAdjustment(
+//                lastConfig.speed(),
+//                this.launcher.getVelocity(),
+//                this.launcher.getHoodAngle(),
+//                lastConfig.hoodExtension()
+//        );
+//        Logger.recordOutput("Launcher/Interpolator/DynamicHoodAdjustment", err);
+//        CommandScheduler.getInstance().schedule(this.launcher.setHoodAngle(() -> lastConfig.hoodExtension().plus(err)));
     }
 
     @Override

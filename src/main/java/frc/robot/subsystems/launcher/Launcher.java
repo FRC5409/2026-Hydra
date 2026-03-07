@@ -98,7 +98,7 @@ public class Launcher extends SubsystemBase {
     }
 
     /**
-     * Defers a command that interpolates a {@link LaunchConfig} and then sets the velocity and hood angle of the
+     * Defers a command that interpolates a {@link LaunchConfig} and then sets the velocity and hood hoodExtension of the
      * launcher, based on the active {@link LaunchStrategy}.
      *
      * @param distance supplier to get the distance that fuel should be shot from
@@ -113,7 +113,7 @@ public class Launcher extends SubsystemBase {
                     logInterpolation(distance.get(), c, launchSpeed);
 
                     return runVelocity(() -> launchSpeed)
-                            .alongWith(setHoodAngle(c::angle)) // set hood angle
+                            .alongWith(setHoodExtension(c::hoodExtension)) // set hood hoodExtension
                             .alongWith(feeder.runRPS(() -> launchSpeed)); // run feeder at same vel.
                 }, Set.of(this));
     }
@@ -132,22 +132,22 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput(
                 "Launcher/Interpolator/TargetSpeed",
                 config == null ? RotationsPerSecond.of(0) : config.speed());
-        Logger.recordOutput("Launcher/Interpolator/TargetAngle", config == null ? Radians.of(0) : config.angle());
+        Logger.recordOutput("Launcher/Interpolator/TargetAngle", config == null ? Millimeters.of(0) : config.hoodExtension());
         Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", realLaunchSpeed);
     }
 
-    private Distance computeHoodExtension(Angle angle) {
-        // clamp between min and max
-        double theta = angle.in(Degrees);
-        theta = Math.max(LauncherConstants.Hood.MIN_ANGLE_DEG, Math.min(LauncherConstants.Hood.MAX_ANGLE_DEG, theta));
+//    private Distance computeHoodExtension(Angle hoodExtension) {
+//        // clamp between min and max
+//        double theta = hoodExtension.in(Degrees);
+//        theta = Math.max(LauncherConstants.Hood.MIN_ANGLE_DEG, Math.min(LauncherConstants.Hood.MAX_ANGLE_DEG, theta));
+//
+//        return (Distance)Degrees.of(theta)
+//                                .timesConversionFactor(LauncherConstants.Hood.MM_PER_DEG)
+//                                .minus(LauncherConstants.Hood.OFFSET_MM);
+//    }
 
-        return (Distance)Degrees.of(theta)
-                                .timesConversionFactor(LauncherConstants.Hood.MM_PER_DEG)
-                                .minus(LauncherConstants.Hood.OFFSET_MM);
-    }
-
-    public Command setHoodAngle(Supplier<Angle> angle) {
-        return Commands.runOnce(() -> hoodSetpoint.set(computeHoodExtension(angle.get())));
+    public Command setHoodExtension(Supplier<Distance> angle) {
+        return Commands.runOnce(() -> hoodSetpoint.set(angle.get()));
     }
 
     // Getters
@@ -190,6 +190,6 @@ public class Launcher extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.recordOutput("Launcher/Interpolator/OperatorSpeedOffset", getSpeedOffset());
         Logger.processInputs("Launcher", inputs);
-        SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
+        // SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);
     }
 }

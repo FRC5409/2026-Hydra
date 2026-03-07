@@ -29,7 +29,6 @@ import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
 import frc.robot.commands.Autos;
-import frc.robot.Constants.kBump;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.Elevator;
@@ -68,7 +67,6 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import static edu.wpi.first.units.Units.Inches;
 import frc.robot.Constants.DeviceID;
 
 import java.util.ArrayList;
@@ -387,14 +385,44 @@ public class RobotContainer {
                 "LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
                         () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
 
+        primaryController.y()
+                        .onTrue(sys_launcher.runVelocity(
+                                () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
+                        .onFalse(sys_launcher.stopLauncher());
+
+        primaryController.a()
+                .onTrue(sys_serializer.setVoltage(8))
+                .onTrue(sys_intake.setRollerVoltage(10))
+                .onFalse(sys_serializer.setVoltage(0))
+                .onFalse(sys_intake.setRollerVoltage(0));
+
+//        primaryController.povUp()
+//                        .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(100)));
+        // primaryController.povUp()
+//                        .onFalse(Commands.runOnce(() -> SmartDashboard.putNumber("LAUNCHER SPEED [rps]", SmartDashboard.getNumber("LAUNCHER SPEED [rps]") + 5)));
+//        primaryController.povDown()
+//                .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(0)));
+
+        primaryController.x()
+                .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
+                .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
+                .onFalse(sys_feeder.stopMotor())
+                .onFalse(sys_launcher.stopLauncher());
+
+        primaryController.b()
+                .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(20)))
+                .onFalse(sys_launcher.stopLauncher());
+
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
 
-        SmartDashboard.putNumber("Hood Angle [deg]", 0);
+        
+
+        SmartDashboard.putNumber("Hood Angle [mm]", 0);
         SmartDashboard.putData(
-                "Set Hood Angle", sys_launcher.setHoodAngle(() ->
-                                                                    Degrees.of(
+                "Set Hood Angle", sys_launcher.setHoodExtension(() ->
+                        Millimeter.of(
                                                                             SmartDashboard.getNumber(
-                                                                                    "Hood Angle [deg]",
+                                                                                    "Hood Angle [mm]",
                                                                                     0))));
 
         // Switch to X pattern when X button is pressed
@@ -425,41 +453,41 @@ public class RobotContainer {
         // primaryController.y()
         //         .onTrue(sys_elevator.elevatorGo(Meters.of(0.05),0));
 
-        primaryController.povUp()
-                .onTrue(sys_hopper.setVoltage(-2))
-                .onFalse(sys_hopper.setVoltage(0));
+        // primaryController.povUp()
+        //         .onTrue(sys_hopper.setVoltage(-2))
+        //         .onFalse(sys_hopper.setVoltage(0));
 
-        primaryController.povDown()
-                .onTrue(sys_hopper.setVoltage(2))
-                .onFalse(sys_hopper.setVoltage(0));
+        // primaryController.povDown()
+        //         .onTrue(sys_hopper.setVoltage(2))
+        //         .onFalse(sys_hopper.setVoltage(0));
 
-        primaryController.povLeft()
-                .onTrue(sys_intake.setExtensionVoltage(-2))
-                .onFalse(sys_intake.setExtensionVoltage(0));
+        // primaryController.povLeft()
+        //         .onTrue(sys_intake.setExtensionVoltage(-2))
+        //         .onFalse(sys_intake.setExtensionVoltage(0));
         
-        primaryController.povRight()
-                .onTrue(sys_intake.setExtensionVoltage(2))
-                .onFalse(sys_intake.setExtensionVoltage(0));
+        // primaryController.povRight()
+        //         .onTrue(sys_intake.setExtensionVoltage(2))
+        //         .onFalse(sys_intake.setExtensionVoltage(0));
 
 
 		
-		primaryController.y()
-                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.26)))
-                .onFalse(sys_hopper.setVoltage(0));
+//		primaryController.y()
+//                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.26)))
+//                .onFalse(sys_hopper.setVoltage(0));
         // primaryController.a()
         //         .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.01)))
         //         .onFalse(sys_hopper.setVolta`ge(0));
-        primaryController.a()
-                .onTrue(agitate())
-                .onFalse(Commands.parallel(sys_hopper.setVoltage(0), sys_intake.setExtensionVoltage(0)));
+        // primaryController.a()
+        //         .onTrue(agitate())
+        //         .onFalse(Commands.parallel(sys_hopper.setVoltage(0), sys_intake.setExtensionVoltage(0)));
 
-        primaryController.b()
-                .onTrue(sys_intake.move(Meters.of(0.22)))
-                .onFalse(sys_intake.setExtensionVoltage(0));
+        // primaryController.b()
+        //         .onTrue(sys_intake.move(Meters.of(0.22)))
+        //         .onFalse(sys_intake.setExtensionVoltage(0));
 
-        primaryController.x()
-                .onTrue(sys_intake.move(Meters.of(0.01)))
-                .onFalse(sys_intake.setExtensionVoltage(0));
+        // primaryController.x()
+        //         .onTrue(sys_intake.move(Meters.of(0.01)))
+        //         .onFalse(sys_intake.setExtensionVoltage(0));
 
         // secondaryController.b()
         //         .onTrue(getAutonomousCommand());

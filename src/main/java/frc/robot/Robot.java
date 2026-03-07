@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.RebuiltTimer;
 
@@ -111,6 +112,7 @@ public class Robot extends LoggedRobot {
 
         rebuiltTimer.trackShift();
         rebuiltTimer.periodic(robotContainer.sys_drive);
+        Logger.recordOutput("DistToHub", DriveCommands.distToHub(robotContainer.sys_drive));
     }
 
     /** This function is called once when the robot is disabled. */

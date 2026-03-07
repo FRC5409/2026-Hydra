@@ -160,7 +160,7 @@ public class DriveCommands {
 
   /**
    * Field relative drive command using joystick for linear control and PID for angular control.
-   * Possible use cases include snapping to an angle, aiming at a vision target, or controlling
+   * Possible use cases include snapping to an hoodExtension, aiming at a vision target, or controlling
    * absolute rotation with a joystick.
    */
   public static Command joystickDriveAtAngle(
