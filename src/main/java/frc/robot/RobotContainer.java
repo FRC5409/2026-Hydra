@@ -557,6 +557,16 @@ public class RobotContainer {
                 .onTrue(sys_intake.setRollerVoltage(-6))
                 .onFalse(sys_intake.setRollerVoltage(0));
 
+        primaryController.y()
+                        .onTrue(sys_hopper.setSetpoint(() -> Centimeters.of(26)))
+                        .onFalse(sys_hopper.setVoltage(0));
+        primaryController.a()
+                .onTrue(sys_intake.move(() -> Centimeters.of(0.22)))
+                .onFalse(sys_intake.setExtensionVoltage(0));
+        primaryController.povDown()
+                .onTrue(agitateIntake())
+                .onFalse(sys_intake.setExtensionVoltage(0));
+
 
         // primaryController.povUp().onTrue(sys_feeder.setVoltage(3))
         //         .onFalse(sys_feeder.setVoltage(0));
