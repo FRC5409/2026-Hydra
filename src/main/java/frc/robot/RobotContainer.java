@@ -710,6 +710,17 @@ public class RobotContainer {
         );
     }
 
+        Distance extendPoint = Centimeters.of(22);
+        Distance retractPoint = extendPoint.minus(Centimeters.of(1.5));
+        private Command agitateIntake() {
+                return Commands.repeatingSequence(
+                        sys_intake.move(() -> retractPoint),
+                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractPoint, Centimeters.of(0.2))),
+                        sys_intake.move(() -> extendPoint),
+                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(extendPoint, Centimeters.of(0.2)))
+                );
+        }
+
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
      *
