@@ -437,15 +437,21 @@ public class RobotContainer {
         secondaryController.y()
                 .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
 
+    // primaryController.a()
+    //         .whileTrue(
+    //             DriveCommands.alignToPoint(
+    //                 sys_drive, 
+    //                 () -> FlippingUtil.flipFieldPose(new Pose2d(14,2, Rotation2d.fromRadians(-0.36))),
+    //                 () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+    //                 () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+    //             )
+            // );
+
     primaryController.a()
-            .whileTrue(
-                DriveCommands.alignToPoint(
-                    sys_drive, 
-                    () -> FlippingUtil.flipFieldPose(new Pose2d(14,2, Rotation2d.fromRadians(-0.36))),
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-                    () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-                )
-            );
+                 .onTrue(
+                    Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER))
+                 )
+                 .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1)));
 
     primaryController.x()
             .whileTrue(
@@ -454,7 +460,7 @@ public class RobotContainer {
                             sys_vision,
                             sys_drive::getRotation,
                             () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED),
-                            Milliseconds.of(0.5)
+                            Seconds.of(1)
                     )
             );
 
@@ -465,9 +471,10 @@ public class RobotContainer {
                             sys_vision,
                             sys_drive::getRotation,
                             () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)),
-                            Milliseconds.of(0.5)
+                            Seconds.of(1)
                     )
             );
+    
 
 
 

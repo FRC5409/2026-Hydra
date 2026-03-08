@@ -415,7 +415,10 @@ public class DriveCommands {
         //     drive, 
         //     targetHeading
         // ),
-        Commands.runOnce(() -> DID_GET_OFF_GROUND.set(false)),
+        Commands.runOnce(() -> {
+            DID_GET_OFF_GROUND.set(false);
+            lastTime.set(-1);
+        }),
         Commands.run(() -> drive.runVelocity(
             ChassisSpeeds.fromFieldRelativeSpeeds(
                 new ChassisSpeeds(
@@ -432,15 +435,27 @@ public class DriveCommands {
             if (!DID_GET_OFF_GROUND.get()) return false;
 
             // TODO: Tune for real robot value
-            if (drive.getTilt().gt(Degrees.of(2.5))){ // should be much lower on real robot
+            if (drive.getTilt().gt(Degrees.of(2.0)) && lastTime.get() == -1){ // should be much lower on real robot
+            //     lastTime.set(-2);
+            // }
+
+            // if (drive.getTilt().lte(Degrees.of(2.0)) && lastTime.get() == -2) {
                 lastTime.set(System.currentTimeMillis());
             }
 
-            double dt= System.currentTimeMillis() - lastTime.get();
+            double dt = System.currentTimeMillis() - lastTime.get();
             Logger.recordOutput("Drive/BumpTimer", dt);
             Logger.recordOutput("Drive/BumpTimeout", timeout.in(Millisecond));
 
-            return (drive.getTilt().lte(Degrees.of(2.5)) && (dt > timeout.in(Millisecond) || vision.hasTarget()));
+
+            return (
+                drive.getTilt().lte(Degrees.of(3.5)) 
+                && 
+                (
+                    dt > timeout.in(Millisecond) 
+            // || vision.hasTarget()
+            )
+            );
         }),
         Commands.runOnce(drive::stop)
     );
