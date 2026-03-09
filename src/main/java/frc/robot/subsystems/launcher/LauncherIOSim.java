@@ -49,6 +49,11 @@ public class LauncherIOSim implements LauncherIO {
     }
 
     @Override
+    public AngularVelocity getVelocity() {
+        return flywheelSim.getAngularVelocity();
+    }
+
+    @Override
     public Distance getHoodExtension() {
         return hoodPos;
     }
