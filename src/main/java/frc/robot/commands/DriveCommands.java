@@ -511,6 +511,10 @@ public class DriveCommands {
     );
   }
 
+  public static Rotation2d getRotationToHub(Drive drive){
+    return getRotation2d(drive, Constants.kField.BLUE_HUB).plus(Rotation2d.k180deg);
+  }
+
   public static LinearVelocity getBumpSpeed(LinearVelocity speed) {
     if (AutoBuilder.shouldFlip())
         return speed.times(-1);
