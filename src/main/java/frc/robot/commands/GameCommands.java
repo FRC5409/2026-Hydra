@@ -21,47 +21,44 @@ import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.elevator.*;
 import frc.robot.Constants.*;
 
-
 /** Add your docs here. */
 public class GameCommands {
 
     public static Command autoLaunch(Supplier<Distance> distanceSupplier, Drive drive, Launcher launcher, Feeder feeder, Serializer serializer, Intake intake){
-        return Commands.sequence(
-            Commands.parallel(
-                DriveCommands.alignToHeading(
-                    drive,
-                    () -> DriveCommands.getRotationToHub(drive)
-                ),
-                // 2) Then launch
-                launcher.launchFuel(distanceSupplier, feeder)
-            ).until(
-                ()-> DriveCommands.isAligned() 
-                // TODO: IMPLEMENT WAITFOR LAUNCHER SPIN UP
-                // && launcher.isGood
+        return Commands.parallel(
+            DriveCommands.alignToHeading(
+                drive,
+                () -> DriveCommands.getRotationToHub(drive)
             ),
+            Commands.sequence(
+                Commands.parallel(
+                    Commands.waitUntil(DriveCommands::isAligned),
+                    launcher.launchFuel(distanceSupplier, feeder)
+                    
+                ),
+                Commands.waitUntil(launcher::isLauncherAtSpeed), 
 
-            serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-            Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
+                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-            GameCommands.agitate(intake)
-
+                agitateIntake(intake)
+            )
         );
     }
 
     public static Command manualLaunch(Supplier<Distance> distance, Launcher launcher, Feeder feeder, Serializer serializer, Intake intake ){
         return Commands.sequence(
             
-                // 2) Then launch
             launcher.launchFuel(distance, feeder),
-            // TODO: UPDATE WITH LAUNCHER WAIT TILL SPIN UP
-            // Commands.waitUntil(launcher.isready)
+
+            Commands.waitUntil(launcher::isLauncherAtSpeed),
             
             serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
             Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-            GameCommands.agitate(intake)
+            agitateIntake(intake)
         );
     }
 
@@ -77,19 +74,20 @@ public class GameCommands {
      */
     public static Command manualPass(Launcher launcher, Feeder feeder, Serializer serializer, Intake intake){
         return Commands.sequence(
+
             Commands.parallel(
                 launcher.runVelocity(() -> GameCommandsConstants.PASSING_RPS),
                 launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE)
                 
             ),
-            // TODO: IMPLEMENT WAIT FOR LAUNCHER SPINUP
-            // Commands.waitUntil(launcher.isReady),
+            
+            Commands.waitUntil(launcher::isLauncherAtSpeed),
 
             serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
             Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-            GameCommands.agitate(intake)
+            agitateIntake(intake)
 
         );
     }
@@ -113,7 +111,7 @@ public class GameCommands {
         );
     }
 
-    public static Command agitate(Intake intake){
+    public static Command agitateIntake(Intake intake){
         return Commands.parallel(
             intake.setRollerVoltage(IntakeConstants.Roller.AGITATE_VOLTAGE),
             Commands.repeatingSequence(

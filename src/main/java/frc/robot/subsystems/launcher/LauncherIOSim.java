@@ -45,7 +45,7 @@ public class LauncherIOSim implements LauncherIO {
 
     @Override
     public void runVelocity(Supplier<AngularVelocity> velocity) {
-        flywheelSim.setAngularVelocity(velocity.get().in(RadiansPerSecond) * 60);
+        flywheelSim.setAngularVelocity(velocity.get().in(RadiansPerSecond));
     }
 
     @Override
