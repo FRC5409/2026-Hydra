@@ -12,9 +12,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
-
-import static edu.wpi.first.units.Units.*;
-
 import org.littletonrobotics.junction.Logger;
 
 /**
@@ -51,11 +48,10 @@ public class Vision extends SubsystemBase {
      */
     public static final double THETA_STDDEV_PER_METER = 1.5;
 
-    // TODO: update these to camera offset (done) - Double check angle
+    // TODO: update these to camera offset
     public static final Transform3d OFFSET_FROM_ROBOT_ORIGIN = new Transform3d(
-                                                                    new Translation3d(Inches.of(-11.639), Inches.of(- 1.623 ), Inches.of(20.027)),
-                                                                    new Rotation3d( Degrees.of(0.0),  Degrees.of(5.0),   Degrees.of(0.0))
-                                                                );
+            new Translation3d(0, 0, 0),
+            new Rotation3d(0, 0, 0));
 
     private final VisionIO               io;
     private final VisionInputsAutoLogged inputs;

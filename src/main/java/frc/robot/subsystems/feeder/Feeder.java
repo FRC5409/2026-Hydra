@@ -2,12 +2,9 @@ package frc.robot.subsystems.feeder;
 
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
-import java.util.function.Supplier;
-
 import org.littletonrobotics.junction.Logger;
 
 import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,17 +15,13 @@ public class Feeder extends SubsystemBase {
 
     private FeederInputsAutoLogged inputs;
     private FeederIO io;
-    private static AngularVelocity targetRPS;
     
     public Feeder(FeederIO io) {
-        SmartDashboard.putData("Feeder/PID", FeederConstants.PID);
-        SmartDashboard.putNumber("Feeder/RPS", 0.0);
-
         this.io = io;
         inputs = new FeederInputsAutoLogged();
 
         Checkmate.register("Should spin to move FUEL towards launcher", () -> {
-            Command cmd = this.runRPS(() -> RotationsPerSecond.of(10));
+            Command cmd = this.setVoltage(2);
             cmd.initialize();
             cmd.execute();
             if(this.getVelocity().in(RotationsPerSecond) > 0) {
@@ -47,7 +40,7 @@ public class Feeder extends SubsystemBase {
         }, this);
     }
 
-    public Command runRPS(Supplier<AngularVelocity> RPS) {
+    public Command runRPS(double RPS) {
         return Commands.runOnce(() -> {
             io.runRPS(RPS);
         }, this);
@@ -73,6 +66,5 @@ public class Feeder extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Feeder", inputs);
-        targetRPS = RotationsPerSecond.of(SmartDashboard.getNumber("Feeder/RPS", 0));
     }
 }

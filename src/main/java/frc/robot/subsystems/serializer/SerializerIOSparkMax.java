@@ -29,7 +29,7 @@ public class SerializerIOSparkMax implements SerializerIO {
     }
 
     @Override
-    public void setVoltage(double voltage) {
+    public void setMotorVoltage(double voltage) {
 
         indexerMotor.setVoltage(voltage);
 
@@ -39,10 +39,10 @@ public class SerializerIOSparkMax implements SerializerIO {
     @Override
     public void updateInputs(SerializerInputs inputs) {
 
-        inputs.isIndexerMotorConnected = !(indexerMotor.getFaults().motorType || indexerMotor.getFaults().can);
-        inputs.indexerAppliedVoltage = Volts.of(indexerMotor.get() * RobotController.getBatteryVoltage());
-        inputs.indexerAppliedCurrent = Amps.of(indexerMotor.getOutputCurrent());
-        inputs.indexerMotorTemperature = indexerMotor.getMotorTemperature();
+        inputs.isMotorConnected = !(indexerMotor.getFaults().motorType || indexerMotor.getFaults().can);
+        inputs.appliedVoltage = Volts.of(indexerMotor.get() * RobotController.getBatteryVoltage());
+        inputs.appliedCurrent = Amps.of(indexerMotor.getOutputCurrent());
+        inputs.motorTemperature = indexerMotor.getMotorTemperature();
 
     }
 }

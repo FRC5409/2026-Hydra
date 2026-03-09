@@ -14,9 +14,6 @@
     "**/.factorypath": true,
     "**/*~": true
   },
-  "java.project.referencedLibraries": [
-    "build/classes/java/main/**"
-  ],
   "java.test.config": [
     {
       "name": "WPIlibUnitTests",
@@ -70,6 +67,5 @@
   },
   "[java]": {
     "editor.defaultFormatter": "redhat.java"
-  },
-  "java.debug.settings.onBuildFailureProceed": true
+  }
 }

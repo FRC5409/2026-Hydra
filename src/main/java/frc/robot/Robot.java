@@ -8,16 +8,12 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
-
-
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.util.RebuiltTimer;
-
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -32,9 +28,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project, you must also update the build.gradle file in the project.
  */
 public class Robot extends LoggedRobot {
-    private         Command        autonomousCommand;
-    private final   RobotContainer robotContainer;
-    public  static  RebuiltTimer   rebuiltTimer;
+    private       Command        autonomousCommand;
+    private final RobotContainer robotContainer;
 
     // build constants are defined at compile-time, thus IntelliSense thinks "GitDirty" is unreachable.
     @SuppressWarnings("DataFlowIssue")
@@ -86,7 +81,6 @@ public class Robot extends LoggedRobot {
         VisionIOLimelight.forwardLimelightPorts();
 
         SignalLogger.enableAutoLogging(false);
-        rebuiltTimer = new RebuiltTimer();
     }
 
     /** This function is called periodically during all modes. */
@@ -107,10 +101,7 @@ public class Robot extends LoggedRobot {
         Threads.setCurrentThreadPriority(false, 10);
 
         // put match time in smart dashboard
-        SmartDashboard.putNumber("Timer/Time", DriverStation.getMatchTime());
-
-        rebuiltTimer.trackShift();
-        rebuiltTimer.periodic(robotContainer.sys_drive);
+        SmartDashboard.putNumber("Time", DriverStation.getMatchTime());
     }
 
     /** This function is called once when the robot is disabled. */
@@ -134,9 +125,6 @@ public class Robot extends LoggedRobot {
 
         if (Constants.CURRENT_MODE == Constants.Mode.SIM)
             SimulatedArena.getInstance().resetFieldForAuto();
-        rebuiltTimer.autoWinnerColor = RebuiltTimer.AUTO_ERROR;
-        rebuiltTimer.autoNotifSent = false;
-        // rebuiltTimer.start();
     }
 
     /** This function is called periodically during autonomous. */
@@ -154,15 +142,11 @@ public class Robot extends LoggedRobot {
             autonomousCommand.cancel();
         }
         robotContainer.sys_drive.brakeMode();
-        rebuiltTimer.getAutoWinner();
     }
 
     /** This function is called periodically during operator control. */
     @Override
-    public void teleopPeriodic() {
-        rebuiltTimer.getAutoWinner();
-   
-    }
+    public void teleopPeriodic() {}
 
     /** This function is called once when test mode is enabled. */
     @Override
@@ -182,6 +166,7 @@ public class Robot extends LoggedRobot {
     /** This function is called periodically whilst in simulation. */
     @Override
     public void simulationPeriodic() {
-        robotContainer.updateSim();
+        if (Constants.CURRENT_MODE == Constants.Mode.SIM)
+            robotContainer.updateSim();
     }
 }

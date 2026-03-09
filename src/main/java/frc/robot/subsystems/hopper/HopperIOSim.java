@@ -1,7 +1,6 @@
 package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Volts;
@@ -20,10 +19,9 @@ import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 
 public class HopperIOSim implements HopperIO {
     private boolean running;
-    private final ElevatorSim hopperSim;
-    private final PIDController pid;
+    private ElevatorSim hopperSim;
+    private PIDController pid;
     private double inputVoltage = 0.0;
-    private Distance simSetpoint;
 
     private final LoggedMechanismRoot2d root;
     private final LoggedMechanismLigament2d slider;
@@ -33,11 +31,11 @@ public class HopperIOSim implements HopperIO {
 
         hopperSim = new ElevatorSim(
             DCMotor.getKrakenX60(1), 
-            HopperConstants.GEARING, 
+            HopperConstants.kGearing, 
             HopperConstants.HOPPER_MASS.in(Kilograms), 
             HopperConstants.HOPPER_DRUMRADIUS.in(Meters), 
             HopperConstants.HOPPER_MIN_EXTENSION.in(Meters), 
-            HopperConstants.HOPPER_MAX_EXTENSION.in(Meters)+1000, 
+            HopperConstants.HOPPER_MAX_EXTENSION.in(Meters), 
             false, 
             0.0
             );
@@ -45,7 +43,7 @@ public class HopperIOSim implements HopperIO {
         pid = new PIDController(HopperConstants.SIM_PID.kP, HopperConstants.SIM_PID.kI, HopperConstants.SIM_PID.kD);
         running = false;
 
-        mechanism = new LoggedMechanism2d(14, 2);
+        mechanism = new LoggedMechanism2d(2, 2);
         root = mechanism.getRoot("Hopper", 1, 1);
         slider = new LoggedMechanismLigament2d("Arm", 0.3, 0);
         root.append(slider);
@@ -60,7 +58,6 @@ public class HopperIOSim implements HopperIO {
 
     @Override
     public void stopMotor() {
-        //pid.reset();
         hopperSim.setInputVoltage(0.0);
         running = false;
     }
@@ -68,34 +65,22 @@ public class HopperIOSim implements HopperIO {
     @Override
     public void setSetpoint(Distance setpoint) {
         pid.setSetpoint(setpoint.in(Meters));
-        simSetpoint = setpoint;
         running = true;
     }
 
-    @Override
     public Distance getPosition() {
         return Meters.of(hopperSim.getPositionMeters());
     }
 
-    @Override
-    public Distance getPositionIntakeZero() {
-        return getPosition().plus(HopperConstants.STARTING_GAP_TO_INTAKE);
-    }
-
-    public Distance getSetpoint() {
-        return simSetpoint;
-    }
-
     
     public void updateInputs(HopperInputs inputs) {
-        running = true;
         double volts = 0.0;
         double current = 0.0;
         if (running) {
 
             /* PID control */
             volts = MathUtil.clamp(
-                pid.calculate(hopperSim.getPositionMeters()), 
+                pid.calculate(hopperSim.getPositionMeters()) * 12, 
                 -RoboRioSim.getVInVoltage(), 
                 RoboRioSim.getVInVoltage()
             );
@@ -109,15 +94,19 @@ public class HopperIOSim implements HopperIO {
         hopperSim.setInputVoltage (volts);
         hopperSim.update(0.02);
 
-        inputs.isMotorConnected = true;
-        inputs.appliedVoltage = Volts.of(volts);
-        inputs.appliedCurrent = Amps.of(current);
-        inputs.motorTemp = 0.0;
-        inputs.motorPosition = getPosition();
-        inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
-        inputs.setpoint = simSetpoint;
+        inputs.isMainMotorConnected = true;
+        inputs.mainAppliedVoltage = Volts.of(volts);
+        inputs.mainAppliedCurrent = Amps.of(current);
+        inputs.mainMotorTemp = 0.0;
+        inputs.mainMotorPosition = Meters.of(hopperSim.getPositionMeters());
 
-        slider.setLength(getPosition().in(Meters));
+        inputs.isFollowerMotorConnected = true;
+        inputs.followerAppliedVoltage = Volts.of(volts);
+        inputs.followerAppliedCurrent = Amps.of(current);
+        inputs.followerMotorTemp = 0.0;
+        inputs.followerMotorPosition = Meters.of(hopperSim.getPositionMeters());
+
+        slider.setLength(hopperSim.getPositionMeters());
         Logger.recordOutput("Hopper Slider/Mech", mechanism);
     }
 

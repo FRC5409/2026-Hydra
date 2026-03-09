@@ -5,8 +5,6 @@ import static edu.wpi.first.units.Units.Rotations;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
-import java.util.function.Supplier;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -21,7 +19,6 @@ public class FeederIOSim implements FeederIO {
     private final PIDController controller;
     private boolean running;
     private double numberOfRotations;
-    private double simSetpoint;
 
     public FeederIOSim() {
         feederSim = new FlywheelSim(
@@ -47,9 +44,8 @@ public class FeederIOSim implements FeederIO {
     }
 
     @Override
-    public void runRPS(Supplier<AngularVelocity> velocity) {
-        controller.setSetpoint(velocity.get().in(RotationsPerSecond));
-        simSetpoint = velocity.get().in(RotationsPerSecond);
+    public void runRPS(double RPS) {
+        controller.setSetpoint(RPS);
         running = true;
     }
 
@@ -84,8 +80,6 @@ public class FeederIOSim implements FeederIO {
         inputs.appliedCurrent = Amps.of(feederSim.getCurrentDrawAmps());
         numberOfRotations += getVelocityRPS().in(RotationsPerSecond)*0.02;
         inputs.motorPosition = Rotations.of(numberOfRotations);
-        inputs.setpoint = simSetpoint;
-
     }
 
 }
