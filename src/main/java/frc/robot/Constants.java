@@ -199,6 +199,12 @@ public final class Constants {
         public static final Time           SETTLING_TIME        = Seconds.of(1);
     }
 
+    public static final class GameCommands{
+        public static final Time        WAIT_TIME_BEFORE_AGITATE            = Milliseconds.of(500);
+        public static final Time        WAIT_TIME_BEFORE_INTAKE_EXTENSION   = Seconds.of(1);
+        public static final Time        AUTO_LAUNCH_WAIT_TIME               = Seconds.of(5);
+    }
+
     public static final class kField{
         public static final Pose2d BLUE_HUB 				=	new Pose2d(
                                                                     new Translation2d(

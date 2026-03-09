@@ -19,7 +19,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearAcceleration;
 import edu.wpi.first.units.measure.LinearVelocity;
@@ -350,17 +349,21 @@ public class DriveCommands {
         double omega = 
           headingController.calculate(robotRotation.getRadians(), targetRotation.getRadians());
         
-        // if (omega < 0.1) // some tuned value
-        //     omega = 0;
+        if (Math.abs(omega) < 0.2){ // some tuned value
+            omega = 0;
+            isAligned = true;
+        } else {
+            isAligned = false;
+        }
 
-        drive.runVelocity(ChassisSpeeds.fromFieldRelativeSpeeds(0.0,0.0, omega, drive.getRotation()));
+        drive.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(0.0,0.0, omega, drive.getRotation()));
 
         Logger.recordOutput("AutoAlign/TargetRotation", targetRotation);
         Logger.recordOutput("AutoAlign/OmegaOutput", omega);
 
       }, drive)
     );
-    // CLAMP OUTPUT less than 0.5v then set to 0
     // .until(() -> {
     //     Rotation2d robotRotation = drive.getRotation();
     //     Rotation2d targetRotation = target.get();
@@ -458,6 +461,31 @@ public class DriveCommands {
             );
         }),
         Commands.runOnce(drive::stop)
+    );
+  }
+
+  public static Command crossBumpDeadline(Drive drive, Supplier<LinearVelocity> speed){
+    return Commands.deadline(
+        Commands.sequence(
+            // Robot starts on bump
+            Commands.waitUntil(() -> drive.getTilt().gte(Degrees.of(3))),
+            // Reaches top of bump
+            Commands.waitUntil(() -> drive.getTilt().lte(Degrees.of(3))),
+            // Reaches flat ground again
+            Commands.waitUntil(() -> drive.getTilt().lte(Degrees.of(3)))
+        ), 
+        Commands.run(() -> drive.runVelocity(
+            ChassisSpeeds.fromFieldRelativeSpeeds(
+                new ChassisSpeeds(
+                    speed.get(),
+                    MetersPerSecond.of(0.0),
+                    RadiansPerSecond.of(0.0)
+                ),
+                drive.getRotation())
+        ), drive)
+    ).andThen(
+        drive::stop,
+        drive
     );
   }
 

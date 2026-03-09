@@ -8,7 +8,6 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.util.FlippingUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -26,12 +25,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
-import frc.robot.Constants.ClimbingPositions;
-import frc.robot.Constants.Mode;
-import frc.robot.Constants.PassingPositions;
-import frc.robot.Constants.kAutoAlign;
-import frc.robot.Constants.kBump;
-import frc.robot.Constants.kField;
 import frc.robot.commands.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
@@ -52,6 +45,7 @@ import frc.robot.subsystems.intake.IntakeIOTalonFX;
 import frc.robot.subsystems.launcher.*;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerConstants;
 import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.subsystems.serializer.SerializerIOSim;
 import frc.robot.subsystems.serializer.SerializerIOTalonFX;
@@ -67,11 +61,10 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import frc.robot.Constants.DeviceID;
+import frc.robot.Constants.*;
 
 import java.util.ArrayList;
 
@@ -101,6 +94,9 @@ public class RobotContainer {
     private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
     private ClimbingPositions selectedClimbingPrepPosition = ClimbingPositions.LEFT_PREP;
 
+    private Distance manualLaunchDistance = Meters.of(2);
+
+    private boolean shouldPass = false;
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -333,7 +329,11 @@ public class RobotContainer {
      * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
-        // Default command, normal field-relative drive
+        SmartDashboard.putNumber("Launcher Speed Offset [rps]", Launcher.getSpeedOffset().in(RotationsPerSecond));
+        
+        SmartDashboard.putData("Update Offset Now", Commands.runOnce(() -> Launcher.setSpeedOffset(
+                RotationsPerSecond.of(SmartDashboard.getNumber("Launcher Speed Offset [rps]", 0.0)))));
+
         sys_drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         sys_drive,
@@ -350,143 +350,147 @@ public class RobotContainer {
                                          .ignoringDisable(true)
                          );
 
-        if (Constants.IS_TUNING){
-            LoggedNetworkNumber driveAngleSetpoint = new LoggedNetworkNumber("DriveTuning/angleSetpoint", 0.0);
-            LoggedNetworkNumber driveTurnVelocitySetpoint = new LoggedNetworkNumber("DriveTuning/driveTurnVelocitySetpoint", 0.0);
-            LoggedNetworkNumber driveTurnVoltageSetpoint = new LoggedNetworkNumber("DriveTuning/driveTurnVoltageSetpoint", 0.0);
+        // TODO: GAME COMMANDS: LAUNCH FUEL or PASS FUEL
+        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
+            .onTrue(Commands.runOnce(() -> shouldPass = true))
+            .onFalse(Commands.runOnce(() -> shouldPass = false));
 
-            SmartDashboard.putData(
-                "Run Turn Setpoint",
-                Commands.run(
-                    () -> sys_drive.runTurnSetpoint(new Rotation2d(Degrees.of(driveAngleSetpoint.get()))), 
-                    sys_drive
-                )
-            );
+        primaryController.rightBumper()
+                        .whileTrue(
+                            !shouldPass 
+                            // TODO: IF LAUNCHING, USE LAUNCHING GAME COMMAND
+                            ? Commands.parallel(
+                                DriveCommands.alignToHeading(sys_drive, () -> DriveCommands.getRotation2d(sys_drive, kField.BLUE_HUB).plus(Rotation2d.k180deg)),
+                                sys_launcher.launchFuel(() -> DriveCommands.distToHub(sys_drive), sys_feeder),
+                                Commands.sequence(
+                                    Commands.waitUntil(DriveCommands::isAligned),
+                                    // TODO: WAIT UNTIL LAUNCHER IS SPUN UP TO RIGHT SPEED
+                                    // .alongWith(Commands.waitUntil(sys_launcher.)),
+                                    sys_serializer.setVoltage(10),
+                                    Commands.waitTime(Seconds.of(3)),
+                                    agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE)
+                                    
+                                )
+                            )
+                            // TODO: IF PASSING USE PASSING GAME COMMAND
+                            : Commands.parallel(
+                                // TODO: GET PASSING DISTANCE
+                                Commands.sequence(
+                                    sys_launcher.launchFuel(()-> Meters.of(2.0), sys_feeder),
+                                    // TODO: WAIT UNTIL LAUNCHER IS SPUN UP
+                                    // Commands.waitUntil(null),
+                                    sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                                    Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE)
+                                )
+                            )
+                        )
+                        .onFalse(Commands.parallel(
+                            sys_launcher.stopLauncher(),
+                            sys_feeder.setVoltage(0),
+                            sys_serializer.stopMotor(),
+                            sys_intake.stopMotor(),
+                            sys_intake.stopRoller()
+                        ));
 
-            SmartDashboard.putData(
-                "Run turn velocity",
-                Commands.run(
-                    () -> sys_drive.runTurnVelocity(RadiansPerSecond.of(driveTurnVelocitySetpoint.get())), 
-                    sys_drive
-                )
-            );
+        //TODO:  GAME COMMANDS: START INTAKING
+        primaryController.leftBumper()
+                        .onTrue(
+                            startIntaking()
+                        );
 
-            SmartDashboard.putData(
-                "Run turn voltage",
-                Commands.run(
-                    () -> sys_drive.runTurnVoltage(driveTurnVoltageSetpoint.get()), 
-                    sys_drive
-                )
-            );            
-        }
-        SmartDashboard.putNumber("Launcher Speed Offset [rps]", Launcher.getSpeedOffset().in(RotationsPerSecond));
-        SmartDashboard.putData("Update Offset Now", Commands.runOnce(() -> Launcher.setSpeedOffset(
-                RotationsPerSecond.of(SmartDashboard.getNumber("Launcher Speed Offset [rps]", 0.0)))));
+        // TODO: GAME COMMANDS: CLIMB (Auto Align or No Auto Align)
+        primaryController.y()
+                        .whileTrue(
+                            Commands.print("CLIMB GAME COMMAND HERE")
+                        );
 
-        // TEST CODE FOR LAUNCHER PROTOTYPES
-        // launch fuel w distance
+        // TODO: GAME COMMANDS: RETRACT INTAKE AND HOPPER INSTANTLY, both at the same time
+        primaryController.x()
+                        .onTrue(
+                            Commands.parallel(
+                                sys_intake.retract(),
+                                sys_hopper.fullRetract()
+                            )
+                        );
+
+        primaryController.a()
+                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+
+        // TODO: GAME COMMANDS: MANUAL LAUNCH 
+        primaryController.povDown()
+                        .whileTrue(
+                            Commands.sequence(
+                                sys_launcher.launchFuel(() -> manualLaunchDistance, sys_feeder),
+                                // WAIT FOR LAUNCHER SPIN UP
+                                // Commands.waitUntil(() -> ),
+                                sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                                Commands.waitTime(Milliseconds.of(500)),
+                                agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE)
+                            )
+                        )
+                        .onFalse(
+                            Commands.parallel(
+                                sys_launcher.stopLauncher(),
+                                sys_feeder.stopMotor(),
+                                sys_serializer.stopMotor(),
+                                sys_intake.stopMotor(),
+                                sys_intake.stopRoller()
+                            )
+                        );
+
+        // TODO: GAME COMMANDS: RETRACT INTAKE AND HOPPER INSTANTLY, both at the same time
+        secondaryController.x()
+                        .onTrue(
+                            Commands.parallel(
+                                sys_intake.retract(),
+                                sys_hopper.fullRetract()
+                            )
+                        );
+
+        secondaryController.povUp()
+                        .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(1)));
+                        
+        secondaryController.povDown()
+                        .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(-1)));
+
+        secondaryController.povLeft()
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
+
+        secondaryController.povRight()
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+
+        // TODO: GET MANUAL LAUNCH DISTANCE THAT WE WANT TO USE
+        new Trigger(() -> secondaryController.getLeftX() > 0.5)
+                    .onTrue(prepManualLaunchDistance(Meters.of(2.0)));
+
+        // TODO: GET MANUAL LAUNCH DISTANCE THAT WE WANT TO USE
+        new Trigger(() -> secondaryController.getLeftX() < 0.5)
+                    .onTrue(prepManualLaunchDistance(Meters.of(4.0)));
+
+        // PITS TEST CONTROLLER BUTTONS:
+        // TODO: BOOLEAN IF IN PITS THEN USE THESE BUTTONS OTHERWISE DON't (TO STOP DRIVERSTATION ERRORS)
+
+        // tertiaryController.x()
+        //     .onTrue(sys_elevator.goTillSpike(-1));
+
+        // tertiaryController.povUp()
+        // .onTrue(sys_elevator.startManualMove(1.0))
+        // .onFalse(sys_elevator.startManualMove(0));
+
+        // tertiaryController.povDown()
+        // .onTrue(sys_elevator.startManualMove(-1.0))
+        // .onFalse(sys_elevator.startManualMove(0));
+
+        // BUTTONS TO TEST CODE
         // TODO: remove some of these when merging to main, or maybe make a DebugCommand interface
+        
         SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
         SmartDashboard.putData(
                 "LAUNCH FUEL (DST)", sys_launcher.launchFuel(
                         () -> Meters.of(SmartDashboard.getNumber("LAUNCHER DISTANCE [m]", 0)), sys_feeder));
 
         SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
-
-        // launch fuel w speed
-        SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
-        SmartDashboard.putData(
-                "LAUNCH FUEL (SPD)", sys_launcher.runVelocity(
-                        () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))));
-
-        secondaryController.a()
-                         .onTrue(sys_serializer.setVoltage(8))
-                         .onTrue(sys_intake.setRollerVoltage(10))
-                         .onFalse(sys_serializer.setVoltage(0))
-                         .onFalse(sys_intake.setRollerVoltage(0));
-
-         final double[] launchSpeed = {50};
-         Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
-
-         secondaryController.povUp()
-              .onTrue(Commands.runOnce(() -> {
-	 			 launchSpeed[0] += 0.5;
-                  Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
-	 		 }));
-
-          secondaryController.povDown()
-                  .onTrue(Commands.runOnce(() -> {
-	 				 launchSpeed[0] -= 0.5;
-                      Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
-	 			 }));
-
-        
-
-        secondaryController.rightTrigger()
-                           .onTrue(sys_launcher.launchFuel(() -> DriveCommands.distToHub(sys_drive), sys_feeder));
-
-        secondaryController.x()
-                .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
-                .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
-
-
-         secondaryController.b()
-                 .onTrue(sys_feeder.stopMotor())
-                 .onTrue(sys_launcher.stopLauncher());
-
-        secondaryController.y()
-                .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
-
-    // primaryController.a()
-    //         .whileTrue(
-    //             DriveCommands.alignToPoint(
-    //                 sys_drive, 
-    //                 () -> FlippingUtil.flipFieldPose(new Pose2d(14,2, Rotation2d.fromRadians(-0.36))),
-    //                 () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-    //                 () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-    //             )
-            // );
-
-    primaryController.a()
-                 .onTrue(
-                    Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER))
-                 )
-                 .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1)));
-
-    primaryController.x()
-            .whileTrue(
-                    DriveCommands.crossBump(
-                            sys_drive,
-                            sys_vision,
-                            sys_drive::getRotation,
-                            () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED),
-                            Seconds.of(1)
-                    )
-            );
-
-    primaryController.b()
-            .whileTrue(
-                    DriveCommands.crossBump(
-                            sys_drive,
-                            sys_vision,
-                            sys_drive::getRotation,
-                            () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)),
-                            Seconds.of(1)
-                    )
-            );
-    
-
-
-
-    //    primaryController.povUp()
-    //                    .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(100)));
-    //     primaryController.povUp()
-    //                    .onFalse(Commands.runOnce(() -> SmartDashboard.putNumber("LAUNCHER SPEED [rps]", SmartDashboard.getNumber("LAUNCHER SPEED [rps]") + 5)));
-    //    primaryController.povDown()
-    //            .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(0)));
-
-        SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
-        
 
         SmartDashboard.putNumber("Hood Angle [mm]", 0);
         SmartDashboard.putData(
@@ -495,148 +499,86 @@ public class RobotContainer {
                                                                             SmartDashboard.getNumber(
                                                                                     "Hood Angle [mm]",
                                                                                     0))));
+        final double[] launchSpeed = {50};
+        Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
 
-        // Switch to X pattern when X button is pressed
-        SmartDashboard.putNumber("SerializerVoltage", 0.0);
+        tertiaryController.povUp()
+            .onTrue(Commands.runOnce(() -> {
+                launchSpeed[0] += 0.5;
+                Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+            }));
 
+        tertiaryController.povDown()
+                .onTrue(Commands.runOnce(() -> {
+                    launchSpeed[0] -= 0.5;
+                    Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+                }));
+
+        // LAUNCHER TESTING
+
+        // tertiaryController.a()
+        //                  .onTrue(sys_serializer.setVoltage(8))
+        //                  .onTrue(sys_intake.setRollerVoltage(10))
+        //                  .onFalse(sys_serializer.setVoltage(0))
+        //                  .onFalse(sys_intake.setRollerVoltage(0));
+
+        // tertiaryController.rightTrigger()
+        //                    .onTrue(sys_launcher.launchFuel(() -> DriveCommands.distToHub(sys_drive), sys_feeder));
+
+        // tertiaryController.x()
+        //         .onTrue(sys_launcher.runVelocity(() -> RotationsPerSecond.of(launchSpeed[0])))
+        //         .onTrue(sys_feeder.runRPS(() -> RotationsPerSecond.of(launchSpeed[0])));
+
+        // tertiaryController.b()
+        //          .onTrue(sys_feeder.stopMotor())
+        //          .onTrue(sys_launcher.stopLauncher());
+
+        // tertiaryController.y()
+        //         .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
+
+        // BUMP TESTING
+        tertiaryController.a()
+                    .onTrue(
+                        Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER))
+                    )
+                    .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1)));
+
+        tertiaryController.x()
+                .whileTrue(
+                        DriveCommands.crossBump(
+                                sys_drive,
+                                sys_vision,
+                                sys_drive::getRotation,
+                                () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED),
+                                Seconds.of(1)
+                        )
+                );
+
+        tertiaryController.b()
+                .whileTrue(
+                        DriveCommands.crossBump(
+                                sys_drive,
+                                sys_vision,
+                                sys_drive::getRotation,
+                                () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)),
+                                Seconds.of(1)
+                        )
+                );
+
+        tertiaryController.y()
+                .whileTrue(
+                    DriveCommands.crossBumpDeadline(
+                        sys_drive, 
+                        () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED)
+                    )
+                );
         
-                // .onFalse(Commands.runOnce(() -> sys_drive.stop()));
-        // primaryController.x()
-        //                 .onTrue(sys_serializer.setVoltage(5))
-        //                 .onFalse(sys_serializer.setVoltage(0));
+        SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remove when main
+        SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remove when main
 
-        // Switch To Bump Speed Modifier
-        // primaryController.a()
-        //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
-        //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
-
-        // primaryController.x()
-        //     .onTrue(sys_elevator.goTillSpike(-1));
-
-        // primaryController.povUp()
-        // .onTrue(sys_elevator.startManualMove(1.0))
-        // .onFalse(sys_elevator.startManualMove(0));
-
-        // primaryController.povDown()
-        // .onTrue(sys_elevator.startManualMove(-1.0))
-        // .onFalse(sys_elevator.startManualMove(0));
-
-        // primaryController.a()
-        //         .onTrue(sys_elevator.elevatorGo(Meters.of(1.0),0));
-        
-        // primaryController.y()
-        //         .onTrue(sys_elevator.elevatorGo(Meters.of(0.05),0));
-
-        // primaryController.povUp()
-        //         .onTrue(sys_hopper.setVoltage(-2))
-        //         .onFalse(sys_hopper.setVoltage(0));
-
-        // primaryController.povDown()
-        //         .onTrue(sys_hopper.setVoltage(2))
-        //         .onFalse(sys_hopper.setVoltage(0));
-
-        // primaryController.povLeft()
-        //         .onTrue(sys_intake.setExtensionVoltage(-2))
-        //         .onFalse(sys_intake.setExtensionVoltage(0));
-        
-        // primaryController.povRight()
-        //         .onTrue(sys_intake.setExtensionVoltage(2))
-        //         .onFalse(sys_intake.setExtensionVoltage(0));
-
-
-		
-//		primaryController.y()
-//                .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.26)))
-//                .onFalse(sys_hopper.setVoltage(0));
-        // primaryController.a()
-        //         .onTrue(sys_hopper.setSetpoint(() -> Meters.of(0.01)))
-        //         .onFalse(sys_hopper.setVolta`ge(0));
-        // primaryController.a()
-        //         .onTrue(agitate())
-        //         .onFalse(Commands.parallel(sys_hopper.setVoltage(0), sys_intake.setExtensionVoltage(0)));
-
-        // primaryController.b()
-        //         .onTrue(sys_intake.move(Meters.of(0.22)))
-        //         .onFalse(sys_intake.setExtensionVoltage(0));
-
-        // primaryController.x()
-        //         .onTrue(sys_intake.move(Meters.of(0.01)))
-        //         .onFalse(sys_intake.setExtensionVoltage(0));
-
-        // secondaryController.b()
-        //         .onTrue(getAutonomousCommand());
-
-        
-
-
-
-        // secondaryController.povLeft()
-        //         .onTrue(sys_hopper.setVoltage(-2))
-        //         .onFalse(sys_hopper.setVoltage(0));
-
-        // secondaryController.povRight()
-        //         .onTrue(sys_hopper.setVoltage(2))
-        //         .onFalse(sys_hopper.setVoltage(0));
-
-        
-
-
-
-        // tertiaryController.povRight()
-        //         .onTrue(sys_intake.setExtensionVoltage(1))
-        //         .onFalse(sys_intake.setExtensionVoltage(0));
-
-        // tertiaryController.povLeft()
-        //         .onTrue(sys_intake.setExtensionVoltage(-1))
-        //         .onFalse(sys_intake.setExtensionVoltage(0));
-
-        //         // Expected extension and retract values
-        
-
-        // secondaryController.y()
-        //         .onTrue(sys_intake.setRollerVoltage(6))
-        //         .onFalse(sys_intake.setRollerVoltage(0));
-
-        // secondaryController.a()
-        //         .onTrue(sys_intake.setRollerVoltage(-6))
-        //         .onFalse(sys_intake.setRollerVoltage(0));
-
-        // primaryController.y()
-        //                 .onTrue(sys_hopper.setSetpoint(() -> Centimeters.of(27)))
-        //                 .onFalse(sys_hopper.setVoltage(0));
-        // primaryController.a()
-        //         .onTrue(sys_intake.move(() -> Centimeters.of(23.5)))
-        //         .onFalse(sys_intake.setExtensionVoltage(0));
-                
-        // primaryController.povDown()
-        //         .onTrue(agitateIntake(8))
-        //         .onFalse(sys_intake.setExtensionVoltage(0));
-
-        // primaryController.povUp()
-        //         .onTrue(runIntakeIn(1))
-        //         .onFalse(sys_intake.setExtensionVoltage(0))
-        //         .onFalse(sys_intake.setRollerVoltage(0));
-
-        // primaryController.povUp().onTrue(sys_feeder.setVoltage(3))
-        //         .onFalse(sys_feeder.setVoltage(0));
-            
-        // primaryController.a().onTrue(sys_feeder.runRPS(() -> sys_feeder.targetRPS))
-        // .onFalse(sys_feeder.setVoltage(0));
-
-        SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remhoppeove when main
-        SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remhoppeove when main
-
-        SmartDashboard.putData("Intake/Coast", sys_intake.coastMode().ignoringDisable(true));
-        SmartDashboard.putData("Intake/Brake", sys_intake.brakemode().ignoringDisable(true));
-  
-
-        SmartDashboard.putData("extend", sys_intake.extend()); //TODO remove when main
-        SmartDashboard.putData("retract", sys_intake.retract());
-        SmartDashboard.putData("Start Roller", sys_intake.setRollerVoltage(12.0));
-        SmartDashboard.putData("Stop Roller", sys_intake.setRollerVoltage(0.0));
-
-        // SmartDashboard.putData(("sys_drive"));
-    }
+        SmartDashboard.putData("Intake/Coast", sys_intake.coastMode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
+        SmartDashboard.putData("Intake/Brake", sys_intake.brakemode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
+      }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {
         return Commands.runOnce(
@@ -646,27 +588,25 @@ public class RobotContainer {
                     else
                         selectedClimbingPrepPosition = ClimbingPositions.RIGHT_PREP;
 
-                    Logger.recordOutput("Climbing Position", climbingPosition);
+                    Logger.recordOutput("ClimbingPosition", climbingPosition);
 
                     selectedClimbingPosition = climbingPosition;
 
-                    Logger.recordOutput("Climbing Selected Pose", selectedClimbingPosition.pose);
+                    Logger.recordOutput("ClimbingSelectedPose", selectedClimbingPosition.pose);
                 }
         );
     }
 
-    private Command prepPassingPositionCommand(PassingPositions passingPosition) {
+    private Command prepManualLaunchDistance(Distance distance){
         return Commands.runOnce(
-                () -> {
-                    Logger.recordOutput("Passing Position", passingPosition);
-
-                    selectedPassingPosition = passingPosition;
-
-                    Logger.recordOutput("Passing Selected Pose", selectedPassingPosition.pose);
-                }
+            () -> {
+                manualLaunchDistance = distance;
+                Logger.recordOutput("ManualLaunchDistance", manualLaunchDistance);
+            }
         );
     }
 
+    // TODO: DETERMINE IF NEEDED, IF NOT DELETE
     /** 
      * Command to extend both intake and hopper subsystems, with crash avoidance
      * @author Jaden Rajan, team 5409
@@ -684,20 +624,24 @@ public class RobotContainer {
                 .andThen(sys_hopper.fullExtend());
     }
 
-    public Command hopperAndIntake(){
+    // TODO: MOVE TO GAME COMMANDS
+    /** 
+     * Extends Hopper, waits {@link GameCommands#WAIT_TIME_BEFORE_INTAKE_EXTENSION}, 
+     * then extends intake and starts intake roller at {@link IntakeConstants.Roller#INTAKE_VOLTAGE} volts
+     * 
+     */ 
+    public Command startIntaking(){
         return Commands.sequence(
-                        sys_hopper.setSetpoint(() -> Centimeters.of(27)),
+                        sys_hopper.fullExtend(),
+                        Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_INTAKE_EXTENSION),
                         Commands.parallel(
-                            sys_intake.move(() -> Centimeters.of(23.5)),
-                            sys_intake.setRollerVoltage(8)
+                            sys_intake.extend(),
+                            sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE)
                         )
                     );
     }
 
-    public Command serialize(double voltage){
-        return sys_serializer.setVoltage(voltage);
-    }
-
+    // TODO: DETERMINE IF NEEDED, IF NOT DELETE
     /** 
      * Command to retract both intake and hopper subsystems, with crash avoidance
      * @author Jaden Rajan, team 5409
@@ -719,6 +663,7 @@ public class RobotContainer {
     Distance intakeSetpoint;
     Distance hopperSetpoint;
 
+    // TODO: DETERMINE IF NEEDED, IF NOT DELETE
     /** 
      * Command to retract both intake and hopper subsystems, while agitating hopper back and forth to help with launching fuel
      * @author Jaden Rajan, team 5409
@@ -747,6 +692,7 @@ public class RobotContainer {
                 .andThen(sys_hopper.fullRetract());
     }
 
+    // TODO: DETERMINE IF NEEDED, IF NOT DELETE
     private Command agitate(){
         return
 //                Commands.sequence(
@@ -785,8 +731,9 @@ public class RobotContainer {
 
         Distance extendPoint = Centimeters.of(23.5);
         Distance retractPoint = extendPoint.minus(Centimeters.of(7.5));
-        public Command agitateIntake(double rollerVoltage) {
 
+        // TODO: MOVE TO GAME COMMANDS
+        public Command agitateIntake(double rollerVoltage) {
                 return Commands.parallel(
                     sys_intake.setRollerVoltage(rollerVoltage),
                     Commands.repeatingSequence(
@@ -798,6 +745,7 @@ public class RobotContainer {
                 );
         }
 
+        // TODO: DETERMINE IF NEEDED, IF NOT DELETE, IF NEEDED MOVE TO GAME COMMANDS
         private Command runIntakeIn(double voltage){
             return Commands.sequence(
                 sys_intake.setExtensionVoltage(voltage),

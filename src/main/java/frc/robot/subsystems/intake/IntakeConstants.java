@@ -12,10 +12,10 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 public final class IntakeConstants {
 
 	public static final class Extension {
-		public static final Distance EXTENSION_MIN_DISTANCE = Meters.of(0.0);
-		public static final Distance EXTENSION_DISTANCE = Meters.of(3.4);
+		public static final Distance EXTENSION_MIN_DISTANCE = Centimeters.of(0.5);
+		public static final Distance EXTENSION_DISTANCE = Centimeters.of(23.5);
 
-		public static final Distance EXTENSION_MAX_DISTANCE = Meters.of(3.4);
+		public static final Distance EXTENSION_MAX_DISTANCE = Centimeters.of(24);
 
 		public static final PIDController       PID = new PIDController(0.0,0.0,0.0);
         public static final LoggedNetworkNumber KS  = new LoggedNetworkNumber("Intake/kS", 0.0);
@@ -54,5 +54,8 @@ public final class IntakeConstants {
         public static final Current MAX_CURRENT = Amps.of(30.0);
         public static final double GEARING = 1.5/1.0;
         public static final Mass ROLLER_MASS = Kilograms.of(0.0813636);
+
+        public static final double INTAKE_VOLTAGE = 10;
+        public static final double AGITATE_VOLTAGE = 6;
     }
 }
