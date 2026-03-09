@@ -26,8 +26,12 @@ public final class ElevatorConstants {
     public static final Distance ELEVATOR_MIN_HEIGHT = Units.Inches.of(23.2);
     public static final Distance ELEVATOR_MAX_HEIGHT = Units.Inches.of(27.5);
 
-    public static final Distance ELEVATOR_PREP_HEIGHT = Meters.of(15.0);
+    public static final Distance ELEVATOR_PREP_HEIGHT = Inches.of(25.0);
 
     public static final Distance IDLING_HEIGHT = Meters.of(11.0);
-
+    
+    public static final class kSetpoints {
+        public static final Distance ELEVATOR_UP = Inches.of(25.0);
+        public static final Distance ELEVATPR_DOWN = Inches.of(0.0);
+    }
 }

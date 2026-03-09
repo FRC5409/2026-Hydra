@@ -18,19 +18,21 @@ public class ElevatorIOSim implements ElevatorIO {
     private boolean running;
     private ElevatorSim elevatorSim;
     private PIDController PID;
+    double volts = 0.0;
+    double current = 0.0;
 
     public ElevatorIOSim() {
 
         //Creating sim elevator object
         elevatorSim = new ElevatorSim(
-            DCMotor.getFalcon500(2), 
+            DCMotor.getKrakenX60(1), 
             ElevatorConstants.GEARING, 
             ElevatorConstants.ELEVATOR_MASS.in(Kilograms), 
-            ElevatorConstants.ELEVATOR_DRUMRADIUS.in(Inches), 
-            ElevatorConstants.ELEVATOR_MIN_HEIGHT.in(Inches), 
-            ElevatorConstants.ELEVATOR_MAX_HEIGHT.in(Inches), 
+            ElevatorConstants.ELEVATOR_DRUMRADIUS.in(Meters), 
+            ElevatorConstants.ELEVATOR_MIN_HEIGHT.in(Meters), 
+            ElevatorConstants.ELEVATOR_MAX_HEIGHT.in(Meters), 
             true, 
-            ElevatorConstants.ELEVATOR_MIN_HEIGHT.in(Inches)
+            ElevatorConstants.ELEVATOR_MIN_HEIGHT.in(Meters)
         );
         PID = new PIDController(ElevatorConstants.SIM_PID.kP, ElevatorConstants.SIM_PID.kI, ElevatorConstants.SIM_PID.kD);
         running = false;
@@ -76,8 +78,7 @@ public class ElevatorIOSim implements ElevatorIO {
 
     @Override
     public void updateInputs(ElevatorInputs inputs) {
-        double volts = 0.0;
-        double current = 0.0;
+        
         if (running) {
             volts = MathUtil.clamp(
                 PID.calculate(elevatorSim.getPositionMeters()) * 12, 

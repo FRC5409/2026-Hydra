@@ -10,6 +10,7 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
@@ -25,10 +26,16 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.AutoClimbSequence;
+import frc.robot.Constants.ClimbingPositions;
+import frc.robot.Constants.Mode;
+import frc.robot.Constants.PassingPositions;
+import frc.robot.Constants.kAutoAlign;
 import frc.robot.commands.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.elevator.ElevatorIO;
 import frc.robot.subsystems.elevator.ElevatorIOSim;
 import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
@@ -54,6 +61,8 @@ import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.AutoPath;
+import frc.robot.util.FieldConstants.Hub;
+
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
 import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
@@ -64,7 +73,11 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
-import frc.robot.Constants.*;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Amps;
+
+import static edu.wpi.first.units.Units.Inches;
+import frc.robot.Constants.DeviceID;
 
 import java.util.ArrayList;
 
@@ -513,6 +526,86 @@ public class RobotContainer {
                     launchSpeed[0] -= 0.5;
                     Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
                 }));
+        // Switch To Bump Speed Modifier
+        // primaryController.a()
+        //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+        //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+    
+        primaryController.povUp().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(3)));
+        primaryController.povDown().onTrue(Commands.runOnce(() -> sys_elevator.startManualMove(-3)));
+        primaryController.y().onTrue(Commands.runOnce(() -> sys_elevator.goTillSpike(-3)));
+        primaryController.a()
+                        .onTrue(sys_elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATOR_UP))
+                        .onFalse(sys_elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATPR_DOWN));
+
+        primaryController.rightBumper()
+                         .whileTrue(
+                              DriveCommands.alignToHeading(
+                                sys_drive, 
+                                () -> DriveCommands.getRotation2d(
+                                  sys_drive, 
+                                  new Pose2d(
+                                    new Translation2d(Hub.topCenterPoint.getMeasureX(), Hub.topCenterPoint.getMeasureY()), 
+                                    Rotation2d.kZero
+                                  )
+                                )
+                              )
+                         );
+
+        primaryController.leftBumper()
+                        .whileTrue(
+                          DriveCommands.joystickDriveAtAngle(
+                            sys_drive,
+                            () -> -primaryController.getLeftY(),
+                            () -> -primaryController.getLeftX(),
+                            () -> DriveCommands.getRotation2d(sys_drive, selectedPassingPosition.pose)
+                          )
+                        );
+
+        primaryController.x()
+                        .whileTrue(
+                            Commands.sequence(
+                              DriveCommands.alignToPoint(
+                                sys_drive, 
+                                () -> selectedClimbingPrepPosition.pose, 
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+                              ),
+                              DriveCommands.alignToPoint(
+                                sys_drive, 
+                                () -> selectedClimbingPosition.pose, 
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB, 
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+                              )
+                            )
+                        );
+
+        secondaryController.x()
+                        .onTrue(prepPassingPositionCommand(PassingPositions.RIGHT));
+        secondaryController.b()
+                        .onTrue(prepPassingPositionCommand(PassingPositions.LEFT));
+        secondaryController.a()
+                        .onTrue(prepPassingPositionCommand(PassingPositions.MIDDLE));
+
+        secondaryController.povLeft()
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
+        secondaryController.povRight()
+                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
+        
+        secondaryController.y().onTrue(
+                new AutoClimbSequence(
+                        sys_drive,
+                        sys_elevator,
+                        () -> selectedClimbingPrepPosition.pose,
+                        () -> selectedClimbingPosition.pose
+                )
+        );                
+        primaryController.a()
+                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
         // LAUNCHER TESTING
 

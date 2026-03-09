@@ -11,12 +11,17 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.subsystems.intake.IntakeConstants.*;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.utils.Checkmate;
 import frc.robot.utils.Checkmate.TestResult;
-import edu.wpi.first.wpilibj2.command.Commands;
 import org.littletonrobotics.junction.Logger;
+
+import java.util.function.Supplier;
+
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Meters;
 
 public class Intake extends SubsystemBase {
 
@@ -60,7 +65,6 @@ public class Intake extends SubsystemBase {
         //     return TestResult.success("Intake retraction ok");
         // });
 
-
         Checkmate.register("Should spin roller", () -> {
 
             intakeIO.setRollerVoltage(6.0);
@@ -78,18 +82,32 @@ public class Intake extends SubsystemBase {
 
     }
 
+/**
+* Sets the voltage of the roller
+* @param voltage The voltage to set the roller to, in volts. Should be between -12 and 12.
+ * @return A command that sets the roller voltage when executed.
+ */
     public Command setRollerVoltage(double voltage) {
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(voltage));
     }
-
+/**
+ * Stops the roller by setting the voltage to 0.0 volts.
+ * @return A command that stops the roller when executed.
+ */
     public Command stopRoller() {
         return Commands.runOnce(() -> intakeIO.setRollerVoltage(0.0));
     }
-
+/**
+* Sets brakeMode for the motors
+* @return A command that sets the extension motor to brake mode when executed.
+ */
     public Command brakemode() {
         return Commands.runOnce(() -> intakeIO.brakeMode());
     }
-
+/**
+* Extends intake to constant distance
+* @return A command that extends the intake when executed.
+ */
     public Command extend() {
         return Commands.runOnce(() -> intakeIO.setSetpoint(Extension.EXTENSION_DISTANCE));
     }
@@ -105,7 +123,10 @@ public class Intake extends SubsystemBase {
     public Command move(Distance position) {
         return Commands.runOnce(() -> intakeIO.setSetpoint(position));
     }
-
+/**
+* Stops the motors
+* @return A command that stops the extension motor when executed.
+ */
     public Command stopMotor() {
         // intakeIO.stopMotor();
         return Commands.runOnce(() -> intakeIO.stopMotor());
@@ -114,23 +135,35 @@ public class Intake extends SubsystemBase {
     public Distance getSetpoint(){
         return inputs.extensionSetpoint;
     }
-
+/** 
+* Sets the motors to coastMode
+* @return A command that sets the extension motor to coast mode when executed.
+ */
     public Command coastMode() {
         return Commands.runOnce(() -> intakeIO.coastMode());
     }
-
+/**
+* Sets the voltage of the extension motor
+* @param voltage The voltage to set the extension motor to.
+ * @return A command that sets the extension motor voltage when executed.
+ */
     public Command setExtensionVoltage(double voltage) {
         return Commands.runOnce(() -> intakeIO.setExtensionVoltage(voltage));
     }
-
+/**
+* Gets the current position of the intake extension.
+* @return The current position of the intake extension.
+ */
     public Distance getPosition() {
         return intakeIO.getPosition();
     }
 
+/**
+ * Updates the inputs, and runs a consistent check for a "crash"
+ */
     @Override
     public void periodic() {
         intakeIO.updateInputs(inputs);
-
         Logger.processInputs("Intake", inputs);
         
         extenderPose = new Pose3d(
@@ -141,7 +174,7 @@ public class Intake extends SubsystemBase {
         );
         
         boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
-            
+
         if (DriverStation.isEnabled()){
             if (overCurrent && !inputs.isCrashDetected) {
                 position = getPosition();
