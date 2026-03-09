@@ -32,6 +32,7 @@ public class Launcher extends SubsystemBase {
     private static final String PREF_LAUNCH_SPEED_OFFSET = "Launcher/SpeedOffsetRps";
 
     private LaunchStrategy strategy;
+    private double         realLaunchSpeedRps;
 
     public Launcher(LauncherIO io) {
         this.io = io;
@@ -98,8 +99,17 @@ public class Launcher extends SubsystemBase {
     }
 
     /**
-     * Defers a command that interpolates a {@link LaunchConfig} and then sets the velocity and hood hoodExtension of the
-     * launcher, based on the active {@link LaunchStrategy}.
+     * Checks if the launcher's roller is at or near the target launch speed, within a 5% tolerance.
+     *
+     * @return true or false
+     */
+    public boolean isLauncherAtSpeed() {
+        return MathUtils.withinTolerance(getVelocity().in(RotationsPerSecond), realLaunchSpeedRps, 0.05);
+    }
+
+    /**
+     * Defers a command that interpolates a {@link LaunchConfig} and then sets the velocity and hood hoodExtension of
+     * the launcher, based on the active {@link LaunchStrategy}.
      *
      * @param distance supplier to get the distance that fuel should be shot from
      *
@@ -132,8 +142,10 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput(
                 "Launcher/Interpolator/TargetSpeed",
                 config == null ? RotationsPerSecond.of(0) : config.speed());
-        Logger.recordOutput("Launcher/Interpolator/TargetAngle", config == null ? Millimeters.of(0) : config.hoodExtension());
+        Logger.recordOutput(
+                "Launcher/Interpolator/TargetAngle", config == null ? Millimeters.of(0) : config.hoodExtension());
         Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", realLaunchSpeed);
+        realLaunchSpeedRps = realLaunchSpeed.in(RotationsPerSecond);
     }
 
 //    private Distance computeHoodExtension(Angle hoodExtension) {
