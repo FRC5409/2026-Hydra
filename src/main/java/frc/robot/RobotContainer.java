@@ -660,77 +660,91 @@ public class RobotContainer {
         
     }
 
-    Distance intakeSetpoint;
-    Distance hopperSetpoint;
+    //TODO: DETERMINE IF NEEDED, IF NOT DELETE
+        Distance incrementBy = Inches.of(2.0);
+        Distance totalIncrement = Meters.of(0.0);
+        private Command retractAndAgitate() {
+                return Commands.sequence(
+                        Commands.runOnce(() -> totalIncrement = Meters.of(0.0)),
+                        extendIntakeAndHopper(),
+                        Commands.repeatingSequence(
+                                Commands.runOnce(() -> {
+                                        totalIncrement = totalIncrement.plus(incrementBy);
+                                }),
+                                Commands.parallel(
+                                        sys_hopper.setSetpoint(() -> {
+                                                Distance extension = HopperConstants.HOPPER_MAX_EXTENSION;
+                                                if (extension.minus(totalIncrement).lt(HopperConstants.HOPPER_MIN_EXTENSION))
+                                                        return HopperConstants.HOPPER_MIN_EXTENSION;
 
-    // TODO: DETERMINE IF NEEDED, IF NOT DELETE
-    /** 
-     * Command to retract both intake and hopper subsystems, while agitating hopper back and forth to help with launching fuel
-     * @author Jaden Rajan, team 5409
-     * @author John Chen, team 5409
-     */
-    private Command retractAndAgitate() {
-        return Commands.repeatingSequence(
-                Commands.runOnce(() -> 
-                        intakeSetpoint = sys_intake.getPosition().minus(IntakeConstants.Extension.RETRACT_INCREMENT)),
-                Commands.runOnce(() -> 
-                        hopperSetpoint = intakeSetpoint.plus(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
-                                                        .minus(HopperConstants.STARTING_GAP_TO_INTAKE)),
-                sys_intake.move(() -> intakeSetpoint),
-                Commands.either(
-                        sys_hopper.stopMotor(),
-                        sys_hopper.setSetpoint(() -> hopperSetpoint),
-                        () -> (sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()))
-                                        .lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
-                ).repeatedly().until(() -> sys_hopper.getPosition().isNear(
-                        hopperSetpoint, HopperConstants.AGITATE_TOLERANCE)),
-                sys_hopper.setSetpoint(() -> hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT)),
-                Commands.waitUntil(() -> 
-                        sys_hopper.getPosition().isNear(hopperSetpoint.plus(HopperConstants.EXTEND_INCREMENT), 
-                                                        HopperConstants.AGITATE_TOLERANCE))
-        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE))
-                .andThen(sys_hopper.fullRetract());
-    }
+                                                return extension.minus(totalIncrement);
+                                        }),
+                                        sys_intake.move(() -> {
+                                                Distance extension = IntakeConstants.Extension.EXTENSION_MAX_DISTANCE;
+                                                if (extension.minus(totalIncrement).lt(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE))
+                                                        return IntakeConstants.Extension.EXTENSION_MIN_DISTANCE;
 
-    // TODO: DETERMINE IF NEEDED, IF NOT DELETE
-    private Command agitate(){
-        return
-//                Commands.sequence(
-//                sys_hopper.setSetpoint(() -> Meters.of(2.6)),
-//                sys_intake.move(Meters.of(3.35)),
-//                Commands.waitUntil(
-//                                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-//                                        && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-//                ),
-                Commands.repeatingSequence(
-                        Commands.parallel(
-                                sys_intake.move(() -> sys_intake.getPosition().minus(Centimeters.of(2.5))),
-                                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().minus(Centimeters.of(2.5))),
-                                Commands.print("pulling in")
-                        ),
-                        Commands.print("Waiting"),
-                        Commands.waitUntil(
-                                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                                        && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                        ),
-                        Commands.print("done waiting"),
-                        Commands.parallel(
-                                sys_hopper.setSetpoint(() -> sys_hopper.getPosition().plus(Centimeters.of(1.0))),
-                                sys_intake.move(() -> sys_intake.getPosition().plus(Centimeters.of(1.0))),
-                                Commands.print("pushing out")
-                        ),
-                        Commands.print("waiting 2"),
-                        Commands.waitUntil(
-                                () -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                                        && sys_intake.getPosition().isNear(sys_intake.getSetpoint(), HopperConstants.AGITATE_TOLERANCE)
-                        ),
-                        Commands.print("done waiting")
-//                )
-        );
-    }
+                                                return extension.minus(totalIncrement);
+                                        })
+                                ),
+                                Commands.waitUntil(() -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), Centimeters.of(0.5))),
+                                sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MAX_EXTENSION.minus(totalIncrement).plus(Inches.of(10)))),
+                                Commands.waitUntil(() -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), Centimeters.of(0.01))
+                        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Centimeters.of(1)))
+                );
+         }
 
         Distance extendPoint = Centimeters.of(23.5);
         Distance retractPoint = extendPoint.minus(Centimeters.of(7.5));
+
+        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
+        private Command agitateIntakeAndHopper(double rollerVoltage) {
+                extendPoint = Centimeters.of(23.5);
+                retractPoint = extendPoint.minus(Inches.of(3.0));
+                return Commands.parallel(
+                sys_intake.setRollerVoltage(rollerVoltage),
+                Commands.repeatingSequence(
+                        sys_intake.move(() -> retractPoint),
+                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractPoint, Centimeters.of(1.0))),
+                        sys_intake.move(() -> extendPoint),
+                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(extendPoint, Centimeters.of(1.0)))
+                ),
+                Commands.repeatingSequence(
+                        sys_hopper.setSetpoint(() -> retractPoint),
+                        Commands.waitUntil(() -> sys_hopper.getPosition().isNear(retractPoint, Centimeters.of(1.0))),
+                        sys_hopper.setSetpoint(() -> extendPoint),
+                        Commands.waitUntil(() -> sys_hopper.getPosition().isNear(extendPoint, Centimeters.of(1.0)))
+                )
+                );
+        }
+
+        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
+        private Command agitateThenRetract(double rollerVoltage) {
+                return Commands.sequence(
+                        agitateIntakeAndHopper(rollerVoltage).withTimeout(3),
+                        Commands.parallel(
+                                sys_intake.setExtensionVoltage(-2),
+                                sys_hopper.setVoltage(2)
+                        ).until(() -> sys_intake.getPosition().isNear(Centimeters.of(0.0), Centimeters.of(2)))
+
+                );
+        }
+
+        Distance retractStep = extendPoint.minus(Centimeters.of(3));
+
+        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
+        private Command retractIntakeInSteps(double rollerVoltage) {
+                return Commands.parallel(
+                        sys_intake.setRollerVoltage(rollerVoltage),
+                        Commands.repeatingSequence(
+                                sys_intake.move(() -> retractStep),
+                                Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractStep, Centimeters.of(0.5))),
+                                Commands.runOnce(() -> retractStep = retractStep.minus(Centimeters.of(3)))
+                        )
+                );
+        }
+
+        
 
         // TODO: MOVE TO GAME COMMANDS
         public Command agitateIntake(double rollerVoltage) {
@@ -749,7 +763,7 @@ public class RobotContainer {
         private Command runIntakeIn(double voltage){
             return Commands.sequence(
                 sys_intake.setExtensionVoltage(voltage),
-                Commands.waitUntil(() -> sys_intake.getPosition().isNear(Centimeters.of(1), Centimeters.of(1))),
+                Commands.waitUntil(() -> sys_intake.getPosition().isNear(Centimeters.of(0), Centimeters.of(1))),
                 sys_intake.setExtensionVoltage(0)
             );
         }
