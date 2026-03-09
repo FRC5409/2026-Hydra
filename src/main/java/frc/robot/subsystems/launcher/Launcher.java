@@ -1,5 +1,6 @@
 package frc.robot.subsystems.launcher;
 
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
@@ -200,6 +201,8 @@ public class Launcher extends SubsystemBase {
 
         // update inputs
         io.updateInputs(inputs);
+        // TODO: UPDATE TO MATCH HOOD ANGLE IF POSSIBLE
+        Logger.recordOutput("Components/Hood", new Pose3d());
         Logger.recordOutput("Launcher/Interpolator/OperatorSpeedOffset", getSpeedOffset());
         Logger.processInputs("Launcher", inputs);
         // SmartDashboard.putData("Launcher/PID", LauncherConstants.Launcher.PID);

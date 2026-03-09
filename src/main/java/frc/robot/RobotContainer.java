@@ -28,31 +28,14 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.FeederIO;
-import frc.robot.subsystems.feeder.FeederIOSim;
-import frc.robot.subsystems.feeder.FeederIOTalonFX;
+import frc.robot.subsystems.elevator.*;
+import frc.robot.subsystems.feeder.*;
 import frc.robot.subsystems.hopper.*;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeConstants;
-import frc.robot.subsystems.intake.IntakeIO;
-import frc.robot.subsystems.intake.IntakeIOSim;
-import frc.robot.subsystems.intake.IntakeIOTalonFX;
+import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.launcher.*;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
-import frc.robot.subsystems.serializer.Serializer;
-import frc.robot.subsystems.serializer.SerializerConstants;
-import frc.robot.subsystems.serializer.SerializerIO;
-import frc.robot.subsystems.serializer.SerializerIOSim;
-import frc.robot.subsystems.serializer.SerializerIOTalonFX;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOLimelight;
-import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.subsystems.serializer.*;
+import frc.robot.subsystems.vision.*;
 import frc.robot.util.AutoPath;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -61,6 +44,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import com.pathplanner.lib.commands.PathPlannerAuto;
 
@@ -90,13 +74,14 @@ public class RobotContainer {
 
     public static SwerveDriveSimulation simConfig;
 
-    private PassingPositions selectedPassingPosition = PassingPositions.MIDDLE;
     private ClimbingPositions selectedClimbingPosition = ClimbingPositions.LEFT;
     private ClimbingPositions selectedClimbingPrepPosition = ClimbingPositions.LEFT_PREP;
 
     private Distance manualLaunchDistance = Meters.of(2);
 
     private boolean shouldPass = false;
+    // private BooleanSupplier isPits = () -> false;
+    private LoggedNetworkBoolean isPits = new LoggedNetworkBoolean("Is Pits", false);
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -212,6 +197,10 @@ public class RobotContainer {
 
         // Configure the button bindings
         configureButtonBindings();
+        // TODO: CONFIRM THIS WORKS + UNCOMMENT BEFORE PUSHING TO MAIN
+        // if (!DriverStation.isFMSAttached()){
+        //     configurePitsButtonBindings();
+        // }
 
         SmartDashboard.putData("Reset", Commands.runOnce(this::resetPose).ignoringDisable(true));
 
@@ -467,21 +456,6 @@ public class RobotContainer {
         // TODO: GET MANUAL LAUNCH DISTANCE THAT WE WANT TO USE
         new Trigger(() -> secondaryController.getLeftX() < 0.5)
                     .onTrue(prepManualLaunchDistance(Meters.of(4.0)));
-
-        // PITS TEST CONTROLLER BUTTONS:
-        // TODO: BOOLEAN IF IN PITS THEN USE THESE BUTTONS OTHERWISE DON't (TO STOP DRIVERSTATION ERRORS)
-
-        // tertiaryController.x()
-        //     .onTrue(sys_elevator.goTillSpike(-1));
-
-        // tertiaryController.povUp()
-        // .onTrue(sys_elevator.startManualMove(1.0))
-        // .onFalse(sys_elevator.startManualMove(0));
-
-        // tertiaryController.povDown()
-        // .onTrue(sys_elevator.startManualMove(-1.0))
-        // .onFalse(sys_elevator.startManualMove(0));
-
         // BUTTONS TO TEST CODE
         // TODO: remove some of these when merging to main, or maybe make a DebugCommand interface
         
@@ -578,7 +552,21 @@ public class RobotContainer {
 
         SmartDashboard.putData("Intake/Coast", sys_intake.coastMode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
         SmartDashboard.putData("Intake/Brake", sys_intake.brakemode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
-      }
+    }
+
+    // PITS TEST CONTROLLER BUTTONS
+    private void configurePitsButtonBindings(){
+        tertiaryController.x()
+                .onTrue(sys_elevator.goTillSpike(-1));
+
+        tertiaryController.povUp()
+            .onTrue(sys_elevator.startManualMove(1.0))
+            .onFalse(sys_elevator.startManualMove(0));
+
+        tertiaryController.povDown()
+            .onTrue(sys_elevator.startManualMove(-1.0))
+            .onFalse(sys_elevator.startManualMove(0));
+    }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {
         return Commands.runOnce(
