@@ -380,7 +380,7 @@ public class RobotContainer {
                                     // TODO: WAIT UNTIL LAUNCHER IS SPUN UP
                                     // Commands.waitUntil(null),
                                     sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
-                                    Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE)
+                                    Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE)
                                 )
                             )
                         )
@@ -633,7 +633,7 @@ public class RobotContainer {
     public Command startIntaking(){
         return Commands.sequence(
                         sys_hopper.fullExtend(),
-                        Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_INTAKE_EXTENSION),
+                        Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_INTAKE_EXTENSION),
                         Commands.parallel(
                             sys_intake.extend(),
                             sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE)

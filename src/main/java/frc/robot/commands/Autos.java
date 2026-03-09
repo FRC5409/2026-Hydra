@@ -11,7 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.RobotContainer;
 import frc.robot.Constants.ClimbingPositions;
-import frc.robot.Constants.GameCommands;
+import frc.robot.Constants.GameCommandsConstants;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.Constants.kBump;
 import frc.robot.Constants.kField;
@@ -110,11 +110,11 @@ public class Autos {
 				// 4. feed fuel into launcher
 				robotContainer.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-                Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE),
+                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
 				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
 
-				Commands.waitTime(GameCommands.AUTO_LAUNCH_WAIT_TIME),
+				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
 				// 5. after 5s, stop all launcher systems
                 Commands.parallel(
@@ -221,11 +221,11 @@ public class Autos {
 				// 4. feed fuel into launcher
 				robotContainer.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-                Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE),
+                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
 				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
 
-				Commands.waitTime(GameCommands.AUTO_LAUNCH_WAIT_TIME),
+				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
 				// 5. after 5s, stop all launcher systems
                 Commands.parallel(
@@ -334,11 +334,11 @@ public class Autos {
 				// 4. feed fuel into launcher
 				robotContainer.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-                Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE),
+                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
 				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
 
-				Commands.waitTime(GameCommands.AUTO_LAUNCH_WAIT_TIME),
+				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
 				// 5. after 5s, stop all launcher systems
                 Commands.parallel(
@@ -450,11 +450,11 @@ public class Autos {
 				// 4. feed fuel into launcher
 				robotContainer.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-                Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE),
+                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
 				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
 
-				Commands.waitTime(GameCommands.AUTO_LAUNCH_WAIT_TIME),
+				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
 				// 5. after 5s, stop all launcher systems
                 Commands.parallel(
@@ -541,7 +541,7 @@ public class Autos {
 
 				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
 
-				Commands.waitTime(GameCommands.AUTO_LAUNCH_WAIT_TIME),
+				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
 				// 5. after 5s, stop all launcher systems
                 Commands.parallel(
@@ -597,11 +597,11 @@ public class Autos {
 				// 4. feed fuel into launcher
 				robotContainer.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-                Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE),
+                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
 				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
 
-				Commands.waitTime(GameCommands.AUTO_LAUNCH_WAIT_TIME),
+				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
 				// 5. after 5s, stop all launcher systems
                 Commands.parallel(
@@ -683,11 +683,11 @@ public class Autos {
 				// 4. feed fuel into launcher
 				robotContainer.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-                Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE),
+                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
 				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
 
-				Commands.waitTime(GameCommands.AUTO_LAUNCH_WAIT_TIME),
+				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
 				// 5. after 5s, stop all launcher systems
                 Commands.parallel(
