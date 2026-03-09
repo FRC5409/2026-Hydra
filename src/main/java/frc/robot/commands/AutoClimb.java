@@ -37,7 +37,7 @@ public class AutoClimb extends SequentialCommandGroup {
                 kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
                 kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
                 kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP),
-            sys_elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATOR_UP)
+            sys_elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATOR_UP,0)
         ),
 
         DriveCommands.alignToPoint(
@@ -47,7 +47,7 @@ public class AutoClimb extends SequentialCommandGroup {
             () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
         ),
 
-        sys_elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATPR_DOWN)
+        sys_elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATOR_DOWN,0)
     );
   }
 }

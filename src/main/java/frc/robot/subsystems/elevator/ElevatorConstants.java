@@ -29,5 +29,9 @@ public final class ElevatorConstants {
     public static final Distance ELEVATOR_PREP_HEIGHT = Meters.of(15.0);
 
     public static final Distance IDLING_HEIGHT = Meters.of(11.0);
+    public static final class kSetpoints{
+        public static final Distance ELEVATOR_UP = Meters.of(1);
+        public static final Distance ELEVATOR_DOWN = Meters.of(0.5);
+    }
 
 }
