@@ -12,14 +12,11 @@ import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 public final class IntakeConstants {
 
 	public static final class Extension {
-		public static final Distance EXTENSION_MIN_DISTANCE = Centimeters.of(0.5);
-		public static final Distance EXTENSION_DISTANCE = Centimeters.of(23.5);
-
-		public static final Distance EXTENSION_MAX_DISTANCE = Centimeters.of(24);
+        public static final Distance EXTENSION_MIN_DISTANCE = Centimeters.of(0.5);
+        public static final Distance EXTENSION_DISTANCE = Centimeters.of(26.5);
+        public static final Distance EXTENSION_MAX_DISTANCE = Centimeters.of(27);
 
 		public static final PIDController       PID = new PIDController(0.0,0.0,0.0);
-        public static final LoggedNetworkNumber KS  = new LoggedNetworkNumber("Intake/kS", 0.0);
-        public static final LoggedNetworkNumber KV  = new LoggedNetworkNumber("Intake/kV", 0.0);
 
 		public static final PIDConstants        TALONFX_PID = new PIDConstants(5.5,0.75,0);
 
