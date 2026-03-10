@@ -151,7 +151,7 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void setSetpoint(Supplier<Distance> setpoint) {
-        Distance setpointNew = Meters.of(MathUtil.clamp(setpoint.get().in(Meters)/HopperConstants.UNIT_CONVERSION_FACTOR, 0, Extension.EXTENSION_MAX_DISTANCE.in(Meters)));
+        Distance setpointNew = Meters.of(MathUtil.clamp(setpoint.get().in(Meters)/HopperConstants.UNIT_CONVERSION_FACTOR, 0, HopperConstants.HOPPER_MAX_EXTENSION.in(Meters)/HopperConstants.UNIT_CONVERSION_FACTOR));
         PhoenixUtil.tryUntilOk(3, 
         () -> m_mainMotor.setControl(m_request.withPosition(setpointNew.in(Meters))
         .withSlot(0)));

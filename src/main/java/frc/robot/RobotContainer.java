@@ -8,13 +8,14 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,19 +25,35 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
+import frc.robot.Constants.*;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GameCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.elevator.*;
-import frc.robot.subsystems.feeder.*;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.feeder.FeederIOSim;
+import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.hopper.*;
 import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.launcher.Launcher;
+import frc.robot.subsystems.launcher.LauncherIO;
+import frc.robot.subsystems.launcher.LauncherIOSim;
+import frc.robot.subsystems.launcher.LauncherIOTalonFX;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
-import frc.robot.subsystems.serializer.*;
-import frc.robot.subsystems.vision.*;
+import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerIO;
+import frc.robot.subsystems.serializer.SerializerIOSim;
+import frc.robot.subsystems.serializer.SerializerIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.AutoPath;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -45,11 +62,6 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
-
-import com.pathplanner.lib.commands.PathPlannerAuto;
-
-import frc.robot.Constants.*;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -70,9 +82,8 @@ public class RobotContainer {
     protected final Serializer sys_serializer;
     protected final Feeder     sys_feeder;
     protected final Hopper     sys_hopper;
-   
     protected final Launcher   sys_launcher;
-    protected final   Elevator   sys_elevator;
+    protected final Elevator   sys_elevator;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -232,9 +243,8 @@ public class RobotContainer {
             .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
             .onFalse(Commands.runOnce(() -> shouldLaunch = () -> true));
 
-        new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
-            .onTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED))
-            .onFalse(sys_launcher.stopLauncher());
+//        new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
+//            .whileTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED));
     }
 
     private void resetPose() {
@@ -327,7 +337,7 @@ public class RobotContainer {
      */
     private void configureButtonBindings() {
         SmartDashboard.putNumber("Launcher Speed Offset [rps]", Launcher.getSpeedOffset().in(RotationsPerSecond));
-        
+
         SmartDashboard.putData("Update Offset Now", Commands.runOnce(() -> Launcher.setSpeedOffset(
                 RotationsPerSecond.of(SmartDashboard.getNumber("Launcher Speed Offset [rps]", 0.0)))));
 
@@ -352,14 +362,14 @@ public class RobotContainer {
                 Commands.defer(
                     () -> Commands.either(
                         GameCommands.autoLaunch(
-                            () -> DriveCommands.distToHub(sys_drive), 
-                            sys_drive, 
-                            sys_launcher, 
-                            sys_feeder, 
-                            sys_serializer, 
+                            () -> DriveCommands.distToHub(sys_drive),
+                            sys_drive,
+                            sys_launcher,
+                            sys_feeder,
+                            sys_serializer,
                             sys_intake
-                        ), 
-                        GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake), 
+                        ),
+                        GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake),
                         shouldLaunch
                     ),
                     Set.of(sys_launcher, sys_feeder, sys_serializer, sys_intake)
@@ -377,16 +387,16 @@ public class RobotContainer {
         primaryController.y()
                         .whileTrue(
                             GameCommands.autoClimb(
-                                sys_drive, 
-                                sys_elevator, 
-                                () -> selectedClimbingPrepPosition.pose, 
+                                sys_drive,
+                                sys_elevator,
+                                () -> selectedClimbingPrepPosition.pose,
                                 () -> selectedClimbingPosition.pose
                             )
                         );
 
         primaryController.x()
                         .onTrue(
-                          GameCommands.retract(sys_intake, sys_hopper)  
+                          GameCommands.retract(sys_intake, sys_hopper)
                         );
 
         primaryController.a()
@@ -396,11 +406,11 @@ public class RobotContainer {
         primaryController.povDown()
                         .whileTrue(
                           GameCommands.manualLaunch(
-                            () -> manualLaunchDistance, 
-                            sys_launcher, 
-                            sys_feeder, 
-                            sys_serializer, 
-                            sys_intake)  
+                            () -> manualLaunchDistance,
+                            sys_launcher,
+                            sys_feeder,
+                            sys_serializer,
+                            sys_intake)
                         )
                         .onFalse(
                             GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
@@ -411,7 +421,7 @@ public class RobotContainer {
 
         secondaryController.povUp()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(1)));
-                        
+
         secondaryController.povDown()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(-1)));
 
@@ -430,7 +440,7 @@ public class RobotContainer {
                     .onTrue(prepManualLaunchDistance(Meters.of(4.0)));
         // BUTTONS TO TEST CODE
         // TODO: remove some of these when merging to main, or maybe make a DebugCommand interface
-        
+
         SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
         SmartDashboard.putData(
                 "LAUNCH FUEL (DST)", sys_launcher.launchFuel(
@@ -514,11 +524,11 @@ public class RobotContainer {
         tertiaryController.y()
                 .whileTrue(
                     DriveCommands.crossBumpDeadline(
-                        sys_drive, 
+                        sys_drive,
                         () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED)
                     )
                 );
-        
+
         SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remove when main
         SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remove when main
 
@@ -567,7 +577,7 @@ public class RobotContainer {
     }
 
     // TODO: DETERMINE IF NEEDED, IF NOT DELETE
-    /** 
+    /**
      * Command to extend both intake and hopper subsystems, with crash avoidance
      * @author Jaden Rajan, team 5409
      * @author John Chen, team 5409
@@ -576,8 +586,8 @@ public class RobotContainer {
         return Commands.repeatingSequence(
                 Commands.either(
                 sys_intake.stopMotor(),
-                sys_intake.extend(), 
-                () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE) 
+                sys_intake.extend(),
+                () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
                         && !(sys_hopper.getPosition().isNear(HopperConstants.HOPPER_MAX_EXTENSION, HopperConstants.AGITATE_TOLERANCE))
                 ).alongWith(sys_hopper.fullExtend())
         ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_DISTANCE, HopperConstants.AGITATE_TOLERANCE);})
@@ -585,11 +595,10 @@ public class RobotContainer {
     }
 
     // TODO: MOVE TO GAME COMMANDS
-    /** 
-     * Extends Hopper, waits {@link GameCommands#WAIT_TIME_BEFORE_INTAKE_EXTENSION}, 
-     * then extends intake and starts intake roller at {@link IntakeConstants.Roller#INTAKE_VOLTAGE} volts
-     * 
-     */ 
+    /**
+     * Extends Hopper, waits some pre-defined amount of time, then extends intake and starts intake roller at
+     * {@link IntakeConstants.Roller#INTAKE_VOLTAGE} volts
+     */
     public Command startIntaking(){
         return Commands.sequence(
                         sys_hopper.fullExtend(),
@@ -600,117 +609,6 @@ public class RobotContainer {
                         )
                     );
     }
-
-    // TODO: DETERMINE IF NEEDED, IF NOT DELETE
-    /** 
-     * Command to retract both intake and hopper subsystems, with crash avoidance
-     * @author Jaden Rajan, team 5409
-     * @author John Chen, team 5409
-     */
-    private Command retractIntakeAndHopper() {
-        return Commands.repeatingSequence(
-                Commands.either(
-                        sys_hopper.stopMotor(), 
-                        sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MIN_EXTENSION), 
-                        () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE) 
-                        && !(sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE))
-                ).alongWith(sys_intake.retract())
-        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE);})
-                .andThen(sys_hopper.fullRetract());
-    }
-
-    //TODO: DETERMINE IF NEEDED, IF NOT DELETE
-        Distance incrementBy = Inches.of(2.0);
-        Distance totalIncrement = Meters.of(0.0);
-        private Command retractAndAgitate() {
-                return Commands.sequence(
-                        Commands.runOnce(() -> totalIncrement = Meters.of(0.0)),
-                        extendIntakeAndHopper(),
-                        Commands.repeatingSequence(
-                                Commands.runOnce(() -> {
-                                        totalIncrement = totalIncrement.plus(incrementBy);
-                                }),
-                                Commands.parallel(
-                                        sys_hopper.setSetpoint(() -> {
-                                                Distance extension = HopperConstants.HOPPER_MAX_EXTENSION;
-                                                if (extension.minus(totalIncrement).lt(HopperConstants.HOPPER_MIN_EXTENSION))
-                                                        return HopperConstants.HOPPER_MIN_EXTENSION;
-
-                                                return extension.minus(totalIncrement);
-                                        }),
-                                        sys_intake.move(() -> {
-                                                Distance extension = IntakeConstants.Extension.EXTENSION_MAX_DISTANCE;
-                                                if (extension.minus(totalIncrement).lt(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE))
-                                                        return IntakeConstants.Extension.EXTENSION_MIN_DISTANCE;
-
-                                                return extension.minus(totalIncrement);
-                                        })
-                                ),
-                                Commands.waitUntil(() -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), Centimeters.of(0.5))),
-                                sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MAX_EXTENSION.minus(totalIncrement).plus(Inches.of(10)))),
-                                Commands.waitUntil(() -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), Centimeters.of(0.01))
-                        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Centimeters.of(1)))
-                );
-         }
-
-        Distance extendPoint = Centimeters.of(23.5);
-        Distance retractPoint = extendPoint.minus(Centimeters.of(7.5));
-
-        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
-        private Command agitateIntakeAndHopper(double rollerVoltage) {
-                extendPoint = Centimeters.of(23.5);
-                retractPoint = extendPoint.minus(Inches.of(3.0));
-                return Commands.parallel(
-                sys_intake.setRollerVoltage(rollerVoltage),
-                Commands.repeatingSequence(
-                        sys_intake.move(() -> retractPoint),
-                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractPoint, Centimeters.of(1.0))),
-                        sys_intake.move(() -> extendPoint),
-                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(extendPoint, Centimeters.of(1.0)))
-                ),
-                Commands.repeatingSequence(
-                        sys_hopper.setSetpoint(() -> retractPoint),
-                        Commands.waitUntil(() -> sys_hopper.getPosition().isNear(retractPoint, Centimeters.of(1.0))),
-                        sys_hopper.setSetpoint(() -> extendPoint),
-                        Commands.waitUntil(() -> sys_hopper.getPosition().isNear(extendPoint, Centimeters.of(1.0)))
-                )
-                );
-        }
-
-        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
-        private Command agitateThenRetract(double rollerVoltage) {
-                return Commands.sequence(
-                        agitateIntakeAndHopper(rollerVoltage).withTimeout(3),
-                        Commands.parallel(
-                                sys_intake.setExtensionVoltage(-2),
-                                sys_hopper.setVoltage(2)
-                        ).until(() -> sys_intake.getPosition().isNear(Centimeters.of(0.0), Centimeters.of(2)))
-
-                );
-        }
-
-        Distance retractStep = extendPoint.minus(Centimeters.of(3));
-
-        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
-        private Command retractIntakeInSteps(double rollerVoltage) {
-                return Commands.parallel(
-                        sys_intake.setRollerVoltage(rollerVoltage),
-                        Commands.repeatingSequence(
-                                sys_intake.move(() -> retractStep),
-                                Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractStep, Centimeters.of(0.5))),
-                                Commands.runOnce(() -> retractStep = retractStep.minus(Centimeters.of(3)))
-                        )
-                );
-        }
-
-        // TODO: DETERMINE IF NEEDED, IF NOT DELETE, IF NEEDED MOVE TO GAME COMMANDS
-        private Command runIntakeIn(double voltage){
-            return Commands.sequence(
-                sys_intake.setExtensionVoltage(voltage),
-                Commands.waitUntil(() -> sys_intake.getPosition().isNear(Centimeters.of(0), Centimeters.of(1))),
-                sys_intake.setExtensionVoltage(0)
-            );
-        }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
