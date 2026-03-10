@@ -25,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.GameCommands;
 import frc.robot.commands.Autos;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
@@ -318,6 +319,17 @@ public class RobotContainer {
      * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
+        primaryController.a()
+                .onTrue(sys_intake.extend())
+                .onTrue(sys_intake.setRollerVoltage(5))
+                .onFalse(sys_intake.setExtensionVoltage(0))
+                .onFalse(sys_intake.setRollerVoltage(0));
+        primaryController.y()
+                .onTrue(GameCommands.startIntake(sys_intake, sys_hopper))
+                .onFalse(sys_intake.stopMotor().alongWith(sys_hopper.stopMotor()));
+        primaryController.x()
+                .onTrue(GameCommands.agitateIntakeAndHopper(sys_intake, sys_hopper))
+                .onFalse(sys_intake.stopMotor().alongWith(sys_hopper.stopMotor()));
         SmartDashboard.putNumber("Launcher Speed Offset [rps]", Launcher.getSpeedOffset().in(RotationsPerSecond));
         
         SmartDashboard.putData("Update Offset Now", Commands.runOnce(() -> Launcher.setSpeedOffset(
@@ -357,7 +369,7 @@ public class RobotContainer {
                                     // .alongWith(Commands.waitUntil(sys_launcher.)),
                                     sys_serializer.setVoltage(10),
                                     Commands.waitTime(Seconds.of(3)),
-                                    agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE)
+                                    GameCommands.agitate(sys_intake)
                                     
                                 )
                             )
@@ -388,23 +400,23 @@ public class RobotContainer {
                         );
 
         // TODO: GAME COMMANDS: CLIMB (Auto Align or No Auto Align)
-        primaryController.y()
-                        .whileTrue(
-                            Commands.print("CLIMB GAME COMMAND HERE")
-                        );
+        // primaryController.y()
+        //                 .whileTrue(
+        //                     Commands.print("CLIMB GAME COMMAND HERE")
+        //                 );
 
-        // TODO: GAME COMMANDS: RETRACT INTAKE AND HOPPER INSTANTLY, both at the same time
-        primaryController.x()
-                        .onTrue(
-                            Commands.parallel(
-                                sys_intake.retract(),
-                                sys_hopper.fullRetract()
-                            )
-                        );
+        // // TODO: GAME COMMANDS: RETRACT INTAKE AND HOPPER INSTANTLY, both at the same time
+        // primaryController.x()
+        //                 .onTrue(
+        //                     Commands.parallel(
+        //                         sys_intake.retract(),
+        //                         sys_hopper.fullRetract()
+        //                     )
+        //                 );
 
-        primaryController.a()
-                         .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
-                         .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
+        // primaryController.a()
+        //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
+        //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
         // TODO: GAME COMMANDS: MANUAL LAUNCH 
         primaryController.povDown()
@@ -415,7 +427,7 @@ public class RobotContainer {
                                 // Commands.waitUntil(() -> ),
                                 sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
                                 Commands.waitTime(Milliseconds.of(500)),
-                                agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE)
+                                GameCommands.agitate(sys_intake)
                             )
                         )
                         .onFalse(
@@ -628,133 +640,6 @@ public class RobotContainer {
                         )
                     );
     }
-
-    // TODO: DETERMINE IF NEEDED, IF NOT DELETE
-    /** 
-     * Command to retract both intake and hopper subsystems, with crash avoidance
-     * @author Jaden Rajan, team 5409
-     * @author John Chen, team 5409
-     */
-    private Command retractIntakeAndHopper() {
-        return Commands.repeatingSequence(
-                Commands.either(
-                        sys_hopper.stopMotor(), 
-                        sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MIN_EXTENSION), 
-                        () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE) 
-                        && !(sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE))
-                ).alongWith(sys_intake.retract())
-        ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, HopperConstants.AGITATE_TOLERANCE);})
-                .andThen(sys_hopper.fullRetract());
-        
-    }
-
-    //TODO: DETERMINE IF NEEDED, IF NOT DELETE
-        Distance incrementBy = Inches.of(2.0);
-        Distance totalIncrement = Meters.of(0.0);
-        private Command retractAndAgitate() {
-                return Commands.sequence(
-                        Commands.runOnce(() -> totalIncrement = Meters.of(0.0)),
-                        extendIntakeAndHopper(),
-                        Commands.repeatingSequence(
-                                Commands.runOnce(() -> {
-                                        totalIncrement = totalIncrement.plus(incrementBy);
-                                }),
-                                Commands.parallel(
-                                        sys_hopper.setSetpoint(() -> {
-                                                Distance extension = HopperConstants.HOPPER_MAX_EXTENSION;
-                                                if (extension.minus(totalIncrement).lt(HopperConstants.HOPPER_MIN_EXTENSION))
-                                                        return HopperConstants.HOPPER_MIN_EXTENSION;
-
-                                                return extension.minus(totalIncrement);
-                                        }),
-                                        sys_intake.move(() -> {
-                                                Distance extension = IntakeConstants.Extension.EXTENSION_MAX_DISTANCE;
-                                                if (extension.minus(totalIncrement).lt(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE))
-                                                        return IntakeConstants.Extension.EXTENSION_MIN_DISTANCE;
-
-                                                return extension.minus(totalIncrement);
-                                        })
-                                ),
-                                Commands.waitUntil(() -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), Centimeters.of(0.5))),
-                                sys_hopper.setSetpoint(() -> HopperConstants.HOPPER_MAX_EXTENSION.minus(totalIncrement).plus(Inches.of(10)))),
-                                Commands.waitUntil(() -> sys_hopper.getPosition().isNear(sys_hopper.getSetpoint(), Centimeters.of(0.01))
-                        ).until(() -> sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_MIN_DISTANCE, Centimeters.of(1)))
-                );
-         }
-
-        Distance extendPoint = Centimeters.of(23.5);
-        Distance retractPoint = extendPoint.minus(Centimeters.of(7.5));
-
-        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
-        private Command agitateIntakeAndHopper(double rollerVoltage) {
-                extendPoint = Centimeters.of(23.5);
-                retractPoint = extendPoint.minus(Inches.of(3.0));
-                return Commands.parallel(
-                sys_intake.setRollerVoltage(rollerVoltage),
-                Commands.repeatingSequence(
-                        sys_intake.move(() -> retractPoint),
-                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractPoint, Centimeters.of(1.0))),
-                        sys_intake.move(() -> extendPoint),
-                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(extendPoint, Centimeters.of(1.0)))
-                ),
-                Commands.repeatingSequence(
-                        sys_hopper.setSetpoint(() -> retractPoint),
-                        Commands.waitUntil(() -> sys_hopper.getPosition().isNear(retractPoint, Centimeters.of(1.0))),
-                        sys_hopper.setSetpoint(() -> extendPoint),
-                        Commands.waitUntil(() -> sys_hopper.getPosition().isNear(extendPoint, Centimeters.of(1.0)))
-                )
-                );
-        }
-
-        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
-        private Command agitateThenRetract(double rollerVoltage) {
-                return Commands.sequence(
-                        agitateIntakeAndHopper(rollerVoltage).withTimeout(3),
-                        Commands.parallel(
-                                sys_intake.setExtensionVoltage(-2),
-                                sys_hopper.setVoltage(2)
-                        ).until(() -> sys_intake.getPosition().isNear(Centimeters.of(0.0), Centimeters.of(2)))
-
-                );
-        }
-
-        Distance retractStep = extendPoint.minus(Centimeters.of(3));
-
-        //TODO: DETERMINE IF NEEDED, IF NOT DELETE
-        private Command retractIntakeInSteps(double rollerVoltage) {
-                return Commands.parallel(
-                        sys_intake.setRollerVoltage(rollerVoltage),
-                        Commands.repeatingSequence(
-                                sys_intake.move(() -> retractStep),
-                                Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractStep, Centimeters.of(0.5))),
-                                Commands.runOnce(() -> retractStep = retractStep.minus(Centimeters.of(3)))
-                        )
-                );
-        }
-
-        
-
-        // TODO: MOVE TO GAME COMMANDS
-        public Command agitateIntake(double rollerVoltage) {
-                return Commands.parallel(
-                    sys_intake.setRollerVoltage(rollerVoltage),
-                    Commands.repeatingSequence(
-                        sys_intake.move(() -> retractPoint),
-                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(retractPoint, Centimeters.of(1.0))),
-                        sys_intake.move(() -> extendPoint),
-                        Commands.waitUntil(() -> sys_intake.getPosition().isNear(extendPoint, Centimeters.of(1.0)))
-                    )
-                );
-        }
-
-        // TODO: DETERMINE IF NEEDED, IF NOT DELETE, IF NEEDED MOVE TO GAME COMMANDS
-        private Command runIntakeIn(double voltage){
-            return Commands.sequence(
-                sys_intake.setExtensionVoltage(voltage),
-                Commands.waitUntil(() -> sys_intake.getPosition().isNear(Centimeters.of(0), Centimeters.of(1))),
-                sys_intake.setExtensionVoltage(0)
-            );
-        }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

@@ -112,7 +112,7 @@ public class Autos {
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
+				GameCommands.agitate(intake),
 
 				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
@@ -223,7 +223,7 @@ public class Autos {
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
+				GameCommands.agitate(intake),
 
 				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
@@ -336,7 +336,7 @@ public class Autos {
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
+				GameCommands.agitate(intake),
 
 				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
@@ -452,7 +452,7 @@ public class Autos {
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
+				GameCommands.agitate(intake),
 
 				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
@@ -539,7 +539,7 @@ public class Autos {
 
                 // Commands.waitTime(GameCommands.WAIT_TIME_BEFORE_AGITATE),
 
-				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
+				GameCommands.agitate(intake),
 
 				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
@@ -599,7 +599,7 @@ public class Autos {
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
+				GameCommands.agitate(intake),
 
 				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 
@@ -685,7 +685,7 @@ public class Autos {
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-				robotContainer.agitateIntake(IntakeConstants.Roller.AGITATE_VOLTAGE),
+				GameCommands.agitate(intake),
 
 				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
 

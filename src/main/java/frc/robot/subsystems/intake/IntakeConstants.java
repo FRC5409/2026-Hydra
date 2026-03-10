@@ -17,7 +17,7 @@ public final class IntakeConstants {
 
 		public static final Distance EXTENSION_MAX_DISTANCE = Centimeters.of(24);
 
-		public static final PIDController       PID = new PIDController(0.0,0.0,0.0);
+		public static final PIDController       PID = new PIDController(1.0,0.0,0.0);
         public static final LoggedNetworkNumber KS  = new LoggedNetworkNumber("Intake/kS", 0.0);
         public static final LoggedNetworkNumber KV  = new LoggedNetworkNumber("Intake/kV", 0.0);
 

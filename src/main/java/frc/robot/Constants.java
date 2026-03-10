@@ -205,6 +205,8 @@ public final class Constants {
         public static final Time        AUTO_LAUNCH_WAIT_TIME               = Seconds.of(5);
         public static final Distance    EXTEND_POINT                         = Centimeters.of(23.5);
         public static final Distance    RETRACT_POINT                        = EXTEND_POINT.minus(Centimeters.of(7.5));
+        public static final Distance    incrementBy                         = Inches.of(2.0);
+        
         // TODO: TUNE THIS VALUE
         public static final AngularVelocity PASSING_RPS                     = RotationsPerSecond.of(50);
         public static final Distance PASSING_HOOD_ANGLE                     = Millimeters.of(50);
