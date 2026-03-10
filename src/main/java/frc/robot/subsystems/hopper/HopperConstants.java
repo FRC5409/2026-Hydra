@@ -27,7 +27,7 @@ public final class HopperConstants {
     public static final PIDConstants SIM_PID = new PIDConstants(4, 0, 3);
 
     public static final Distance HOPPER_MIN_EXTENSION = Centimeters.of(0.5);
-    public static final Distance HOPPER_MAX_EXTENSION = Centimeters.of(27);
+    public static final Distance HOPPER_MAX_EXTENSION = Centimeters.of(39.5);
     public static final Distance STARTING_GAP_TO_INTAKE = Meters.of(0.0);
     public static final Distance EXTEND_INCREMENT = Inches.of(0.3);
     public static final Distance AGITATE_TOLERANCE = Millimeters.of(1);

@@ -8,13 +8,14 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,20 +25,35 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.commands.DriveCommands;
-import frc.robot.commands.GameCommands;
+import frc.robot.Constants.*;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GameCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.elevator.*;
-import frc.robot.subsystems.feeder.*;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.feeder.FeederIOSim;
+import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.hopper.*;
 import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.launcher.*;
+import frc.robot.subsystems.launcher.Launcher;
+import frc.robot.subsystems.launcher.LauncherIO;
+import frc.robot.subsystems.launcher.LauncherIOSim;
+import frc.robot.subsystems.launcher.LauncherIOTalonFX;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
-import frc.robot.subsystems.serializer.*;
-import frc.robot.subsystems.vision.*;
+import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerIO;
+import frc.robot.subsystems.serializer.SerializerIOSim;
+import frc.robot.subsystems.serializer.SerializerIOTalonFX;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
+import frc.robot.subsystems.vision.VisionIOLimelight;
+import frc.robot.subsystems.vision.VisionIOSim;
 import frc.robot.util.AutoPath;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -46,11 +62,6 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
-
-import com.pathplanner.lib.commands.PathPlannerAuto;
-
-import frc.robot.Constants.*;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -71,7 +82,7 @@ public class RobotContainer {
     protected final Serializer sys_serializer;
     protected final Feeder     sys_feeder;
     protected final Hopper     sys_hopper;
-   
+
     protected final Launcher   sys_launcher;
     protected final   Elevator   sys_elevator;
 
@@ -233,8 +244,8 @@ public class RobotContainer {
             .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
             .onFalse(Commands.runOnce(() -> shouldLaunch = () -> true));
 
-        new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
-            .whileTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED));
+//        new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
+//            .whileTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED));
     }
 
     private void resetPose() {
@@ -279,7 +290,7 @@ public class RobotContainer {
         LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>("Auto Choices");
         chooser.addDefaultOption("None", Commands.none());
         ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(
-            sys_drive, 
+            sys_drive,
             sys_vision,
             sys_launcher,
             sys_feeder,
@@ -338,7 +349,7 @@ public class RobotContainer {
                 .onTrue(GameCommands.agitateIntakeAndHopper(sys_intake, sys_hopper))
                 .onFalse(sys_intake.stopMotor().alongWith(sys_hopper.stopMotor()));
         SmartDashboard.putNumber("Launcher Speed Offset [rps]", Launcher.getSpeedOffset().in(RotationsPerSecond));
-        
+
         SmartDashboard.putData("Update Offset Now", Commands.runOnce(() -> Launcher.setSpeedOffset(
                 RotationsPerSecond.of(SmartDashboard.getNumber("Launcher Speed Offset [rps]", 0.0)))));
 
@@ -363,14 +374,14 @@ public class RobotContainer {
                 Commands.defer(
                     () -> Commands.either(
                         GameCommands.autoLaunch(
-                            () -> DriveCommands.distToHub(sys_drive), 
-                            sys_drive, 
-                            sys_launcher, 
-                            sys_feeder, 
-                            sys_serializer, 
+                            () -> DriveCommands.distToHub(sys_drive),
+                            sys_drive,
+                            sys_launcher,
+                            sys_feeder,
+                            sys_serializer,
                             sys_intake
-                        ), 
-                        GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake), 
+                        ),
+                        GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake),
                         shouldLaunch
                     ),
                     Set.of(sys_launcher, sys_feeder, sys_serializer, sys_intake)
@@ -388,16 +399,16 @@ public class RobotContainer {
         primaryController.y()
                         .whileTrue(
                             GameCommands.autoClimb(
-                                sys_drive, 
-                                sys_elevator, 
-                                () -> selectedClimbingPrepPosition.pose, 
+                                sys_drive,
+                                sys_elevator,
+                                () -> selectedClimbingPrepPosition.pose,
                                 () -> selectedClimbingPosition.pose
                             )
                         );
 
         primaryController.x()
                         .onTrue(
-                          GameCommands.retract(sys_intake, sys_hopper)  
+                          GameCommands.retract(sys_intake, sys_hopper)
                         );
 
         // primaryController.a()
@@ -407,11 +418,11 @@ public class RobotContainer {
         primaryController.povDown()
                         .whileTrue(
                           GameCommands.manualLaunch(
-                            () -> manualLaunchDistance, 
-                            sys_launcher, 
-                            sys_feeder, 
-                            sys_serializer, 
-                            sys_intake)  
+                            () -> manualLaunchDistance,
+                            sys_launcher,
+                            sys_feeder,
+                            sys_serializer,
+                            sys_intake)
                         )
                         .onFalse(
                             GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
@@ -422,7 +433,7 @@ public class RobotContainer {
 
         secondaryController.povUp()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(1)));
-                        
+
         secondaryController.povDown()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(-1)));
 
@@ -441,7 +452,7 @@ public class RobotContainer {
                     .onTrue(prepManualLaunchDistance(Meters.of(4.0)));
         // BUTTONS TO TEST CODE
         // TODO: remove some of these when merging to main, or maybe make a DebugCommand interface
-        
+
         SmartDashboard.putNumber("LAUNCHER DISTANCE [m]", 5);
         SmartDashboard.putData(
                 "LAUNCH FUEL (DST)", sys_launcher.launchFuel(
@@ -525,11 +536,11 @@ public class RobotContainer {
         tertiaryController.y()
                 .whileTrue(
                     DriveCommands.crossBumpDeadline(
-                        sys_drive, 
+                        sys_drive,
                         () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED)
                     )
                 );
-        
+
         SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remove when main
         SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remove when main
 
@@ -578,7 +589,7 @@ public class RobotContainer {
     }
 
     // TODO: DETERMINE IF NEEDED, IF NOT DELETE
-    /** 
+    /**
      * Command to extend both intake and hopper subsystems, with crash avoidance
      * @author Jaden Rajan, team 5409
      * @author John Chen, team 5409
@@ -587,8 +598,8 @@ public class RobotContainer {
         return Commands.repeatingSequence(
                 Commands.either(
                 sys_intake.stopMotor(),
-                sys_intake.extend(), 
-                () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE) 
+                sys_intake.extend(),
+                () -> sys_hopper.getPositionIntakeZero().minus(sys_intake.getPosition()).lt(IntakeConstants.Extension.KILLSWITCH_TOLERANCE)
                         && !(sys_hopper.getPosition().isNear(HopperConstants.HOPPER_MAX_EXTENSION, HopperConstants.AGITATE_TOLERANCE))
                 ).alongWith(sys_hopper.fullExtend())
         ).until(() -> {return sys_intake.getPosition().isNear(IntakeConstants.Extension.EXTENSION_DISTANCE, HopperConstants.AGITATE_TOLERANCE);})
@@ -596,11 +607,10 @@ public class RobotContainer {
     }
 
     // TODO: MOVE TO GAME COMMANDS
-    /** 
-     * Extends Hopper, waits {@link GameCommands#WAIT_TIME_BEFORE_INTAKE_EXTENSION}, 
-     * then extends intake and starts intake roller at {@link IntakeConstants.Roller#INTAKE_VOLTAGE} volts
-     * 
-     */ 
+    /**
+     * Extends Hopper, waits some pre-defined amount of time, then extends intake and starts intake roller at
+     * {@link IntakeConstants.Roller#INTAKE_VOLTAGE} volts
+     */
     public Command startIntaking(){
         return Commands.sequence(
                         sys_hopper.fullExtend(),
