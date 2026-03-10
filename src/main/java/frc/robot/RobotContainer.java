@@ -231,6 +231,10 @@ public class RobotContainer {
         new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
             .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
             .onFalse(Commands.runOnce(() -> shouldLaunch = () -> true));
+
+        new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
+            .onTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED))
+            .onFalse(sys_launcher.stopLauncher());
     }
 
     private void resetPose() {
@@ -344,7 +348,7 @@ public class RobotContainer {
             );
 
         primaryController.rightBumper()
-            .onTrue(
+            .whileTrue(
                 Commands.defer(
                     () -> Commands.either(
                         GameCommands.autoLaunch(

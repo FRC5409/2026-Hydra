@@ -80,10 +80,11 @@ public class Autos {
 					kBump.SETTLING_TIME
 				),
 
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake),
-
-				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
-
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                ),
+                
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
@@ -139,11 +140,12 @@ public class Autos {
 					kBump.SETTLING_TIME
 				),
 
-				GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake),
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                ),
 
-				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
-
-				GameCommands.stopLaunching(launcher, feeder, serializer, intake)
+                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
 			)
@@ -200,10 +202,11 @@ public class Autos {
 					kBump.SETTLING_TIME
 				),
 
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake),
-
-				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
-
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                ),
+                
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
@@ -264,10 +267,11 @@ public class Autos {
 					kBump.SETTLING_TIME
 				),
 
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake),
-
-				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
-
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                ),
+                
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
@@ -300,10 +304,11 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION),
 
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake),
-
-				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
-
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                ),
+                
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
             )
         );
@@ -325,10 +330,11 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
                 ),
 
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake),
-
-				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
-
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                ),
+                
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
@@ -360,10 +366,11 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
                 ),
                 
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake),
-
-				Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
-
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                ),
+                
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
