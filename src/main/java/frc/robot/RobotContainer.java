@@ -239,9 +239,9 @@ public class RobotContainer {
                         )
         );
 
-        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
-            .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
-            .onFalse(Commands.runOnce(() -> shouldLaunch = () -> true));
+//        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
+//            .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
+//            .onFalse(Commands.runOnce(() -> shouldLaunch = () -> true));
 
 //        new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
 //            .whileTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED));

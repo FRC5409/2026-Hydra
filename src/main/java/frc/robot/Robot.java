@@ -15,7 +15,10 @@ import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.DriveCommands;
+import frc.robot.commands.GameCommands;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.util.RebuiltTimer;
 
@@ -88,6 +91,22 @@ public class Robot extends LoggedRobot {
 
         SignalLogger.enableAutoLogging(false);
         rebuiltTimer = new RebuiltTimer();
+
+        // stop all subsystems on disabled
+        new Trigger(DriverStation::isDisabled)
+                .onTrue(
+                        Commands.parallel(
+                                GameCommands.stopLaunching(
+                                        robotContainer.sys_launcher,
+                                        robotContainer.sys_feeder,
+                                        robotContainer.sys_serializer,
+                                        robotContainer.sys_intake
+                                ),
+                                Commands.runOnce(robotContainer.sys_drive::stop),
+                                robotContainer.sys_hopper.setVoltage(0),
+                                robotContainer.sys_elevator.startManualMove(0)
+                        )
+                );
     }
 
     /** This function is called periodically during all modes. */
