@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GameCommands;
 import frc.robot.commands.Autos;
+import frc.robot.commands.GameCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
 import frc.robot.subsystems.elevator.*;
@@ -52,6 +53,8 @@ import com.pathplanner.lib.commands.PathPlannerAuto;
 import frc.robot.Constants.*;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -62,16 +65,15 @@ import static edu.wpi.first.units.Units.*;
  */
 public class RobotContainer {
     // Subsystems
-    // TODO: make these protected later when gamecommands are here
-    public final Drive      sys_drive;
-    public final Vision     sys_vision;
-    public final Intake     sys_intake;
-    public final Serializer sys_serializer;
-    public final Feeder     sys_feeder;
-    public final Hopper     sys_hopper;
+    protected final Drive      sys_drive;
+    protected final Vision     sys_vision;
+    protected final Intake     sys_intake;
+    protected final Serializer sys_serializer;
+    protected final Feeder     sys_feeder;
+    protected final Hopper     sys_hopper;
    
-    public final Launcher   sys_launcher;
-    public final   Elevator   sys_elevator;
+    protected final Launcher   sys_launcher;
+    protected final   Elevator   sys_elevator;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -80,9 +82,7 @@ public class RobotContainer {
 
     private Distance manualLaunchDistance = Meters.of(2);
 
-    private boolean shouldPass = false;
-    // private BooleanSupplier isPits = () -> false;
-    private LoggedNetworkBoolean isPits = new LoggedNetworkBoolean("Is Pits", false);
+    public BooleanSupplier shouldLaunch = () -> true;
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -228,6 +228,14 @@ public class RobotContainer {
                                         .ignoringDisable(true)
                         )
         );
+
+        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
+            .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
+            .onFalse(Commands.runOnce(() -> shouldLaunch = () -> true));
+
+        new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
+            .onTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED))
+            .onFalse(sys_launcher.stopLauncher());
     }
 
     private void resetPose() {
@@ -278,8 +286,8 @@ public class RobotContainer {
             sys_feeder,
             sys_intake,
             sys_hopper,
-            sys_elevator,
-            this
+            sys_serializer,
+            sys_elevator
         );
 
         autoPaths.forEach(autoPath -> chooser.addOption(autoPath.getName(), autoPath));
@@ -345,109 +353,73 @@ public class RobotContainer {
         );
 
         primaryController.start()
-                         .and(primaryController.back())
-                         .onTrue(
-                                 Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
-                                         .ignoringDisable(true)
-                         );
-
-        // TODO: GAME COMMANDS: LAUNCH FUEL or PASS FUEL
-        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
-            .onTrue(Commands.runOnce(() -> shouldPass = true))
-            .onFalse(Commands.runOnce(() -> shouldPass = false));
+            .and(primaryController.back())
+            .onTrue(
+                Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
+                    .ignoringDisable(true)
+            );
 
         primaryController.rightBumper()
-                        .whileTrue(
-                            !shouldPass 
-                            // TODO: IF LAUNCHING, USE LAUNCHING GAME COMMAND
-                            ? Commands.parallel(
-                                DriveCommands.alignToHeading(sys_drive, () -> DriveCommands.getRotation2d(sys_drive, kField.BLUE_HUB).plus(Rotation2d.k180deg)),
-                                sys_launcher.launchFuel(() -> DriveCommands.distToHub(sys_drive), sys_feeder),
-                                Commands.sequence(
-                                    Commands.waitUntil(DriveCommands::isAligned),
-                                    // TODO: WAIT UNTIL LAUNCHER IS SPUN UP TO RIGHT SPEED
-                                    // .alongWith(Commands.waitUntil(sys_launcher.)),
-                                    sys_serializer.setVoltage(10),
-                                    Commands.waitTime(Seconds.of(3)),
-                                    GameCommands.agitate(sys_intake)
-                                    
-                                )
-                            )
-                            // TODO: IF PASSING USE PASSING GAME COMMAND
-                            : Commands.parallel(
-                                // TODO: GET PASSING DISTANCE
-                                Commands.sequence(
-                                    sys_launcher.launchFuel(()-> Meters.of(2.0), sys_feeder),
-                                    // TODO: WAIT UNTIL LAUNCHER IS SPUN UP
-                                    // Commands.waitUntil(null),
-                                    sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
-                                    Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE)
-                                )
-                            )
-                        )
-                        .onFalse(Commands.parallel(
-                            sys_launcher.stopLauncher(),
-                            sys_feeder.setVoltage(0),
-                            sys_serializer.stopMotor(),
-                            sys_intake.stopMotor(),
-                            sys_intake.stopRoller()
-                        ));
+            .whileTrue(
+                Commands.defer(
+                    () -> Commands.either(
+                        GameCommands.autoLaunch(
+                            () -> DriveCommands.distToHub(sys_drive), 
+                            sys_drive, 
+                            sys_launcher, 
+                            sys_feeder, 
+                            sys_serializer, 
+                            sys_intake
+                        ), 
+                        GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake), 
+                        shouldLaunch
+                    ),
+                    Set.of(sys_launcher, sys_feeder, sys_serializer, sys_intake)
+                )
+            )
+            .onFalse(
+                GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
+            );
 
-        //TODO:  GAME COMMANDS: START INTAKING
         primaryController.leftBumper()
                         .onTrue(
-                            startIntaking()
+                            GameCommands.startIntake(sys_intake, sys_hopper)
                         );
 
-        // TODO: GAME COMMANDS: CLIMB (Auto Align or No Auto Align)
-        // primaryController.y()
-        //                 .whileTrue(
-        //                     Commands.print("CLIMB GAME COMMAND HERE")
-        //                 );
+        primaryController.y()
+                        .whileTrue(
+                            GameCommands.autoClimb(
+                                sys_drive, 
+                                sys_elevator, 
+                                () -> selectedClimbingPrepPosition.pose, 
+                                () -> selectedClimbingPosition.pose
+                            )
+                        );
 
-        // // TODO: GAME COMMANDS: RETRACT INTAKE AND HOPPER INSTANTLY, both at the same time
-        // primaryController.x()
-        //                 .onTrue(
-        //                     Commands.parallel(
-        //                         sys_intake.retract(),
-        //                         sys_hopper.fullRetract()
-        //                     )
-        //                 );
+        primaryController.x()
+                        .onTrue(
+                          GameCommands.retract(sys_intake, sys_hopper)  
+                        );
 
         // primaryController.a()
         //                  .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
         //                  .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
-        // TODO: GAME COMMANDS: MANUAL LAUNCH 
         primaryController.povDown()
                         .whileTrue(
-                            Commands.sequence(
-                                sys_launcher.launchFuel(() -> manualLaunchDistance, sys_feeder),
-                                // WAIT FOR LAUNCHER SPIN UP
-                                // Commands.waitUntil(() -> ),
-                                sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
-                                Commands.waitTime(Milliseconds.of(500)),
-                                GameCommands.agitate(sys_intake)
-                            )
+                          GameCommands.manualLaunch(
+                            () -> manualLaunchDistance, 
+                            sys_launcher, 
+                            sys_feeder, 
+                            sys_serializer, 
+                            sys_intake)  
                         )
                         .onFalse(
-                            Commands.parallel(
-                                sys_launcher.stopLauncher(),
-                                sys_feeder.stopMotor(),
-                                sys_serializer.stopMotor(),
-                                sys_intake.stopMotor(),
-                                sys_intake.stopRoller()
-                            )
+                            GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
                         );
 
-        // TODO: GAME COMMANDS: RETRACT INTAKE AND HOPPER INSTANTLY, both at the same time
         secondaryController.x()
-                        .onTrue(
-                            Commands.parallel(
-                                sys_intake.retract(),
-                                sys_hopper.fullRetract()
-                            )
-                        );
+                        .onTrue(GameCommands.retract(sys_intake, sys_hopper));
 
         secondaryController.povUp()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(1)));

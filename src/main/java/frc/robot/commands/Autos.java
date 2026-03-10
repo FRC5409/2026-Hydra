@@ -9,29 +9,24 @@ import java.util.Objects;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.RobotContainer;
-import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.GameCommandsConstants;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.Constants.kBump;
-import frc.robot.Constants.kField;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.serializer.SerializerConstants;
+import frc.robot.subsystems.serializer.Serializer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutoPath;
 import frc.robot.util.FieldConstants.LinesHorizontal;
 
 public class Autos {
 
-    // TODO: CLEAN UP TO USE GAME COMMANDS INSTEAD OF EVERYTHING MANUALLY
-	public static ArrayList<AutoPath> getAutoPaths(Drive drive, Vision vision, Launcher launcher, Feeder feeder, Intake intake, Hopper hopper, Elevator elevator, RobotContainer robotContainer){
+	public static ArrayList<AutoPath> getAutoPaths(Drive drive, Vision vision, Launcher launcher, Feeder feeder, Intake intake, Hopper hopper, Serializer serializer, Elevator elevator){
 		ArrayList<AutoPath> autoPaths = new ArrayList<>();
 
 		// LEFT SIDE AUTOS:
@@ -63,8 +58,7 @@ public class Autos {
 				),
 
                 Objects.requireNonNull(AutoPath.followPath("Left-Bump-Intake-CloseFar"))
-                // TODO: REPLACE WITH GAME COMMANDS: START INTAKING
-                    .alongWith(robotContainer.startIntaking()),
+                    .alongWith(GameCommands.startIntake(intake, hopper)),
 
 				// Align back to bump known position
 				DriveCommands.alignToPoint(
@@ -75,7 +69,7 @@ public class Autos {
 				),
 
                 // TODO: DETERMINE IF INTAKE ROLLERS NEED TO BE STOPPED
-                Commands.print("Intake rollers stop?"),
+                // intake.stopRoller(),
 
 				// neutral zone -> alliance zone
 				DriveCommands.crossBump(
@@ -86,19 +80,12 @@ public class Autos {
 					kBump.SETTLING_TIME
 				),
 
-				// TODO: Score -> call GameCommands.launchFuel() make sure that includes steps 1 to 5
-				// 1. align to hub
-                Commands.parallel(
-                    DriveCommands.alignToHeading(
-                        drive, 
-                        () -> DriveCommands.getRotation2d(
-                            drive, 
-                            kField.BLUE_HUB
-                        ).plus(Rotation2d.k180deg)
-                    ),
-                    // 2. prepare launcher
-                    launcher.launchFuel(() -> DriveCommands.distToHub(drive), feeder)
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
+                
+                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // 3. wait to make sure aligned and spun up
                 Commands.parallel(
@@ -172,9 +159,8 @@ public class Autos {
 				),
 
 				// Follow path from center of neutral zone to left of field
-                // TODO: REPLACE WITH GAME COMMANDS INTAKE 
                 Objects.requireNonNull(AutoPath.followPath("Left-Bump-Intake-FarClose"))
-                    .alongWith(robotContainer.startIntaking()),
+                    .alongWith(GameCommands.startIntake(intake, hopper)),
 
 				// Align back to bump known position
 				DriveCommands.alignToPoint(
@@ -185,7 +171,7 @@ public class Autos {
 				),
 
                 // TODO: DETERMINE IF WE NEED TO STOP INTAKE ROLLERS
-                Commands.print("Stop intake rollers?"),
+                // intake.stopRoller(),
 
 				// neutral zone -> alliance zone
 				DriveCommands.crossBump(
@@ -196,27 +182,12 @@ public class Autos {
 					kBump.SETTLING_TIME
 				),
 
-				// TODO: Score -> call GameCommands.launchFuel() make sure that includes steps 1 to 5
-
-				// 1. align to hub
-                Commands.parallel(
-                    DriveCommands.alignToHeading(
-                        drive, 
-                        () -> DriveCommands.getRotation2d(
-                            drive, 
-                            kField.BLUE_HUB
-                        ).plus(Rotation2d.k180deg)
-                    ),
-                    // 2. prepare launcher
-                    launcher.launchFuel(() -> DriveCommands.distToHub(drive), feeder)
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
 
-                // 3. wait to make sure aligned and spun up
-                Commands.parallel(
-                    Commands.waitUntil(DriveCommands::isAligned),
-                    // TODO: REPLACE WITH WAIT FOR LAUNCHER IS SPUN UP
-                    Commands.waitTime(Seconds.of(2))
-                ),
+                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
 				// 4. feed fuel into launcher
 				robotContainer.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
@@ -287,8 +258,7 @@ public class Autos {
 				),
 				// Follow path from center of neutral zone to right of field
 				Objects.requireNonNull(AutoPath.followPath("Right-Bump-Intake-CloseFar"))
-                // TODO: REPLACE WITH GAME COMMANDS START INTAKING COMMAND
-                .alongWith(robotContainer.startIntaking()),
+                .alongWith(GameCommands.startIntake(intake, hopper)),
 
 				// Align back to bump known position
 				DriveCommands.alignToPoint(
@@ -299,7 +269,7 @@ public class Autos {
 				),
 
                 // TODO: DETERMINE IF NEEDED TO STOP INTAKING
-                Commands.print("Stop intake rollers?"),
+                // intake.stopRoller(),
 
 				// neutral zone -> alliance zone
 				DriveCommands.crossBump(
@@ -309,20 +279,12 @@ public class Autos {
 					kBump.SETTLING_TIME
 				),
 
-				// TODO: Score -> call GameCommands.launchFuel() make sure that includes steps 1 to 5
-
-				// 1. align to hub
-                Commands.parallel(
-                    DriveCommands.alignToHeading(
-                        drive, 
-                        () -> DriveCommands.getRotation2d(
-                            drive, 
-                            kField.BLUE_HUB
-                        ).plus(Rotation2d.k180deg)
-                    ),
-                    // 2. prepare launcher
-                    launcher.launchFuel(() -> DriveCommands.distToHub(drive), feeder)
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
+                
+                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // 3. wait to make sure aligned and spun up
                 Commands.parallel(
@@ -403,8 +365,7 @@ public class Autos {
 				),
 				// Follow path from right of field to center of neutral zone 
 				Objects.requireNonNull(AutoPath.followPath("Right-Bump-Intake-FarClose"))
-                // TODO: REPLACE WITH GAME COMMANDS START INTAKING COMMAND
-                .alongWith(robotContainer.startIntaking()),
+                .alongWith(GameCommands.startIntake(intake, hopper)),
 
 				// Align back to bump known position
 				DriveCommands.alignToPoint(
@@ -415,7 +376,7 @@ public class Autos {
 				),
 
                 // TODO: DETERMINE IF THERE IS A NEED TO STOP INTAKE ROLLERS
-                Commands.print("Stop intake rollers?"),
+                // intake.stopRoller(),
 
 				// neutral zone -> alliance zone
 				DriveCommands.crossBump(
@@ -425,20 +386,12 @@ public class Autos {
 					kBump.SETTLING_TIME
 				),
 
-				// TODO: Score -> call GameCommands.launchFuel() make sure that includes steps 1 to 5
-
-				// 1. align to hub
-                Commands.parallel(
-                    DriveCommands.alignToHeading(
-                        drive, 
-                        () -> DriveCommands.getRotation2d(
-                            drive, 
-                            kField.BLUE_HUB
-                        ).plus(Rotation2d.k180deg)
-                    ),
-                    // 2. prepare launcher
-                    launcher.launchFuel(() -> DriveCommands.distToHub(drive), feeder)
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
+                
+                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // 3. wait to make sure aligned and spun up
                 Commands.parallel(
@@ -512,19 +465,9 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION),
 
-                // TODO: Score -> call GameCommands.launchFuel() make sure that includes steps 1 to 5
-
-				// 1. align to hub
-                Commands.parallel(
-                    DriveCommands.alignToHeading(
-                        drive, 
-                        () -> DriveCommands.getRotation2d(
-                            drive, 
-                            kField.BLUE_HUB
-                        ).plus(Rotation2d.k180deg)
-                    ),
-                    // 2. prepare launcher
-                    launcher.launchFuel(() -> DriveCommands.distToHub(drive), feeder)
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
 
                 // 3. wait to make sure aligned and spun up
@@ -551,6 +494,8 @@ public class Autos {
                     intake.stopMotor(),
                     intake.stopRoller()
                 )
+                
+                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
             )
         );
 
@@ -561,8 +506,7 @@ public class Autos {
 
                 // Go from starting point to depot
                 Objects.requireNonNull(AutoPath.followPath("Start-Depot"))
-                // TODO: USE GAME COMMANDS START INTAKING COMMAND
-                .alongWith(robotContainer.startIntaking()),
+                .alongWith(GameCommands.startIntake(intake, hopper)),
 
                 // Align to scoring point
                 DriveCommands.alignToPoint(
@@ -572,27 +516,14 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
                 ),
 
-                // TODO: Score -> call GameCommands.launchFuel() make sure that includes steps 1 to 5
-
-				// 1. align to hub
-                Commands.parallel(
-                    DriveCommands.alignToHeading(
-                        drive, 
-                        () -> DriveCommands.getRotation2d(
-                            drive, 
-                            kField.BLUE_HUB
-                        ).plus(Rotation2d.k180deg)
-                    ),
-                    // 2. prepare launcher
-                    launcher.launchFuel(() -> DriveCommands.distToHub(drive), feeder)
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
+                
+                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
-                // 3. wait to make sure aligned and spun up
-                Commands.parallel(
-                    Commands.waitUntil(DriveCommands::isAligned),
-                    // TODO: REPLACE WITH WAIT FOR LAUNCHER IS SPUN UP
-                    Commands.waitTime(Seconds.of(2))
-                ),
+                // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
 
 				// 4. feed fuel into launcher
 				robotContainer.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
@@ -646,8 +577,7 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION  
                 )
-                // TODO: REPLACE WITH GAME COMMANDS: START INTAKING
-                .alongWith(robotContainer.startIntaking()),
+                .alongWith(GameCommands.startIntake(intake, hopper)),
                 // Time to wait for outpost dump
                 Commands.waitSeconds(2),
 
@@ -658,20 +588,12 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
                 ),
                 
-                // TODO: Score -> call GameCommands.launchFuel() make sure that includes steps 1 to 5
-
-				// 1. align to hub
-                Commands.parallel(
-                    DriveCommands.alignToHeading(
-                        drive, 
-                        () -> DriveCommands.getRotation2d(
-                            drive, 
-                            kField.BLUE_HUB
-                        ).plus(Rotation2d.k180deg)
-                    ),
-                    // 2. prepare launcher
-                    launcher.launchFuel(() -> DriveCommands.distToHub(drive), feeder)
+                Commands.deadline(
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
+                
+                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // 3. wait to make sure aligned and spun up
                 Commands.parallel(

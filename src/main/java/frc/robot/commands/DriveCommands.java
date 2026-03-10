@@ -361,6 +361,7 @@ public class DriveCommands {
 
         Logger.recordOutput("AutoAlign/TargetRotation", targetRotation);
         Logger.recordOutput("AutoAlign/OmegaOutput", omega);
+        Logger.recordOutput("AutoAlign/isAligned", isAligned);
 
       }, drive)
     );
