@@ -397,10 +397,6 @@ public class DriveCommands {
     //  -----------------SIM----------------
     if (Constants.CURRENT_MODE == Mode.SIM)
         return Commands.sequence(
-            // DriveCommands.alignToHeading(
-            //     drive, 
-            //     targetHeading
-            // ),
             Commands.run(() -> drive.runVelocity(
                 ChassisSpeeds.fromFieldRelativeSpeeds(
                     new ChassisSpeeds(
@@ -415,10 +411,6 @@ public class DriveCommands {
 
     // ---------- REAL -----------
     return Commands.sequence(
-        // DriveCommands.alignToHeading(
-        //     drive, 
-        //     targetHeading
-        // ),
         Commands.runOnce(() -> {
             DID_GET_OFF_GROUND.set(false);
             lastTime.set(-1);
@@ -472,6 +464,8 @@ public class DriveCommands {
             Commands.waitUntil(() -> drive.getTilt().gte(Degrees.of(3))),
             // Reaches top of bump
             Commands.waitUntil(() -> drive.getTilt().lte(Degrees.of(3))),
+            
+            Commands.waitTime(Milliseconds.of(500)),
             // Reaches flat ground again
             Commands.waitUntil(() -> drive.getTilt().lte(Degrees.of(3)))
         ), 

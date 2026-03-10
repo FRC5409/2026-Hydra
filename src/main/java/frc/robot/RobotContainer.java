@@ -234,8 +234,7 @@ public class RobotContainer {
             .onFalse(Commands.runOnce(() -> shouldLaunch = () -> true));
 
         new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
-            .onTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED))
-            .onFalse(sys_launcher.stopLauncher());
+            .whileTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED));
     }
 
     private void resetPose() {
