@@ -201,7 +201,7 @@ public final class Constants {
 
     public static final class GameCommandsConstants{
         public static final Time        WAIT_TIME_BEFORE_AGITATE            = Milliseconds.of(500);
-        public static final Time        WAIT_TIME_BEFORE_INTAKE_EXTENSION   = Seconds.of(1);
+        public static final Time        WAIT_TIME_BEFORE_INTAKE_EXTENSION   = Milliseconds.of(500);
         public static final Time        AUTO_LAUNCH_WAIT_TIME               = Seconds.of(5);
         public static final Distance    EXTEND_POINT                         = Centimeters.of(23.5);
         public static final Distance    RETRACT_POINT                        = EXTEND_POINT.minus(Centimeters.of(7.5));
