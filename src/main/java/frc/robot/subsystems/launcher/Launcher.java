@@ -16,6 +16,7 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.launcher.LauncherConstants.Hood;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.util.Checkmate;
@@ -56,7 +57,7 @@ public class Launcher extends SubsystemBase {
         new Trigger(() -> automaticHoodTimer.advanceIfElapsed(0.5))
                 .onTrue(Commands.runOnce(() -> {
                     LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
-                    if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >= 10) {
+                    if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >= Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
                         setHoodExtension(launchEstimate::hoodExtension);
                     }
                 }));
