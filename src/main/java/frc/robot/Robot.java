@@ -86,9 +86,6 @@ public class Robot extends LoggedRobot {
         // and put our autonomous chooser on the dashboard.
         robotContainer = new RobotContainer();
 
-        // forward limelight ports
-        VisionIOLimelight.forwardLimelightPorts();
-
         SignalLogger.enableAutoLogging(false);
         rebuiltTimer = new RebuiltTimer();
 

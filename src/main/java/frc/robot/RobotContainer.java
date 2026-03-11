@@ -126,7 +126,7 @@ public class RobotContainer {
                 sys_serializer = new Serializer(
                         new SerializerIOTalonFX(DeviceID.SERIALIZER_MOTOR, DeviceID.FEEDER_MOTOR_BOTTOM));
                 sys_feeder = new Feeder(new FeederIOTalonFX(DeviceID.FEEDER_MOTOR_TOP));
-                sys_vision = new Vision(new VisionIOLimelight());
+                sys_vision = new Vision(new VisionIOLimelight(DeviceID.LIMELIGHT_NAME));
                 sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
 
                 sys_drive = new Drive(
