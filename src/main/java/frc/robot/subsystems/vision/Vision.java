@@ -103,6 +103,10 @@ public class Vision extends SubsystemBase {
         );
     }
 
+    public void setForceFusedIMU(boolean forceFusedIMU) {
+        io.setForceFusedIMU(forceFusedIMU);
+    }
+
     /**
      * Sets the rotation of the robot, used for LL MT2
      *

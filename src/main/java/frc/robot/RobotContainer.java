@@ -507,35 +507,35 @@ public class RobotContainer {
         //             )
         //             .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1)));
 
-        // tertiaryController.x()
-        //         .whileTrue(
-        //                 DriveCommands.crossBump(
-        //                         sys_drive,
-        //                         sys_vision,
-        //                         sys_drive::getRotation,
-        //                         () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED),
-        //                         Seconds.of(1)
-        //                 )
-        //         );
+        tertiaryController.x()
+                .whileTrue(
+                        DriveCommands.crossBump(
+                                sys_drive,
+                                sys_vision,
+                                sys_drive::getRotation,
+                                () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED),
+                                Seconds.of(1)
+                        )
+                );
 
-        // tertiaryController.b()
-        //         .whileTrue(
-        //                 DriveCommands.crossBump(
-        //                         sys_drive,
-        //                         sys_vision,
-        //                         sys_drive::getRotation,
-        //                         () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)),
-        //                         Seconds.of(1)
-        //                 )
-        //         );
+        tertiaryController.b()
+                .whileTrue(
+                        DriveCommands.crossBump(
+                                sys_drive,
+                                sys_vision,
+                                sys_drive::getRotation,
+                                () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)),
+                                Seconds.of(1)
+                        )
+                );
 
-        // tertiaryController.y()
-        //         .whileTrue(
-        //             DriveCommands.crossBumpDeadline(
-        //                 sys_drive,
-        //                 () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED)
-        //             )
-        //         );
+        tertiaryController.y()
+                .whileTrue(
+                    DriveCommands.crossBumpDeadline(
+                        sys_drive,
+                        () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED)
+                    )
+                );
 
         SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remove when main
         SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remove when main
@@ -546,16 +546,16 @@ public class RobotContainer {
 
     // PITS TEST CONTROLLER BUTTONS
     private void configurePitsButtonBindings(){
-        tertiaryController.x()
-                .onTrue(sys_elevator.goTillSpike(-1));
+        // tertiaryController.x()
+        //         .onTrue(sys_elevator.goTillSpike(-1));
 
-        tertiaryController.povUp()
-            .onTrue(sys_elevator.startManualMove(1.0))
-            .onFalse(sys_elevator.startManualMove(0));
+        // tertiaryController.povUp()
+        //     .onTrue(sys_elevator.startManualMove(1.0))
+        //     .onFalse(sys_elevator.startManualMove(0));
 
-        tertiaryController.povDown()
-            .onTrue(sys_elevator.startManualMove(-1.0))
-            .onFalse(sys_elevator.startManualMove(0));
+        // tertiaryController.povDown()
+        //     .onTrue(sys_elevator.startManualMove(-1.0))
+        //     .onFalse(sys_elevator.startManualMove(0));
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {

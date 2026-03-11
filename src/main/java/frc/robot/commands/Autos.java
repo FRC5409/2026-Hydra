@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
+import com.pathplanner.lib.events.EventTrigger;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +26,7 @@ import frc.robot.util.AutoPath;
 import frc.robot.util.FieldConstants.LinesHorizontal;
 
 public class Autos {
+    public static final EventTrigger autoPoseUpdate = new EventTrigger("Vision_Trigger");
 
 	public static ArrayList<AutoPath> getAutoPaths(Drive drive, Vision vision, Launcher launcher, Feeder feeder, Intake intake, Hopper hopper, Serializer serializer, Elevator elevator){
 		ArrayList<AutoPath> autoPaths = new ArrayList<>();
@@ -93,53 +95,56 @@ public class Autos {
 
 		autoPaths.add(
 			new AutoPath(
-				"LeftBump-Intake-FarClose-Score-LeftClimb",
+				"LeftBump-Intake-FarClose-Score",
 				// Angled Start:
-				new Pose2d(3.565,5.801, new Rotation2d(Degrees.of(-43.361))),            
+				new Pose2d(3.560,5.801, new Rotation2d(Degrees.of(45))),            
 				// Starting Pose: 
 				// new Pose2d(3.565,5.801, Rotation2d.k180deg),
 
 				// Alliance -> neutral zone 
-				DriveCommands.crossBump(
-					drive, 
-					vision,
-					drive::getRotation,
-					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
-					kBump.SETTLING_TIME
-				),
+				// DriveCommands.crossBump(
+				// 	drive, 
+				// 	vision,
+				// 	drive::getRotation,
+				// 	() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
+				// 	kBump.SETTLING_TIME
+				// ),
 
-				// confirm position
-				DriveCommands.alignToPoint(
-					drive,
-					() -> new Pose2d(6.187,5.969, new Rotation2d(Degrees.of(-43.361))), 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-				),
+				// // confirm position
+				// DriveCommands.alignToPoint(
+				// 	drive,
+				// 	() -> new Pose2d(6.187,5.969, new Rotation2d(Degrees.of(-43.361))), 
+				// 	() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+				// 	() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+				// ),
+                Objects.requireNonNull(AutoPath.followPath("Left-Cross-Bump")),
 
 				// Follow path from center of neutral zone to left of field
                 Objects.requireNonNull(AutoPath.followPath("Left-Bump-Intake-FarClose"))
                     .alongWith(GameCommands.startIntake(intake, hopper)),
 
+                Objects.requireNonNull(AutoPath.followPath("Intake-Close-Far-To-Left-Bump")),
+                
+                Objects.requireNonNull(AutoPath.followPath("Left-Cross-Bump-Back")),
 				// Align back to bump known position
-				DriveCommands.alignToPoint(
-					drive, 
-					() -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.k180deg), 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-				),
+				// DriveCommands.alignToPoint(
+				// 	drive, 
+				// 	() -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.k180deg), 
+				// 	() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+				// 	() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+				// ),
 
                 // TODO: DETERMINE IF WE NEED TO STOP INTAKE ROLLERS
                 // intake.stopRoller(),
 
 				// neutral zone -> alliance zone
-				DriveCommands.crossBump(
-					drive, 
-					vision,
-					drive::getRotation,
-					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
-					kBump.SETTLING_TIME
-				),
-
+				// DriveCommands.crossBump(
+				// 	drive, 
+				// 	vision,
+				// 	drive::getRotation,
+				// 	() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
+				// 	kBump.SETTLING_TIME
+				// ),
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
                     GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
@@ -374,6 +379,15 @@ public class Autos {
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
+            )
+        );
+
+
+        autoPaths.add(
+            new AutoPath(
+                "Left-BUMP-WITH-VISION", 
+                new Pose2d(3.586, 5.542, new Rotation2d().fromDegrees(45)), 
+                AutoPath.followPath("Left-Cross-Bump")
             )
         );
 
