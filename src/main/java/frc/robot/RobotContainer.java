@@ -511,7 +511,7 @@ public class RobotContainer {
         );
 
         if (sys_elevator != null)
-            cmd = cmd.alongWith(sys_elevator.startManualMove(0));
+            cmd = cmd.alongWith(sys_elevator.setVoltage(0));
 
         return cmd;
     }

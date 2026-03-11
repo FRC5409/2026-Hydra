@@ -136,7 +136,7 @@ public class GameCommands {
                     kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
                     kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
                 ),
-                elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATOR_UP,0)
+                elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_UP, 0)
             ),
 
             DriveCommands.alignToPoint(
@@ -146,7 +146,7 @@ public class GameCommands {
                 () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
             ),
 
-            elevator.elevatorGo(ElevatorConstants.kSetpoints.ELEVATOR_DOWN,0)
+            elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_DOWN, 0)
         );
     }
 
