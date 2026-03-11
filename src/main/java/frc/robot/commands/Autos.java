@@ -32,124 +32,44 @@ public class Autos {
 		ArrayList<AutoPath> autoPaths = new ArrayList<>();
 
 		// LEFT SIDE AUTOS:
-		autoPaths.add(
-			new AutoPath(
-				"LeftBump-Intake-CloseFar-Score-LeftClimb",
-
-				// Angled Starting pose:
-				new Pose2d(3.565,5.400, new Rotation2d(Degrees.of(38.572))),
-
-				// Starting Pose: 
-				// new Pose2d(3.565,5.400, Rotation2d.k180deg),
-
-				// Alliance -> neutral zone 
-				DriveCommands.crossBump(
-					drive, 
-					vision,
-					drive::getRotation,
-					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
-					kBump.SETTLING_TIME
-				),
-
-				// confirm position
-				DriveCommands.alignToPoint(
-					drive,
-					() -> new Pose2d(6.200,5.400, new Rotation2d(Degrees.of(38.572))), 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-				),
-
-                Objects.requireNonNull(AutoPath.followPath("Left-Bump-Intake-CloseFar"))
-                    .alongWith(GameCommands.startIntake(intake, hopper)),
-
-				// Align back to bump known position
-				DriveCommands.alignToPoint(
-					drive, 
-					() -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.k180deg), 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-				),
-
-                // TODO: DETERMINE IF INTAKE ROLLERS NEED TO BE STOPPED
-                // intake.stopRoller(),
-
-				// neutral zone -> alliance zone
-				DriveCommands.crossBump(
-					drive, 
-					vision,
-					drive::getRotation,
-					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
-					kBump.SETTLING_TIME
-				),
-
-                Commands.deadline(
-                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
-                ),
-                
-                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
-
-                // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
-			)
-		);
 
 		autoPaths.add(
 			new AutoPath(
-				"LeftBump-Intake-FarClose-Score",
-				// Angled Start:
-				new Pose2d(3.560,5.801, new Rotation2d(Degrees.of(45))),            
-				// Starting Pose: 
-				// new Pose2d(3.565,5.801, Rotation2d.k180deg),
+                // TODO: DETERMINE IF WE ARE CLIMBING (If so, update this auto)
+				"LEFT-Bump-Intake-FarClose-Score",
+                
+				new Pose2d(3.560, 5.801, Rotation2d.fromDegrees(45)),            
 
-				// Alliance -> neutral zone 
-				// DriveCommands.crossBump(
-				// 	drive, 
-				// 	vision,
-				// 	drive::getRotation,
-				// 	() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
-				// 	kBump.SETTLING_TIME
-				// ),
-
-				// // confirm position
-				// DriveCommands.alignToPoint(
-				// 	drive,
-				// 	() -> new Pose2d(6.187,5.969, new Rotation2d(Degrees.of(-43.361))), 
-				// 	() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-				// 	() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-				// ),
-                Objects.requireNonNull(AutoPath.followPath("Left-Cross-Bump")),
-
-				// Follow path from center of neutral zone to left of field
-                Objects.requireNonNull(AutoPath.followPath("Left-Bump-Intake-FarClose"))
+                // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE 
+                // TODO: Test if forcing vision fused IMU is helpful
+                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral"))
+                    .beforeStarting(Commands.runOnce(() -> vision.setForceFusedIMU(true)))
+                    .andThen(Commands.runOnce(() -> vision.setForceFusedIMU(false))),
+				
+				 
+                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s) 
+                Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose"))
                     .alongWith(GameCommands.startIntake(intake, hopper)),
 
-                Objects.requireNonNull(AutoPath.followPath("Intake-Close-Far-To-Left-Bump")),
+
+                // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION 
+                Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
                 
-                Objects.requireNonNull(AutoPath.followPath("Left-Cross-Bump-Back")),
-				// Align back to bump known position
-				// DriveCommands.alignToPoint(
-				// 	drive, 
-				// 	() -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.k180deg), 
-				// 	() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-				// 	() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-				// ),
 
-                // TODO: DETERMINE IF WE NEED TO STOP INTAKE ROLLERS
-                // intake.stopRoller(),
+                // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
+                // TODO: Test if forcing vision fused IMU is helpful
+                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance"))
+                    .beforeStarting(Commands.runOnce(() -> vision.setForceFusedIMU(true)))
+                    .andThen(Commands.runOnce(() -> vision.setForceFusedIMU(false))),
 
-				// neutral zone -> alliance zone
-				// DriveCommands.crossBump(
-				// 	drive, 
-				// 	vision,
-				// 	drive::getRotation,
-				// 	() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
-				// 	kBump.SETTLING_TIME
-				// ),
+
+                // LAUNCH FOR THE DURATION OF AUTO_LAUNCH_WAIT_TIME TODO: TUNE THIS WAIT TIME
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
                     GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
 
+                // STOP LAUNCHING TODO: IF NO CLIMB, DETERMINE IF NECESSARY TO EVER STOP LAUNCHING
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
@@ -157,126 +77,39 @@ public class Autos {
 		);
 
 		// RIGHT SIDE AUTOS:
-		autoPaths.add(
+        autoPaths.add(
 			new AutoPath(
-				"RightBump-Intake-CloseFar-Score-RightClimb",
+				"RIGHT-Bump-Intake-FarClose-Score",
 
-				// Starting Pose: 
-				// new Pose2d(3.565,2.750, Rotation2d.kZero),
-
-				// Angled Starting Pose
-				new Pose2d(3.565,2.750, new Rotation2d(Degrees.of(-41.689))),
+				new Pose2d(3.560,2.461, Rotation2d.fromDegrees(-45)),
 				
-				// Alliance -> neutral zone
-				DriveCommands.crossBump(
-					drive, 
-					vision,
-					drive::getRotation,
-					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
-					kBump.SETTLING_TIME
-				),
+                // cross RIGHT BUMP from ALLIANCE zone to NEUTRAL zone 
+                // TODO: Test if forcing vision fused IMU is helpful
+                Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral"))
+                    .beforeStarting(Commands.runOnce(() -> vision.setForceFusedIMU(true)))
+                    .andThen(Commands.runOnce(() -> vision.setForceFusedIMU(false))),
 
-				// confirm position
-				DriveCommands.alignToPoint(
-					drive, 
 
-					() -> new Pose2d(6.265,2.750, new Rotation2d(Degrees.of(-41.689))), 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-				),
-				// Follow path from center of neutral zone to right of field
-				Objects.requireNonNull(AutoPath.followPath("Right-Bump-Intake-CloseFar"))
-                .alongWith(GameCommands.startIntake(intake, hopper)),
+                // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
+				Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose"))
+                    .alongWith(GameCommands.startIntake(intake, hopper)),
 
-				// Align back to bump known position
-				DriveCommands.alignToPoint(
-					drive, 
-					() -> new Pose2d(6.200,(LinesHorizontal.rightBumpStart + LinesHorizontal.rightBumpEnd) / 2, Rotation2d.k180deg), 
-					() -> MetersPerSecond.of(2.0), 
-					() -> MetersPerSecondPerSecond.of(8.0)
-				),
+                // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION 
+                Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-END-FarClose-To-BUMP")),
 
-                // TODO: DETERMINE IF NEEDED TO STOP INTAKING
-                // intake.stopRoller(),
+				// Go from NEUTRAL zone to ALLIANCE zone over RIGHT BUMP
+                // TODO: Test if forcing vision fused IMU is helpful
+                Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Neutral-Alliance"))
+                    .beforeStarting(Commands.runOnce(() -> vision.setForceFusedIMU(true)))
+                    .andThen(Commands.runOnce(() -> vision.setForceFusedIMU(false))),
 
-				// neutral zone -> alliance zone
-				DriveCommands.crossBump(
-					drive, vision,
-					drive::getRotation,
-					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
-					kBump.SETTLING_TIME
-				),
-
+                // LAUNCHES for AUTO_LAUNCH_WAIT_TIME TODO: TUNE THIS VALUE
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
                     GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
                 ),
                 
-                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
-
-                // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
-			)
-		);
-
-		// Right Side
-		// Bump
-		// Intake from the edge of the field to the center
-		// Go back and score
-		// Climb
-		autoPaths.add(
-			new AutoPath(
-				"RightBump-Intake-FarClose-Score-RightClimb",
-
-				// Starting Pose: 
-				// new Pose2d(3.565,2.750, Rotation2d.k180deg),
-
-				// Angled Starting Pose
-				new Pose2d(3.565,2.282, new Rotation2d(Degrees.of(53.181))),
-				
-				// Alliance -> neutral zone
-				DriveCommands.crossBump(
-					drive, 
-					vision,
-					drive::getRotation,
-					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
-					kBump.SETTLING_TIME
-				),
-
-				// confirm position
-				DriveCommands.alignToPoint(
-					drive, 
-					() -> new Pose2d(6.200,2.282, new Rotation2d(Degrees.of(53.181))), 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
-					() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-				),
-				// Follow path from right of field to center of neutral zone 
-				Objects.requireNonNull(AutoPath.followPath("Right-Bump-Intake-FarClose"))
-                .alongWith(GameCommands.startIntake(intake, hopper)),
-
-				// Align back to bump known position
-				DriveCommands.alignToPoint(
-					drive, 
-					() -> new Pose2d(6.200,(LinesHorizontal.rightBumpStart + LinesHorizontal.rightBumpEnd) / 2, Rotation2d.k180deg), 
-					() -> MetersPerSecond.of(2.0), 
-					() -> MetersPerSecondPerSecond.of(8.0)
-				),
-
-                // TODO: DETERMINE IF THERE IS A NEED TO STOP INTAKE ROLLERS
-                // intake.stopRoller(),
-
-				// neutral zone -> alliance zone
-				DriveCommands.crossBump(
-					drive, vision,
-					drive::getRotation,
-					() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
-					kBump.SETTLING_TIME
-				),
-
-                Commands.deadline(
-                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
-                ),
-                
+                // TODO: IF NO CLIMBER, DETERMINE IF WE NEED TO STOP LAUNCHING
                 GameCommands.stopLaunching(launcher, feeder, serializer, intake)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
@@ -382,16 +215,134 @@ public class Autos {
             )
         );
 
-
-        autoPaths.add(
-            new AutoPath(
-                "Left-BUMP-WITH-VISION", 
-                new Pose2d(3.586, 5.542, new Rotation2d().fromDegrees(45)), 
-                AutoPath.followPath("Left-Cross-Bump")
-            )
-        );
-
 		return autoPaths;
 	}
 	
 }
+
+
+// FAR-CLOSE Autos on hold
+// LEFT:
+// autoPaths.add(
+		// 	new AutoPath(
+		// 		"LeftBump-Intake-CloseFar-Score-LeftClimb",
+
+		// 		// Angled Starting pose:
+		// 		new Pose2d(3.565,5.400, new Rotation2d(Degrees.of(38.572))),
+
+		// 		// Starting Pose: 
+		// 		// new Pose2d(3.565,5.400, Rotation2d.k180deg),
+
+		// 		// Alliance -> neutral zone 
+		// 		DriveCommands.crossBump(
+		// 			drive, 
+		// 			vision,
+		// 			drive::getRotation,
+		// 			() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
+		// 			kBump.SETTLING_TIME
+		// 		),
+
+		// 		// confirm position
+		// 		DriveCommands.alignToPoint(
+		// 			drive,
+		// 			() -> new Pose2d(6.200,5.400, new Rotation2d(Degrees.of(38.572))), 
+		// 			() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+		// 			() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+		// 		),
+
+        //         Objects.requireNonNull(AutoPath.followPath("Left-Bump-Intake-CloseFar"))
+        //             .alongWith(GameCommands.startIntake(intake, hopper)),
+
+		// 		// Align back to bump known position
+		// 		DriveCommands.alignToPoint(
+		// 			drive, 
+		// 			() -> new Pose2d(6.200,(LinesHorizontal.leftBumpEnd + LinesHorizontal.leftBumpStart) / 2, Rotation2d.k180deg), 
+		// 			() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+		// 			() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+		// 		),
+
+        //         // TODO: DETERMINE IF INTAKE ROLLERS NEED TO BE STOPPED
+        //         // intake.stopRoller(),
+
+		// 		// neutral zone -> alliance zone
+		// 		DriveCommands.crossBump(
+		// 			drive, 
+		// 			vision,
+		// 			drive::getRotation,
+		// 			() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
+		// 			kBump.SETTLING_TIME
+		// 		),
+
+        //         Commands.deadline(
+        //             Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+        //             GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+        //         ),
+                
+        //         GameCommands.stopLaunching(launcher, feeder, serializer, intake)
+
+        //         // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
+		// 	)
+		// );
+
+
+// RIGHT:
+		// autoPaths.add(
+		// 	new AutoPath(
+		// 		"RightBump-Intake-CloseFar-Score-RightClimb",
+
+		// 		// Starting Pose: 
+		// 		// new Pose2d(3.565,2.750, Rotation2d.kZero),
+
+		// 		// Angled Starting Pose
+		// 		new Pose2d(3.565,2.750, new Rotation2d(Degrees.of(-41.689))),
+				
+		// 		// Alliance -> neutral zone
+		// 		DriveCommands.crossBump(
+		// 			drive, 
+		// 			vision,
+		// 			drive::getRotation,
+		// 			() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED), 
+		// 			kBump.SETTLING_TIME
+		// 		),
+
+		// 		// confirm position
+		// 		DriveCommands.alignToPoint(
+		// 			drive, 
+
+		// 			() -> new Pose2d(6.265,2.750, new Rotation2d(Degrees.of(-41.689))), 
+		// 			() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
+		// 			() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+		// 		),
+		// 		// Follow path from center of neutral zone to right of field
+		// 		Objects.requireNonNull(AutoPath.followPath("Right-Bump-Intake-CloseFar"))
+        //         .alongWith(GameCommands.startIntake(intake, hopper)),
+
+		// 		// Align back to bump known position
+		// 		DriveCommands.alignToPoint(
+		// 			drive, 
+		// 			() -> new Pose2d(6.200,(LinesHorizontal.rightBumpStart + LinesHorizontal.rightBumpEnd) / 2, Rotation2d.k180deg), 
+		// 			() -> MetersPerSecond.of(2.0), 
+		// 			() -> MetersPerSecondPerSecond.of(8.0)
+		// 		),
+
+        //         // TODO: DETERMINE IF NEEDED TO STOP INTAKING
+        //         // intake.stopRoller(),
+
+		// 		// neutral zone -> alliance zone
+		// 		DriveCommands.crossBump(
+		// 			drive, vision,
+		// 			drive::getRotation,
+		// 			() -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)), 
+		// 			kBump.SETTLING_TIME
+		// 		),
+
+        //         Commands.deadline(
+        //             Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
+        //             GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+        //         ),
+                
+        //         GameCommands.stopLaunching(launcher, feeder, serializer, intake)
+
+        //         // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
+		// 	)
+		// );

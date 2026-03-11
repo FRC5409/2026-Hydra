@@ -22,7 +22,6 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
