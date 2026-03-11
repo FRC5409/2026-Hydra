@@ -3,19 +3,15 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Rotation3d;
-import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
-
-import static edu.wpi.first.units.Units.*;
-
 import org.littletonrobotics.junction.Logger;
+
+import static frc.robot.subsystems.vision.VisionConstants.*;
 
 /**
  * @author Logan Dhillon, FRC 5409 Chargers
@@ -45,7 +41,7 @@ public class Vision extends SubsystemBase {
         LimelightHelpers.PoseEstimate estimate = io.estimatePose(drive);
 
         // if estimate is invalid, don't update pose
-        if (estimate == null || estimate.tagCount < Vision.FIDUCIAL_TRUST_THRESHOLD) return;
+        if (estimate == null || estimate.tagCount < FIDUCIAL_TRUST_THRESHOLD) return;
 
         drive.addVisionMeasurement(estimate.pose, estimate.timestampSeconds, deriveStdDevs(estimate.avgTagDist));
     }
