@@ -34,7 +34,7 @@ public class Hopper extends SubsystemBase {
 
         Checkmate.register(
                 "Hopper extends fully", () -> {
-                    CommandScheduler.getInstance().schedule(this.fullExtend());
+                    CommandScheduler.getInstance().schedule(this.extend());
                     Timer.delay(2);
                     Distance extensionLength = this.getPosition();
                     if (extensionLength.isNear(HopperConstants.HOPPER_MAX_EXTENSION, Inches.of(0.02))) {
@@ -50,7 +50,7 @@ public class Hopper extends SubsystemBase {
 
         Checkmate.register(
                 "Hopper retracts fully", () -> {
-                    CommandScheduler.getInstance().schedule(this.fullRetract());
+                    CommandScheduler.getInstance().schedule(this.retract());
                     Timer.delay(2);
                     Distance extensionLength = this.getPosition();
                     if (extensionLength.isNear(HopperConstants.HOPPER_MIN_EXTENSION, 0)) {
@@ -68,14 +68,14 @@ public class Hopper extends SubsystemBase {
     /**
      * Extends hopper 12 inches out
      */
-    public Command fullExtend() {
+    public Command extend() {
         return Commands.runOnce(() -> io.setSetpoint(() -> HopperConstants.HOPPER_MAX_EXTENSION), this);
     }
 
     /**
      * Retracts hopper all the way to 0 inches
      */
-    public Command fullRetract() {
+    public Command retract() {
         return Commands.runOnce(() -> io.setSetpoint(() -> HopperConstants.HOPPER_MIN_EXTENSION), this);
     }
 

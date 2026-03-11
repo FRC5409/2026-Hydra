@@ -85,7 +85,7 @@ public class GameCommands {
 
     public static Command startIntake(RobotContainer robot) {
         return Commands.sequence(
-                robot.sys_hopper.fullExtend(),
+                robot.sys_hopper.extend(),
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_INTAKE_EXTENSION),
                 Commands.parallel(
                         robot.sys_intake.extend(),
@@ -97,7 +97,7 @@ public class GameCommands {
     public static Command retract(RobotContainer robot) {
         return Commands.parallel(
                 robot.sys_intake.retract(),
-                robot.sys_hopper.fullRetract(),
+                robot.sys_hopper.retract(),
                 robot.sys_intake.stopRoller()
         );
     }
@@ -146,14 +146,14 @@ public class GameCommands {
     public static Command stopLaunching(RobotContainer robot) {
         return Commands.parallel(
                 robot.sys_launcher.stopLauncher(),
-                robot.sys_feeder.stopMotor(),
+                robot.sys_feeder.stop(),
                 stopSerializing(robot)
         );
     }
 
     public static Command stopSerializing(RobotContainer robot) {
         return Commands.parallel(
-                robot.sys_serializer.stopMotor(),
+                robot.sys_serializer.stop(),
                 robot.sys_intake.stop(),
                 robot.sys_intake.stopRoller()
         );

@@ -43,7 +43,7 @@ public class Feeder extends SubsystemBase {
         return Commands.runOnce(() -> io.runVelocity(velocity), this);
     }
 
-    public Command stopMotor() {
+    public Command stop() {
         return Commands.runOnce(io::stopMotor, this);
     }
 

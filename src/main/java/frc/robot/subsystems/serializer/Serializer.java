@@ -38,7 +38,7 @@ public class Serializer extends SubsystemBase {
         return Commands.runOnce(() -> io.setVoltage(voltage), this);
     }
 
-    public Command stopMotor() {
+    public Command stop() {
         return Commands.runOnce(io::stopMotors, this);
     }
 
