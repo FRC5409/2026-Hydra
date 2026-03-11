@@ -54,7 +54,7 @@ public class Autos {
 
 
                 // LAUNCH FOR THE REMAINING DURATION OF AUTO
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
 			)
 		);
 
@@ -85,7 +85,7 @@ public class Autos {
                     .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
                 // LAUNCHES until auto ends
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
 
 			)
 		); 
@@ -116,7 +116,7 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION),
 
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
             )
         );
 
@@ -137,7 +137,7 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
                 ),
 
-                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)            )
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot))
         );
 
         autoPaths.add(
@@ -166,7 +166,8 @@ public class Autos {
                 
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)                ),
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
+                ),
                 
                 GameCommands.stopLaunching(robot)
 
