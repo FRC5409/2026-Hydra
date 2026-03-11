@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.launcher.LauncherConstants;
 
 public final class IntakeIOTalonFX implements IntakeIO {
   
@@ -66,10 +67,18 @@ public final class IntakeIOTalonFX implements IntakeIO {
             .withKD(Extension.TALONFX_PID.kD);
         
         extensionConfigurator.withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
-
+        extensionConfigurator.withCurrentLimits(new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(20)
+                .withSupplyCurrentLimitEnable(true)
+            );
         extensionMotor.getConfigurator().apply(extensionConfigurator);
 
         rollerMotor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast));
+
+        rollerMotor.getConfigurator().apply( new CurrentLimitsConfigs()
+                .withSupplyCurrentLimit(20)
+                .withSupplyCurrentLimitEnable(true)
+            );
                 
 
         extensionPositionSignal    = extensionMotor.getPosition();

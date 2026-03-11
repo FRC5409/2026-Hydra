@@ -11,7 +11,7 @@ import edu.wpi.first.units.measure.Mass;
 /* ALL TEST VALUES */
 public final class HopperConstants {
 
-    public static final Current CURRENT_LIMIT = Amps.of(30.0);
+    public static final Current CURRENT_LIMIT = Amps.of(20.0);
     public static final Current DAMAGE_DETECTION_CURRENT = Amps.of(50.0); //TODO: test on real robot
     public static final boolean CRASH_DETECTION_ENABLED = true;
 

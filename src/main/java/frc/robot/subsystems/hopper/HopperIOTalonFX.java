@@ -155,7 +155,7 @@ public class HopperIOTalonFX implements HopperIO {
         PhoenixUtil.tryUntilOk(3, 
         () -> m_mainMotor.setControl(m_request.withPosition(setpointNew.in(Meters))
         .withSlot(0)));
-        motorSetpoint = setpointNew;
+        motorSetpoint = setpoint.get();
 
     }
 

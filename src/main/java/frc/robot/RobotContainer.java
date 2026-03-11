@@ -209,9 +209,9 @@ public class RobotContainer {
         // Configure the button bindings
         configureButtonBindings();
         // TODO: CONFIRM THIS WORKS + UNCOMMENT BEFORE PUSHING TO MAIN
-        // if (!DriverStation.isFMSAttached()){
-        //     configurePitsButtonBindings();
-        // }
+        if (!DriverStation.isFMSAttached()){
+            configurePitsButtonBindings();
+        }
 
         SmartDashboard.putData("Reset", Commands.runOnce(this::resetPose).ignoringDisable(true));
 
@@ -359,8 +359,8 @@ public class RobotContainer {
 
         primaryController.rightBumper()
             .whileTrue(
-                Commands.defer(
-                    () -> Commands.either(
+                // Commands.defer(
+                    // () -> Commands.either(
                         GameCommands.autoLaunch(
                             () -> DriveCommands.distToHub(sys_drive),
                             sys_drive,
@@ -368,12 +368,13 @@ public class RobotContainer {
                             sys_feeder,
                             sys_serializer,
                             sys_intake
-                        ),
-                        GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake),
-                        shouldLaunch
-                    ),
-                    Set.of(sys_launcher, sys_feeder, sys_serializer, sys_intake)
-                )
+                        )
+                        // ,
+                        // GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake),
+                        // shouldLaunch
+                    // ),
+                    // Set.of(sys_launcher, sys_feeder, sys_serializer, sys_intake)
+                // )
             )
             .onFalse(
                 GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
@@ -419,6 +420,13 @@ public class RobotContainer {
         secondaryController.x()
                         .onTrue(GameCommands.retract(sys_intake, sys_hopper));
 
+        secondaryController.a()
+                        .whileTrue(GameCommands.agitateIntake(sys_intake));
+
+        secondaryController.y()
+                        .onTrue(sys_intake.setRollerVoltage(-IntakeConstants.Roller.INTAKE_VOLTAGE))
+                        .onFalse(sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE));
+
         secondaryController.povUp()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(1)));
 
@@ -458,17 +466,17 @@ public class RobotContainer {
         final double[] launchSpeed = {50};
         Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
 
-        tertiaryController.povUp()
-            .onTrue(Commands.runOnce(() -> {
-                launchSpeed[0] += 0.5;
-                Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
-            }));
+        // tertiaryController.povUp()
+        //     .onTrue(Commands.runOnce(() -> {
+        //         launchSpeed[0] += 0.5;
+        //         Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+        //     }));
 
-        tertiaryController.povDown()
-                .onTrue(Commands.runOnce(() -> {
-                    launchSpeed[0] -= 0.5;
-                    Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
-                }));
+        // tertiaryController.povDown()
+        //         .onTrue(Commands.runOnce(() -> {
+        //             launchSpeed[0] -= 0.5;
+        //             Logger.recordOutput("Launcher/SpeedSetpointManual", launchSpeed[0]);
+        //         }));
 
         // LAUNCHER TESTING
 
@@ -493,41 +501,41 @@ public class RobotContainer {
         //         .onTrue(sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
 
         // BUMP TESTING
-        tertiaryController.a()
-                    .onTrue(
-                        Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER))
-                    )
-                    .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1)));
+        // tertiaryController.a()
+        //             .onTrue(
+        //                 Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER))
+        //             )
+        //             .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1)));
 
-        tertiaryController.x()
-                .whileTrue(
-                        DriveCommands.crossBump(
-                                sys_drive,
-                                sys_vision,
-                                sys_drive::getRotation,
-                                () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED),
-                                Seconds.of(1)
-                        )
-                );
+        // tertiaryController.x()
+        //         .whileTrue(
+        //                 DriveCommands.crossBump(
+        //                         sys_drive,
+        //                         sys_vision,
+        //                         sys_drive::getRotation,
+        //                         () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED),
+        //                         Seconds.of(1)
+        //                 )
+        //         );
 
-        tertiaryController.b()
-                .whileTrue(
-                        DriveCommands.crossBump(
-                                sys_drive,
-                                sys_vision,
-                                sys_drive::getRotation,
-                                () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)),
-                                Seconds.of(1)
-                        )
-                );
+        // tertiaryController.b()
+        //         .whileTrue(
+        //                 DriveCommands.crossBump(
+        //                         sys_drive,
+        //                         sys_vision,
+        //                         sys_drive::getRotation,
+        //                         () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED.times(-1)),
+        //                         Seconds.of(1)
+        //                 )
+        //         );
 
-        tertiaryController.y()
-                .whileTrue(
-                    DriveCommands.crossBumpDeadline(
-                        sys_drive,
-                        () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED)
-                    )
-                );
+        // tertiaryController.y()
+        //         .whileTrue(
+        //             DriveCommands.crossBumpDeadline(
+        //                 sys_drive,
+        //                 () -> DriveCommands.getBumpSpeed(kBump.BUMP_TRAVERSAL_SPEED)
+        //             )
+        //         );
 
         SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remove when main
         SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remove when main

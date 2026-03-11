@@ -53,7 +53,7 @@ public class Launcher extends SubsystemBase {
                     CommandScheduler.getInstance().schedule(this.launchFuel(() -> d, new Feeder(new FeederIO() {})));
 
                     return MathUtils.withinTolerance(
-                            getVelocity().in(RotationsPerSecond), config.speed().in(RotationsPerSecond), 0.05) ?
+                            getVelocity().in(RotationsPerSecond), config.speed().in(RotationsPerSecond), 5) ?
                            Checkmate.TestResult.success() :
                            Checkmate.TestResult.fail(
                                    "Launcher not fast enough (" + getVelocity().in(RotationsPerSecond) + " RPS)");

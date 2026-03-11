@@ -116,9 +116,9 @@ public class GameCommands {
             intake.setRollerVoltage(IntakeConstants.Roller.AGITATE_VOLTAGE),
             Commands.repeatingSequence(
                 intake.move(() -> GameCommandsConstants.RETRACT_POINT),
-                Commands.waitUntil(() -> intake.getPosition().isNear(GameCommandsConstants.RETRACT_POINT, Centimeters.of(1.0))),
+                Commands.waitTime(Milliseconds.of(1000)),
                 intake.move(() -> GameCommandsConstants.EXTEND_POINT),
-                Commands.waitUntil(() -> intake.getPosition().isNear(GameCommandsConstants.EXTEND_POINT, Centimeters.of(1.0)))
+                    Commands.waitTime(Milliseconds.of(1000))
             )
         );
     }

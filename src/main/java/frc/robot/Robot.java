@@ -105,7 +105,7 @@ public class Robot extends LoggedRobot {
                                 Commands.runOnce(robotContainer.sys_drive::stop),
                                 robotContainer.sys_hopper.setVoltage(0),
                                 robotContainer.sys_elevator.startManualMove(0)
-                        )
+                        ).ignoringDisable(true)
                 );
     }
 
