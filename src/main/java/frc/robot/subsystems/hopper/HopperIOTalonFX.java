@@ -2,6 +2,8 @@ package frc.robot.subsystems.hopper;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
@@ -14,12 +16,13 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Temperature;
 import edu.wpi.first.units.measure.Voltage;
-import frc.robot.Constants;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.util.PhoenixUtil;
 
 public class HopperIOTalonFX implements HopperIO {
@@ -43,7 +46,27 @@ public class HopperIOTalonFX implements HopperIO {
         m_mainMotorConfig = m_mainMotor.getConfigurator(); // Gets the motor's conifgurator and assigns it to a variable
                                                             // to apply various configurations such as PID and gear ratios
 
-        // Current limits to apply to the motor to avoid too much current being supplied
+        // SmartDashboard.putData("Publish PIDFF", Commands.runOnce(() -> 
+        //     m_mainMotor.getConfigurator().apply(
+        //                 new Slot0Configs()
+        //                         .withKP(HopperConstants.PID.getP())
+        //                         .withKI(HopperConstants.PID.getI())
+        //                         .withKD(HopperConstants.PID.getD())
+        //                         .withKS(HopperConstants.KS.get())
+        //                         .withKV(HopperConstants.KV.get()))));
+
+        // LoggedNetworkBoolean isTrue = new LoggedNetworkBoolean("Hopper/Publish", false);
+
+        // new Trigger( () -> isTrue.get())
+        // .onTrue(Commands.runOnce(() -> 
+        //     m_mainMotor.getConfigurator().apply(
+        //                 new Slot0Configs()
+        //                         .withKP(HopperConstants.PID.getP())
+        //                         .withKI(HopperConstants.PID.getI())
+        //                         .withKD(HopperConstants.PID.getD())
+        //                         .withKS(HopperConstants.KS.get())
+        //                         .withKV(HopperConstants.KV.get()))));
+
         final CurrentLimitsConfigs m_currentConfig = new CurrentLimitsConfigs()
             .withSupplyCurrentLimit(HopperConstants.CURRENT_LIMIT)
             .withSupplyCurrentLimitEnable(true);
@@ -54,17 +77,13 @@ public class HopperIOTalonFX implements HopperIO {
             .withSensorToMechanismRatio(HopperConstants.GEARING);
         m_mainMotorConfig.apply(m_encoderConfigs);
 
-        // PID configs
-        final Slot0Configs m_pidConfig = Constants.IS_TUNING
-
-        // Uses PIDController for tuning
-        ? new Slot0Configs()
-            .withKP(HopperConstants.PID.getP())
-            .withKI(HopperConstants.PID.getI())
-            .withKD(HopperConstants.PID.getD())
-
-        // Uses PIDConstants if we're not tuning (Usually comp version)
-        : new Slot0Configs()
+        final Slot0Configs m_pidConfig =
+        //  Constants.IS_TUNING
+        // ? new Slot0Configs()
+        //     .withKP(HopperConstants.PID.getP())
+        //     .withKI(HopperConstants.PID.getI())
+        //     .withKD(HopperConstants.PID.getD()):
+        new Slot0Configs()
             .withKP(HopperConstants.TALONFX_PID.kP)
             .withKI(HopperConstants.TALONFX_PID.kI)
             .withKD(HopperConstants.TALONFX_PID.kD);
@@ -150,7 +169,7 @@ public class HopperIOTalonFX implements HopperIO {
      */
     @Override
     public Distance getPosition() {
-        return Meters.of(motorPosition.getValueAsDouble());
+        return Meters.of(motorPosition.getValueAsDouble() * HopperConstants.UNIT_CONVERSION_FACTOR);
     }
 
      /**
@@ -168,9 +187,13 @@ public class HopperIOTalonFX implements HopperIO {
      * The tryUntilOk() method sends the signal at most 3 times to make sure it works.
      */
     @Override
-    public void setSetpoint(Distance setpoint) {
-        PhoenixUtil.tryUntilOk(3, () -> m_mainMotor.setControl(m_request.withPosition(setpoint.in(Meters)).withSlot(0)));
-        motorSetpoint = setpoint;
+    public void setSetpoint(Supplier<Distance> setpoint) {
+        Distance setpointNew = Meters.of(MathUtil.clamp(setpoint.get().in(Meters)/HopperConstants.UNIT_CONVERSION_FACTOR, 0, HopperConstants.HOPPER_MAX_EXTENSION.in(Meters)/HopperConstants.UNIT_CONVERSION_FACTOR));
+        PhoenixUtil.tryUntilOk(3, 
+        () -> m_mainMotor.setControl(m_request.withPosition(setpointNew.in(Meters))
+        .withSlot(0)));
+        motorSetpoint = setpoint.get();
+
     }
 
     /** Gets the currently assigned setpoint */
@@ -181,7 +204,6 @@ public class HopperIOTalonFX implements HopperIO {
 
     @Override
     public void updateInputs(HopperInputs inputs) {
-
         inputs.isMotorConnected = BaseStatusSignal.refreshAll(
             motorPosition,
             deviceVoltage, 
@@ -192,7 +214,7 @@ public class HopperIOTalonFX implements HopperIO {
         inputs.appliedCurrent = deviceCurrent.getValue();
         inputs.torqueCurrent = torqueCurrent.getValue();
         inputs.motorTemp = deviceTemp.getValueAsDouble();
-        inputs.motorPosition = Meters.of(motorPosition.getValueAsDouble());
+        inputs.motorPosition = getPosition();
         inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
         inputs.setpoint = motorSetpoint;
     }

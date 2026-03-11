@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -29,9 +28,7 @@ public class Hopper extends SubsystemBase {
     public Hopper(HopperIO io) {
         this.io = io;
         inputs = new HopperInputsAutoLogged();
-        
-        // Puts PID to SmartDashboard for tuning
-        SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
+        // SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
 
         hopperPose = new Pose3d();
 
@@ -71,7 +68,7 @@ public class Hopper extends SubsystemBase {
      */
     public Command fullExtend() {
         return Commands.runOnce(() ->
-            io.setSetpoint(HopperConstants.HOPPER_MAX_EXTENSION), this
+            io.setSetpoint(() -> HopperConstants.HOPPER_MAX_EXTENSION), this
         );
     }
 
@@ -80,7 +77,7 @@ public class Hopper extends SubsystemBase {
      */
     public Command fullRetract() {
         return Commands.runOnce(
-            () -> io.setSetpoint(HopperConstants.HOPPER_MIN_EXTENSION), this
+            () -> io.setSetpoint(() -> HopperConstants.HOPPER_MIN_EXTENSION), this
         );
     }
 
@@ -154,7 +151,7 @@ public class Hopper extends SubsystemBase {
      * @param setpoint the assigned setpoint
      */
     public Command setSetpoint(Supplier<Distance> setpoint) {
-        return Commands.runOnce(() -> io.setSetpoint(Inches.of(setpoint.get().in(Inches))));
+        return Commands.runOnce(() -> io.setSetpoint(setpoint));
     }
 
     @Override
@@ -164,12 +161,8 @@ public class Hopper extends SubsystemBase {
         Logger.processInputs("Hopper", inputs);
         hopperPose = new Pose3d(inputs.motorPosition.in(Meters), 0, 0, new Rotation3d());
         Logger.recordOutput("Components/Hopper", hopperPose);
-        SmartDashboard.putData("Hopper/PID", HopperConstants.PID); // Puts PID data on SmartDashboard for tuning
 
-        /* detection logic
-        * Triggers if the robot has crashed into something, which will force the hopper to 
-        * enter coast mode when the crash causes the torque current to spike
-        */
+        // SmartDashboard.putData("Hopper/PID", HopperConstants.PID);
 
         // Checks if the torque current has spiked
         boolean overCurrent = inputs.torqueCurrent.gt(HopperConstants.DAMAGE_DETECTION_CURRENT); 
@@ -185,7 +178,7 @@ public class Hopper extends SubsystemBase {
             } else if (!overCurrent && inputs.isCrashDetected) {
                 inputs.isCrashDetected = false;
                 io.brakeMode();
-                io.setSetpoint(lastCrashPosition);
+                io.setSetpoint(() -> lastCrashPosition);
             }
         }
     }
