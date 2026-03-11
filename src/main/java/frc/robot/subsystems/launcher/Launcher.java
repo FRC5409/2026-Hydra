@@ -15,7 +15,7 @@ import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.util.MathUtils;
-import frc.robot.utils.Checkmate;
+import frc.robot.util.Checkmate;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;

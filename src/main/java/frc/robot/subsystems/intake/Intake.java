@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
-import frc.robot.utils.Checkmate;
-import frc.robot.utils.Checkmate.TestResult;
+import frc.robot.util.Checkmate;
+import frc.robot.util.Checkmate.TestResult;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
