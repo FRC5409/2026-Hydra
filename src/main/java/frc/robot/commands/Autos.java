@@ -1,32 +1,25 @@
 package frc.robot.commands;
 
-import static edu.wpi.first.units.Units.*;
+import com.pathplanner.lib.events.EventTrigger;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants;
+import frc.robot.Constants.GameCommandsConstants;
+import frc.robot.Constants.kAutoAlign;
+import frc.robot.RobotContainer;
+import frc.robot.util.AutoPath;
 
 import java.util.ArrayList;
 import java.util.Objects;
 
-import com.pathplanner.lib.events.EventTrigger;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.GameCommandsConstants;
-import frc.robot.Constants.kAutoAlign;
-import frc.robot.Constants;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.hopper.Hopper;
-import frc.robot.subsystems.intake.Intake;
-import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.serializer.Serializer;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.AutoPath;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.MetersPerSecondPerSecond;
 
 public class Autos {
     public static final EventTrigger autoPoseUpdate = new EventTrigger("Vision_Trigger");
 
-	public static ArrayList<AutoPath> getAutoPaths(Drive drive, Vision vision, Launcher launcher, Feeder feeder, Intake intake, Hopper hopper, Serializer serializer, Elevator elevator){
+	public static ArrayList<AutoPath> getAutoPaths(RobotContainer robot) {
 		ArrayList<AutoPath> autoPaths = new ArrayList<>();
 
 		// LEFT SIDE AUTOS:
@@ -41,13 +34,13 @@ public class Autos {
                 // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE 
                 // TODO: Test if forcing vision fused IMU is helpful
                 Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral"))
-                    .beforeStarting(Commands.runOnce(() -> vision.setForceFusedIMU(true)))
-                    .andThen(Commands.runOnce(() -> vision.setForceFusedIMU(false))),
+                    .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
+                    .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 				
 				 
                 // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s) 
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose"))
-                    .alongWith(GameCommands.startIntake(intake, hopper)),
+                    .alongWith(GameCommands.startIntake(robot)),
 
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION 
@@ -57,18 +50,18 @@ public class Autos {
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
                 // TODO: Test if forcing vision fused IMU is helpful
                 Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance"))
-                    .beforeStarting(Commands.runOnce(() -> vision.setForceFusedIMU(true)))
-                    .andThen(Commands.runOnce(() -> vision.setForceFusedIMU(false))),
+                    .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
+                    .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
 
                 // LAUNCH FOR THE DURATION OF AUTO_LAUNCH_WAIT_TIME TODO: TUNE THIS WAIT TIME
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
                 ),
 
                 // STOP LAUNCHING TODO: IF NO CLIMB, DETERMINE IF NECESSARY TO EVER STOP LAUNCHING
-                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
+                GameCommands.stopLaunching(robot)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
 			)
@@ -84,13 +77,13 @@ public class Autos {
                 // cross RIGHT BUMP from ALLIANCE zone to NEUTRAL zone 
                 // TODO: Test if forcing vision fused IMU is helpful
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral"))
-                    .beforeStarting(Commands.runOnce(() -> vision.setForceFusedIMU(true)))
-                    .andThen(Commands.runOnce(() -> vision.setForceFusedIMU(false))),
+                    .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
+                    .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
 
                 // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
 				Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose"))
-                    .alongWith(GameCommands.startIntake(intake, hopper)),
+                    .alongWith(GameCommands.startIntake(robot)),
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION 
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-END-FarClose-To-BUMP")),
@@ -98,17 +91,17 @@ public class Autos {
 				// Go from NEUTRAL zone to ALLIANCE zone over RIGHT BUMP
                 // TODO: Test if forcing vision fused IMU is helpful
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Neutral-Alliance"))
-                    .beforeStarting(Commands.runOnce(() -> vision.setForceFusedIMU(true)))
-                    .andThen(Commands.runOnce(() -> vision.setForceFusedIMU(false))),
+                    .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
+                    .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
                 // LAUNCHES for AUTO_LAUNCH_WAIT_TIME TODO: TUNE THIS VALUE
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
                 ),
                 
                 // TODO: IF NO CLIMBER, DETERMINE IF WE NEED TO STOP LAUNCHING
-                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
+                GameCommands.stopLaunching(robot)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
 			)
@@ -120,7 +113,7 @@ public class Autos {
                     "Test-Path",
                     new Pose2d(2,7,Rotation2d.k180deg),
                     DriveCommands.alignToPoint(
-                        drive, 
+                        robot.sys_drive,
                         () -> new Pose2d(2,7,Rotation2d.kZero), 
                         () -> MetersPerSecond.of(1), 
                         () -> MetersPerSecondPerSecond.of(2)
@@ -135,17 +128,17 @@ public class Autos {
                 "Leave-Shoot", 
                 new Pose2d(3.565,4.011,Rotation2d.k180deg), 
                 DriveCommands.alignToPoint(
-                    drive, 
+                    robot.sys_drive,
                     () -> new Pose2d(3.127,4.011,Rotation2d.k180deg), 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION),
 
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
                 ),
                 
-                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
+                GameCommands.stopLaunching(robot)
             )
         );
 
@@ -156,11 +149,11 @@ public class Autos {
 
                 // Go from starting point to depot
                 Objects.requireNonNull(AutoPath.followPath("Start-Depot"))
-                .alongWith(GameCommands.startIntake(intake, hopper)),
+                .alongWith(GameCommands.startIntake(robot)),
 
                 // Align to scoring point
                 DriveCommands.alignToPoint(
-                    drive, 
+                    robot.sys_drive,
                     () -> new Pose2d(1.390, 4.887, Rotation2d.k180deg), 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
@@ -168,10 +161,10 @@ public class Autos {
 
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
                 ),
                 
-                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
+                GameCommands.stopLaunching(robot)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
 
@@ -186,17 +179,17 @@ public class Autos {
                 // Start at trench
                 // new Pose2d(3.565,0.719,Rotation2d.k180deg),
                 DriveCommands.alignToPoint(
-                    drive, 
+                     robot.sys_drive,
                     () -> new Pose2d(0.473, 0.670, Rotation2d.k180deg), 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION  
                 )
-                .alongWith(GameCommands.startIntake(intake, hopper)),
+                .alongWith(GameCommands.startIntake(robot)),
                 // Time to wait for outpost dump
                 Commands.waitSeconds(2),
 
                 DriveCommands.alignToPoint(
-                    drive, 
+                    robot.sys_drive,
                     () -> new Pose2d(0.902, 0.670, Rotation2d.k180deg), 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
@@ -204,10 +197,10 @@ public class Autos {
                 
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(drive), drive, launcher, feeder, serializer, intake)
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
                 ),
                 
-                GameCommands.stopLaunching(launcher, feeder, serializer, intake)
+                GameCommands.stopLaunching(robot)
 
                 // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
             )

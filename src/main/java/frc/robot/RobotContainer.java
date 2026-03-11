@@ -25,7 +25,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.*;
+import frc.robot.Constants.ClimbingPositions;
+import frc.robot.Constants.DeviceID;
+import frc.robot.Constants.Mode;
+import frc.robot.Constants.kBump;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GameCommands;
@@ -43,9 +46,6 @@ import frc.robot.subsystems.hopper.Hopper;
 import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.HopperIOSim;
 import frc.robot.subsystems.hopper.HopperIOTalonFX;
-import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.launcher.*;
-import frc.robot.subsystems.hopper.*;
 import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.launcher.Launcher;
 import frc.robot.subsystems.launcher.LauncherIO;
@@ -70,7 +70,6 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 import static edu.wpi.first.units.Units.*;
@@ -366,11 +365,7 @@ public class RobotContainer {
                     // () -> Commands.either(
                         GameCommands.autoLaunch(
                             () -> DriveCommands.distToHub(sys_drive),
-                            sys_drive,
-                            sys_launcher,
-                            sys_feeder,
-                            sys_serializer,
-                            sys_intake
+                            this
                         )
                         // ,
                         // GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake),
@@ -380,20 +375,19 @@ public class RobotContainer {
                 // )
             )
             .onFalse(
-                GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
+                GameCommands.stopLaunching(this)
             );
 
         primaryController.y()
                         .onTrue(
-                            GameCommands.startIntake(sys_intake, sys_hopper)
+                            GameCommands.startIntake(this)
                         );
 
         // TODO: DETERMINE IF WE CAN CLIMB, IF NOT SWITCH THIS TO PASSING (GameCommands.manualPass)
         primaryController.leftBumper()
                         .whileTrue(
                             GameCommands.autoClimb(
-                                sys_drive,
-                                sys_elevator,
+                                    this,
                                 () -> selectedClimbingPrepPosition.pose,
                                 () -> selectedClimbingPosition.pose
                             )
@@ -401,8 +395,8 @@ public class RobotContainer {
 
         primaryController.x()
                         .onTrue(
-                          GameCommands.retract(sys_intake, sys_hopper)
-                        );
+                          GameCommands.retract(this)
+                        )
                          .and(primaryController.back())
                          .onTrue(Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
                                          .ignoringDisable(true));
@@ -431,20 +425,11 @@ public class RobotContainer {
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
         primaryController.povDown()
-                        .whileTrue(
-                          GameCommands.manualLaunch(
-                            () -> manualLaunchDistance,
-                            sys_launcher,
-                            sys_feeder,
-                            sys_serializer,
-                            sys_intake)
-                        )
-                        .onFalse(
-                            GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
-                        );
+                        .whileTrue(GameCommands.manualLaunch(() -> manualLaunchDistance, this))
+                        .onFalse(GameCommands.stopLaunching(this));
 
         secondaryController.x()
-                        .onTrue(GameCommands.retract(sys_intake, sys_hopper));
+                        .onTrue(GameCommands.retract(this));
 
         secondaryController.a()
                         .whileTrue(GameCommands.agitateIntake(sys_intake));
@@ -481,7 +466,7 @@ public class RobotContainer {
         SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remove when main
 
         SmartDashboard.putData("Intake/Coast", sys_intake.coastMode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
-        SmartDashboard.putData("Intake/Brake", sys_intake.brakemode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
+        SmartDashboard.putData("Intake/Brake", sys_intake.brakeMode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {
