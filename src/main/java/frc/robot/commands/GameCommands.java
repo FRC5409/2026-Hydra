@@ -18,6 +18,7 @@ import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.subsystems.serializer.SerializerConstants;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Milliseconds;
@@ -65,22 +66,26 @@ public class GameCommands {
     /**
      * Drive aligns to face target manually
      */
-    public static Command manualPass(RobotContainer robot) {
-        return Commands.sequence(
-
-                Commands.parallel(
-                        robot.sys_launcher.runVelocity(() -> GameCommandsConstants.PASSING_RPS),
-                        robot.sys_launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE)
-
+    public static Command manualPass(BooleanSupplier isRightHalf, RobotContainer robot) {
+        return Commands.parallel(
+                DriveCommands.alignToHeading(
+                        robot.sys_drive,
+                        () -> DriveCommands.getRotationToPassingPosition(robot.sys_drive, isRightHalf)
                 ),
+                Commands.sequence(
+                        Commands.parallel(
+                                robot.sys_launcher.runVelocity(() -> GameCommandsConstants.PASSING_RPS),
+                                robot.sys_launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE)
+                        ),
 
-                Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
+                        Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                        robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
+                        Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-                agitateIntake(robot.sys_intake)
+                        agitateIntake(robot.sys_intake)
+                )
 
         );
     }
