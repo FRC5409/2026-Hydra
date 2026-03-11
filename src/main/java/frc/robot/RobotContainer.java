@@ -47,10 +47,7 @@ import frc.robot.subsystems.hopper.HopperIO;
 import frc.robot.subsystems.hopper.HopperIOSim;
 import frc.robot.subsystems.hopper.HopperIOTalonFX;
 import frc.robot.subsystems.intake.*;
-import frc.robot.subsystems.launcher.Launcher;
-import frc.robot.subsystems.launcher.LauncherIO;
-import frc.robot.subsystems.launcher.LauncherIOSim;
-import frc.robot.subsystems.launcher.LauncherIOTalonFX;
+import frc.robot.subsystems.launcher.*;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.Serializer;
 import frc.robot.subsystems.serializer.SerializerIO;
@@ -435,10 +432,10 @@ public class RobotContainer {
                            .onFalse(sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE));
 
         secondaryController.povUp()
-                           .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(1)));
+                           .onTrue(Launcher.incrementSpeedOffset(LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT));
 
         secondaryController.povDown()
-                           .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(-1)));
+                           .onTrue(Launcher.incrementSpeedOffset(LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT.times(-1)));
 
         secondaryController.povLeft()
                            .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));

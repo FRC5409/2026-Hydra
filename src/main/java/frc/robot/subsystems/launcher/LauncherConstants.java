@@ -6,7 +6,8 @@ import edu.wpi.first.units.measure.Distance;
 import frc.robot.subsystems.launcher.interpolator.BilinearStrategy;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Millimeters;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class LauncherConstants {
     public static class Launcher {
@@ -17,7 +18,7 @@ public class LauncherConstants {
         public static final double SENSOR_RATIO  = 1.0 / 1.5;
         public static final int    CURRENT_LIMIT = 60;
 
-        public static final AngularVelocity LAUNCH_SPEED_OFFSET_INCREMENT = RPM.of(1);
+        public static final AngularVelocity LAUNCH_SPEED_OFFSET_INCREMENT = RotationsPerSecond.of(0.5);
         public static final LaunchStrategy  DEFAULT_LAUNCH_STRATEGY       = new BilinearStrategy();
 
         public static final AngularVelocity LAUNCHER_IDLE_SPEED = RotationsPerSecond.of(30);
