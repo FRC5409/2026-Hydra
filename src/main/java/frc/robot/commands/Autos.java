@@ -26,7 +26,6 @@ public class Autos {
 
 		autoPaths.add(
 			new AutoPath(
-                // TODO: DETERMINE IF WE ARE CLIMBING (If so, update this auto)
 				"LEFT-Bump-Intake-FarClose-Score",
                 
 				new Pose2d(3.560, 5.801, Rotation2d.fromDegrees(45)),            
@@ -54,16 +53,8 @@ public class Autos {
                     .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
 
-                // LAUNCH FOR THE DURATION OF AUTO_LAUNCH_WAIT_TIME TODO: TUNE THIS WAIT TIME
-                Commands.deadline(
-                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
-                ),
-
-                // STOP LAUNCHING TODO: IF NO CLIMB, DETERMINE IF NECESSARY TO EVER STOP LAUNCHING
-                GameCommands.stopLaunching(robot)
-
-                // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
+                // LAUNCH FOR THE REMAINING DURATION OF AUTO
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
 			)
 		);
 
@@ -80,7 +71,6 @@ public class Autos {
                     .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
                     .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
-
                 // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
 				Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose"))
                     .alongWith(GameCommands.startIntake(robot)),
@@ -94,16 +84,9 @@ public class Autos {
                     .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
                     .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
-                // LAUNCHES for AUTO_LAUNCH_WAIT_TIME TODO: TUNE THIS VALUE
-                Commands.deadline(
-                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
-                ),
-                
-                // TODO: IF NO CLIMBER, DETERMINE IF WE NEED TO STOP LAUNCHING
-                GameCommands.stopLaunching(robot)
+                // LAUNCHES until auto ends
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
 
-                // GameCommands.autoClimb(drive, elevator, ClimbingPositions.RIGHT_PREP::getPose, ClimbingPositions.RIGHT::getPose)
 			)
 		); 
 
@@ -133,18 +116,13 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION),
 
-                Commands.deadline(
-                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
-                ),
-                
-                GameCommands.stopLaunching(robot)
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
             )
         );
 
         autoPaths.add(
             new AutoPath(
-                "Depot-Shoot-LeftClimb", 
+                "Depot-Shoot",
                 new Pose2d(3.565,5.958,Rotation2d.k180deg),
 
                 // Go from starting point to depot
@@ -159,21 +137,12 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
                 ),
 
-                Commands.deadline(
-                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
-                ),
-                
-                GameCommands.stopLaunching(robot)
-
-                // GameCommands.autoClimb(drive, elevator, ClimbingPositions.LEFT_PREP::getPose, ClimbingPositions.LEFT::getPose)
-
-            )
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)            )
         );
 
         autoPaths.add(
             new AutoPath(
-                "Outpost-Shoot-RightClimb", 
+                "Outpost-Shoot",
                 // Start at edge of bump
                 new Pose2d(3.565,2.076,Rotation2d.k180deg), 
                 // Start at trench
@@ -196,9 +165,8 @@ public class Autos {
                 ),
                 
                 Commands.deadline(
-                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME), 
-                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)
-                ),
+                    Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), robot)                ),
                 
                 GameCommands.stopLaunching(robot)
 
