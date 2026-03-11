@@ -19,6 +19,7 @@ import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.subsystems.serializer.SerializerConstants;
 
 import java.util.function.BooleanSupplier;
+import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Milliseconds;
@@ -26,10 +27,17 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class GameCommands {
 
-    public static Command autoLaunch(Supplier<Distance> distanceSupplier, RobotContainer robot) {
+    public static Command autoLaunch(
+            Supplier<Distance> distanceSupplier,
+            DoubleSupplier joystickX,
+            DoubleSupplier joystickY,
+            RobotContainer robot
+    ) {
         return Commands.parallel(
-                DriveCommands.alignToHeading(
+                DriveCommands.joystickDriveAtAngle(
                         robot.sys_drive,
+                        joystickX,
+                        joystickY,
                         () -> DriveCommands.getRotationToHub(robot.sys_drive)
                 ),
                 Commands.sequence(
@@ -66,10 +74,17 @@ public class GameCommands {
     /**
      * Drive aligns to face target manually
      */
-    public static Command manualPass(BooleanSupplier isRightHalf, RobotContainer robot) {
+    public static Command manualPass(
+            BooleanSupplier isRightHalf,
+            DoubleSupplier joystickX,
+            DoubleSupplier joystickY,
+            RobotContainer robot
+    ){
         return Commands.parallel(
-                DriveCommands.alignToHeading(
+                DriveCommands.joystickDriveAtAngle(
                         robot.sys_drive,
+                        joystickX,
+                        joystickY,
                         () -> DriveCommands.getRotationToPassingPosition(robot.sys_drive, isRightHalf)
                 ),
                 Commands.sequence(
