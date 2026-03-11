@@ -291,16 +291,7 @@ public class RobotContainer {
     private LoggedDashboardChooser<Command> buildAutoChooser() {
         LoggedDashboardChooser<Command> chooser = new LoggedDashboardChooser<>("Auto Choices");
         chooser.addDefaultOption("None", Commands.none());
-        ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(
-                sys_drive,
-                sys_vision,
-                sys_launcher,
-                sys_feeder,
-                sys_intake,
-                sys_hopper,
-                sys_serializer,
-                sys_elevator
-        );
+        ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(this);
 
         autoPaths.forEach(autoPath -> chooser.addOption(autoPath.getName(), autoPath));
 
@@ -357,23 +348,14 @@ public class RobotContainer {
 
         primaryController.start()
                          .and(primaryController.back())
-                         .onTrue(
-                                 Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
-                                         .ignoringDisable(true)
-                         );
+                         .onTrue(Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
+                                         .ignoringDisable(true));
 
         primaryController.rightBumper()
                          .whileTrue(
                                  // Commands.defer(
                                  // () -> Commands.either(
-                                 GameCommands.autoLaunch(
-                                         () -> DriveCommands.distToHub(sys_drive),
-                                         sys_drive,
-                                         sys_launcher,
-                                         sys_feeder,
-                                         sys_serializer,
-                                         sys_intake
-                                 )
+                                 GameCommands.autoLaunch(() -> DriveCommands.distToHub(sys_drive), this)
                                  // ,
                                  // GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake),
                                  // shouldLaunch
@@ -381,20 +363,17 @@ public class RobotContainer {
                                  // Set.of(sys_launcher, sys_feeder, sys_serializer, sys_intake)
                                  // )
                          )
-                         .onFalse(
-                                 GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
-                         );
+                         .onFalse(GameCommands.stopLaunching(this));
 
         primaryController.leftBumper()
                          .onTrue(
-                                 GameCommands.startIntake(sys_intake, sys_hopper)
+                                 GameCommands.startIntake(this)
                          );
 
         primaryController.y()
                          .whileTrue(
                                  GameCommands.autoClimb(
-                                         sys_drive,
-                                         sys_elevator,
+                                         this,
                                          () -> selectedClimbingPrepPosition.pose,
                                          () -> selectedClimbingPosition.pose
                                  )
@@ -402,7 +381,7 @@ public class RobotContainer {
 
         primaryController.x()
                          .onTrue(
-                                 GameCommands.retract(sys_intake, sys_hopper)
+                                 GameCommands.retract(this)
                          );
 
         primaryController.a()
@@ -410,20 +389,11 @@ public class RobotContainer {
                          .onFalse(Commands.runOnce(() -> DriveCommands.setSpeed(1.0)));
 
         primaryController.povDown()
-                         .whileTrue(
-                                 GameCommands.manualLaunch(
-                                         () -> manualLaunchDistance,
-                                         sys_launcher,
-                                         sys_feeder,
-                                         sys_serializer,
-                                         sys_intake)
-                         )
-                         .onFalse(
-                                 GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
-                         );
+                         .whileTrue(GameCommands.manualLaunch(() -> manualLaunchDistance, this))
+                         .onFalse(GameCommands.stopLaunching(this));
 
         secondaryController.x()
-                           .onTrue(GameCommands.retract(sys_intake, sys_hopper));
+                           .onTrue(GameCommands.retract(this));
 
         secondaryController.a()
                            .whileTrue(GameCommands.agitateIntake(sys_intake));
@@ -433,10 +403,12 @@ public class RobotContainer {
                            .onFalse(sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE));
 
         secondaryController.povUp()
-                           .onTrue(Launcher.incrementSpeedOffset(LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT));
+                           .onTrue(Launcher.incrementSpeedOffset(
+                                   LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT));
 
         secondaryController.povDown()
-                           .onTrue(Launcher.incrementSpeedOffset(LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT.times(-1)));
+                           .onTrue(Launcher.incrementSpeedOffset(
+                                   LauncherConstants.Launcher.LAUNCH_SPEED_OFFSET_INCREMENT.times(-1)));
 
         secondaryController.povLeft()
                            .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
@@ -500,12 +472,7 @@ public class RobotContainer {
      */
     public Command onDisable() {
         Command cmd = Commands.parallel(
-                GameCommands.stopLaunching(
-                        sys_launcher,
-                        sys_feeder,
-                        sys_serializer,
-                        sys_intake
-                ),
+                GameCommands.stopLaunching(this),
                 Commands.runOnce(sys_drive::stop),
                 sys_hopper.setVoltage(0)
         );
