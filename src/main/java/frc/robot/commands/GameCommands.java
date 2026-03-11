@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -14,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederConstants;
 import frc.robot.subsystems.launcher.Launcher;
 import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.hopper.*;
@@ -72,22 +74,26 @@ public class GameCommands {
      * @param intake
      * @return
      */
-    public static Command manualPass(Launcher launcher, Feeder feeder, Serializer serializer, Intake intake){
-        return Commands.sequence(
-
-            Commands.parallel(
-                launcher.runVelocity(() -> GameCommandsConstants.PASSING_RPS),
-                launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE)
-                
+    public static Command manualPass(BooleanSupplier isRightHalf, Drive drive, Launcher launcher, Feeder feeder, Serializer serializer, Intake intake){
+        return Commands.parallel(
+            DriveCommands.alignToHeading(
+                drive,
+                () -> DriveCommands.getRotationToPassingPosition(drive, isRightHalf)
             ),
-            
-            Commands.waitUntil(launcher::isLauncherAtSpeed),
+            Commands.sequence(
+                Commands.parallel(
+                    launcher.runVelocity(() -> GameCommandsConstants.PASSING_RPS),
+                    launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE)
+                ),
+                
+                Commands.waitUntil(launcher::isLauncherAtSpeed),
 
-            serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
-            Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
+                Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-            agitateIntake(intake)
+                agitateIntake(intake)
+            )
 
         );
     }
@@ -172,4 +178,13 @@ public class GameCommands {
             intake.stopRoller()
         );
     }
+
+    public static Command reverseRollers(Serializer serializer, Feeder feeder, Launcher launcher){
+        return Commands.parallel(
+            serializer.setVoltage(-SerializerConstants.SERIALIZING_VOLTAGE),
+            feeder.setVoltage(-FeederConstants.FEEDER_REVERSE_VOLTAGE),
+            launcher.runVelocity(() -> RotationsPerSecond.of(-20))
+        );
+    }
+
 }
