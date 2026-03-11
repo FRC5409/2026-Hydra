@@ -153,7 +153,6 @@ public class RobotContainer {
                         DeviceID.LAUNCHER_CANCODER,
                         DeviceID.LAUNCHER_MOTOR_1,
                         DeviceID.LAUNCHER_MOTOR_2,
-                        DeviceID.LAUNCHER_ULTRASONIC_CHANNEL,
                         DeviceID.LAUNCHER_HOOD_SERVO_1,
                         DeviceID.LAUNCHER_HOOD_SERVO_2));
             }

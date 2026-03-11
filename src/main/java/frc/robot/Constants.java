@@ -57,8 +57,10 @@ public final class Constants {
         public static final int LAUNCHER_MOTOR_1            = 24;
         public static final int LAUNCHER_MOTOR_2            = 25;
         public static final int LAUNCHER_HOOD_SERVO_1       = 8;
-        public static final int LAUNCHER_HOOD_SERVO_2       = 9;
-        public static final int LAUNCHER_ULTRASONIC_CHANNEL = 1;
+        public static final int LAUNCHER_HOOD_SERVO_2 = 9;
+
+        // FUEL GAUGE
+        public static final int FUEL_GAUGE_CHANNEL    = 1;
 
         // FEEDER
         public static final int FEEDER_MOTOR_TOP    = 33;
