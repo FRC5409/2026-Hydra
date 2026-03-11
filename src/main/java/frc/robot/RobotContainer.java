@@ -369,16 +369,7 @@ public class RobotContainer {
                         );
 
         primaryController.leftBumper()
-                        .whileTrue(
-                            GameCommands.manualPass(
-                                () -> kField.RIGHT_HALF.contains(sys_drive.getPose().getTranslation()),
-                                sys_drive,
-                                sys_launcher,
-                                sys_feeder,
-                                sys_serializer,
-                                sys_intake
-                            )
-                        );
+                        .whileTrue(GameCommands.manualPass(() -> kField.RIGHT_HALF.contains(sys_drive.getPose().getTranslation()), this));
 
         primaryController.x()
                         .onTrue(
@@ -412,7 +403,7 @@ public class RobotContainer {
                         .onFalse(sys_serializer.setVoltage(0));
 
         secondaryController.y()
-                        .onTrue(GameCommands.reverseRollers(sys_serializer, sys_feeder, sys_launcher));
+                        .onTrue(GameCommands.reverseRollers(this));
 
         secondaryController.povLeft()
                         .onTrue(sys_serializer.setVoltage(-SerializerConstants.SERIALIZING_VOLTAGE))
