@@ -66,12 +66,6 @@ public class GameCommands {
 
     /**
      * Drive aligns to face target manually
-     * @param distanceSupplier
-     * @param launcher
-     * @param feeder
-     * @param serializer
-     * @param intake
-     * @return
      */
     public static Command manualPass(Launcher launcher, Feeder feeder, Serializer serializer, Intake intake){
         return Commands.sequence(
