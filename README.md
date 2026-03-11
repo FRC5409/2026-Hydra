@@ -34,3 +34,7 @@
 | Climber    | Motor           | CAN ID 32        |
 
 For a detailed list, see [frc.robot.Constants.DeviceID](src/main/java/frc/robot/Constants.java).
+
+## Licenses
+
+Software licenses are available in [docs/licenses](docs/licenses). 
