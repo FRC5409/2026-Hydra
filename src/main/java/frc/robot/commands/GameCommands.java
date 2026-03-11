@@ -12,6 +12,7 @@ import frc.robot.Constants.GameCommandsConstants;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.feeder.FeederConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
@@ -20,6 +21,7 @@ import frc.robot.subsystems.serializer.SerializerConstants;
 import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class GameCommands {
 
@@ -156,6 +158,14 @@ public class GameCommands {
                 robot.sys_serializer.stop(),
                 robot.sys_intake.stop(),
                 robot.sys_intake.stopRoller()
+        );
+    }
+
+    public static Command reverseRollers(RobotContainer robot) {
+        return Commands.parallel(
+                robot.sys_serializer.setVoltage(-SerializerConstants.SERIALIZING_VOLTAGE),
+                robot.sys_feeder.setVoltage(-FeederConstants.FEEDER_REVERSE_VOLTAGE),
+                robot.sys_launcher.runVelocity(() -> RotationsPerSecond.of(-20))
         );
     }
 }
