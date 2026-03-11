@@ -356,6 +356,8 @@ public class RobotContainer {
             .whileTrue(
                     GameCommands.autoLaunch(
                         () -> DriveCommands.distToHub(sys_drive),
+                        () -> -primaryController.getLeftY(),
+                        () -> -primaryController.getLeftX(),
                         this
                     )
             )
@@ -369,7 +371,11 @@ public class RobotContainer {
                         );
 
         primaryController.leftBumper()
-                        .whileTrue(GameCommands.manualPass(() -> kField.RIGHT_HALF.contains(sys_drive.getPose().getTranslation()), this));
+                        .whileTrue(GameCommands.manualPass(
+                                () -> kField.RIGHT_HALF.contains(sys_drive.getPose().getTranslation()),
+                                () -> -primaryController.getLeftY(),
+                                () -> -primaryController.getLeftX(),
+                                this));
 
         primaryController.x()
                         .onTrue(
