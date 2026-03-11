@@ -145,7 +145,8 @@ public class RobotContainer {
                         DeviceID.LAUNCHER_MOTOR_1,
                         DeviceID.LAUNCHER_MOTOR_2,
                         DeviceID.LAUNCHER_HOOD_SERVO_1,
-                        DeviceID.LAUNCHER_HOOD_SERVO_2));
+                        DeviceID.LAUNCHER_HOOD_SERVO_2),
+                    sys_drive);
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -182,7 +183,7 @@ public class RobotContainer {
                 sys_feeder = new Feeder(new FeederIOSim());
                 sys_hopper = new Hopper(new HopperIOSim());
 
-                sys_launcher = new Launcher(new LauncherIOSim());
+                sys_launcher = new Launcher(new LauncherIOSim(), sys_drive);
             }
             // Replayed robot, disable IO implementations
             default -> {
@@ -199,7 +200,7 @@ public class RobotContainer {
                 sys_serializer = new Serializer(new SerializerIO() {});
                 sys_elevator = new Elevator(new ElevatorIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
-                sys_launcher = new Launcher(new LauncherIO() {});
+                sys_launcher = new Launcher(new LauncherIO() {}, sys_drive);
             }
         }
 
