@@ -22,4 +22,6 @@ public final class FeederConstants {
     public static final Current ORTONA_SPARK_MAX_CURRENT_LIMIT = Amps.of(30);
 
     public static final Current TALON_FX_CURRENT_LIMIT = Amps.of(30);
+
+    public static final double FEEDER_REVERSE_VOLTAGE = 6;
 }  
