@@ -8,8 +8,6 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
 public class VisionConstants {
-    public static final String PRIMARY_CAM_NAME = "limelight";
-
     public static final int FIDUCIAL_TRUST_THRESHOLD = 1;
     public static final int DISCONNECTION_TIMEOUT    = 5;
     public static final int THROTTLE_DISABLED        = 200;
