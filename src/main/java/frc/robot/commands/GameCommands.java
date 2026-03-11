@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.subsystems.launcher.Launcher;
 import frc.robot.subsystems.serializer.*;
 import frc.robot.subsystems.hopper.*;
@@ -34,9 +35,9 @@ public class GameCommands {
                 Commands.parallel(
                     Commands.waitUntil(DriveCommands::isAligned),
                     launcher.launchFuel(distanceSupplier, feeder)
-                    
+
                 ),
-                Commands.waitUntil(launcher::isLauncherAtSpeed), 
+                Commands.waitUntil(launcher::isLauncherAtSpeed),
 
                 serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
@@ -49,11 +50,11 @@ public class GameCommands {
 
     public static Command manualLaunch(Supplier<Distance> distance, Launcher launcher, Feeder feeder, Serializer serializer, Intake intake ){
         return Commands.sequence(
-            
+
             launcher.launchFuel(distance, feeder),
 
             Commands.waitUntil(launcher::isLauncherAtSpeed),
-            
+
             serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
             Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
@@ -78,9 +79,9 @@ public class GameCommands {
             Commands.parallel(
                 launcher.runVelocity(() -> GameCommandsConstants.PASSING_RPS),
                 launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE)
-                
+
             ),
-            
+
             Commands.waitUntil(launcher::isLauncherAtSpeed),
 
             serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
@@ -107,7 +108,7 @@ public class GameCommands {
         return Commands.parallel(
           intake.retract(),
           hopper.fullRetract(),
-          intake.stopRoller()  
+          intake.stopRoller()
         );
     }
 
@@ -115,9 +116,9 @@ public class GameCommands {
         return Commands.parallel(
             intake.setRollerVoltage(IntakeConstants.Roller.AGITATE_VOLTAGE),
             Commands.repeatingSequence(
-                intake.move(() -> GameCommandsConstants.RETRACT_POINT),
+                intake.setSetpoint(() -> Extension.RETRACT_POINT),
                 Commands.waitTime(Milliseconds.of(1000)),
-                intake.move(() -> GameCommandsConstants.EXTEND_POINT),
+                intake.setSetpoint(() -> Extension.EXTEND_POINT),
                     Commands.waitTime(Milliseconds.of(1000))
             )
         );
@@ -168,7 +169,7 @@ public class GameCommands {
     public static Command stopSerializing(Serializer serializer, Intake intake){
         return Commands.parallel(
             serializer.stopMotor(),
-            intake.stopMotor(),
+            intake.stop(),
             intake.stopRoller()
         );
     }

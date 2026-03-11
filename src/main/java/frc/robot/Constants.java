@@ -53,14 +53,14 @@ public final class Constants {
         public static final int INTAKE_ROLLER_MOTOR    = 29;
 
         // LAUNCHER
-        public static final int LAUNCHER_CANCODER           = 26;
-        public static final int LAUNCHER_MOTOR_1            = 24;
-        public static final int LAUNCHER_MOTOR_2            = 25;
-        public static final int LAUNCHER_HOOD_SERVO_1       = 8;
+        public static final int LAUNCHER_CANCODER     = 26;
+        public static final int LAUNCHER_MOTOR_1      = 24;
+        public static final int LAUNCHER_MOTOR_2      = 25;
+        public static final int LAUNCHER_HOOD_SERVO_1 = 8;
         public static final int LAUNCHER_HOOD_SERVO_2 = 9;
 
         // FUEL GAUGE
-        public static final int FUEL_GAUGE_CHANNEL    = 1;
+        public static final int FUEL_GAUGE_CHANNEL = 1;
 
         // FEEDER
         public static final int FEEDER_MOTOR_TOP    = 33;
@@ -203,14 +203,13 @@ public final class Constants {
     }
 
     public static final class GameCommandsConstants {
-        public static final Time            WAIT_TIME_BEFORE_AGITATE          = Milliseconds.of(500);
-        public static final Time            WAIT_TIME_BEFORE_INTAKE_EXTENSION = Milliseconds.of(500);
-        public static final Time            AUTO_LAUNCH_WAIT_TIME             = Seconds.of(5);
-        public static final Distance        EXTEND_POINT                      = Centimeters.of(23.5);
-        public static final Distance        RETRACT_POINT                     = EXTEND_POINT.minus(Centimeters.of(7.5));
+        public static final Time WAIT_TIME_BEFORE_AGITATE          = Milliseconds.of(500);
+        public static final Time WAIT_TIME_BEFORE_INTAKE_EXTENSION = Milliseconds.of(500);
+        public static final Time AUTO_LAUNCH_WAIT_TIME             = Seconds.of(5);
+
         // TODO: TUNE THIS VALUE
-        public static final AngularVelocity PASSING_RPS                       = RotationsPerSecond.of(50);
-        public static final Distance        PASSING_HOOD_ANGLE                = Millimeters.of(50);
+        public static final AngularVelocity PASSING_RPS        = RotationsPerSecond.of(50);
+        public static final Distance        PASSING_HOOD_ANGLE = Millimeters.of(50);
     }
 
     public static final class kField {
