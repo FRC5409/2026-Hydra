@@ -5,17 +5,21 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.DriveCommands;
+import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
-import frc.robot.util.MathUtils;
 import frc.robot.util.Checkmate;
+import frc.robot.util.MathUtils;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
@@ -26,6 +30,7 @@ import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase {
     private final LauncherIO                io;
+    private final Drive                     drive;
     private final LauncherInputsAutoLogged  inputs;
     private final AtomicReference<Distance> hoodSetpoint = new AtomicReference<>(Millimeters.of(0.0));
 
@@ -34,14 +39,27 @@ public class Launcher extends SubsystemBase {
     private LaunchStrategy strategy;
     private double         realLaunchSpeedRps;
 
-    public Launcher(LauncherIO io) {
+    public Launcher(LauncherIO io, Drive drive) {
         this.io = io;
+        this.drive = drive;
         inputs = new LauncherInputsAutoLogged();
 
         // create the logged fields
         logInterpolation(Meters.of(0), null, RPM.of(0));
         setStrategy(LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
         Preferences.setDouble(PREF_LAUNCH_SPEED_OFFSET, getSpeedOffset().in(RotationsPerSecond));
+
+        Timer automaticHoodTimer = new Timer();
+        automaticHoodTimer.start();
+
+        // try to update the hood every 500 ms
+        new Trigger(() -> automaticHoodTimer.advanceIfElapsed(0.5))
+                .onTrue(Commands.runOnce(() -> {
+                    LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
+                    if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).gte(Millimeters.of(10))) {
+                        setHoodExtension(launchEstimate::hoodExtension);
+                    }
+                }));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
