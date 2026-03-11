@@ -82,6 +82,9 @@ public final class Constants {
         public static final Angle           ROTATION_TOLERANCE;
         public static final AngularVelocity ROTATION_VELOCITY_TOLERANCE;
 
+        /**
+         * Tune to allow the climber prep pose to only affect approach hoodExtension
+         */
         public static final Distance TRANSLATION_TOLERANCE_CLIMB_PREP;
         public static final Angle    ROTATION_TOLERANCE_CLIMB_PREP;
 
@@ -109,9 +112,6 @@ public final class Constants {
                 ROTATION_TOLERANCE = Degrees.of(1.25);
                 ROTATION_VELOCITY_TOLERANCE = DegreesPerSecond.of(10.0);
 
-                /**
-                 * Tune to allow the climber prep pose to only affect approach hoodExtension
-                 */
                 TRANSLATION_TOLERANCE_CLIMB_PREP = Centimeters.of(2.00);
                 ROTATION_TOLERANCE_CLIMB_PREP = Degrees.of(1.25);
             }
@@ -138,7 +138,7 @@ public final class Constants {
         MIDDLE(new Pose2d(new Translation2d(Meters.of(2.1), Meters.of(3.95)), Rotation2d.kZero)),
         LEFT(new Pose2d(new Translation2d(Meters.of(2.5), Meters.of(6.8)), Rotation2d.kZero));
 
-        Pose2d pose;
+        final Pose2d pose;
 
         PassingPositions(Pose2d pose) {
             this.pose = pose;

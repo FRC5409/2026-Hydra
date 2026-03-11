@@ -77,7 +77,7 @@ public class HopperIOSim implements HopperIO {
 
     @Override
     public Distance getPositionIntakeZero() {
-        return getPosition().plus(HopperConstants.STARTING_GAP_TO_INTAKE);
+        return getPosition();
     }
 
     public Distance getSetpoint() {
@@ -112,7 +112,7 @@ public class HopperIOSim implements HopperIO {
         inputs.appliedCurrent = Amps.of(current);
         inputs.motorTemp = 0.0;
         inputs.motorPosition = getPosition();
-        inputs.motorPositionIntakeZero = inputs.motorPosition.plus(HopperConstants.STARTING_GAP_TO_INTAKE);
+        inputs.motorPositionIntakeZero = inputs.motorPosition;
         inputs.setpoint = simSetpoint;
 
         slider.setLength(getPosition().in(Meters));
