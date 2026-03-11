@@ -1,7 +1,6 @@
 package frc.robot.subsystems.launcher;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -125,7 +124,7 @@ public class Launcher extends SubsystemBase {
 
                     return runVelocity(() -> launchSpeed)
                             .alongWith(setHoodExtension(c::hoodExtension)) // set hood hoodExtension
-                            .alongWith(feeder.runRPS(() -> launchSpeed)); // run feeder at same vel.
+                            .alongWith(feeder.runVelocity(() -> launchSpeed)); // run feeder at same vel.
                 }, Set.of(this));
     }
 
