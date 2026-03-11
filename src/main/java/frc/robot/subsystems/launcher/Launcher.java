@@ -56,7 +56,7 @@ public class Launcher extends SubsystemBase {
         new Trigger(() -> automaticHoodTimer.advanceIfElapsed(0.5))
                 .onTrue(Commands.runOnce(() -> {
                     LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
-                    if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).gte(Millimeters.of(10))) {
+                    if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >= 10) {
                         setHoodExtension(launchEstimate::hoodExtension);
                     }
                 }));
