@@ -42,11 +42,13 @@ import frc.robot.subsystems.feeder.FeederIOTalonFX;
 import frc.robot.subsystems.hopper.*;
 import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.launcher.Launcher;
+import frc.robot.subsystems.launcher.LauncherConstants;
 import frc.robot.subsystems.launcher.LauncherIO;
 import frc.robot.subsystems.launcher.LauncherIOSim;
 import frc.robot.subsystems.launcher.LauncherIOTalonFX;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerConstants;
 import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.subsystems.serializer.SerializerIOSim;
 import frc.robot.subsystems.serializer.SerializerIOTalonFX;
@@ -239,6 +241,9 @@ public class RobotContainer {
                         )
         );
 
+        new Trigger(() -> sys_launcher.getCurrentCommand() == null)
+                .onTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED));
+
         // TODO: When have time, test these 2 (Test if the robot can check if it is neutral zone or not)
 //        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
 //            .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
@@ -360,22 +365,14 @@ public class RobotContainer {
 
         primaryController.rightBumper()
             .whileTrue(
-                // Commands.defer(
-                    // () -> Commands.either(
-                        GameCommands.autoLaunch(
-                            () -> DriveCommands.distToHub(sys_drive),
-                            sys_drive,
-                            sys_launcher,
-                            sys_feeder,
-                            sys_serializer,
-                            sys_intake
-                        )
-                        // ,
-                        // GameCommands.manualPass(sys_launcher, sys_feeder, sys_serializer, sys_intake),
-                        // shouldLaunch
-                    // ),
-                    // Set.of(sys_launcher, sys_feeder, sys_serializer, sys_intake)
-                // )
+                GameCommands.autoLaunch(
+                    () -> DriveCommands.distToHub(sys_drive),
+                    sys_drive,
+                    sys_launcher,
+                    sys_feeder,
+                    sys_serializer,
+                    sys_intake
+                )
             )
             .onFalse(
                 GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
@@ -386,14 +383,15 @@ public class RobotContainer {
                             GameCommands.startIntake(sys_intake, sys_hopper)
                         );
 
-        // TODO: DETERMINE IF WE CAN CLIMB, IF NOT SWITCH THIS TO PASSING (GameCommands.manualPass)
         primaryController.leftBumper()
                         .whileTrue(
-                            GameCommands.autoClimb(
+                            GameCommands.manualPass(
+                                () -> kField.RIGHT_HALF.contains(sys_drive.getPose().getTranslation()),
                                 sys_drive,
-                                sys_elevator,
-                                () -> selectedClimbingPrepPosition.pose,
-                                () -> selectedClimbingPosition.pose
+                                sys_launcher,
+                                sys_feeder,
+                                sys_serializer,
+                                sys_intake
                             )
                         );
 
@@ -401,6 +399,9 @@ public class RobotContainer {
                         .onTrue(
                           GameCommands.retract(sys_intake, sys_hopper)
                         );
+        
+        primaryController.b()
+                        .onTrue(sys_intake.setRollerVoltage(0));
 
         primaryController.a()
                          .onTrue(Commands.runOnce(() -> DriveCommands.setSpeed(kBump.BUMP_SPEED_MODIFIER)))
@@ -419,27 +420,33 @@ public class RobotContainer {
                             GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
                         );
 
-        secondaryController.x()
+        secondaryController.b()
                         .onTrue(GameCommands.retract(sys_intake, sys_hopper));
 
         secondaryController.a()
                         .whileTrue(GameCommands.agitateIntake(sys_intake));
 
-        secondaryController.y()
+        secondaryController.x()
                         .onTrue(sys_intake.setRollerVoltage(-IntakeConstants.Roller.INTAKE_VOLTAGE))
                         .onFalse(sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE));
+
+        
+        secondaryController.povRight()
+                        .onTrue(sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE))
+                        .onFalse(sys_serializer.setVoltage(0));
+
+        secondaryController.y()
+                        .onTrue(GameCommands.reverseRollers(sys_serializer, sys_feeder, sys_launcher));
+
+        secondaryController.povLeft()
+                        .onTrue(sys_serializer.setVoltage(-SerializerConstants.SERIALIZING_VOLTAGE))
+                        .onFalse(sys_serializer.setVoltage(0));
 
         secondaryController.povUp()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(1)));
 
         secondaryController.povDown()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(-1)));
-
-        secondaryController.povLeft()
-                        .onTrue(prepClimberPositionCommand(ClimbingPositions.LEFT));
-
-        secondaryController.povRight()
-                        .onTrue(prepClimberPositionCommand(ClimbingPositions.RIGHT));
 
         // TODO: GET MANUAL LAUNCH DISTANCE THAT WE WANT TO USE
         new Trigger(() -> secondaryController.getLeftX() > 0.5)
