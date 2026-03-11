@@ -239,6 +239,7 @@ public class RobotContainer {
                         )
         );
 
+        // TODO: When have time, test these 2 (Test if the robot can check if it is neutral zone or not)
 //        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
 //            .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
 //            .onFalse(Commands.runOnce(() -> shouldLaunch = () -> true));
@@ -380,12 +381,13 @@ public class RobotContainer {
                 GameCommands.stopLaunching(sys_launcher, sys_feeder, sys_serializer, sys_intake)
             );
 
-        primaryController.leftBumper()
+        primaryController.y()
                         .onTrue(
                             GameCommands.startIntake(sys_intake, sys_hopper)
                         );
 
-        primaryController.y()
+        // TODO: DETERMINE IF WE CAN CLIMB, IF NOT SWITCH THIS TO PASSING (GameCommands.manualPass)
+        primaryController.leftBumper()
                         .whileTrue(
                             GameCommands.autoClimb(
                                 sys_drive,

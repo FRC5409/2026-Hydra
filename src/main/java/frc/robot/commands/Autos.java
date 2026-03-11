@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.GameCommandsConstants;
 import frc.robot.Constants.kAutoAlign;
-import frc.robot.Constants.kBump;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.elevator.Elevator;
@@ -23,7 +22,6 @@ import frc.robot.subsystems.launcher.Launcher;
 import frc.robot.subsystems.serializer.Serializer;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AutoPath;
-import frc.robot.util.FieldConstants.LinesHorizontal;
 
 public class Autos {
     public static final EventTrigger autoPoseUpdate = new EventTrigger("Vision_Trigger");
