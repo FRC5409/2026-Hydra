@@ -41,6 +41,8 @@ public class VisionIOLimelight implements VisionIO {
         LimelightHelpers.SetThrottle(limelightName, VisionConstants.THROTTLE_DISABLED);
         LimelightHelpers.SetIMUMode(limelightName, IMUMode.FUSED.id);
 
+        LimelightHelpers.SetFiducialIDFiltersOverride(limelightName, VisionConstants.TAG_FILTER);
+
         forwardLimelightPorts();
     }
 
