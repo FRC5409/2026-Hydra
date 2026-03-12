@@ -26,7 +26,7 @@ public final class IntakeConstants {
         public static final Mass    INTAKE_MASS            = Kilograms.of(3.1818);
 
         public static final Distance EXTEND_POINT  = Centimeters.of(23.5);
-        public static final Distance RETRACT_POINT = EXTEND_POINT.minus(Centimeters.of(15));
+        public static final Distance RETRACT_POINT = EXTEND_POINT.minus(Centimeters.of(17.5));
 
         public static final int UPDATE_FREQUENCY = 50; // in Hz
 

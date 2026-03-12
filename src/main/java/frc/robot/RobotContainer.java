@@ -409,7 +409,14 @@ public class RobotContainer {
                         .onTrue(GameCommands.retract(this));
 
         secondaryController.a()
-                        .whileTrue(GameCommands.agitateIntake(sys_intake));
+                        .whileTrue(GameCommands.agitateSystem(this));
+
+        // TODO: temp buttons to zero intake/hopper
+        secondaryController.rightBumper()
+                .onTrue(sys_intake.setExtensionVoltage(-2)
+                            .alongWith(sys_hopper.setVoltage(-2)))
+                .onFalse(sys_intake.setExtensionVoltage(0)
+                            .alongWith(sys_hopper.setVoltage(0)));
 
         secondaryController.x()
                         .onTrue(sys_intake.setRollerVoltage(-IntakeConstants.Roller.INTAKE_VOLTAGE))

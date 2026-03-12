@@ -7,6 +7,7 @@ import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
+import frc.robot.subsystems.intake.IntakeConstants;
 
 public final class HopperConstants {
 
@@ -31,4 +32,7 @@ public final class HopperConstants {
     public static final Distance EXTEND_INCREMENT = Inches.of(0.3);
     public static final Distance AGITATE_TOLERANCE = Millimeters.of(1);
 
+    public static final Distance EXTEND_POINT  = IntakeConstants.Extension.EXTEND_POINT
+                                                    .plus(Centimeters.of(11.5));
+    public static final Distance RETRACT_POINT = EXTEND_POINT.minus(Centimeters.of(15));
 }

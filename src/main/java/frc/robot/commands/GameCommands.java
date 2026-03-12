@@ -13,6 +13,7 @@ import frc.robot.Constants.kAutoAlign;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.feeder.FeederConstants;
+import frc.robot.subsystems.hopper.HopperConstants;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.intake.IntakeConstants;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
@@ -135,6 +136,20 @@ public class GameCommands {
                         Commands.waitTime(Milliseconds.of(1000)),
                         intake.setSetpoint(() -> Extension.EXTEND_POINT),
                         Commands.waitTime(Milliseconds.of(1000))
+                )
+        );
+    }
+
+    public static Command agitateSystem(RobotContainer robot) {
+        return Commands.parallel(
+                robot.sys_intake.setRollerVoltage(IntakeConstants.Roller.AGITATE_VOLTAGE),
+                Commands.repeatingSequence(
+                        robot.sys_intake.setSetpoint(() -> Extension.RETRACT_POINT)
+                                .alongWith(robot.sys_hopper.setSetpoint(() -> HopperConstants.RETRACT_POINT)),
+                        Commands.waitTime(Milliseconds.of(750)),
+                        robot.sys_intake.setSetpoint(() -> Extension.EXTEND_POINT)
+                                .alongWith(robot.sys_hopper.setSetpoint(() -> HopperConstants.EXTEND_POINT)),
+                        Commands.waitTime(Milliseconds.of(750))
                 )
         );
     }
