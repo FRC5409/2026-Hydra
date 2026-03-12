@@ -56,7 +56,7 @@ public class GameCommands {
 
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-                        agitateIntake(robot.sys_intake)
+                        agitateSystem(robot)
                 )
         );
     }
@@ -71,7 +71,7 @@ public class GameCommands {
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-                agitateIntake(robot.sys_intake)
+                agitateSystem(robot)
         );
     }
 
@@ -103,7 +103,7 @@ public class GameCommands {
 
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-                        agitateIntake(robot.sys_intake)
+                        agitateSystem(robot)
                 )
 
         );

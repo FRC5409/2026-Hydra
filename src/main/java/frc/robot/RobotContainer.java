@@ -428,7 +428,8 @@ public class RobotContainer {
                         .onFalse(sys_serializer.setVoltage(0));
 
         secondaryController.y()
-                        .onTrue(GameCommands.reverseRollers(this));
+                        .onTrue(GameCommands.reverseRollers(this))
+                        .onFalse(GameCommands.stopSerializing(this).alongWith(sys_feeder.setVoltage(0)));
 
         secondaryController.povLeft()
                         .onTrue(sys_serializer.setVoltage(-SerializerConstants.SERIALIZING_VOLTAGE))
