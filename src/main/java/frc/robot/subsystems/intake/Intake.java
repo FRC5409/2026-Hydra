@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
@@ -131,7 +132,7 @@ public class Intake extends SubsystemBase {
                 if (MathUtils.withinTolerance(io.getSetpoint().in(Meters), io.getPosition().in(Meters), 5))
                     io.setSetpoint(io.getPosition());
             })
-        );
+        ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
     }
 
     /**
