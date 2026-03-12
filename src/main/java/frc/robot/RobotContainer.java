@@ -240,6 +240,10 @@ public class RobotContainer {
         new Trigger(() -> sys_launcher.getCurrentCommand() == null)
                 .onTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED));
 
+        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
+                .onTrue(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", true)))
+                .onFalse(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", false)));
+
         // TODO: When have time, test these 2 (Test if the robot can check if it is neutral zone or not)
 //        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
 //            .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
