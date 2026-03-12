@@ -2,6 +2,7 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.subsystems.drive.Drive;
+import frc.robot.util.LimelightHelpers;
 import frc.robot.util.LimelightHelpers.PoseEstimate;
 import org.littletonrobotics.junction.AutoLog;
 
@@ -56,8 +57,8 @@ public interface VisionIO {
      *
      * @return PoseEstimate
      */
-    default PoseEstimate estimatePose(Drive drive) {
-        return new PoseEstimate();
+    default LimelightHelpers.PoseEstimate estimatePose(Drive drive) {
+        return new LimelightHelpers.PoseEstimate();
     }
 
     /** Code to run periodically in simulation mode */
