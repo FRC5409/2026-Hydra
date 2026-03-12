@@ -220,6 +220,7 @@ public class DriveCommands {
               Logger.recordOutput("AutoAlign/MaxAcceleration [Rotations per s^2]", RotationsPerSecondPerSecond.of(ANGLE_MAX_ACCELERATION));
               Logger.recordOutput("AutoAlign/Angle to Alignment [Degrees]", difference.in(Degrees));
 
+//              TODO: TUNE THIS PERCENTAGE TO BE ABLE TO LAUNCH FASTER
               if (MathUtils.withinTolerance(drive.getRotation().getRadians(), rotationSupplier.get().getRadians(), 2))
                   isAligned = true;
             },

@@ -3,25 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.56,
-        "y": 5.801
+        "x": 3.496,
+        "y": 5.585
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.5600000000000005,
-        "y": 5.801
+        "x": 4.496000000000001,
+        "y": 5.585
       },
       "isLocked": false,
-      "linkedName": null
+      "linkedName": "LEFT-BUMP-alliance-neutral-START"
     },
     {
       "anchor": {
         "x": 6.018891566265061,
-        "y": 5.801
+        "y": 5.585
       },
       "prevControl": {
         "x": 5.018891566265061,
-        "y": 5.801
+        "y": 5.585
       },
       "nextControl": null,
       "isLocked": false,

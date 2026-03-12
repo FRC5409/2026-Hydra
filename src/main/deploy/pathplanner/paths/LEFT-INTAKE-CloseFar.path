@@ -4,12 +4,12 @@
     {
       "anchor": {
         "x": 6.018891566265061,
-        "y": 5.801
+        "y": 5.585
       },
       "prevControl": null,
       "nextControl": {
         "x": 6.717573091414904,
-        "y": 4.947043540722903
+        "y": 4.731043540722903
       },
       "isLocked": false,
       "linkedName": "LEFT-INTAKE-START-Point"
