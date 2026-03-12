@@ -131,7 +131,7 @@ public class Intake extends SubsystemBase {
             Commands.run(() -> {
                 if (MathUtils.withinTolerance(io.getSetpoint().in(Meters), io.getPosition().in(Meters), 5))
                     io.setSetpoint(io.getPosition());
-            })
+            }).until(() -> MathUtils.withinTolerance(io.getSetpoint().in(Meters), io.getPosition().in(Meters), 5))
         ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
     }
 
