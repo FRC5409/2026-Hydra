@@ -59,7 +59,7 @@ public class VisionIOLimelight implements VisionIO {
         ).ignoringDisable(true);
     }
 
-    public void captureRewind() {
+    public void captureClip() {
         LimelightHelpers.triggerRewindCapture(limelightName, VisionConstants.CAPTURE_VIDEO_DURATION);
     }
 

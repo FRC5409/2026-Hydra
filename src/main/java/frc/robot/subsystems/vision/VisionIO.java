@@ -61,6 +61,8 @@ public interface VisionIO {
         return new LimelightHelpers.PoseEstimate();
     }
 
+    default void captureClip() {}
+
     /** Code to run periodically in simulation mode */
     default void simulationPeriodic() {}
 
