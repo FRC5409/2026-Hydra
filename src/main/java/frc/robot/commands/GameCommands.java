@@ -22,6 +22,8 @@ import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 
+import org.littletonrobotics.junction.Logger;
+
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
@@ -41,6 +43,7 @@ public class GameCommands {
                         () -> DriveCommands.getRotationToHub(robot.sys_drive)
                 ),
                 Commands.sequence(
+                        Commands.runOnce(() -> Logger.recordOutput("GameCommands/StartingLaunchSequence", true)),
                         Commands.parallel(
                                 Commands.waitUntil(DriveCommands::isAligned),
                                 robot.sys_launcher.launchFuel(distanceSupplier, robot.sys_feeder)
@@ -63,7 +66,7 @@ public class GameCommands {
 
                 Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                robot.sys_elevator.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
@@ -136,31 +139,31 @@ public class GameCommands {
         );
     }
 
-    public static Command autoClimb(RobotContainer robot, Supplier<Pose2d> prepPose, Supplier<Pose2d> climbPose) {
-        return Commands.sequence(
-                Commands.parallel(
-                        DriveCommands.alignToPoint(
-                                robot.sys_drive,
-                                prepPose,
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
-                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-                                kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-                                kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
-                        ),
-                        robot.sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_UP, 0)
-                ),
+    // public static Command autoClimb(RobotContainer robot, Supplier<Pose2d> prepPose, Supplier<Pose2d> climbPose) {
+    //     return Commands.sequence(
+    //             Commands.parallel(
+    //                     DriveCommands.alignToPoint(
+    //                             robot.sys_drive,
+    //                             prepPose,
+    //                             () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
+    //                             () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+    //                             kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
+    //                             kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
+    //                             kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
+    //                     ),
+    //                     robot.sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_UP, 0)
+    //             ),
 
-                DriveCommands.alignToPoint(
-                        robot.sys_drive,
-                        climbPose,
-                        () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB,
-                        () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-                ),
+    //             DriveCommands.alignToPoint(
+    //                     robot.sys_drive,
+    //                     climbPose,
+    //                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB,
+    //                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+    //             ),
 
-                robot.sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_DOWN, 0)
-        );
-    }
+    //             robot.sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_DOWN, 0)
+    //     );
+    // }
 
     /**
      * Stops launcher, feeder and calls {@link GameCommands#stopSerializing(RobotContainer)}

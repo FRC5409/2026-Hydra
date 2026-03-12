@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -56,6 +57,7 @@ import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
 import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
@@ -89,6 +91,8 @@ public class RobotContainer {
     private Distance manualLaunchDistance = Meters.of(2);
 
     public BooleanSupplier shouldLaunch = () -> true;
+
+    public LoggedNetworkBoolean launcherShouldIdle = new LoggedNetworkBoolean("Launcher/ShouldIdle", false);
 
     // Controllers
     private final CommandXboxController primaryController   = new CommandXboxController(0);
@@ -237,8 +241,9 @@ public class RobotContainer {
                         )
         );
 
-        new Trigger(() -> sys_launcher.getCurrentCommand() == null)
-                .onTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED));
+        new Trigger(() -> sys_launcher.getCurrentCommand() == null && DriverStation.isEnabled() && launcherShouldIdle.get())
+                .onTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED)
+                    .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
 
         new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
                 .onTrue(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", true)))

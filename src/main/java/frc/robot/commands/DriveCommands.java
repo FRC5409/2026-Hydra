@@ -35,6 +35,7 @@ import frc.robot.Constants.kAutoAlign;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.util.AlignHelper;
+import frc.robot.util.MathUtils;
 import frc.robot.util.ProfiledController;
 
 import static edu.wpi.first.units.Units.*;
@@ -219,7 +220,7 @@ public class DriveCommands {
               Logger.recordOutput("AutoAlign/MaxAcceleration [Rotations per s^2]", RotationsPerSecondPerSecond.of(ANGLE_MAX_ACCELERATION));
               Logger.recordOutput("AutoAlign/Angle to Alignment [Degrees]", difference.in(Degrees));
 
-              if (drive.getRotation().getRadians() == rotationSupplier.get().getRadians())
+              if (MathUtils.withinTolerance(drive.getRotation().getRadians(), rotationSupplier.get().getRadians(), 2))
                   isAligned = true;
             },
             drive)

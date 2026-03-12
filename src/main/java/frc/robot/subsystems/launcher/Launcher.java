@@ -56,11 +56,15 @@ public class Launcher extends SubsystemBase {
         // try to update the hood every 500 ms
         new Trigger(() -> automaticHoodTimer.advanceIfElapsed(0.5))
                 .onTrue(Commands.runOnce(() -> {
+                    Logger.recordOutput("Launcher/ShouldInvalidateHood", true);
                     LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
+                    Logger.recordOutput("Launcher/HoodEstimateDifferential", launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters));
                     if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >= Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
-                        setHoodExtension(launchEstimate::hoodExtension);
+                        hoodSetpoint.set(launchEstimate.hoodExtension());
                     }
-                }));
+                }))
+                .onFalse(Commands.runOnce(() -> 
+                    Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
@@ -198,6 +202,7 @@ public class Launcher extends SubsystemBase {
         io.updateInputs(inputs);
         Logger.recordOutput("Components/Hood", new Pose3d());
         Logger.recordOutput("Launcher/Interpolator/OperatorSpeedOffset", getSpeedOffset());
+        Logger.recordOutput("Launcher/IsAtSpeed", isLauncherAtSpeed());
         Logger.processInputs("Launcher", inputs);
     }
 }
