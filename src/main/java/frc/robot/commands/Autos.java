@@ -93,9 +93,12 @@ public class Autos {
 
                 DriveCommands.alignToPoint(
 						robot.sys_drive,
-						() -> new  Pose2d(2.292, 5.633, Rotation2d.fromDegrees(-179.895)),
+						() -> new  Pose2d(1.581, 5.711, Rotation2d.fromDegrees(170.194)),
 						() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
-						() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
+						() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
+                        Centimeters.of(10),
+                        Degrees.of(10),
+                        MetersPerSecond.of(1)
 				),
 				GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
             )

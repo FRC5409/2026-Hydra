@@ -9,6 +9,8 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.util.FlippingUtil;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -267,9 +269,10 @@ public class RobotContainer {
                 simConfig.setSimulationWorldPose(path.getStartingPose());
         }
         if (autoChooser.get() instanceof PathPlannerAuto auto) {
-            sys_drive.setPose(auto.getStartingPose());
+            Pose2d pose = AutoBuilder.shouldFlip() ? FlippingUtil.flipFieldPose(auto.getStartingPose()) : auto.getStartingPose();
+            sys_drive.setPose(pose);
             if (Constants.CURRENT_MODE == Mode.SIM)
-                simConfig.setSimulationWorldPose(auto.getStartingPose());
+                simConfig.setSimulationWorldPose(pose);
         }
     }
 
