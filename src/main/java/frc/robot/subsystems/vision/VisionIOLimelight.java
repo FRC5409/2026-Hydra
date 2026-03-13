@@ -5,6 +5,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -32,11 +33,10 @@ public class VisionIOLimelight implements VisionIO {
                 .onTrue(setIMUMode(IMUMode.FUSED).alongWith(setThrottle(VisionConstants.THROTTLE_DISABLED)))
                 .onFalse(setIMUMode(IMUMode.INTERNAL).alongWith(setThrottle(0)));
 
-        // TODO: add throttle debug commands
-//        DebugCommand.register("No Throttle LL", setThrottle(0));
-//        DebugCommand.register("Throttle LL", setThrottle(Vision.THROTTLE_DISABLED));
-//        DebugCommand.register("Fused LL", setIMUMode(IMUMode.FUSED));
-//        DebugCommand.register("Internal LL", setIMUMode(IMUMode.INTERNAL));
+       SmartDashboard.putData("Throttle-0 LL", setThrottle(0).ignoringDisable(true));
+       SmartDashboard.putData("Throttle-100 LL", setThrottle(100).ignoringDisable(true));
+       SmartDashboard.putData("Fused LL", setIMUMode(IMUMode.FUSED).ignoringDisable(true));
+       SmartDashboard.putData("Internal LL", setIMUMode(IMUMode.INTERNAL).ignoringDisable(true));
 
         // disable throttle
         LimelightHelpers.SetThrottle(limelightName, VisionConstants.THROTTLE_DISABLED);
