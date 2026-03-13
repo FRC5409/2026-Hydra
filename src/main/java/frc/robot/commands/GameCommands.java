@@ -94,7 +94,8 @@ public class GameCommands {
                 Commands.sequence(
                         Commands.parallel(
                                 robot.sys_launcher.runVelocity(() -> GameCommandsConstants.PASSING_RPS),
-                                robot.sys_launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE)
+                                robot.sys_launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE),
+                                robot.sys_feeder.runVelocity(() -> GameCommandsConstants.PASSING_RPS)
                         ),
 
                         Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
