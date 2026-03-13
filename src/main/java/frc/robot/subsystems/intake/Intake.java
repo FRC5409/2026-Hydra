@@ -127,7 +127,7 @@ public class Intake extends SubsystemBase {
     public Command setSetpoint(Supplier<Distance> setpoint) {
         return Commands.sequence(
             Commands.runOnce(() -> io.setSetpoint(Meters.of(setpoint.get().in(Meters)))),
-            Commands.waitTime(Milliseconds.of(2000)),
+            Commands.waitTime(Milliseconds.of(800)),
             Commands.run(() -> {
                 if (MathUtils.withinTolerance(io.getSetpoint().in(Meters), io.getPosition().in(Meters), 5))
                     io.setSetpoint(io.getPosition());
