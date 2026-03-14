@@ -15,6 +15,7 @@ import frc.robot.util.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.Meters;
+import static frc.robot.subsystems.vision.VisionConstants.MINIMUM_TARGET_AREA;
 
 /**
  * @author Logan Dhillon, FRC 5409 Chargers
@@ -135,6 +136,12 @@ public class VisionIOLimelight implements VisionIO {
         ChassisSpeeds speeds = drive.getChassisSpeeds();
         Rotation2d yaw = drive.getRotation();
 
+        if (LimelightHelpers.getRawFiducials(limelightName).length == 1 &&
+            LimelightHelpers.getTA(limelightName) < MINIMUM_TARGET_AREA.getAsDouble()) {
+            Logger.recordOutput("Vision/PoseEstimateStatus", "REJECT");
+            return null;
+        }
+
         if (VisionConstants.ALLOW_FUSED_GYRO_ESTIMATIONS &&
              DriverStation.isEnabled() && // enabled
              LimelightHelpers.getTA(limelightName) >= 1.5 && // confident tag
@@ -145,10 +152,12 @@ public class VisionIOLimelight implements VisionIO {
             // ...and get estimate for bot pose in FUSED mode
             yaw = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName).pose.getRotation();
             logGryoMode(IMUMode.FUSED);
+            Logger.recordOutput("Vision/PoseEstimateStatus", "MEGA_TAG_1");
             LimelightHelpers.SetIMUMode(limelightName, IMUMode.FUSED.id);
         } else {
             logGryoMode(IMUMode.EXTERNAL);
             LimelightHelpers.SetIMUMode(limelightName, IMUMode.EXTERNAL.id);
+            Logger.recordOutput("Vision/PoseEstimateStatus", "MEGA_TAG_2");
         }
 
         Logger.recordOutput("Vision/ForceFusedIMU", forceFusedIMU);

@@ -7,6 +7,8 @@ import edu.wpi.first.math.geometry.Translation3d;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
+
 public class VisionConstants {
     public static final int FIDUCIAL_TRUST_THRESHOLD = 1;
     public static final int DISCONNECTION_TIMEOUT    = 5;
@@ -38,6 +40,8 @@ public class VisionConstants {
      * Additional rotation error per meter of tag distance (deg / meter)
      */
     public static final double THETA_STDDEV_PER_METER = 1.5;
+
+    public static final LoggedNetworkNumber MINIMUM_TARGET_AREA = new LoggedNetworkNumber("Vision/MinimumTargetArea", 0.12);
 
     // TODO: update these to camera offset (done) - Double check hoodExtension
     public static final Transform3d OFFSET_FROM_ROBOT_ORIGIN = new Transform3d(
