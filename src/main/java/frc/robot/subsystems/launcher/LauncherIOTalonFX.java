@@ -155,6 +155,10 @@ public class LauncherIOTalonFX implements LauncherIO {
 //            servo1Setpoint = servo2DisabledSetpoint;
 //            servo2Setpoint = servo2DisabledSetpoint;
 //        }));
+
+        leaderMotor.optimizeBusUtilization();
+        followerMotor.optimizeBusUtilization();
+        encoder.optimizeBusUtilization();
     }
 
     // Run systems
