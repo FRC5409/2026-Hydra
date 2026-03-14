@@ -136,8 +136,7 @@ public class VisionIOLimelight implements VisionIO {
         ChassisSpeeds speeds = drive.getChassisSpeeds();
         Rotation2d yaw = drive.getRotation();
 
-        if (LimelightHelpers.getRawFiducials(limelightName).length == 1 &&
-            LimelightHelpers.getTA(limelightName) < MINIMUM_TARGET_AREA.getAsDouble()) {
+        if (LimelightHelpers.getTA(limelightName) < MINIMUM_TARGET_AREA.getAsDouble()) {
             Logger.recordOutput("Vision/PoseEstimateStatus", "REJECT");
             return null;
         }
