@@ -135,15 +135,12 @@ public class VisionIOLimelight implements VisionIO {
         ChassisSpeeds speeds = drive.getChassisSpeeds();
         Rotation2d yaw = drive.getRotation();
 
-        if (forceFusedIMU ||
-            Autos.autoPoseUpdate.getAsBoolean() ||
-            (VisionConstants.ALLOW_FUSED_GYRO_ESTIMATIONS &&
+        if (VisionConstants.ALLOW_FUSED_GYRO_ESTIMATIONS &&
              DriverStation.isEnabled() && // enabled
-//          TODO: tune this value (0.25)
-             LimelightHelpers.getTA(limelightName) >= 0.25 && // confident tag
+             LimelightHelpers.getTA(limelightName) >= 1.5 && // confident tag
              Math.abs(speeds.vxMetersPerSecond) < 0.1 && // bot not moving
              Math.abs(speeds.vyMetersPerSecond) < 0.1 &&
-             Math.abs(speeds.omegaRadiansPerSecond) < 0.1)) {
+             Math.abs(speeds.omegaRadiansPerSecond) < 0.1) {
             LimelightHelpers.SetIMUMode(limelightName, IMUMode.FUSED.id); // use fused IMU
             // ...and get estimate for bot pose in FUSED mode
             yaw = LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName).pose.getRotation();
