@@ -139,7 +139,7 @@ public class Launcher extends SubsystemBase {
      * @return true or false
      */
     public boolean isLauncherAtSpeed() {
-        return MathUtils.withinTolerance(getVelocity().in(RotationsPerSecond), realLaunchSpeedRps, 10);
+        return MathUtils.withinTolerance(getVelocity().in(RotationsPerSecond), realLaunchSpeedRps, 5);
     }
 
     /**
