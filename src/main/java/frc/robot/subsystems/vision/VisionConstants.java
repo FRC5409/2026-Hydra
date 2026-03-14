@@ -45,5 +45,5 @@ public class VisionConstants {
             new Rotation3d(Degrees.of(0.0), Degrees.of(5.0), Degrees.of(180.0))
     );
 
-    public static final double CAPTURE_VIDEO_DURATION = 25;
+    public static final double CAPTURE_VIDEO_DURATION = 60; // 1 minute
 }

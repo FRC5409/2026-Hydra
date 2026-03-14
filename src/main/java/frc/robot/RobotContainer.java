@@ -441,6 +441,10 @@ public class RobotContainer {
         secondaryController.povDown()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(-1)));
 
+        // TODO: uncomment if operator approves
+//        secondaryController.leftTrigger()
+//                .onTrue(Commands.runOnce(sys_vision::captureClip));
+
         // TODO: GET MANUAL LAUNCH DISTANCE THAT WE WANT TO USE
         new Trigger(() -> secondaryController.getLeftX() > 0.5)
                     .onTrue(prepManualLaunchDistance(Meters.of(2.0)));

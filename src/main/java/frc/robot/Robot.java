@@ -88,8 +88,12 @@ public class Robot extends LoggedRobot {
         new Trigger(DriverStation::isDisabled)
                 .onTrue(robotContainer.onDisable().ignoringDisable(true));
 
-        new Trigger(DriverStation::isTeleop).or(DriverStation::isDisabled)
+        new Trigger(DriverStation::isTeleopEnabled)
                 .onTrue(Commands.runOnce(robotContainer.sys_vision::captureClip));
+
+        new Trigger(DriverStation::isDisabled)
+                .onTrue(Commands.runOnce(robotContainer.sys_vision::captureClip)
+                                .ignoringDisable(true));
     }
 
     /** This function is called periodically during all modes. */
