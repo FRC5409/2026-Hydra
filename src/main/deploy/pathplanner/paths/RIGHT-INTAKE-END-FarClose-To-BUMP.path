@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.638300248138958,
-        "y": 3.1910173697270476
+        "x": 6.816153407055874,
+        "y": 2.763387300770057
       },
       "isLocked": false,
       "linkedName": "RIGHT-INTAKE-FarClose-END-point"
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 5.921,
-        "y": 2.7561729857819888
+        "y": 2.461
       },
       "prevControl": {
-        "x": 6.615794044665012,
-        "y": 3.2135235732009937
+        "x": 6.7179934858524355,
+        "y": 2.672975910618441
       },
       "nextControl": null,
       "isLocked": false,
