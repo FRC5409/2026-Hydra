@@ -136,8 +136,8 @@ public class LauncherIOTalonFX implements LauncherIO {
 
         // Feedback configs
         FeedbackConfigs feedbackConfigs = new FeedbackConfigs()
-                .withRotorToSensorRatio(LauncherConstants.Launcher.SENSOR_RATIO)
-                .withRemoteCANcoder(encoder);
+                .withRotorToSensorRatio(LauncherConstants.Launcher.SENSOR_RATIO);
+                // .withRemoteCANcoder(encoder);
         leaderConfig.apply(feedbackConfigs);
         followerConfig.apply(feedbackConfigs);
 
