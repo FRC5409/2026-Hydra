@@ -157,7 +157,7 @@ public class Autos {
 			new AutoPath(
 				"RIGHT-Bump-Intake-FarClose-Score",
 
-				new Pose2d(3.560,2.461, Rotation2d.fromDegrees(-45)),
+				RIGHT_BUMP_STARTING_POSE,
 				
                 // cross RIGHT BUMP from ALLIANCE zone to NEUTRAL zone 
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral"))
