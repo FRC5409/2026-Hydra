@@ -14,8 +14,7 @@ public class VisionConstants {
     public static final int DISCONNECTION_TIMEOUT    = 5;
     public static final int THROTTLE_DISABLED        = 200;
 
-    public static final int[] TAG_FILTER = new int[]{ 2, 3, 4, 5, 8, 9, 10, 11, 13, 14, 18, 19,
-                                                      20, 21, 24, 25, 26, 27, 29, 30 };
+    public static final int[] TAG_FILTER = new int[]{ 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27 };
 
     /**
      * If enabled, the {@link VisionIOLimelight} will use
