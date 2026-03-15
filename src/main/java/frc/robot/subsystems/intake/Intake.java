@@ -199,19 +199,19 @@ public class Intake extends SubsystemBase {
                 new Rotation3d(0.0, 0.0, Math.toRadians(0.0))
         );
 
-        boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
-
-        if (DriverStation.isEnabled()) {
-            if (overCurrent && !inputs.isCrashDetected) {
-                setpoint = getPosition();
-                inputs.isCrashDetected = true;
-                io.coastMode();
-            } else if (!overCurrent && inputs.isCrashDetected) {
-                io.setSetpoint(setpoint);
-                inputs.isCrashDetected = false;
-                io.brakeMode();
-            }
-        }
+//        boolean overCurrent = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.CRASH_CURRENT_THRESHOLD);
+//
+//        if (DriverStation.isEnabled()) {
+//            if (overCurrent && !inputs.isCrashDetected) {
+//                setpoint = getPosition();
+//                inputs.isCrashDetected = true;
+//                io.coastMode();
+//            } else if (!overCurrent && inputs.isCrashDetected) {
+//                io.setSetpoint(setpoint);
+//                inputs.isCrashDetected = false;
+//                io.brakeMode();
+//            }
+//        }
 
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.SIM_PID);
