@@ -27,6 +27,7 @@ import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 public class GameCommands {
 
@@ -154,6 +155,18 @@ public class GameCommands {
                 )
         );
     }
+
+    public static Command agitateThenRetract(RobotContainer robot) {
+        return Commands.sequence(
+                agitateSystem(robot).withTimeout(Seconds.of(2.5)),
+                Commands.parallel(
+                        robot.sys_intake.setRollerVoltage(IntakeConstants.Roller.AGITATE_VOLTAGE),
+                        robot.sys_intake.retract(),
+                        robot.sys_hopper.retract()
+                )
+        );
+    }
+
 
     // public static Command autoClimb(RobotContainer robot, Supplier<Pose2d> prepPose, Supplier<Pose2d> climbPose) {
     //     return Commands.sequence(
