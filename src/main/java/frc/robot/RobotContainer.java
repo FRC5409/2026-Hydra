@@ -456,14 +456,6 @@ public class RobotContainer {
         SmartDashboard.putData("Set Hood Angle",
                                sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
 
-        SmartDashboard.putNumber("LAUNCHER SPEED [rps]", 50);
-        SmartDashboard.putData("LAUNCH FUEL (SPD)",
-                sys_launcher.runVelocity(() -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0)))
-                            .alongWith(sys_feeder.runVelocity(() -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 0))))
-        );
-
-        SmartDashboard.putData("STOP LAUNCHER", sys_launcher.stopLauncher());
-
         SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remove when main
         SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remove when main
 
