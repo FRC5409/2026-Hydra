@@ -83,6 +83,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 extensionTemperature,
                 extensionVoltage,
                 extensionCurrent,
+                extensionTorqueCurrent,
 
                 rollerPosition,
                 rollerTemperature,

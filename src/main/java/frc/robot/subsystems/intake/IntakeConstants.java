@@ -31,6 +31,7 @@ public final class IntakeConstants {
         public static final int UPDATE_FREQUENCY = 50; // in Hz
 
         public static final Current CRASH_CURRENT_THRESHOLD = Amps.of(50.0); //TODO: test it
+        public static final Current JAMMED_CURRENT_THRESHOLD = Amps.of(40.0); //TODO: test it
     }
 
     public static final class Roller {

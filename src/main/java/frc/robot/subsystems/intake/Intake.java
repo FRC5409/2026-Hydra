@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.util.Checkmate;
 import frc.robot.util.MathUtils;
@@ -212,6 +213,19 @@ public class Intake extends SubsystemBase {
 //                io.brakeMode();
 //            }
 //        }
+
+        boolean jammed = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.JAMMED_CURRENT_THRESHOLD);
+        if (jammed) {
+            Logger.recordOutput("Intake/Jammed", true);
+            setSetpoint(Extension.EXTENSION_MAX_DISTANCE);
+            if (inputs.extensionPosition.gt(Extension.EXTENSION_DISTANCE)) {
+                jammed = false;
+            }
+        } else {
+            Logger.recordOutput("Intake/Jammed", false);
+        }
+
+        SmartDashboard.putData("Intake/Torque Current", inputs.extensionTorqueCurrent);
 
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.SIM_PID);
