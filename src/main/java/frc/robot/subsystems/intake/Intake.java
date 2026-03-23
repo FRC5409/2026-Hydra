@@ -20,9 +20,11 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
 
+import static edu.wpi.first.units.Units.Amp;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.Milliseconds;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class Intake extends SubsystemBase {
     private final IntakeIO               io;
@@ -215,12 +217,10 @@ public class Intake extends SubsystemBase {
 //            }
 //        }
 
-        boolean isRolling = inputs.rollerVelocity.getValueAsDouble() > 100.0;
-        if (jammed) {
+        boolean isRolling = inputs.rollerVelocity.gt(RotationsPerSecond.of(100));
+        if (!isRolling && inputs.rollerCurrent.gt(Amps.of(30))) {
             Logger.recordOutput("Intake/Jammed", true);
             io.setRollerVoltage(-10);
-            setpoint = Extension.EXTENSION_MAX_DISTANCE;
-            io.setSetpoint(setpoint);
         } else {
             Logger.recordOutput("Intake/Jammed", false);
             io.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE);
