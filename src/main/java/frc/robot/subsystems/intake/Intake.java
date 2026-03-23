@@ -217,8 +217,13 @@ public class Intake extends SubsystemBase {
         boolean jammed = inputs.rollerTorqueCurrent.gt(IntakeConstants.Roller.JAMMED_CURRENT_THRESHOLD);
         if (jammed) {
             Logger.recordOutput("Intake/Jammed", true);
+            io.setRollerVoltage(0);
+            setpoint = Extension.EXTENSION_MAX_DISTANCE;
+            io.setSetpoint(setpoint);
         } else {
             Logger.recordOutput("Intake/Jammed", false);
+            io.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE);
+            io.setSetpoint(setpoint);
         }
 
         Logger.recordOutput("Components/Intake", extenderPose);
