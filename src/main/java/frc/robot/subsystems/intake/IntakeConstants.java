@@ -40,5 +40,7 @@ public final class IntakeConstants {
 
         public static final double INTAKE_VOLTAGE  = 10;
         public static final double AGITATE_VOLTAGE = 6;
+
+        public static final Current JAMMED_CURRENT_THRESHOLD = Amps.of(25.0); //TODO: test it
     }
 }

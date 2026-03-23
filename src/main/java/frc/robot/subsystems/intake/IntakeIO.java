@@ -14,6 +14,7 @@ public interface IntakeIO {
         public Current         rollerCurrent     = Amps.of(0.0);
         public double          rollerTemp        = 0.0;
         public AngularVelocity rollerVelocity    = RotationsPerSecond.of(0.0);
+        public Current         rollerTorqueCurrent = Amps.of(0.0);
 
         public boolean        isExtensionConnected   = false;
         public boolean        isExtensionRunning     = false;

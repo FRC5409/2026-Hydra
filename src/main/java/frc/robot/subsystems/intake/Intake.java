@@ -214,18 +214,12 @@ public class Intake extends SubsystemBase {
 //            }
 //        }
 
-        boolean jammed = inputs.extensionTorqueCurrent.gt(IntakeConstants.Extension.JAMMED_CURRENT_THRESHOLD);
+        boolean jammed = inputs.rollerTorqueCurrent.gt(IntakeConstants.Roller.JAMMED_CURRENT_THRESHOLD);
         if (jammed) {
             Logger.recordOutput("Intake/Jammed", true);
-            setSetpoint(Extension.EXTENSION_MAX_DISTANCE);
-            if (inputs.extensionPosition.gt(Extension.EXTENSION_DISTANCE)) {
-                jammed = false;
-            }
         } else {
             Logger.recordOutput("Intake/Jammed", false);
         }
-
-        SmartDashboard.putData("Intake/Torque Current", inputs.extensionTorqueCurrent);
 
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.SIM_PID);
