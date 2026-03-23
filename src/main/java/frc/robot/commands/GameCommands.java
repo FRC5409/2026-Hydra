@@ -158,7 +158,7 @@ public class GameCommands {
 
     public static Command agitateThenRetract(RobotContainer robot) {
         return Commands.sequence(
-                agitateSystem(robot).withTimeout(Seconds.of(2.5)),
+                agitateSystem(robot).withTimeout(Seconds.of(7)),
                 Commands.parallel(
                         robot.sys_intake.setRollerVoltage(IntakeConstants.Roller.AGITATE_VOLTAGE),
                         robot.sys_intake.retract(),
