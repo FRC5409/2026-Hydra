@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.util.Checkmate;
 import frc.robot.util.MathUtils;
 import frc.robot.util.Checkmate.TestResult;
@@ -214,10 +215,10 @@ public class Intake extends SubsystemBase {
 //            }
 //        }
 
-        boolean jammed = inputs.rollerTorqueCurrent.gt(IntakeConstants.Roller.JAMMED_CURRENT_THRESHOLD);
+        boolean isRolling = inputs.rollerVelocity.getValueAsDouble() > 100.0;
         if (jammed) {
             Logger.recordOutput("Intake/Jammed", true);
-            io.setRollerVoltage(0);
+            io.setRollerVoltage(-10);
             setpoint = Extension.EXTENSION_MAX_DISTANCE;
             io.setSetpoint(setpoint);
         } else {

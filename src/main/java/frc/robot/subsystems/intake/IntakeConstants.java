@@ -13,8 +13,8 @@ public final class IntakeConstants {
 
     public static final class Extension {
         public static final Distance EXTENSION_MIN_DISTANCE = Centimeters.of(0.5);
-        public static final Distance EXTENSION_DISTANCE     = Centimeters.of(23.5);
-        public static final Distance EXTENSION_MAX_DISTANCE = Centimeters.of(24);
+        public static final Distance EXTENSION_DISTANCE     = Centimeters.of(22.5);
+        public static final Distance EXTENSION_MAX_DISTANCE = Centimeters.of(23.2);
 
         public static final PIDController SIM_PID     = new PIDController(0.0, 0.0, 0.0);
         public static final PIDConstants  TALONFX_PID = new PIDConstants(5.5, 0.75, 0);
@@ -25,7 +25,7 @@ public final class IntakeConstants {
         public static final double  UNIT_CONVERSION_FACTOR = 0.11 / 1.58;
         public static final Mass    INTAKE_MASS            = Kilograms.of(3.1818);
 
-        public static final Distance EXTEND_POINT  = Centimeters.of(23.5);
+        public static final Distance EXTEND_POINT  = Centimeters.of(22.5);
         public static final Distance RETRACT_POINT = EXTEND_POINT.minus(Centimeters.of(17.5));
 
         public static final int UPDATE_FREQUENCY = 50; // in Hz
