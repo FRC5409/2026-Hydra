@@ -17,6 +17,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -61,6 +62,7 @@ import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
+import java.lang.ModuleLayer.Controller;
 import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
 
@@ -251,6 +253,13 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", true)))
                 .onFalse(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", false)));
 
+        // TODO: add check allaince to compare distance to right hub
+        new Trigger(() -> shouldLaunch.getAsBoolean() &&
+                          kField.BLUE_HUB.getMeasureX().lt(Meters.of(1.83)) ||
+                          kField.BLUE_HUB.getMeasureX().gt(Meters.of(5.006)))
+                .onTrue(Commands.runOnce(() -> primaryController.setRumble(RumbleType.kBothRumble, 0.5)))
+                .onFalse(Commands.runOnce(() -> primaryController.setRumble(RumbleType.kBothRumble, 0)));
+
         // TODO: When have time, test these 2 (Test if the robot can check if it is neutral zone or not)
 //        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
 //            .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))
@@ -337,7 +346,7 @@ public class RobotContainer {
 
     /**
      * Use this method to define your button->command mappings. Buttons can be created by instantiating a
-     * {@link GenericHID} or one of its subclasses ({@link edu.wpi.first.wpilibj.Joystick} or {@link XboxController}),
+     * {@link GenericHID} or one of its subclasses ({@link edu.wpi.first.wpilibj.Joystick} or {@link Xbox}),
      * and then passing it to a {@link edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
     private void configureButtonBindings() {
