@@ -255,8 +255,8 @@ public class RobotContainer {
             .debounce(0.1)
             .onTrue(
                 Commands.sequence(
-
                     Commands.runOnce(() -> Logger.recordOutput("Intake/Status", true)),
+
                     Commands.runOnce(() -> sys_intake.setRollerVoltage(IntakeConstants.Roller.UNTAKE_VOLTAGE)),
                     
                     Commands.waitSeconds(0.5),
@@ -264,7 +264,7 @@ public class RobotContainer {
                     Commands.runOnce(() -> Logger.recordOutput("Intake/Status", false)),
                     Commands.runOnce(() -> sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE))
                 )
-            );   
+            ); 
         }
 
         // TODO: When have time, test these 2 (Test if the robot can check if it is neutral zone or not)
@@ -276,7 +276,6 @@ public class RobotContainer {
 //        new Trigger(() -> !kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
 //            .whileTrue(sys_launcher.runVelocity(() -> LauncherConstants.Launcher.LAUNCHER_IDLE_SPEED)
 //                                   .withInterruptBehavior(InterruptionBehavior.kCancelSelf));
-    }
 
     private void resetPose() {
         if (autoChooser.get() instanceof AutoPath path) {
