@@ -38,7 +38,7 @@ public class VisionConstants {
     /**
      * Additional rotation error per meter of tag distance (deg / meter)
      */
-    public static final double THETA_STDDEV_PER_METER = 0.5;
+    public static final double THETA_STDDEV_PER_METER = 1.5;
 
     public static final LoggedNetworkNumber MINIMUM_TARGET_AREA = new LoggedNetworkNumber("Vision/MinimumTargetArea", 0.12);
 

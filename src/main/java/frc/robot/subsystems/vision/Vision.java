@@ -12,7 +12,6 @@ import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
-import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
@@ -22,7 +21,6 @@ import static frc.robot.subsystems.vision.VisionConstants.*;
 public class Vision extends SubsystemBase {
     private final VisionIO               io;
     private final VisionInputsAutoLogged inputs;
-
     private final Alert disconnectedAlert = new Alert(
             "Limelight appears to be disconnected. (TIMEOUT)", Alert.AlertType.kError);
 
