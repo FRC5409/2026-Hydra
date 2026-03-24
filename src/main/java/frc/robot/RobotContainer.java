@@ -482,6 +482,10 @@ public class RobotContainer {
 
         SmartDashboard.putData("Intake/Coast", sys_intake.coastMode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
         SmartDashboard.putData("Intake/Brake", sys_intake.brakeMode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
+    
+        SmartDashboard.putData("Drive/Coast", Commands.runOnce(() -> sys_drive.coastMode()).ignoringDisable(true));
+        SmartDashboard.putData("Drive/Brake", Commands.runOnce(() -> sys_drive.brakeMode()).ignoringDisable(false));
+
     }
 
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {
