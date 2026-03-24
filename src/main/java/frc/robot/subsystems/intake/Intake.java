@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
+import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.util.Checkmate;
 import frc.robot.util.MathUtils;
 import frc.robot.util.Checkmate.TestResult;
@@ -78,7 +79,7 @@ public class Intake extends SubsystemBase {
                     return TestResult.success("Intake roller ok, current: " + current);
                 });
 
-        new Trigger(() -> Math.abs(getRollerVelocity().in(RotationsPerSecond)) < 10.0 && getRollerCurrent().gt(IntakeConstants.Roller.JAMMED_CURRENT_THRESHOLD))
+        new Trigger(() -> Math.abs(getRollerVelocity().in(RotationsPerSecond)) < Roller.JAMMED_VELOCITY_THRESHOLD && getRollerCurrent().gt(IntakeConstants.Roller.JAMMED_CURRENT_THRESHOLD))
             .debounce(0.1)
             .onTrue(
                 Commands.sequence(

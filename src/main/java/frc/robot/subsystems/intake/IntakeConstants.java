@@ -2,6 +2,7 @@ package frc.robot.subsystems.intake;
 
 import com.pathplanner.lib.config.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
@@ -43,5 +44,6 @@ public final class IntakeConstants {
         public static final double AGITATE_VOLTAGE = 6;
 
         public static final Current JAMMED_CURRENT_THRESHOLD = Amps.of(35.0); //TODO: test it
+        public static final double JAMMED_VELOCITY_THRESHOLD = 50.0; //TODO: test it
     }
 }
