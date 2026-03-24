@@ -348,6 +348,12 @@ public class RobotContainer {
                 "Update Offset Now", Commands.runOnce(() -> Launcher.setSpeedOffset(
                         RotationsPerSecond.of(SmartDashboard.getNumber("Launcher Speed Offset [rps]", 0.0)))));
 
+        SmartDashboard.putData(
+                "Drive/Align Wheels 45",
+                        Commands.runOnce(() -> sys_drive.runTurnSetpoint(Rotation2d.fromDegrees(45)))
+                            .withTimeout(3.0)
+                            .ignoringDisable(true));
+
         sys_drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         sys_drive,
