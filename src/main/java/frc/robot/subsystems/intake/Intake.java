@@ -114,7 +114,14 @@ public class Intake extends SubsystemBase {
      * @return A command that extends the intake when executed.
      */
     public Command extend() {
-        return setIntakeSetpoint(() -> Extension.EXTENSION_DISTANCE);
+        return Commands.sequence(
+            Commands.runOnce(() -> io.setSetpoint(IntakeConstants.Extension.EXTENSION_MAX_DISTANCE)),
+            Commands.waitTime(Milliseconds.of(500)),
+            Commands.run(() -> {
+                if (io.getSetpoint().gte(io.getPosition()))
+                    io.setSetpoint(io.getPosition());
+            }).until(() -> io.getSetpoint().gte(io.getPosition()))
+        ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
     }
 
     /**
@@ -124,17 +131,6 @@ public class Intake extends SubsystemBase {
      *
      * @return A command that moves the intake to the specified position when executed.
      */
-    public Command setIntakeSetpoint(Supplier<Distance> setpoint) {
-        return Commands.sequence(
-            Commands.runOnce(() -> io.setSetpoint(Meters.of(setpoint.get().in(Meters)))),
-            Commands.waitTime(Milliseconds.of(500)),
-            Commands.run(() -> {
-                if (io.getSetpoint().gte(io.getPosition()))
-                    io.setSetpoint(io.getPosition());
-            }).until(() -> io.getSetpoint().gte(io.getPosition()))
-        ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
-    }
-
     public Command setSetpoint(Supplier<Distance> setpoint){
         return Commands.runOnce(() -> io.setSetpoint(setpoint.get()));
     }
