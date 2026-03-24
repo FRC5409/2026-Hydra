@@ -364,8 +364,7 @@ public class RobotContainer {
         SmartDashboard.putData(
                 "Drive/Align Wheels 45",
                         Commands.runOnce(() -> sys_drive.runTurnSetpoint(Rotation2d.fromDegrees(45)))
-                            .withTimeout(3.0)
-                            .ignoringDisable(true));
+                            .withTimeout(3.0));
 
         sys_drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
