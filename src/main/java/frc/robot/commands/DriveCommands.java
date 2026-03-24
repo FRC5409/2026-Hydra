@@ -67,7 +67,7 @@ public class DriveCommands {
   private static final double WHEEL_RADIUS_MAX_VELOCITY = 0.25; // Rad/Sec
   private static final double WHEEL_RADIUS_RAMP_RATE = 0.05; // Rad/Sec^2
   private static double translationSpeedModifier = 1.0;
-  private static double rotationSpeedModifier = 0.8;
+  private static double rotationSpeedModifier = 0.5;
 
   private static boolean isAligned = false;
 
