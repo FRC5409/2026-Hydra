@@ -247,7 +247,6 @@ public class Intake extends SubsystemBase {
 //            }
 //        }
 
-
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.SIM_PID);
     }
