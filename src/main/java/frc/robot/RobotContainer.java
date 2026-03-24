@@ -253,12 +253,20 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", true)))
                 .onFalse(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", false)));
 
-        // TODO: add check allaince to compare distance to right hub
-        new Trigger(() -> shouldLaunch.getAsBoolean() &&
-                          kField.BLUE_HUB.getMeasureX().lt(Meters.of(1.83)) ||
-                          kField.BLUE_HUB.getMeasureX().gt(Meters.of(5.006)))
-                .onTrue(Commands.runOnce(() -> primaryController.setRumble(RumbleType.kBothRumble, 0.5)))
-                .onFalse(Commands.runOnce(() -> primaryController.setRumble(RumbleType.kBothRumble, 0)));
+        new Trigger(() -> {
+            var alliance = DriverStation.getAlliance();
+            var hub = alliance.isPresent() && alliance.get() == DriverStation.Alliance.Red
+                    ? kField.RED_HUB
+                    : kField.BLUE_HUB;
+
+            double robotX = sys_drive.getPose().getX();
+            double hubX = hub.getX();
+
+            return shouldLaunch.getAsBoolean()
+                    && (robotX < hubX - 1.83 || robotX > hubX + 5.006);
+        })
+        .onTrue(Commands.runOnce(() -> primaryController.setRumble(RumbleType.kBothRumble, 0.5)))
+        .onFalse(Commands.runOnce(() -> primaryController.setRumble(RumbleType.kBothRumble, 0)));
 
         // TODO: When have time, test these 2 (Test if the robot can check if it is neutral zone or not)
 //        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
