@@ -173,8 +173,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
         return Meters.of(extensionPosition.getValueAsDouble() * Extension.UNIT_CONVERSION_FACTOR);
     }
 
-    
-
     /**
      * Updates the inputs of the intake subsystem
      *

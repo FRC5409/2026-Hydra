@@ -5,17 +5,14 @@ import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.units.measure.Velocity;
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
-import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import frc.robot.util.Checkmate;
 import frc.robot.util.MathUtils;
 import frc.robot.util.Checkmate.TestResult;
@@ -24,17 +21,12 @@ import java.lang.Math;
 
 import java.util.function.Supplier;
 
-import static edu.wpi.first.units.Units.Amp;
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Milliseconds;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 public class Intake extends SubsystemBase {
+
     private final IntakeIO               io;
     private final IntakeInputsAutoLogged inputs;
-
-    private Distance setpoint;
 
     private static Pose3d extenderPose;
 
@@ -85,6 +77,21 @@ public class Intake extends SubsystemBase {
                     }
                     return TestResult.success("Intake roller ok, current: " + current);
                 });
+
+        new Trigger(() -> Math.abs(getRollerVelocity().in(RotationsPerSecond)) < 10.0 && getRollerCurrent().gt(IntakeConstants.Roller.JAMMED_CURRENT_THRESHOLD))
+            .debounce(0.1)
+            .onTrue(
+                Commands.sequence(
+                    Commands.runOnce(() -> Logger.recordOutput("Intake/Status", true)),
+
+                    Commands.runOnce(() -> io.setRollerVoltage(IntakeConstants.Roller.UNTAKE_VOLTAGE)),
+                    
+                    Commands.waitSeconds(0.5),
+                    
+                    Commands.runOnce(() -> Logger.recordOutput("Intake/Status", false)),
+                    Commands.runOnce(() -> io.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE))
+                )
+            );
     }
 
     /**
@@ -200,7 +207,7 @@ public class Intake extends SubsystemBase {
      * @return The current velocity of the roller, in rotations per second.
      */
     public AngularVelocity getRollerVelocity() {
-    return inputs.rollerVelocity;
+        return inputs.rollerVelocity;
     }
 
     /**
@@ -238,6 +245,7 @@ public class Intake extends SubsystemBase {
 //                io.brakeMode();
 //            }
 //        }
+
 
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.SIM_PID);
