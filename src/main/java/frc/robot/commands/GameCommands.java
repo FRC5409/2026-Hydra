@@ -57,7 +57,7 @@ public class GameCommands {
 
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-                        agitateSystem(robot)
+                        agitateThenRetract(robot)
                 )
         );
     }
@@ -72,7 +72,7 @@ public class GameCommands {
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-                agitateSystem(robot)
+                agitateThenRetract(robot)
         );
     }
 
@@ -105,7 +105,7 @@ public class GameCommands {
 
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-                        agitateSystem(robot)
+                        agitateThenRetract(robot)
                 )
 
         );
@@ -148,17 +148,17 @@ public class GameCommands {
                 Commands.repeatingSequence(
                         robot.sys_intake.setSetpoint(() -> Extension.RETRACT_POINT)
                                 .alongWith(robot.sys_hopper.setSetpoint(() -> HopperConstants.RETRACT_POINT)),
-                        Commands.waitTime(Milliseconds.of(750)),
+                        Commands.waitTime(Milliseconds.of(150)),
                         robot.sys_intake.setSetpoint(() -> Extension.EXTEND_POINT)
                                 .alongWith(robot.sys_hopper.setSetpoint(() -> HopperConstants.EXTEND_POINT)),
-                        Commands.waitTime(Milliseconds.of(750))
+                        Commands.waitTime(Milliseconds.of(150))
                 )
         );
     }
 
     public static Command agitateThenRetract(RobotContainer robot) {
         return Commands.sequence(
-                agitateSystem(robot).withTimeout(Seconds.of(7)),
+                agitateSystem(robot).withTimeout(Seconds.of(5.0)),
                 Commands.parallel(
                         robot.sys_intake.setRollerVoltage(IntakeConstants.Roller.AGITATE_VOLTAGE),
                         robot.sys_intake.retract(),
