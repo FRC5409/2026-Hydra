@@ -2,7 +2,10 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -192,6 +195,24 @@ public class Intake extends SubsystemBase {
     }
 
     /**
+     * Gets the current velocity of the roller.
+     *
+     * @return The current velocity of the roller, in rotations per second.
+     */
+    public AngularVelocity getRollerVelocity() {
+    return inputs.rollerVelocity;
+    }
+
+    /**
+     * Gets the current current of the roller.
+     *
+     * @return The current current of the roller, in amps.
+     */
+    public Current getRollerCurrent() {
+        return inputs.rollerCurrent;
+    }
+
+    /**
      * Updates the inputs, and runs a consistent check for a "crash"
      */
     @Override
@@ -217,16 +238,6 @@ public class Intake extends SubsystemBase {
 //                io.brakeMode();
 //            }
 //        }
-
-        boolean isRolling = Math.abs(inputs.rollerVelocity.in(RotationsPerSecond)) > 100.0;        
-        if (!isRolling && inputs.rollerCurrent.gt(Amps.of(30))) {
-            Logger.recordOutput("Intake/Jammed", true);
-            io.setRollerVoltage(-10);
-        } else {
-            Logger.recordOutput("Intake/Jammed", false);
-            io.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE);
-            io.setSetpoint(setpoint);
-        }
 
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.SIM_PID);

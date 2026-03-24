@@ -251,6 +251,22 @@ public class RobotContainer {
                 .onTrue(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", true)))
                 .onFalse(Commands.runOnce(() -> Logger.recordOutput("Drive/InNeutralZone", false)));
 
+        new Trigger(() -> Math.abs(sys_intake.getRollerVelocity().in(RotationsPerSecond)) < 10.0 && sys_intake.getRollerCurrent().gt(IntakeConstants.Roller.JAMMED_CURRENT_THRESHOLD))
+            .debounce(0.1)
+            .onTrue(
+                Commands.sequence(
+
+                    Commands.runOnce(() -> Logger.recordOutput("Intake/Status", true)),
+                    Commands.runOnce(() -> sys_intake.setRollerVoltage(IntakeConstants.Roller.UNTAKE_VOLTAGE)),
+                    
+                    Commands.waitSeconds(0.5),
+                    
+                    Commands.runOnce(() -> Logger.recordOutput("Intake/Status", false)),
+                    Commands.runOnce(() -> sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE))
+                )
+            );   
+        }
+
         // TODO: When have time, test these 2 (Test if the robot can check if it is neutral zone or not)
 //        new Trigger(() -> kField.NEUTRAL_ZONE.contains(sys_drive.getPose().getTranslation()))
 //            .onTrue(Commands.runOnce(() -> shouldLaunch = () -> false))

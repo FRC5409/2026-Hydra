@@ -39,8 +39,9 @@ public final class IntakeConstants {
         public static final double  GEARING       = 1.5 / 1.0;
 
         public static final double INTAKE_VOLTAGE  = 10;
+        public static final double UNTAKE_VOLTAGE = -10;
         public static final double AGITATE_VOLTAGE = 6;
 
-        public static final Current JAMMED_CURRENT_THRESHOLD = Amps.of(25.0); //TODO: test it
+        public static final Current JAMMED_CURRENT_THRESHOLD = Amps.of(35.0); //TODO: test it
     }
 }
