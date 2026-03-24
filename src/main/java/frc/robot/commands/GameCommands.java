@@ -209,7 +209,8 @@ public class GameCommands {
         return Commands.parallel(
                 robot.sys_serializer.stop(),
                 robot.sys_intake.stop(),
-                robot.sys_intake.stopRoller()
+                robot.sys_intake.stopRoller(),
+                robot.sys_hopper.stopMotor()
         );
     }
 
