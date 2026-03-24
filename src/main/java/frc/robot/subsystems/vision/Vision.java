@@ -6,11 +6,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
 import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedNetworkNumber;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
 
@@ -61,11 +63,14 @@ public class Vision extends SubsystemBase {
      * @return standard deviations as a 3rd-degree matrix
      */
     private Vector<N3> deriveStdDevs(double avgTagDist) {
-        double xy = XY_STDDEV_BASE_METERS + XY_STDDEV_PER_METER * avgTagDist;
+        double xy = XY_STDDEV_BASE_METERS + XY_STDDEV_PER_METER * avgTagDist * avgTagDist;
+        double rotationXY = Math.toRadians(THETA_STDDEV_BASE_DEG + THETA_STDDEV_PER_METER * avgTagDist * avgTagDist);
+        SmartDashboard.putNumber("Vision/xy", xy);
+        SmartDashboard.putNumber("Vision/rotationXY", rotationXY);
         // TODO: this should be tested
         return VecBuilder.fill(
                 xy, xy,
-                Math.toRadians(THETA_STDDEV_BASE_DEG + THETA_STDDEV_PER_METER * avgTagDist)
+                rotationXY
         );
     }
 
