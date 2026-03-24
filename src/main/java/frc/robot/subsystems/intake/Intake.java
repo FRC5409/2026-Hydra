@@ -17,6 +17,7 @@ import frc.robot.util.Checkmate;
 import frc.robot.util.MathUtils;
 import frc.robot.util.Checkmate.TestResult;
 import org.littletonrobotics.junction.Logger;
+import java.lang.Math;
 
 import java.util.function.Supplier;
 
@@ -217,7 +218,7 @@ public class Intake extends SubsystemBase {
 //            }
 //        }
 
-        boolean isRolling = inputs.rollerVelocity.gt(RotationsPerSecond.of(100));
+        boolean isRolling = Math.abs(inputs.rollerVelocity.in(RotationsPerSecond)) > 100.0;        
         if (!isRolling && inputs.rollerCurrent.gt(Amps.of(30))) {
             Logger.recordOutput("Intake/Jammed", true);
             io.setRollerVoltage(-10);
