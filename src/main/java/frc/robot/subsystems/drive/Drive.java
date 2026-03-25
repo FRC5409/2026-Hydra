@@ -386,6 +386,14 @@ public class Drive extends SubsystemBase {
         return getPose().getRotation();
     }
 
+    public Rotation2d getRawGyroRotation() {
+        return this.rawGyroRotation;
+    }
+
+    public void resetGyro() {
+        gyroIO.zeroPigeon();
+    }
+
     public Angle getTilt(){
         return gyroInputs.tilt;
     }

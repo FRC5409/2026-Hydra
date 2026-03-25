@@ -375,8 +375,10 @@ public class RobotContainer {
         primaryController.start()
             .and(primaryController.back())
             .onTrue(
-                Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
-                    .ignoringDisable(true)
+                Commands.runOnce(() -> {
+                    sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg));
+                    sys_drive.resetGyro();
+                }).ignoringDisable(true)
             );
 
         primaryController.rightBumper()
