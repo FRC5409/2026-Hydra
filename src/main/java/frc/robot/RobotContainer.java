@@ -416,7 +416,11 @@ public class RobotContainer {
                          .onTrue(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(1.0)));
 
-        primaryController.povDown()
+        primaryController.povLeft()
+                        .onTrue(Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
+                                    .ignoringDisable(true));
+
+        primaryController.povRight()
                         .whileTrue(GameCommands.manualLaunch(() -> manualLaunchDistance, this))
                         .onFalse(GameCommands.stopLaunching(this));
 
@@ -456,7 +460,7 @@ public class RobotContainer {
         secondaryController.povDown()
                         .onTrue(Launcher.incrementSpeedOffset(RotationsPerSecond.of(-1)));
 
-       secondaryController.leftTrigger()
+        secondaryController.leftTrigger()
                .onTrue(Commands.runOnce(sys_vision::captureClip));
 
         // TODO: GET MANUAL LAUNCH DISTANCE THAT WE WANT TO USE
@@ -513,8 +517,8 @@ public class RobotContainer {
     public Command onDisable() {
         Command cmd = Commands.parallel(
                 GameCommands.stopLaunching(this),
-                Commands.runOnce(sys_drive::stop),
-                sys_hopper.setVoltage(0)
+                Commands.runOnce(sys_drive::stop)
+                // sys_hopper.setVoltage(0)
         );
 
         if (sys_elevator != null)

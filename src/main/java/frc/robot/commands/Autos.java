@@ -28,7 +28,7 @@ public class Autos {
 
 		autoPaths.add(
 			new AutoPath(
-				"LEFT-Bump-Intake-FarClose-Score",
+				"LEFT-SinglePass",
                 
 				LEFT_BUMP_STARTING_POSE,
 
@@ -59,7 +59,7 @@ public class Autos {
 
         autoPaths.add(
             new AutoPath(
-		"LEFT-Bump-Intake-FarClose-Score-Depot-Score",
+		"LEFT-SinglePass-Depot",
                 
             	LEFT_BUMP_STARTING_POSE,
 
@@ -107,7 +107,7 @@ public class Autos {
 
 		autoPaths.add(
 				new AutoPath(
-					"LEFT-Bump-Intake-FarClose-Score-Bump",
+					"LEFT-DoublePass",
 
 					LEFT_BUMP_STARTING_POSE,
 
@@ -148,15 +148,18 @@ public class Autos {
 					//	GO BACK OVER BUMP
 					Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral"))
 							.beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-							.andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false)))
-							.andThen(GameCommands.startIntake(robot))
+							.andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
+							// .andThen(GameCommands.startIntake(robot)),
+
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose"))
+							.alongWith(GameCommands.startIntake(robot))
 				)
 		);
 
 		// RIGHT SIDE AUTOS:
         autoPaths.add(
 			new AutoPath(
-				"RIGHT-Bump-Intake-FarClose-Score",
+				"RIGHT-SinglePass",
 
 				RIGHT_BUMP_STARTING_POSE,
 				
@@ -185,7 +188,7 @@ public class Autos {
 
 		autoPaths.add(
 				new AutoPath(
-						"RIGHT-Bump-Intake-FarClose-Score-Bump",
+						"RIGHT-DoublePass",
 
 						RIGHT_BUMP_STARTING_POSE,
 
@@ -265,7 +268,7 @@ public class Autos {
 
         autoPaths.add(
             new AutoPath(
-                "Depot-Shoot",
+                "Bump-Depot-Shoot",
                 new Pose2d(3.565,5.958,Rotation2d.k180deg),
 
                 // Go from starting point to depot
@@ -285,7 +288,7 @@ public class Autos {
 
         autoPaths.add(
             new AutoPath(
-                "Outpost-Shoot",
+                "Bump-Outpost-Shoot",
                 // Start at edge of bump
                 new Pose2d(3.565,2.076,Rotation2d.k180deg), 
                 // Start at trench
