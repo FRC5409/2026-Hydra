@@ -418,9 +418,11 @@ public class RobotContainer {
                          .onTrue(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(kBump.BUMP_SPEED_MODIFIER)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(1.0)));
 
-        primaryController.povLeft()
-                        .onTrue(Commands.runOnce(() -> sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg)))
-                                    .ignoringDisable(true));
+        primaryController.povLeft()                 .onTrue(
+                            Commands.runOnce(() -> {
+                                sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg));
+                                sys_drive.resetGyro();
+                            }).ignoringDisable(true));
 
         primaryController.povRight()
                         .whileTrue(GameCommands.manualLaunch(() -> manualLaunchDistance, this))
