@@ -34,9 +34,6 @@ public class Autos {
 
                 // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE 
                 Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
-                    // .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-                    // .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
-				
 				 
                 // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s) 
                 Commands.deadline(
@@ -44,15 +41,11 @@ public class Autos {
                     GameCommands.startIntake(robot)
                 ),
 
-
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION 
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
                 
-
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
                 Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
-                    // .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-                    // .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
                 // LAUNCH FOR THE REMAINING DURATION OF AUTO
                 GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
@@ -67,9 +60,6 @@ public class Autos {
 
                 // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE
                 Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
-                    // .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-                    // .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
-
 
                 // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
                 Commands.deadline(
@@ -77,27 +67,25 @@ public class Autos {
                     GameCommands.startIntake(robot)
                 ),
 
-
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
 
 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
                 Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
-                    // .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-                    // .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
-                // LAUNCH FOR THE REMAINING DURATION OF AUTO
+                // LAUNCH FOR AUTO_LAUNCH_WAIT_TIME
                 Commands.deadline(
                     Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
                     GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
                 ).andThen(GameCommands.stopLaunching(robot)),
 
+                // Move from scoring position to depot
                 Commands.deadline(
                     Objects.requireNonNull(AutoPath.followPath("LEFT-SCORE-to-DEPOT")),
                     GameCommands.startIntake(robot)
                 ),
-
+                // Align back to a scoring position
                 DriveCommands.alignToPoint(
 						robot.sys_drive,
 						() -> new  Pose2d(1.581, 5.711, Rotation2d.fromDegrees(170.194)),
@@ -107,6 +95,7 @@ public class Autos {
                         Degrees.of(10),
                         MetersPerSecond.of(1)
 				),
+                // LAUNCH for the duration of auto
 				GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
             )
         );
@@ -119,14 +108,8 @@ public class Autos {
 
 					// CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE
 					Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
-							// .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-							// .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
-
 
 					// FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
-					// Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose"))
-					// 		.alongWith(GameCommands.startIntakeAuto(robot)),
-
                     Commands.deadline(
                         Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
                         GameCommands.startIntake(robot)
@@ -137,8 +120,6 @@ public class Autos {
 
 					// Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
 					Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
-							// .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-							// .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
 					// LAUNCH FOR AUTO_LAUNCH_WAIT_TIME amount of time before moving on
 					Commands.deadline(
@@ -156,9 +137,8 @@ public class Autos {
 
 					//	GO BACK OVER BUMP
 					Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
-							// .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-							// .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
+                    // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
                     Commands.deadline(
                         Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
                         GameCommands.startIntake(robot)
@@ -175,8 +155,6 @@ public class Autos {
 				
                 // cross RIGHT BUMP from ALLIANCE zone to NEUTRAL zone 
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
-                    // .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-                    // .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
                 // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
                 Commands.deadline(
@@ -188,8 +166,6 @@ public class Autos {
 
 				// Go from NEUTRAL zone to ALLIANCE zone over RIGHT BUMP
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Neutral-Alliance")),
-                    // .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-                    // .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
                 // LAUNCHES until auto ends
                 GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
@@ -205,8 +181,6 @@ public class Autos {
 
 						// cross RIGHT BUMP from ALLIANCE zone to NEUTRAL zone
 						Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
-								// .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-								// .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
 						// follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
 						Commands.deadline(
@@ -219,8 +193,6 @@ public class Autos {
 
 						// Go from NEUTRAL zone to ALLIANCE zone over RIGHT BUMP
 						Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Neutral-Alliance")),
-								// .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-								// .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
 						// LAUNCHES for AUTO_LAUNCH_WAIT_TIME amount of time
 						Commands.deadline(
@@ -238,8 +210,6 @@ public class Autos {
 
 						//	GO BACK OVER BUMP
 						Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
-								// .beforeStarting(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(true)))
-								// .andThen(Commands.runOnce(() -> robot.sys_vision.setForceFusedIMU(false))),
 
 						// follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
                         Commands.deadline(
@@ -299,7 +269,7 @@ public class Autos {
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
                 ),
-
+                // Score
                 GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot))
         );
 
