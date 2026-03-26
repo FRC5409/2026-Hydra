@@ -32,7 +32,7 @@ public class VisionIOLimelight implements VisionIO {
 
         new Trigger(DriverStation::isDisabled)
                 .onTrue(setIMUMode(IMUMode.FUSED).alongWith(setThrottle(VisionConstants.THROTTLE_DISABLED)))
-                .onFalse(setIMUMode(IMUMode.INTERNAL).alongWith(setThrottle(0)));
+                .onFalse(setIMUMode(IMUMode.EXTERNAL).alongWith(setThrottle(0)));
 
        SmartDashboard.putData("Throttle-0 LL", setThrottle(0).ignoringDisable(true));
        SmartDashboard.putData("Throttle-100 LL", setThrottle(100).ignoringDisable(true));
