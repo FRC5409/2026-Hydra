@@ -131,4 +131,9 @@ public class GyroIOPigeon2 implements GyroIO {
   public void zeroPigeon(){
     pigeon.setYaw(180);
   }
+
+  @Override
+  public void setPigeonYaw(Rotation2d rotation2d){
+    pigeon.setYaw(rotation2d.getDegrees());
+  }
 }
