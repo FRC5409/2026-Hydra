@@ -136,13 +136,13 @@ public class Autos {
 					),
 
 					//	GO BACK OVER BUMP
-					Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
+                    Commands.deadline(
+    					Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
+                        GameCommands.startIntake(robot)
+                    ),
 
                     // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
-                    Commands.deadline(
-                        Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
-                        GameCommands.startIntake(robot)
-                    )
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose"))
 				)
 		);
 
@@ -210,15 +210,13 @@ public class Autos {
 						),
 
 						//	GO BACK OVER BUMP
-						Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
+                        Commands.deadline(
+						    Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
+                            GameCommands.startIntake(robot)
+                        ),
 
 						// follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
-                        Commands.deadline(
-                            Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose")), 
-                            GameCommands.startIntake(robot)
-                        )
-
-
+                        Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose"))
 				)
 		);
 
