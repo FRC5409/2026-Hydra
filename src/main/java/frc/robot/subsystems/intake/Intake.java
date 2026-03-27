@@ -118,10 +118,10 @@ public class Intake extends SubsystemBase {
             Commands.runOnce(() -> io.setSetpoint(IntakeConstants.Extension.EXTENSION_MAX_DISTANCE)),
             Commands.waitTime(Milliseconds.of(1000)),
             Commands.run(() -> {
-                Logger.recordOutput("Intake/inPosition?", io.getSetpoint().gte(io.getPosition()));
-                if (io.getSetpoint().gte(io.getPosition()))
+                // Logger.recordOutput("Intake/inPosition?", io.getSetpoint().gte(io.getPosition()));
+                if (io.getPosition().gte(io.getSetpoint()))
                     io.setSetpoint(io.getPosition());
-            }).until(() -> io.getSetpoint().gte(io.getPosition()))
+            }).until(() -> io.getPosition().gte(io.getSetpoint()))
         ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
     }
 
