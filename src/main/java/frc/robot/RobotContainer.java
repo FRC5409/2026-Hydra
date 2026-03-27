@@ -420,8 +420,8 @@ public class RobotContainer {
                         .onTrue(sys_intake.setRollerVoltage(0));
 
         primaryController.a()
-                         .onTrue(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(kBump.BUMP_SPEED_MODIFIER)))
-                         .onFalse(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(1.0)));
+                         .onTrue(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(0.8)))
+                         .onFalse(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(0.6)));
 
         primaryController.povLeft()                 .onTrue(
                             Commands.runOnce(() -> {
