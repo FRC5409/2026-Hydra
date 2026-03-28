@@ -464,7 +464,7 @@ public class RobotContainer {
                     .onFalse(sys_intake.setExtensionVoltage(0));
 
         secondaryController.b().multiPress(2, 1)
-                    .onTrue();
+                    .onTrue(sys_intake.zeroExtension());
 
         secondaryController.povRight()
                         .onTrue(sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE))
