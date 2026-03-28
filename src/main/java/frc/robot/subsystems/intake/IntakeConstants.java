@@ -17,7 +17,7 @@ public final class IntakeConstants {
         public static final Distance EXTENSION_MAX_DISTANCE = Centimeters.of(23.5);
 
         public static final PIDController SIM_PID     = new PIDController(0.0, 0.0, 0.0);
-        public static final PIDConstants  TALONFX_PID = new PIDConstants(7, 0.75, 0);
+        public static final PIDConstants  TALONFX_PID = new PIDConstants(7.5, 0.75, 0);
 
         public static final Voltage MAX_VOLTAGE            = Volts.of(12.0);
         public static final Current CURRENT_LIMIT          = Amps.of(20.0);
