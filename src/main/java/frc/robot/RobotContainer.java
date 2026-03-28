@@ -420,8 +420,14 @@ public class RobotContainer {
                         .onTrue(sys_intake.setRollerVoltage(0));
 
         primaryController.a()
-                         .onTrue(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(1.0)))
-                         .onFalse(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(0.6)));
+                         .onTrue(Commands.runOnce(() -> {
+                            DriveCommands.setTranslationSpeed(1.0); 
+                            DriveCommands.setRotationSpeed(1.0);
+                        }))
+                         .onFalse(Commands.runOnce(() -> {
+                            DriveCommands.setTranslationSpeed(0.6); 
+                            DriveCommands.setRotationSpeed(0.5);
+                        }));
 
         primaryController.povLeft()
                 .multiPress(2, 1)
