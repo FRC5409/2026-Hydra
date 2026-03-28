@@ -423,11 +423,12 @@ public class RobotContainer {
                          .onTrue(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(0.8)))
                          .onFalse(Commands.runOnce(() -> DriveCommands.setTranslationSpeed(0.6)));
 
-        primaryController.povLeft()                 .onTrue(
-                            Commands.runOnce(() -> {
-                                sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg));
-                                sys_drive.resetGyro();
-                            }).ignoringDisable(true));
+        primaryController.povLeft()
+                .multiPress(2, 1)
+                .onTrue(Commands.runOnce(() -> {
+                            sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg));
+                            sys_drive.resetGyro();
+                }).ignoringDisable(true));
 
         primaryController.povRight()
                         .whileTrue(GameCommands.manualLaunch(() -> manualLaunchDistance, this))
