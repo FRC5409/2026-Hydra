@@ -440,23 +440,31 @@ public class RobotContainer {
                         .whileTrue(GameCommands.manualLaunch(() -> manualLaunchDistance, this))
                         .onFalse(GameCommands.stopLaunching(this));
 
-        secondaryController.b()
-                        .onTrue(GameCommands.retract(this));
-
         secondaryController.a()
                         .whileTrue(GameCommands.agitateThenRetract(this));
 
         // TODO: temp buttons to zero intake/hopper
-        secondaryController.rightBumper()
-                .onTrue(sys_intake.setExtensionVoltage(-2)
-                            .alongWith(sys_hopper.setVoltage(-2)))
-                .onFalse(sys_intake.setExtensionVoltage(0)
-                            .alongWith(sys_hopper.setVoltage(0)));
+        // secondaryController.rightBumper()
+        //         .onTrue(sys_intake.setExtensionVoltage(-2)
+        //                     .alongWith(sys_hopper.setVoltage(-2)))
+        //         .onFalse(sys_intake.setExtensionVoltage(0)
+        //                     .alongWith(sys_hopper.setVoltage(0)));
 
         secondaryController.x()
                         .onTrue(sys_intake.setRollerVoltage(-IntakeConstants.Roller.INTAKE_VOLTAGE))
                         .onFalse(sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE));
 
+        // manual move intake extenson
+        secondaryController.rightBumper()
+                    .onTrue(sys_intake.setExtensionVoltage(-3))
+                    .onFalse(sys_intake.setExtensionVoltage(0));
+
+        secondaryController.leftBumper()
+                    .onTrue(sys_intake.setExtensionVoltage(3))
+                    .onFalse(sys_intake.setExtensionVoltage(0));
+
+        secondaryController.b().multiPress(2, 1)
+                    .onTrue();
 
         secondaryController.povRight()
                         .onTrue(sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE))

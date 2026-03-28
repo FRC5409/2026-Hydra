@@ -136,6 +136,10 @@ public class Intake extends SubsystemBase {
         return Commands.runOnce(() -> io.setSetpoint(setpoint.get()));
     }
 
+    public Command zeroExtension() {
+        return Commands.runOnce(() -> io.zeroExtension());
+    }
+
     /**
      * Retracts intake to constant distance
      *
