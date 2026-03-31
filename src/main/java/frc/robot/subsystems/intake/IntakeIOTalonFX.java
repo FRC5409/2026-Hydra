@@ -17,6 +17,7 @@ import static edu.wpi.first.units.Units.*;
 
 public final class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX rollerMotor;
+    private final TalonFX rollerMotor2;
     private final TalonFX extensionMotor;
 
     private Distance setpoint = Meters.of(0.0);
@@ -29,6 +30,12 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal<Current>         rollerCurrent;
     private final StatusSignal<AngularVelocity> rollerVelocity;
 
+    private final StatusSignal<Angle>           roller2Position;
+    private final StatusSignal<Temperature>     roller2Temperature;
+    private final StatusSignal<Voltage>         roller2Voltage;
+    private final StatusSignal<Current>         roller2Current;
+    private final StatusSignal<AngularVelocity> roller2Velocity;
+
     private final StatusSignal<Angle>           extensionPosition;
     private final StatusSignal<Temperature>     extensionTemperature;
     private final StatusSignal<Voltage>         extensionVoltage;
@@ -36,12 +43,15 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal<AngularVelocity> extensionVelocity;
     private final StatusSignal<Current>         extensionTorqueCurrent;
 
-    public IntakeIOTalonFX(int rollerMotorId, int extensionMotorId) {
+    public IntakeIOTalonFX(int rollerMotorId, int rollerMotorId2, int extensionMotorId) {
         rollerMotor = new TalonFX(rollerMotorId);
+        rollerMotor2 = new TalonFX(rollerMotorId2);
         extensionMotor = new TalonFX(extensionMotorId);
         rollerMotor.set(0.0);
+        rollerMotor2.set(0.0);
         extensionMotor.set(0.0);
         positionControl = new PositionVoltage(0.0);
+
 
         TalonFXConfiguration extensionConfig = new TalonFXConfiguration()
                 .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING));
@@ -76,6 +86,12 @@ public final class IntakeIOTalonFX implements IntakeIO {
         rollerCurrent = rollerMotor.getSupplyCurrent();
         rollerVelocity = rollerMotor.getVelocity();
 
+        roller2Position = rollerMotor2.getPosition();
+        roller2Temperature = rollerMotor2.getDeviceTemp();
+        roller2Voltage = rollerMotor2.getMotorVoltage();
+        roller2Current = rollerMotor2.getSupplyCurrent();
+        roller2Velocity = rollerMotor2.getVelocity();
+
         BaseStatusSignal.setUpdateFrequencyForAll(
 
                 Extension.UPDATE_FREQUENCY,
@@ -87,7 +103,13 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 rollerPosition,
                 rollerTemperature,
                 rollerVoltage,
-                rollerCurrent
+                rollerCurrent,
+
+                roller2Position,
+                roller2Temperature,
+                roller2Voltage,
+                roller2Current,
+                roller2Velocity
         );
 
         extensionMotor.setPosition(0);
@@ -103,6 +125,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
      */
     public void setRollerVoltage(double voltage) {
         rollerMotor.setVoltage(voltage);
+        rollerMotor2.setVoltage(voltage);
     }
 
     /**
@@ -139,6 +162,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
      */
     public void coastMode() {
         rollerMotor.setNeutralMode(NeutralModeValue.Coast);
+        rollerMotor2.setNeutralMode(NeutralModeValue.Coast);
         extensionMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
@@ -148,6 +172,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
      */
     public void brakeMode() {
         rollerMotor.setNeutralMode(NeutralModeValue.Brake);
+        rollerMotor2.setNeutralMode(NeutralModeValue.Brake);
         extensionMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
@@ -172,8 +197,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
         return Meters.of(extensionPosition.getValueAsDouble() * Extension.UNIT_CONVERSION_FACTOR);
     }
 
-    
-
     /**
      * Updates the inputs of the intake subsystem
      *
@@ -189,17 +212,6 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 extensionVelocity
         ).isOK();
 
-        inputs.extensionVolts = extensionVoltage.getValue();
-
-        inputs.extensionCurrent = Amps.of(extensionCurrent.getValueAsDouble());
-        inputs.extensionTorqueCurrent = Amps.of(extensionTorqueCurrent.getValueAsDouble());
-        inputs.extensionTemp = extensionTemperature.getValueAsDouble();
-
-        inputs.extensionPosition = getPosition();
-
-        inputs.extensionVelocity = MetersPerSecond.of(extensionVelocity.getValueAsDouble());
-        inputs.isExtensionRunning = Math.abs(extensionVoltage.getValueAsDouble()) > 0.1;
-
         inputs.isRollerConnected = BaseStatusSignal.refreshAll(
                 rollerPosition,
                 rollerTemperature,
@@ -208,10 +220,32 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 rollerVelocity
         ).isOK();
 
+        inputs.isRoller2Connected = BaseStatusSignal.refreshAll(
+                rollerPosition,
+                rollerTemperature,
+                rollerVoltage,
+                rollerCurrent,
+                rollerVelocity
+        ).isOK();
+
+        inputs.extensionVolts = extensionVoltage.getValue();
+        inputs.extensionCurrent = Amps.of(extensionCurrent.getValueAsDouble());
+        inputs.extensionTorqueCurrent = Amps.of(extensionTorqueCurrent.getValueAsDouble());
+        inputs.extensionTemp = extensionTemperature.getValueAsDouble();
+        inputs.extensionPosition = getPosition();
+        inputs.extensionVelocity = MetersPerSecond.of(extensionVelocity.getValueAsDouble());
+        inputs.isExtensionRunning = Math.abs(extensionVoltage.getValueAsDouble()) > 0.1;
+        inputs.extensionSetpoint = setpoint;
+
+
         inputs.rollerVolts = Volts.of(rollerVoltage.getValueAsDouble());
         inputs.rollerCurrent = Amps.of(rollerCurrent.getValueAsDouble());
         inputs.rollerTemp = rollerTemperature.getValueAsDouble();
         inputs.rollerVelocity = RotationsPerSecond.of(rollerVelocity.getValueAsDouble());
-        inputs.extensionSetpoint = setpoint;
+
+        inputs.roller2Volts = Volts.of(roller2Voltage.getValueAsDouble());
+        inputs.roller2Current = Amps.of(roller2Current.getValueAsDouble());
+        inputs.roller2Temp = roller2Temperature.getValueAsDouble();
+        inputs.roller2Velocity = RotationsPerSecond.of(roller2Velocity.getValueAsDouble());
     }
 }

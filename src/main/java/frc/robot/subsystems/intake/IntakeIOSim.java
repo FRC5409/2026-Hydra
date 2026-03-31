@@ -17,6 +17,7 @@ public class IntakeIOSim implements IntakeIO {
 
     private boolean isRunning;
     private double  rollerVoltage = 0.0;
+    private double  roller2Voltage = 0.0;
 
     public IntakeIOSim() {
         RoboRioSim.setVInVoltage(12.0);
@@ -50,6 +51,7 @@ public class IntakeIOSim implements IntakeIO {
     @Override
     public void setRollerVoltage(double voltage) {
         rollerVoltage = voltage;
+        roller2Voltage = voltage;
     }
 
     @Override
@@ -96,7 +98,13 @@ public class IntakeIOSim implements IntakeIO {
         inputs.rollerTemp = 25.0;
         inputs.rollerVelocity = RotationsPerSecond.of(rollerVoltage / 12.0 * 5000.0);
 
+        inputs.roller2Current = Amps.of(rollerVoltage / 12.0 * 20.0);
+        inputs.roller2Volts = Volts.of(rollerVoltage);
+        inputs.roller2Temp = 25.0;
+        inputs.roller2Velocity = RotationsPerSecond.of(rollerVoltage / 12.0 * 5000.0);
+
         inputs.isRollerConnected = true;
+        inputs.isRoller2Connected = true;
         inputs.isExtensionConnected = true;
 
         extensionController.setPID(Extension.SIM_PID.getP(), Extension.SIM_PID.getI(), Extension.SIM_PID.getD());

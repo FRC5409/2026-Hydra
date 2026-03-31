@@ -51,6 +51,7 @@ public final class Constants {
         // INTAKE
         public static final int INTAKE_EXTENSION_MOTOR = 28;
         public static final int INTAKE_ROLLER_MOTOR    = 29;
+        public static final int INTAKE_ROLLER_MOTOR_2  = 51; //TODO: replace with real CAN ID
 
         // LAUNCHER
         public static final int LAUNCHER_CANCODER     = 26;
@@ -74,6 +75,7 @@ public final class Constants {
 
         // CLIMBER
         public static final int CLIMBER_MOTOR = 32;
+
     }
 
     public static final class kAutoAlign {

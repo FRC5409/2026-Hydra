@@ -10,10 +10,17 @@ public interface IntakeIO {
     @AutoLog
     class IntakeInputs {
         public boolean         isRollerConnected = false;
+        public boolean         isRoller2Connected = false;
+
         public Voltage         rollerVolts       = Volts.of(0.0);
         public Current         rollerCurrent     = Amps.of(0.0);
         public double          rollerTemp        = 0.0;
         public AngularVelocity rollerVelocity    = RotationsPerSecond.of(0.0);
+
+        public Voltage         roller2Volts       = Volts.of(0.0);
+        public Current         roller2Current     = Amps.of(0.0);
+        public double          roller2Temp        = 0.0;
+        public AngularVelocity roller2Velocity    = RotationsPerSecond.of(0.0);
 
         public boolean        isExtensionConnected   = false;
         public boolean        isExtensionRunning     = false;
