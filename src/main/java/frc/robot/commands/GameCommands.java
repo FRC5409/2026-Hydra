@@ -25,6 +25,7 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
+import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
@@ -117,7 +118,11 @@ public class GameCommands {
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_INTAKE_EXTENSION),
                 Commands.parallel(
                         robot.sys_intake.extend(),
-                        robot.sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE)
+                        Commands.waitUntil(
+                                () -> robot.sys_intake.getPosition().isNear(
+                                                IntakeConstants.Extension.EXTENSION_MAX_DISTANCE.div(2), Centimeters.of(2))
+                        )
+                        .andThen(robot.sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE))
                 )
         );
     }
