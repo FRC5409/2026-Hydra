@@ -119,8 +119,8 @@ public class GameCommands {
                 Commands.parallel(
                         robot.sys_intake.extend(),
                         Commands.waitUntil(
-                                () -> robot.sys_intake.getPosition().isNear(
-                                                IntakeConstants.Extension.EXTENSION_MAX_DISTANCE.div(2), Centimeters.of(2))
+                                () -> robot.sys_intake.getPosition()
+                                                        .gte(IntakeConstants.Extension.EXTENSION_MAX_DISTANCE.div(2))
                         )
                         .andThen(robot.sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE))
                 )
