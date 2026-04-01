@@ -394,7 +394,7 @@ public class Drive extends SubsystemBase {
     }
 
     public void resetGyro() {
-        gyroIO.zeroPigeon();
+        gyroIO.zero();
     }
 
     public Angle getTilt() {
@@ -404,7 +404,7 @@ public class Drive extends SubsystemBase {
     /** Resets the current odometry pose. */
     public void setPose(Pose2d pose) {
         poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
-        gyroIO.setPigeonYaw(pose.getRotation());
+        gyroIO.setYaw(pose.getRotation());
         vision.setRotation(pose.getRotation());
     }
 
