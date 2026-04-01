@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.controls.Follower;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.units.measure.*;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.subsystems.intake.IntakeConstants.Roller;
 import org.littletonrobotics.junction.Logger;
@@ -45,35 +46,39 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal<AngularVelocity> extensionVelocity;
     private final StatusSignal<Current>         extensionTorqueCurrent;
 
-    public IntakeIOTalonFX(int rollerMotorId, int rollerMotorId2, int extensionMotorId) {
+    public IntakeIOTalonFX(int rollerMotorId, int rollerFolllowerMotorId, int extensionMotorId) {
         rollerMotor = new TalonFX(rollerMotorId);
-        rollerFollowerMotor = new TalonFX(rollerMotorId2);
+        rollerFollowerMotor = new TalonFX(rollerFolllowerMotorId);
         extensionMotor = new TalonFX(extensionMotorId);
         rollerMotor.set(0.0);
         rollerFollowerMotor.set(0.0);
         extensionMotor.set(0.0);
         positionControl = new PositionVoltage(0.0);
 
-
         TalonFXConfiguration extensionConfig = new TalonFXConfiguration()
-                .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING));
+                .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING))
+                .withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive))
+                .withCurrentLimits(new CurrentLimitsConfigs()
+                                                  .withSupplyCurrentLimit(Extension.CURRENT_LIMIT)
+                                                  .withSupplyCurrentLimitEnable(true));
 
         extensionConfig.Slot0 = new Slot0Configs()
                 .withKP(Extension.TALONFX_PID.kP)
                 .withKI(Extension.TALONFX_PID.kI)
                 .withKD(Extension.TALONFX_PID.kD);
 
-        extensionConfig.withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
-        extensionConfig.withCurrentLimits(new CurrentLimitsConfigs()
-                                                  .withSupplyCurrentLimit(Extension.CURRENT_LIMIT)
-                                                  .withSupplyCurrentLimitEnable(true));
+        TalonFXConfiguration rollerConfig = new TalonFXConfiguration()
+                .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Roller.GEARING))
+                .withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive))
+                .withCurrentLimits(new CurrentLimitsConfigs()
+                                              .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
+                                              .withSupplyCurrentLimitEnable(true)); 
+
         extensionMotor.getConfigurator().apply(extensionConfig);
 
-        rollerMotor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast));
-        rollerMotor.getConfigurator().apply(new CurrentLimitsConfigs()
-                                                    .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
-                                                    .withSupplyCurrentLimitEnable(true));
-        rollerFollowerMotor.setControl(new Follower(rollerMotor.getDeviceID(), MotorAlignmentValue.Aligned));
+        rollerMotor.getConfigurator().apply(rollerConfig);
+        rollerFollowerMotor.setControl(new Follower(rollerMotorId, MotorAlignmentValue.Opposed));
+        rollerFollowerMotor.getConfigurator().apply(rollerConfig);
 
         extensionPosition = extensionMotor.getPosition();
         extensionTemperature = extensionMotor.getDeviceTemp();
@@ -228,22 +233,22 @@ public final class IntakeIOTalonFX implements IntakeIO {
         ).isOK();
 
         inputs.extensionVolts = extensionVoltage.getValue();
-        inputs.extensionCurrent = Amps.of(extensionCurrent.getValueAsDouble());
-        inputs.extensionTorqueCurrent = Amps.of(extensionTorqueCurrent.getValueAsDouble());
+        inputs.extensionCurrent = extensionCurrent.getValue();
+        inputs.extensionTorqueCurrent = extensionTorqueCurrent.getValue();
         inputs.extensionTemp = extensionTemperature.getValueAsDouble();
         inputs.extensionPosition = getPosition();
         inputs.extensionVelocity = MetersPerSecond.of(extensionVelocity.getValueAsDouble());
         inputs.isExtensionRunning = Math.abs(extensionVoltage.getValueAsDouble()) > 0.1;
         inputs.extensionSetpoint = setpoint;
 
-        inputs.rollerVolts = Volts.of(rollerVoltage.getValueAsDouble());
-        inputs.rollerCurrent = Amps.of(rollerCurrent.getValueAsDouble());
+        inputs.rollerVolts = rollerVoltage.getValue();
+        inputs.rollerCurrent = rollerCurrent.getValue();
         inputs.rollerTemp = rollerTemperature.getValueAsDouble();
-        inputs.rollerVelocity = RotationsPerSecond.of(rollerVelocity.getValueAsDouble());
+        inputs.rollerVelocity = rollerVelocity.getValue();
 
-        inputs.rollerFollowerMotorVolts = Volts.of(rollerFollowerMotorVoltage.getValueAsDouble());
-        inputs.rollerFollowerMotorCurrent = Amps.of(rollerFollowerMotorCurrent.getValueAsDouble());
+        inputs.rollerFollowerMotorVolts = rollerFollowerMotorVoltage.getValue();
+        inputs.rollerFollowerMotorCurrent = rollerFollowerMotorCurrent.getValue();
         inputs.rollerFollowerMotorTemp = rollerFollowerMotorTemperature.getValueAsDouble();
-        inputs.rollerFollowerMotorVelocity = RotationsPerSecond.of(rollerFollowerMotorVelocity.getValueAsDouble());
+        inputs.rollerFollowerMotorVelocity = rollerFollowerMotorVelocity.getValue();
     }
 }
