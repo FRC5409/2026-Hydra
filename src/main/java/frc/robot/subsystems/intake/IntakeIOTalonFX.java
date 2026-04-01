@@ -17,7 +17,7 @@ import static edu.wpi.first.units.Units.*;
 
 public final class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX rollerMotor;
-    private final TalonFX rollerMotor2;
+    private final TalonFX rollerFollowerMotor;
     private final TalonFX extensionMotor;
 
     private Distance setpoint = Meters.of(0.0);
@@ -45,10 +45,10 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
     public IntakeIOTalonFX(int rollerMotorId, int rollerMotorId2, int extensionMotorId) {
         rollerMotor = new TalonFX(rollerMotorId);
-        rollerMotor2 = new TalonFX(rollerMotorId2);
+        rollerFollowerMotor = new TalonFX(rollerMotorId2);
         extensionMotor = new TalonFX(extensionMotorId);
         rollerMotor.set(0.0);
-        rollerMotor2.set(0.0);
+        rollerFollowerMotor.set(0.0);
         extensionMotor.set(0.0);
         positionControl = new PositionVoltage(0.0);
 
@@ -68,10 +68,13 @@ public final class IntakeIOTalonFX implements IntakeIO {
         extensionMotor.getConfigurator().apply(extensionConfig);
 
         rollerMotor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast));
-
         rollerMotor.getConfigurator().apply(new CurrentLimitsConfigs()
                                                     .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
                                                     .withSupplyCurrentLimitEnable(true));
+        rollerFollowerMotor.getConfigurator().apply(new MotorOutputConfigs().withNeutralMode(NeutralModeValue.Coast));
+        rollerFollowerMotor.getConfigurator().apply(new CurrentLimitsConfigs()
+                                                            .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
+                                                            .withSupplyCurrentLimitEnable(true));
 
         extensionPosition = extensionMotor.getPosition();
         extensionTemperature = extensionMotor.getDeviceTemp();
@@ -86,11 +89,11 @@ public final class IntakeIOTalonFX implements IntakeIO {
         rollerCurrent = rollerMotor.getSupplyCurrent();
         rollerVelocity = rollerMotor.getVelocity();
 
-        roller2Position = rollerMotor2.getPosition();
-        roller2Temperature = rollerMotor2.getDeviceTemp();
-        roller2Voltage = rollerMotor2.getMotorVoltage();
-        roller2Current = rollerMotor2.getSupplyCurrent();
-        roller2Velocity = rollerMotor2.getVelocity();
+        roller2Position = rollerFollowerMotor.getPosition();
+        roller2Temperature = rollerFollowerMotor.getDeviceTemp();
+        roller2Voltage = rollerFollowerMotor.getMotorVoltage();
+        roller2Current = rollerFollowerMotor.getSupplyCurrent();
+        roller2Velocity = rollerFollowerMotor.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
 
@@ -125,7 +128,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
      */
     public void setRollerVoltage(double voltage) {
         rollerMotor.setVoltage(voltage);
-        rollerMotor2.setVoltage(voltage);
+        rollerFollowerMotor.setVoltage(voltage);
     }
 
     /**
@@ -162,7 +165,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
      */
     public void coastMode() {
         rollerMotor.setNeutralMode(NeutralModeValue.Coast);
-        rollerMotor2.setNeutralMode(NeutralModeValue.Coast);
+        rollerFollowerMotor.setNeutralMode(NeutralModeValue.Coast);
         extensionMotor.setNeutralMode(NeutralModeValue.Coast);
     }
 
@@ -172,7 +175,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
      */
     public void brakeMode() {
         rollerMotor.setNeutralMode(NeutralModeValue.Brake);
-        rollerMotor2.setNeutralMode(NeutralModeValue.Brake);
+        rollerFollowerMotor.setNeutralMode(NeutralModeValue.Brake);
         extensionMotor.setNeutralMode(NeutralModeValue.Brake);
     }
 
