@@ -127,17 +127,9 @@ public class Autos {
 							GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
 					).andThen(GameCommands.stopLaunching(robot)),
 
-					// ALIGN BACK TO BUMP TRAVERSE STARTING POSE
-					DriveCommands.alignToPoint(
-							robot.sys_drive,
-							() -> LEFT_BUMP_STARTING_POSE,
-							() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
-							() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-					),
-
-					//	GO BACK OVER BUMP
+					// GO BACK OVER BUMP
                     Commands.deadline(
-    					Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
+					    Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Score-Neutral")),
                         GameCommands.startIntake(robot)
                     ),
 
@@ -201,18 +193,10 @@ public class Autos {
 								GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
 						).andThen(GameCommands.stopLaunching(robot)),
 
-						// ALIGN BACK TO BUMP TRAVERSE STARTING POSE
-						DriveCommands.alignToPoint(
-								robot.sys_drive,
-								() -> RIGHT_BUMP_STARTING_POSE,
-								() -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
-								() -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION
-						),
-
-						//	GO BACK OVER BUMP
+                        // GO BACK OVER BUMP
                         Commands.deadline(
-						    Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
-                            GameCommands.startIntake(robot)
+                                Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Score-Neutral")),
+                                GameCommands.startIntake(robot)
                         ),
 
 						// follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
