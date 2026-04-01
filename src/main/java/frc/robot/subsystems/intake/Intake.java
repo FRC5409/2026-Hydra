@@ -3,6 +3,7 @@ package frc.robot.subsystems.intake;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.Energy;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -10,30 +11,30 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.subsystems.energy.EnergyLogger;
 import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.util.Checkmate;
 import frc.robot.util.MathUtils;
 import frc.robot.util.Checkmate.TestResult;
 import org.littletonrobotics.junction.Logger;
+import frc.robot.Robot;
+import static edu.wpi.first.units.Units.*;
 
 import java.util.function.Supplier;
-
-import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.Milliseconds;
 
 public class Intake extends SubsystemBase {
     private final IntakeIO               io;
     private final IntakeInputsAutoLogged inputs;
+    private final EnergyLogger energyLogger = new EnergyLogger();
 
     private Distance setpoint;
 
     private static Pose3d extenderPose;
-
     public Intake(IntakeIO intakeIO) {
 
         this.io = intakeIO;
         this.inputs = new IntakeInputsAutoLogged();
+
         extenderPose = new Pose3d();
 
 //        Checkmate.register("Should fully extend Intake", () -> {
@@ -220,5 +221,16 @@ public class Intake extends SubsystemBase {
 
         Logger.recordOutput("Components/Intake", extenderPose);
         SmartDashboard.putData("Intake/PID", Extension.SIM_PID);
+
+        reportCurrentUsage();
+
+    }
+
+    private void reportCurrentUsage() {
+        double extCurrentA = inputs.extensionCurrent.in(Amps);
+        double rollCurrentA = inputs.rollerCurrent.in(Amps);
+
+        energyLogger.reportCurrentUsage("Intake_Extension", extCurrentA);
+        energyLogger.reportCurrentUsage("Intake_Roller", rollCurrentA);
     }
 }

@@ -75,6 +75,7 @@ public class Module {
     driveDisconnectedAlert.set(!inputs.isDriveConnected);
     turnDisconnectedAlert.set(!inputs.isTurnConnected);
     turnEncoderDisconnectedAlert.set(!inputs.turnEncoderConnected);
+    reportCurrentUsage();
   }
 
   /** Runs the module with the specified setpoint state. Mutates the state to optimize it. */
@@ -164,5 +165,12 @@ public class Module {
 
   public void steerNeutralMode(NeutralModeValue mode){
     io.steerNeutralMode(mode);
+  }
+
+  private void reportCurrentUsage() {
+    double driveCurrentA = inputs.driveCurrentAmps.in(edu.wpi.first.units.Units.Amps);
+    double turnCurrentA = inputs.turnCurrentAmps.in(edu.wpi.first.units.Units.Amps);
+    Logger.recordOutput("Drive/Module" + Integer.toString(index) + "/DriveCurrent", driveCurrentA);
+    Logger.recordOutput("Drive/Module" + Integer.toString(index) + "/TurnCurrent", turnCurrentA);
   }
 }

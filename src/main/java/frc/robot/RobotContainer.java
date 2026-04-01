@@ -51,6 +51,7 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOLimelight;
 import frc.robot.subsystems.vision.VisionIOSim;
+import frc.robot.subsystems.energy.EnergyLogger;
 import frc.robot.util.AutoPath;
 import org.ironmaple.simulation.SimulatedArena;
 import org.ironmaple.simulation.drivesims.COTS;
@@ -80,6 +81,7 @@ public class RobotContainer {
     public final Feeder     sys_feeder;
     public final Hopper     sys_hopper;
     public final Launcher   sys_launcher;
+    public final EnergyLogger sys_energyLogger;
     /**
      * THIS FIELD CAN BE NULL, ensure it is not-null before using it.
      */
@@ -155,6 +157,8 @@ public class RobotContainer {
                         DeviceID.LAUNCHER_HOOD_SERVO_1,
                         DeviceID.LAUNCHER_HOOD_SERVO_2),
                     sys_drive);
+
+                sys_energyLogger = new EnergyLogger();
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -190,6 +194,7 @@ public class RobotContainer {
                 sys_serializer = new Serializer(new SerializerIOSim());
                 sys_feeder = new Feeder(new FeederIOSim());
                 sys_hopper = new Hopper(new HopperIOSim());
+                sys_energyLogger = new EnergyLogger();
 
                 sys_launcher = new Launcher(new LauncherIOSim(), sys_drive);
             }
@@ -209,6 +214,7 @@ public class RobotContainer {
                 sys_elevator = new Elevator(new ElevatorIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {}, sys_drive);
+                sys_energyLogger = new EnergyLogger();
             }
         }
 

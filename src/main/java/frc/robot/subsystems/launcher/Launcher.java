@@ -216,5 +216,11 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput("Launcher/Interpolator/OperatorSpeedOffset", getSpeedOffset());
         Logger.recordOutput("Launcher/IsAtSpeed", isLauncherAtSpeed());
         Logger.processInputs("Launcher", inputs);
+        reportCurrentUsage();
+    }
+
+    private void reportCurrentUsage() {
+        double launcherCurrentA = inputs.launcherCurrent.in(edu.wpi.first.units.Units.Amps);
+        Logger.recordOutput("Launcher/Current", launcherCurrentA);
     }
 }

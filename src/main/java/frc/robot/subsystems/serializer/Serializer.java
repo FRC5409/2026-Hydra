@@ -50,5 +50,11 @@ public class Serializer extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Serializer", inputs);
+        reportCurrentUsage();
+    }
+
+    private void reportCurrentUsage() {
+        double serializerCurrentA = inputs.serializerCurrent.in(edu.wpi.first.units.Units.Amps);
+        Logger.recordOutput("Serializer/Current", serializerCurrentA);
     }
 }

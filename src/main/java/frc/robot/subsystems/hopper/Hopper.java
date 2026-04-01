@@ -131,5 +131,11 @@ public class Hopper extends SubsystemBase {
 //                io.setSetpoint(() -> lastCrashPosition);
 //            }
 //        }
+        reportCurrentUsage();
+    }
+
+    private void reportCurrentUsage() {
+        double currentA = inputs.appliedCurrent.in(edu.wpi.first.units.Units.Amps);
+        Logger.recordOutput("Hopper/Current", currentA);
     }
 }

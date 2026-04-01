@@ -55,5 +55,11 @@ public class Feeder extends SubsystemBase {
     public void periodic() {
         io.updateInputs(inputs);
         Logger.processInputs("Feeder", inputs);
+        reportCurrentUsage();
+    }
+
+    private void reportCurrentUsage() {
+        double feederCurrentA = inputs.current.in(edu.wpi.first.units.Units.Amps);
+        Logger.recordOutput("Feeder/Current", feederCurrentA);
     }
 }

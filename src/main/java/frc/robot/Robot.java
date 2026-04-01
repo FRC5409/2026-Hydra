@@ -9,6 +9,7 @@ package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -120,6 +121,8 @@ public class Robot extends LoggedRobot {
         rebuiltTimer.periodic(robotContainer.sys_drive);
         Logger.recordOutput("DistToHub", DriveCommands.distToHub(robotContainer.sys_drive));
         Logger.recordOutput("Controls/AahanControls", robotContainer.aahanControls);
+
+        robotContainer.sys_energyLogger.setBatteryVoltage(RobotController.getBatteryVoltage());
     }
 
     /** This function is called once when the robot is disabled. */
