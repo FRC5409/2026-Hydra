@@ -17,6 +17,7 @@ import static frc.robot.util.PhoenixUtil.*;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.PositionTorqueCurrentFOC;
 import com.ctre.phoenix6.controls.PositionVoltage;
@@ -39,6 +40,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.generated.TunerConstants;
 import java.util.Queue;
 
@@ -52,6 +54,9 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final SwerveModuleConstants<
           TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration>
       constants;
+
+  private TalonFXConfiguration driveConfig;
+  private TalonFXConfiguration turnConfig;
 
   // Hardware objects
   private final TalonFX driveTalon;
@@ -105,7 +110,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     cancoder = new CANcoder(constants.EncoderId, TunerConstants.kCANBus);
 
     // Configure drive motor
-    var driveConfig = constants.DriveMotorInitialConfigs;
+    driveConfig = constants.DriveMotorInitialConfigs;
     driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = constants.DriveMotorGains;
     driveConfig.Feedback.SensorToMechanismRatio = constants.DriveMotorGearRatio;
@@ -121,7 +126,7 @@ public class ModuleIOTalonFX implements ModuleIO {
     tryUntilOk(5, () -> driveTalon.setPosition(0.0, 0.25));
 
     // Configure turn motor
-    var turnConfig = new TalonFXConfiguration();
+    turnConfig = new TalonFXConfiguration();
     turnConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     turnConfig.Slot0 = constants.SteerMotorGains;
     turnConfig.Feedback.FeedbackRemoteSensorID = constants.EncoderId;
@@ -292,5 +297,17 @@ public class ModuleIOTalonFX implements ModuleIO {
   @Override
   public void steerNeutralMode(NeutralModeValue mode){
     turnTalon.setNeutralMode(mode);
+  }
+
+  @Override
+  public void setDriveSupplyLimit(Current currentLimit) {
+    driveConfig.CurrentLimits.SupplyCurrentLimit = currentLimit.in(Amps);
+    tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig.CurrentLimits));
+  }
+
+  @Override
+  public void setTurnSupplyLimit(Current currentLimit) {
+    turnConfig.CurrentLimits.SupplyCurrentLimit = currentLimit.in(Amps);
+    tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig.CurrentLimits));
   }
 }
