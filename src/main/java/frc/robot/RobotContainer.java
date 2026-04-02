@@ -63,7 +63,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import java.util.ArrayList;
-import java.util.function.BooleanSupplier;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -88,8 +87,6 @@ public class RobotContainer {
     private ClimbingPositions selectedClimbingPrepPosition = ClimbingPositions.LEFT_PREP;
 
     private Distance manualLaunchDistance = Meters.of(2);
-
-    public BooleanSupplier shouldLaunch = () -> true;
 
     public LoggedNetworkBoolean launcherShouldIdle = new LoggedNetworkBoolean("Launcher/ShouldIdle", false);
 
@@ -442,7 +439,7 @@ public class RobotContainer {
                         .onTrue(sys_intake.setRollerVoltage(-IntakeConstants.Roller.INTAKE_VOLTAGE))
                         .onFalse(sys_intake.setRollerVoltage(IntakeConstants.Roller.INTAKE_VOLTAGE));
 
-        // manual move intake extenson
+        // manual move intake extension
         secondaryController.rightBumper()
                     .onTrue(sys_intake.setExtensionVoltage(-3))
                     .onFalse(sys_intake.setExtensionVoltage(0));
@@ -487,17 +484,18 @@ public class RobotContainer {
         SmartDashboard.putData("Set Hood Angle",
                                sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));
 
-        SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true)); //TODO remove when main
-        SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true)); //TODO remove when main
+        SmartDashboard.putData("Hopper/Coast", sys_hopper.coastMode().ignoringDisable(true));
+        SmartDashboard.putData("Hopper/Brake", sys_hopper.brakeMode().ignoringDisable(true));
 
-        SmartDashboard.putData("Intake/Coast", sys_intake.coastMode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
-        SmartDashboard.putData("Intake/Brake", sys_intake.brakeMode().ignoringDisable(true)); // TODO: REMOVE WHEN MAIN
+        SmartDashboard.putData("Intake/Coast", sys_intake.coastMode().ignoringDisable(true));
+        SmartDashboard.putData("Intake/Brake", sys_intake.brakeMode().ignoringDisable(true));
     
-        SmartDashboard.putData("Drive/Coast", Commands.runOnce(() -> sys_drive.coastMode()).ignoringDisable(true));
-        SmartDashboard.putData("Drive/Brake", Commands.runOnce(() -> sys_drive.brakeMode()).ignoringDisable(false));
+        SmartDashboard.putData("Drive/Coast", Commands.runOnce(sys_drive::coastMode).ignoringDisable(true));
+        SmartDashboard.putData("Drive/Brake", Commands.runOnce(sys_drive::brakeMode).ignoringDisable(false));
 
     }
 
+    @Deprecated
     private Command prepClimberPositionCommand(ClimbingPositions climbingPosition) {
         return Commands.runOnce(
                 () -> {
@@ -531,13 +529,11 @@ public class RobotContainer {
      * @return command that will run on disabled
      */
     public Command onDisable() {
-        Command cmd = Commands.parallel(
+        return Commands.parallel(
                 GameCommands.stopLaunching(this),
                 Commands.runOnce(sys_drive::stop)
                 // sys_hopper.setVoltage(0)
         );
-
-        return cmd;
     }
 
     /**
