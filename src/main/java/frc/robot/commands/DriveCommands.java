@@ -119,18 +119,17 @@ public class DriveCommands {
     private static double scaleJoystick(double value) {
         double vector = MathUtil.applyDeadband(value, DEADBAND);
 
-        // Define split point (80% of joystick gives 50% max speed)
-        final double threshold = 0.85;
-        final double partialSpeed = 0.5;
+        final double threshold = 0.85;   // First 80% of joystick
+        final double partialSpeed = 0.5; // Max speed for first 80%
 
         double absVal = Math.abs(vector);
         double sign = Math.signum(vector);
 
         if (absVal <= threshold) {
-            // Scale linearly from 0 -> partialSpeed over 0 -> threshold
-            return sign * absVal / threshold * partialSpeed;
+            // 0 -> threshold maps to 0 -> partialSpeed
+            return sign * partialSpeed * (absVal / threshold);
         } else {
-            // Scale the last 20% of joystick to cover partialSpeed -> 1.0
+            // threshold -> 1 maps to partialSpeed -> 1
             return sign * (partialSpeed + (absVal - threshold) / (1 - threshold) * (1 - partialSpeed));
         }
     }
