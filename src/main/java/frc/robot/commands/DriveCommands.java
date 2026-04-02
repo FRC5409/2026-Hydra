@@ -34,7 +34,6 @@ import frc.robot.Constants.PassingPositions;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.util.AlignHelper;
 import frc.robot.util.MathUtils;
 import frc.robot.util.ProfiledController;
 
@@ -214,7 +213,7 @@ public class DriveCommands {
                   angleController.calculate(
                       drive.getRotation().getRadians(), rotationSupplier.get().getRadians());
 
-              Angle difference = AlignHelper.rotationDifference(drive.getRotation(), rotationSupplier.get());
+              Angle difference = MathUtils.rotationDifference(drive.getRotation(), rotationSupplier.get());
 
               if (difference.lte(kAutoAlign.ROTATION_TOLERANCE))
                   omega = 0;
@@ -326,7 +325,7 @@ public class DriveCommands {
         if(AutoBuilder.shouldFlip())
             targetPose =  FlippingUtil.flipFieldPose(targetPose);
 
-        Angle difference = AlignHelper.rotationDifference(targetPose.getRotation(), robotPose.getRotation());
+        Angle difference = MathUtils.rotationDifference(targetPose.getRotation(), robotPose.getRotation());
 
         Distance distance = Meters.of(Math.hypot(robotPose.getX() - targetPose.getX(), robotPose.getY() - targetPose.getY()));
 
@@ -396,7 +395,7 @@ public class DriveCommands {
     //     Rotation2d robotRotation = drive.getRotation();
     //     Rotation2d targetRotation = target.get();
 
-    //     Angle difference = AlignHelper.rotationDifference(targetRotation, robotRotation);
+    //     Angle difference = MathUtils.rotationDifference(targetRotation, robotRotation);
 
     //     AngularVelocity rotationSpeed = RadiansPerSecond.of(drive.getChassisSpeeds().omegaRadiansPerSecond);
 
