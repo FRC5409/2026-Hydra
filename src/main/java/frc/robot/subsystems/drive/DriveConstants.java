@@ -20,5 +20,6 @@ public final class DriveConstants {
     public static final Distance ROBOT_WIDTH = Inches.of(27.25);
     public static final Distance BUMPER_DEPTH = Meters.of(Units.inchesToMeters(2.25));
 
-    public static final Current LAUNCHING_CURRENT_LIMIT = Amps.of(30);
+    public static final Current LAUNCHING_SUPPLY_CURRENT_LIMIT = Amps.of(30);
+    public static final Current NORMAL_SUPPLY_CURRENT_LIMIT = Amps.of(50);
 }

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.GameCommandsConstants;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.drive.DriveConstants;
 import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.feeder.FeederConstants;
 import frc.robot.subsystems.hopper.HopperConstants;
@@ -46,6 +47,7 @@ public class GameCommands {
                 ),
                 Commands.sequence(
                         Commands.runOnce(() -> Logger.recordOutput("GameCommands/StartingLaunchSequence", true)),
+                        robot.sys_drive.setDriveSupplyLimit(DriveConstants.LAUNCHING_SUPPLY_CURRENT_LIMIT),
                         Commands.parallel(
                                 Commands.waitUntil(DriveCommands::isAligned),
                                 robot.sys_launcher.launchFuel(distanceSupplier, robot.sys_feeder)
@@ -64,6 +66,8 @@ public class GameCommands {
 
     public static Command manualLaunch(Supplier<Distance> distance, RobotContainer robot) {
         return Commands.sequence(
+                robot.sys_drive.setDriveSupplyLimit(DriveConstants.LAUNCHING_SUPPLY_CURRENT_LIMIT),
+                
                 robot.sys_launcher.launchFuel(distance, robot.sys_feeder),
 
                 Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
@@ -93,6 +97,7 @@ public class GameCommands {
                         () -> DriveCommands.getRotationToPassingPosition(robot.sys_drive, isRightHalf)
                 ),
                 Commands.sequence(
+                        robot.sys_drive.setDriveSupplyLimit(DriveConstants.LAUNCHING_SUPPLY_CURRENT_LIMIT),
                         Commands.parallel(
                                 robot.sys_launcher.runVelocity(() -> GameCommandsConstants.PASSING_RPS),
                                 robot.sys_launcher.setHoodExtension(() -> GameCommandsConstants.PASSING_HOOD_ANGLE),
@@ -199,6 +204,7 @@ public class GameCommands {
      */
     public static Command stopLaunching(RobotContainer robot) {
         return Commands.parallel(
+                robot.sys_drive.setDriveSupplyLimit(DriveConstants.NORMAL_SUPPLY_CURRENT_LIMIT),
                 robot.sys_launcher.stopLauncher(),
                 robot.sys_feeder.stop(),
                 stopSerializing(robot)
