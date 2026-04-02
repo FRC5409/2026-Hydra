@@ -80,7 +80,7 @@ public class DriveCommands {
 
   private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
 	// Apply deadband
-	double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
+    double linearMagnitude = scaleJoystick(Math.hypot(x, y));
 	Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
 	// Square magnitude for more precise control
@@ -115,6 +115,25 @@ public class DriveCommands {
   public static boolean isAligned(){
 	return isAligned;
   }
+
+    private static double scaleJoystick(double value) {
+        double vector = MathUtil.applyDeadband(value, DEADBAND);
+
+        // Define split point (80% of joystick gives 50% max speed)
+        final double threshold = 0.85;
+        final double partialSpeed = 0.5;
+
+        double absVal = Math.abs(vector);
+        double sign = Math.signum(vector);
+
+        if (absVal <= threshold) {
+            // Scale linearly from 0 -> partialSpeed over 0 -> threshold
+            return sign * absVal / threshold * partialSpeed;
+        } else {
+            // Scale the last 20% of joystick to cover partialSpeed -> 1.0
+            return sign * (partialSpeed + (absVal - threshold) / (1 - threshold) * (1 - partialSpeed));
+        }
+    }
 
   /**
    * Field relative drive command using two joysticks (controlling linear and angular velocities).
