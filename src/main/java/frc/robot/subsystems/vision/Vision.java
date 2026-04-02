@@ -5,6 +5,7 @@ import edu.wpi.first.math.Vector;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
@@ -23,9 +24,9 @@ public class Vision extends SubsystemBase {
     private final VisionIO               io;
     private final VisionInputsAutoLogged inputs;
     private final Alert                  disconnectedAlert = new Alert(
-            "Limelight appears to be disconnected. (TIMEOUT)", Alert.AlertType.kError);
+            "Limelight appears to be disconnected. (TIMEOUT)", AlertType.kError);
 
-    private final Alert tempAlert = new Alert("LL Temp", Alert.AlertType.kWarning);
+    private final Alert tempAlert = new Alert("LL Temp", AlertType.kWarning);
 
     public Vision(VisionIO io) {
         this.io = io;
@@ -69,10 +70,6 @@ public class Vision extends SubsystemBase {
         Logger.recordOutput("Vision/RotationalStdDev", Radians.of(theta));
 
         return VecBuilder.fill(xy, xy, theta);
-    }
-
-    public void setForceFusedIMU(boolean forceFusedIMU) {
-        io.setForceFusedIMU(forceFusedIMU);
     }
 
     /**
