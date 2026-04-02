@@ -480,6 +480,12 @@ public class RobotContainer {
         new Trigger(() -> secondaryController.getLeftX() < 0.5)
                     .onTrue(prepManualLaunchDistance(Meters.of(4.0)));
 
+        // TODO: test on hydra
+        SmartDashboard.putData("Align Wheels 45", DriveCommands.alignAutoWheels45(sys_drive));
+
+        // TODO: test on hydra
+        SmartDashboard.putData("Align Wheels 135", DriveCommands.alignAutoWheels135(sys_drive));
+
         SmartDashboard.putNumber("Hood Angle [mm]", 0);
         SmartDashboard.putData("Set Hood Angle",
                                sys_launcher.setHoodExtension(() -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0))));

@@ -53,6 +53,7 @@ import org.littletonrobotics.junction.Logger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Volts;
 
@@ -228,6 +229,12 @@ public class Drive extends SubsystemBase {
 
         // Update gyro alert
         gyroDisconnectedAlert.set(!gyroInputs.isConnected && Constants.CURRENT_MODE != Mode.SIM);
+    }
+
+    public void alignAutoWheels(Angle degrees) {
+        for (int i = 0; i < 4; i++) {
+            modules[i].setTurnPosition(Rotation2d.fromDegrees(degrees.in(Degrees)));
+        }
     }
 
     /**
