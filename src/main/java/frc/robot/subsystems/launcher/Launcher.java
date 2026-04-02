@@ -33,7 +33,6 @@ import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase {
     private final LauncherIO                io;
-    private final Drive                     drive;
     private final LauncherInputsAutoLogged  inputs;
     private final AtomicReference<Distance> hoodSetpoint = new AtomicReference<>(Millimeters.of(0.0));
 
@@ -44,7 +43,6 @@ public class Launcher extends SubsystemBase {
 
     public Launcher(LauncherIO io, Drive drive) {
         this.io = io;
-        this.drive = drive;
         inputs = new LauncherInputsAutoLogged();
 
         // create the logged fields
@@ -59,12 +57,15 @@ public class Launcher extends SubsystemBase {
         new Trigger(() -> automaticHoodTimer.advanceIfElapsed(0.5))
                 .onTrue(Commands.runOnce(() -> {
                     // outside neutral: automatic hood to hub
-                    if (!kField.NEUTRAL_ZONE.contains(drive.getPose().getTranslation())){
+                    if (!kField.NEUTRAL_ZONE.contains(drive.getPose().getTranslation())) {
                         Logger.recordOutput("Launcher/ShouldInvalidateHood", true);
                         Logger.recordOutput("Launcher/AutoHoodMode", "AllianceShoot");
                         LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
-                        Logger.recordOutput("Launcher/HoodEstimateDifferential", launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters));
-                        if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >= Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
+                        Logger.recordOutput(
+                                "Launcher/HoodEstimateDifferential",
+                                launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters));
+                        if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >=
+                            Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
                             hoodSetpoint.set(launchEstimate.hoodExtension());
                         }
                     }
@@ -75,8 +76,7 @@ public class Launcher extends SubsystemBase {
                         Logger.recordOutput("Launcher/AutoHoodMode", "NeutralPass");
                     }
                 }))
-                .onFalse(Commands.runOnce(() -> 
-                    Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
+                .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
