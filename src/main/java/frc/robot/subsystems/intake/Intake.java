@@ -110,7 +110,7 @@ public class Intake extends SubsystemBase {
      * @return A command that extends the intake when executed.
      */
     public Command extend() {
-        return setSetpoint(() -> Extension.EXTENSION_TOLERANCE)
+        return setSetpoint(() -> Extension.EXTENSION_MAX_DISTANCE)
                 .andThen(Commands.waitUntil(this::isExtended))
                 .andThen(setSetpoint(this::getPosition)); // lock position to setpoint
     }
