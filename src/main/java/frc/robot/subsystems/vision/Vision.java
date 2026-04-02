@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.util.LimelightHelpers;
+import frc.robot.util.LogHelper;
 import org.littletonrobotics.junction.Logger;
 
 import static frc.robot.subsystems.vision.VisionConstants.*;
@@ -48,7 +49,7 @@ public class Vision extends SubsystemBase {
     }
 
     public void captureClip() {
-        Logger.recordOutput("Event/Vision/CaptureClip", Timer.getFPGATimestamp());
+        LogHelper.logEvent("Vision/CaptureClip");
         io.captureClip();
     }
 
