@@ -4,8 +4,10 @@ import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.KilogramSquareMeters;
 import static edu.wpi.first.units.Units.Kilograms;
 import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.Amps;
 
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Mass;
 import edu.wpi.first.units.measure.MomentOfInertia;
@@ -17,4 +19,6 @@ public final class DriveConstants {
     public static final double ODOMETRY_VELOCITY_UPDATE_FREQUENCY = 50;
     public static final Distance ROBOT_WIDTH = Inches.of(27.25);
     public static final Distance BUMPER_DEPTH = Meters.of(Units.inchesToMeters(2.25));
+
+    public static final Current LAUNCHING_CURRENT_LIMIT = Amps.of(30);
 }
