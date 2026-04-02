@@ -112,7 +112,7 @@ public class Robot extends LoggedRobot {
         // rebuiltTimer.trackShift();
         // SmartDashboard.putNumber("Time In shift", rebuiltTimer.getTimeInShift());
         // SmartDashboard.putString("Current Shift", rebuiltTimer.currentShift.toString());
-
+        Logger.recordOutput("Controls/AahanControls", robotContainer.aahanControls);
 
 
     }
