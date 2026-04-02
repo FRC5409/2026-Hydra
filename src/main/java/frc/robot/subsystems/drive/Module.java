@@ -16,6 +16,7 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 
@@ -164,5 +165,13 @@ public class Module {
 
   public void steerNeutralMode(NeutralModeValue mode){
     io.steerNeutralMode(mode);
+  }
+
+  public void setDriveSupplyLimit(Current currentLimit) {
+    io.setDriveSupplyLimit(currentLimit);
+  }
+
+  public void setTurnSupplyLimit(Current currentLimit) {
+    io.setTurnSupplyLimit(currentLimit);
   }
 }
