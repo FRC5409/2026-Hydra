@@ -157,9 +157,9 @@ public class RobotContainer {
         // Set up auto routines
         autoChooser = new LoggedDashboardChooser<>("Auto Choices");
         autoChooser.addDefaultOption("None", Commands.none());
-        ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
+        // ArrayList<AutoPath> autoPaths = Autos.getAutoPaths(sys_drive, sys_vision);
 
-        autoPaths.forEach(autoPath -> autoChooser.addOption(autoPath.getName(), autoPath));
+        // autoPaths.forEach(autoPath -> autoChooser.addOption(autoPath.getName(), autoPath));
 
         if (Constants.IS_TUNING){
                 autoChooser.addOption(
