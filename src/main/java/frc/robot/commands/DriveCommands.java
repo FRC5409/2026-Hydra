@@ -96,6 +96,14 @@ public class DriveCommands {
         .getTranslation();
   }
 
+  public static Command alignAutoWheels45(Drive drive) {
+    return Commands.run(() -> drive.alignAutoWheels(Degrees.of(45)));
+  }
+
+  public static Command alignAutoWheels135(Drive drive) {
+    return Commands.run(() -> drive.alignAutoWheels(Degrees.of(135)));
+  }
+
   // Increase drive translation speed
   public static Command setRotationSpeedHigh(Drive drive) {
     return Commands.run(

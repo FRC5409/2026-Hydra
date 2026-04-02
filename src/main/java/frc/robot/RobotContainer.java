@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -471,6 +472,12 @@ public class RobotContainer {
         // TODO: GET MANUAL LAUNCH DISTANCE THAT WE WANT TO USE
         new Trigger(() -> secondaryController.getLeftX() < 0.5)
                     .onTrue(prepManualLaunchDistance(Meters.of(4.0)));
+
+        // TODO: test on hydra
+        SmartDashboard.putData("Align Wheels 45", DriveCommands.alignAutoWheels45(sys_drive));
+
+        // TODO: test on hydra
+        SmartDashboard.putData("Align Wheels 135", DriveCommands.alignAutoWheels135(sys_drive));
 
         SmartDashboard.putNumber("Hood Angle [mm]", 0);
         SmartDashboard.putData("Set Hood Angle",
