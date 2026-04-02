@@ -114,7 +114,15 @@ public class Intake extends SubsystemBase {
      * @return A command that extends the intake when executed.
      */
     public Command extend() {
-        return Commands.runOnce(() -> io.setSetpoint(Extension.EXTENSION_DISTANCE));
+        return Commands.sequence(
+            Commands.runOnce(() -> io.setSetpoint(IntakeConstants.Extension.EXTENSION_MAX_DISTANCE)),
+            Commands.waitTime(Milliseconds.of(1000)),
+            Commands.run(() -> {
+                // Logger.recordOutput("Intake/inPosition?", io.getSetpoint().gte(io.getPosition()));
+                if (io.getPosition().gte(io.getSetpoint()))
+                    io.setSetpoint(io.getPosition());
+            }).until(() -> io.getPosition().gte(io.getSetpoint()))
+        ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
     }
 
     /**
@@ -124,15 +132,12 @@ public class Intake extends SubsystemBase {
      *
      * @return A command that moves the intake to the specified position when executed.
      */
-    public Command setSetpoint(Supplier<Distance> setpoint) {
-        return Commands.sequence(
-            Commands.runOnce(() -> io.setSetpoint(Meters.of(setpoint.get().in(Meters)))),
-            Commands.waitTime(Milliseconds.of(800)),
-            Commands.run(() -> {
-                if (MathUtils.withinTolerance(io.getSetpoint().in(Meters), io.getPosition().in(Meters), 5))
-                    io.setSetpoint(io.getPosition());
-            }).until(() -> MathUtils.withinTolerance(io.getSetpoint().in(Meters), io.getPosition().in(Meters), 5))
-        ).withInterruptBehavior(InterruptionBehavior.kCancelSelf);
+    public Command setSetpoint(Supplier<Distance> setpoint){
+        return Commands.runOnce(() -> io.setSetpoint(setpoint.get()));
+    }
+
+    public Command zeroExtension() {
+        return Commands.runOnce(() -> io.zeroExtension());
     }
 
     /**
