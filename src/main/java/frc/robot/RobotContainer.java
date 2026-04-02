@@ -10,7 +10,6 @@ package frc.robot;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.util.FlippingUtil;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -22,27 +21,29 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.*;
+import frc.robot.Constants.ClimbingPositions;
+import frc.robot.Constants.DeviceID;
+import frc.robot.Constants.Mode;
+import frc.robot.Constants.kField;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GameCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.feeder.FeederIOSim;
 import frc.robot.subsystems.feeder.FeederIOTalonFX;
-import frc.robot.subsystems.hopper.*;
+import frc.robot.subsystems.hopper.Hopper;
+import frc.robot.subsystems.hopper.HopperIO;
+import frc.robot.subsystems.hopper.HopperIOSim;
+import frc.robot.subsystems.hopper.HopperIOTalonFX;
 import frc.robot.subsystems.intake.*;
 import frc.robot.subsystems.launcher.*;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
@@ -80,10 +81,6 @@ public class RobotContainer {
     public final Feeder     sys_feeder;
     public final Hopper     sys_hopper;
     public final Launcher   sys_launcher;
-    /**
-     * THIS FIELD CAN BE NULL, ensure it is not-null before using it.
-     */
-    public final Elevator   sys_elevator;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -132,13 +129,6 @@ public class RobotContainer {
                 sys_feeder = new Feeder(new FeederIOTalonFX(DeviceID.FEEDER_MOTOR_TOP));
                 sys_vision = new Vision(new VisionIOLimelight(DeviceID.LIMELIGHT_NAME));
 
-                if (Constants.IS_CLIMBER_ATTACHED) {
-                    sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
-                } else {
-                    System.out.println("Climber not attached, will not register");
-                    sys_elevator = null;
-                }
-
                 sys_drive = new Drive(
                         new GyroIOPigeon2(),
                         new ModuleIOTalonFX(TunerConstants.FrontLeft),
@@ -185,7 +175,6 @@ public class RobotContainer {
                         new ModuleIOSim(simConfig.getModules()[2]),
                         new ModuleIOSim(simConfig.getModules()[3]),
                         sys_vision);
-                sys_elevator = new Elevator(new ElevatorIOSim());
                 sys_intake = new Intake(new IntakeIOSim());
                 sys_serializer = new Serializer(new SerializerIOSim());
                 sys_feeder = new Feeder(new FeederIOSim());
@@ -206,7 +195,6 @@ public class RobotContainer {
                 sys_hopper = new Hopper(new HopperIO() {});
                 sys_intake = new Intake(new IntakeIO() {});
                 sys_serializer = new Serializer(new SerializerIO() {});
-                sys_elevator = new Elevator(new ElevatorIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {}, sys_drive);
             }
@@ -548,9 +536,6 @@ public class RobotContainer {
                 Commands.runOnce(sys_drive::stop)
                 // sys_hopper.setVoltage(0)
         );
-
-        if (sys_elevator != null)
-            cmd = cmd.alongWith(sys_elevator.setVoltage(0));
 
         return cmd;
     }
