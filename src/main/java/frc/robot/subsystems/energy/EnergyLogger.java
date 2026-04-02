@@ -1,3 +1,15 @@
+/**
+ * EnergyLogger
+ *
+ * Adapted from battery-logging code by FRC Team 6328 (FRC6328).
+ *
+ * Original concepts and logging approach courtesy of FRC6328; this implementation
+ * has been adapted for use in this project.
+ *
+ * @author FRC Team 6328 (original)
+ * @author Project adaptation
+ */
+
 package frc.robot.subsystems.energy;
 
 import java.util.HashMap;
