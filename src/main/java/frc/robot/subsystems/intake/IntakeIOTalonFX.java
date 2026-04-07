@@ -20,7 +20,6 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 
 public final class IntakeIOTalonFX implements IntakeIO {
     private final TalonFX rollerMotor;
-    private final TalonFX rollerFollowerMotor;
     private final TalonFX extensionMotor;
 
     private Distance setpoint = Meters.of(0.0);
@@ -33,11 +32,11 @@ public final class IntakeIOTalonFX implements IntakeIO {
     private final StatusSignal<Current>         rollerCurrent;
     private final StatusSignal<AngularVelocity> rollerVelocity;
 
-    private final StatusSignal<Angle>           rollerFollowerMotorPosition;
-    private final StatusSignal<Temperature>     rollerFollowerMotorTemperature;
-    private final StatusSignal<Voltage>         rollerFollowerMotorVoltage;
-    private final StatusSignal<Current>         rollerFollowerMotorCurrent;
-    private final StatusSignal<AngularVelocity> rollerFollowerMotorVelocity;
+    private final StatusSignal<Angle>           rollerFollowerPosition;
+    private final StatusSignal<Temperature>     rollerFollowerTemperature;
+    private final StatusSignal<Voltage>         rollerFollowerVoltage;
+    private final StatusSignal<Current>         rollerFollowerCurrent;
+    private final StatusSignal<AngularVelocity> rollerFollowerVelocity;
 
     private final StatusSignal<Angle>           extensionPosition;
     private final StatusSignal<Temperature>     extensionTemperature;
@@ -48,7 +47,7 @@ public final class IntakeIOTalonFX implements IntakeIO {
 
     public IntakeIOTalonFX(int rollerMotorId, int rollerFolllowerMotorId, int extensionMotorId) {
         rollerMotor = new TalonFX(rollerMotorId);
-        rollerFollowerMotor = new TalonFX(rollerFolllowerMotorId);
+        TalonFX rollerFollowerMotor = new TalonFX(rollerFolllowerMotorId);
         extensionMotor = new TalonFX(extensionMotorId);
         rollerMotor.set(0.0);
         rollerFollowerMotor.set(0.0);
@@ -59,8 +58,8 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Extension.GEARING))
                 .withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive))
                 .withCurrentLimits(new CurrentLimitsConfigs()
-                                                  .withSupplyCurrentLimit(Extension.CURRENT_LIMIT)
-                                                  .withSupplyCurrentLimitEnable(true));
+                                           .withSupplyCurrentLimit(Extension.CURRENT_LIMIT)
+                                           .withSupplyCurrentLimitEnable(true));
 
         extensionConfig.Slot0 = new Slot0Configs()
                 .withKP(Extension.TALONFX_PID.kP)
@@ -71,8 +70,8 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Roller.GEARING))
                 .withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive))
                 .withCurrentLimits(new CurrentLimitsConfigs()
-                                              .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
-                                              .withSupplyCurrentLimitEnable(true)); 
+                                           .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
+                                           .withSupplyCurrentLimitEnable(true));
 
         extensionMotor.getConfigurator().apply(extensionConfig);
 
@@ -93,11 +92,11 @@ public final class IntakeIOTalonFX implements IntakeIO {
         rollerCurrent = rollerMotor.getSupplyCurrent();
         rollerVelocity = rollerMotor.getVelocity();
 
-        rollerFollowerMotorPosition = rollerFollowerMotor.getPosition();
-        rollerFollowerMotorTemperature = rollerFollowerMotor.getDeviceTemp();
-        rollerFollowerMotorVoltage = rollerFollowerMotor.getMotorVoltage();
-        rollerFollowerMotorCurrent = rollerFollowerMotor.getSupplyCurrent();
-        rollerFollowerMotorVelocity = rollerFollowerMotor.getVelocity();
+        rollerFollowerPosition = rollerFollowerMotor.getPosition();
+        rollerFollowerTemperature = rollerFollowerMotor.getDeviceTemp();
+        rollerFollowerVoltage = rollerFollowerMotor.getMotorVoltage();
+        rollerFollowerCurrent = rollerFollowerMotor.getSupplyCurrent();
+        rollerFollowerVelocity = rollerFollowerMotor.getVelocity();
 
         BaseStatusSignal.setUpdateFrequencyForAll(
 
@@ -112,11 +111,11 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 rollerVoltage,
                 rollerCurrent,
 
-                rollerFollowerMotorPosition,
-                rollerFollowerMotorTemperature,
-                rollerFollowerMotorVoltage,
-                rollerFollowerMotorCurrent,
-                rollerFollowerMotorVelocity
+                rollerFollowerPosition,
+                rollerFollowerTemperature,
+                rollerFollowerVoltage,
+                rollerFollowerCurrent,
+                rollerFollowerVelocity
         );
 
         extensionMotor.setPosition(0);
@@ -224,12 +223,12 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 rollerVelocity
         ).isOK();
 
-        inputs.isRollerFollowerMotorConnected = BaseStatusSignal.refreshAll(
-                rollerPosition,
-                rollerTemperature,
-                rollerVoltage,
-                rollerCurrent,
-                rollerVelocity
+        inputs.isRollerFollowerConnected = BaseStatusSignal.refreshAll(
+                rollerFollowerPosition,
+                rollerFollowerTemperature,
+                rollerFollowerVoltage,
+                rollerFollowerCurrent,
+                rollerFollowerVelocity
         ).isOK();
 
         inputs.extensionVolts = extensionVoltage.getValue();
@@ -246,9 +245,9 @@ public final class IntakeIOTalonFX implements IntakeIO {
         inputs.rollerTemp = rollerTemperature.getValueAsDouble();
         inputs.rollerVelocity = rollerVelocity.getValue();
 
-        inputs.rollerFollowerMotorVolts = rollerFollowerMotorVoltage.getValue();
-        inputs.rollerFollowerMotorCurrent = rollerFollowerMotorCurrent.getValue();
-        inputs.rollerFollowerMotorTemp = rollerFollowerMotorTemperature.getValueAsDouble();
-        inputs.rollerFollowerMotorVelocity = rollerFollowerMotorVelocity.getValue();
+        inputs.rollerFollowerVolts = rollerFollowerVoltage.getValue();
+        inputs.rollerFollowerCurrent = rollerFollowerCurrent.getValue();
+        inputs.rollerFollowerTemp = rollerFollowerTemperature.getValueAsDouble();
+        inputs.rollerFollowerVelocity = rollerFollowerVelocity.getValue();
     }
 }

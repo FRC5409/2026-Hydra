@@ -9,18 +9,18 @@ public interface IntakeIO {
 
     @AutoLog
     class IntakeInputs {
-        public boolean isRollerConnected              = false;
-        public boolean isRollerFollowerMotorConnected = false;
+        public boolean isRollerConnected         = false;
+        public boolean isRollerFollowerConnected = false;
 
         public Voltage         rollerVolts    = Volts.of(0.0);
         public Current         rollerCurrent  = Amps.of(0.0);
         public double          rollerTemp     = 0.0;
         public AngularVelocity rollerVelocity = RotationsPerSecond.of(0.0);
 
-        public Voltage         rollerFollowerMotorVolts    = Volts.of(0.0);
-        public Current         rollerFollowerMotorCurrent  = Amps.of(0.0);
-        public double          rollerFollowerMotorTemp     = 0.0;
-        public AngularVelocity rollerFollowerMotorVelocity = RotationsPerSecond.of(0.0);
+        public Voltage         rollerFollowerVolts    = Volts.of(0.0);
+        public Current         rollerFollowerCurrent  = Amps.of(0.0);
+        public double          rollerFollowerTemp     = 0.0;
+        public AngularVelocity rollerFollowerVelocity = RotationsPerSecond.of(0.0);
 
         public boolean        isExtensionConnected   = false;
         public boolean        isExtensionRunning     = false;
