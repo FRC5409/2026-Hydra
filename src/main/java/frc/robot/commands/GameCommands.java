@@ -25,7 +25,6 @@ import java.util.function.Supplier;
 
 import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.units.Units.Centimeters;
 import static edu.wpi.first.units.Units.Milliseconds;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
