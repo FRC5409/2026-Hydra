@@ -53,7 +53,8 @@ public class DriveCommands {
     private static final double DEADBAND         = 0.1;
     private static final double TRIGGER_DEADBAND = 0.01;
 
-    private static final SlewRateLimiter JOYSTICK_XY_LIMITER = new SlewRateLimiter(OperatorConstants.DRIVER_JOYSTICK_MAX_ACCELERATION);
+    private static final SlewRateLimiter JOYSTICK_X_LIMITER = new SlewRateLimiter(OperatorConstants.DRIVER_JOYSTICK_MAX_ACCELERATION);
+    private static final SlewRateLimiter JOYSTICK_Y_LIMITER = new SlewRateLimiter(OperatorConstants.DRIVER_JOYSTICK_MAX_ACCELERATION);
 
     private static final double ANGLE_KP       = 5.0; // 7
     private static final double ANGLE_KD       = 0.1; // 0.4
@@ -82,8 +83,8 @@ public class DriveCommands {
 
     private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
         // apply slew rate
-        x = JOYSTICK_XY_LIMITER.calculate(x);
-        y = JOYSTICK_XY_LIMITER.calculate(y);
+        x = JOYSTICK_X_LIMITER.calculate(x);
+        y = JOYSTICK_Y_LIMITER.calculate(y);
 
         // Apply deadband
         double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
