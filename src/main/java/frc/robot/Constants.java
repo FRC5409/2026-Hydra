@@ -26,7 +26,7 @@ import static edu.wpi.first.units.Units.*;
 public final class Constants {
     public static final Mode CURRENT_MODE = RobotBase.isReal() ? Mode.REAL : Mode.SIM;
 
-    public static final boolean IS_TUNING = true;
+    public static final boolean IS_TUNING = false;
 
     public enum Mode {
         /** Running on a real robot. */
