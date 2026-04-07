@@ -88,6 +88,7 @@ public class DriveCommands {
 
         // Apply deadband
         double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
+        Logger.recordOutput("OperatorInput/DrivingLinearMagnitude", linearMagnitude);
         Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
 
         // Square magnitude for more precise control
