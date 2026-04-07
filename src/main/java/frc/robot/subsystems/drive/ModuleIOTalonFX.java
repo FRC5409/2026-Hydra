@@ -99,7 +99,7 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveConfig.CurrentLimits.StatorCurrentLimit = constants.SlipCurrent;
         driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        driveConfig.CurrentLimits.SupplyCurrentLimit = 50;
+        driveConfig.CurrentLimits.SupplyCurrentLimit = DriveConstants.DRIVE_SUPPLY_CURRENT_LIMIT.in(Amps);
         driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
 
         driveConfig.MotorOutput.Inverted =
@@ -134,11 +134,9 @@ public class ModuleIOTalonFX implements ModuleIO {
         turnConfig.MotionMagic.MotionMagicExpo_kA = 0.1;
         turnConfig.ClosedLoopGeneral.ContinuousWrap = true;
 
-        // turnConfig.CurrentLimits.SupplyCurrentLimit = 25;
-        // turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        turnConfig.CurrentLimits.SupplyCurrentLimit = 25;
+        turnConfig.CurrentLimits.SupplyCurrentLimit = DriveConstants.TURN_SUPPLY_CURRENT_LIMIT.in(Amps);
         turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
-        turnConfig.CurrentLimits.StatorCurrentLimit = 60;
+        turnConfig.CurrentLimits.StatorCurrentLimit = DriveConstants.TURN_STATOR_CURRENT_LIMIT.in(Amps);
         turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         turnConfig.MotorOutput.Inverted =

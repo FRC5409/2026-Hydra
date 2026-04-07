@@ -13,6 +13,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.*;
+import frc.robot.subsystems.drive.DriveConstants;
 
 // import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -71,9 +72,9 @@ public class TunerConstants {
             new CurrentLimitsConfigs()
                 // Swerve azimuth does not require much torque output, so we can set a relatively low
                 // stator current limit to help avoid brownouts without impacting performance.
-                .withStatorCurrentLimit(Amps.of(60))
+                .withStatorCurrentLimit(DriveConstants.TURN_STATOR_CURRENT_LIMIT)
                 .withStatorCurrentLimitEnable(true)
-                .withSupplyCurrentLimit(Amps.of(25))
+                .withSupplyCurrentLimit(DriveConstants.TURN_SUPPLY_CURRENT_LIMIT)
                 .withSupplyCurrentLimitEnable(true)
         );
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
