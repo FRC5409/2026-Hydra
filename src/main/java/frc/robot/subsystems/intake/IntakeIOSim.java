@@ -102,7 +102,7 @@ public class IntakeIOSim implements IntakeIO {
         inputs.rollerFollowerMotorVelocity = RotationsPerSecond.of(rollerVoltage / 12.0 * 5000.0);
 
         inputs.isRollerConnected = true;
-        inputs.isrollerFollowerMotorConnected = true;
+        inputs.isRollerFollowerMotorConnected = true;
         inputs.isExtensionConnected = true;
 
         extensionController.setPID(Extension.SIM_PID.getP(), Extension.SIM_PID.getI(), Extension.SIM_PID.getD());
