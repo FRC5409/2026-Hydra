@@ -136,6 +136,10 @@ public class ModuleIOTalonFX implements ModuleIO {
 
         // turnConfig.CurrentLimits.SupplyCurrentLimit = 25;
         // turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        turnConfig.CurrentLimits.SupplyCurrentLimit = 25;
+        turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+        turnConfig.CurrentLimits.StatorCurrentLimit = 60;
+        turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
 
         turnConfig.MotorOutput.Inverted =
                 constants.SteerMotorInverted
@@ -193,9 +197,9 @@ public class ModuleIOTalonFX implements ModuleIO {
     public void updateInputs(ModuleIOInputs inputs) {
         // Refresh all signals
         var driveStatus =
-                BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
+                BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent, driveSupplyCurrent);
         var turnStatus =
-                BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent);
+                BaseStatusSignal.refreshAll(turnPosition, turnVelocity, turnAppliedVolts, turnCurrent, turnSupplyCurrent);
         var turnEncoderStatus = BaseStatusSignal.refreshAll(turnAbsolutePosition);
 
         // Update drive inputs
