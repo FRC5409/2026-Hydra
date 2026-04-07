@@ -79,6 +79,10 @@ public final class Constants {
 
     }
 
+    public static final class OperatorConstants {
+        public static final double DRIVER_JOYSTICK_MAX_ACCELERATION = 0.5;
+    }
+
     public static final class kAutoAlign {
         public static final PIDConstants ALIGN_PID = new PIDConstants(1.75, 0.0, 0.28);
         // 4.9, 0, 0.28

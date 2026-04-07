@@ -28,6 +28,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.Mode;
+import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.PassingPositions;
 import frc.robot.Constants.kAutoAlign;
 import frc.robot.subsystems.drive.Drive;
@@ -51,6 +52,8 @@ import static edu.wpi.first.units.Units.*;
 public class DriveCommands {
     private static final double DEADBAND         = 0.1;
     private static final double TRIGGER_DEADBAND = 0.01;
+
+    private static final SlewRateLimiter JOYSTICK_XY_LIMITER = new SlewRateLimiter(OperatorConstants.DRIVER_JOYSTICK_MAX_ACCELERATION);
 
     private static final double ANGLE_KP       = 5.0; // 7
     private static final double ANGLE_KD       = 0.1; // 0.4
@@ -78,6 +81,10 @@ public class DriveCommands {
     private DriveCommands() {}
 
     private static Translation2d getLinearVelocityFromJoysticks(double x, double y) {
+        // apply slew rate
+        x = JOYSTICK_XY_LIMITER.calculate(x);
+        y = JOYSTICK_XY_LIMITER.calculate(y);
+
         // Apply deadband
         double linearMagnitude = MathUtil.applyDeadband(Math.hypot(x, y), DEADBAND);
         Rotation2d linearDirection = new Rotation2d(Math.atan2(y, x));
