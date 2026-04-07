@@ -119,7 +119,7 @@ public class Intake extends SubsystemBase {
      * @return true if at or beyond the current setpoint
      */
     public boolean isExtended() {
-        return io.getPosition().plus(Extension.EXTENSION_TOLERANCE).gte(io.getSetpoint());
+        return io.getPosition().gte(io.getSetpoint());
     }
 
     /**
