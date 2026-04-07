@@ -80,7 +80,7 @@ public final class Constants {
     }
 
     public static final class OperatorConstants {
-        public static final double DRIVER_JOYSTICK_MAX_ACCELERATION = 0.5;
+        public static final double DRIVER_JOYSTICK_MAX_ACCELERATION = 2.5;
     }
 
     public static final class kAutoAlign {
