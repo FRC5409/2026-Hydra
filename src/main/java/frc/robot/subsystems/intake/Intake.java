@@ -223,14 +223,11 @@ public class Intake extends SubsystemBase {
         SmartDashboard.putData("Intake/PID", Extension.SIM_PID);
 
         reportCurrentUsage();
-
     }
 
     private void reportCurrentUsage() {
-        double extCurrentA = inputs.extensionCurrent.in(Amps);
-        double rollCurrentA = inputs.rollerCurrent.in(Amps);
-
-        energyLogger.reportCurrentUsage("Intake_Extension", extCurrentA);
-        energyLogger.reportCurrentUsage("Intake_Roller", rollCurrentA);
+        energyLogger.reportCurrentUsage("Intake_Extension", inputs.extensionCurrent.in(Amps));
+        energyLogger.reportCurrentUsage("Intake_RollerA", inputs.rollerCurrent.in(Amps));
+        energyLogger.reportCurrentUsage("Intake_RollerB", inputs.rollerFollowerCurrent.in(Amps));
     }
 }
