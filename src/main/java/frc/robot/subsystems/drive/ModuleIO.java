@@ -66,4 +66,10 @@ public interface ModuleIO {
     default void driveNeutralMode(NeutralModeValue mode) {}
 
     default void steerNeutralMode(NeutralModeValue mode) {}
+
+    default void setDriveSupplyLimit(Current currentLimit) {}
+
+    default void setTurnSupplyLimit(Current currentLimit) {}
+
+    
 }

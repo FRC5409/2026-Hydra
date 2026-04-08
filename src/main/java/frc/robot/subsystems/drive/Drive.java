@@ -33,6 +33,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -40,6 +41,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
@@ -449,5 +451,21 @@ public class Drive extends SubsystemBase {
             module.driveNeutralMode(NeutralModeValue.Coast);
             module.steerNeutralMode(NeutralModeValue.Coast);
         }
+    }
+
+    public Command setDriveSupplyLimit(Current currentLimit) {
+        return Commands.runOnce(() -> {
+            for (Module module: modules) {
+                module.setDriveSupplyLimit(currentLimit);
+            }
+        });
+    }
+
+    public Command setTurnSupplyLimit(Current currentLimit) {
+        return Commands.runOnce(() -> {
+            for (Module module: modules) {
+                module.setTurnSupplyLimit(currentLimit);
+            }
+        });
     }
 }

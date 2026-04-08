@@ -10,6 +10,7 @@ package frc.robot.subsystems.drive;
 import com.ctre.phoenix6.BaseStatusSignal;
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.*;
 import com.ctre.phoenix6.hardware.CANcoder;
@@ -27,6 +28,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.units.measure.Voltage;
+import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import frc.robot.generated.TunerConstants;
 
 import java.util.Queue;
@@ -43,9 +45,12 @@ import static frc.robot.util.PhoenixUtil.tryUntilOk;
 public class ModuleIOTalonFX implements ModuleIO {
     private final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants;
 
-    // Hardware objects
-    private final TalonFX driveTalon;
-    private final TalonFX turnTalon;
+  private TalonFXConfiguration driveConfig;
+  private TalonFXConfiguration turnConfig;
+
+  // Hardware objects
+  private final TalonFX driveTalon;
+  private final TalonFX turnTalon;
 
     // Voltage control requests
     private final VoltageOut      voltageRequest         = new VoltageOut(0);
@@ -290,8 +295,20 @@ public class ModuleIOTalonFX implements ModuleIO {
         driveTalon.setNeutralMode(mode);
     }
 
-    @Override
-    public void steerNeutralMode(NeutralModeValue mode) {
-        turnTalon.setNeutralMode(mode);
-    }
+   @Override
+   public void steerNeutralMode(NeutralModeValue mode){
+     turnTalon.setNeutralMode(mode);
+   }
+
+   @Override
+   public void setDriveSupplyLimit(Current currentLimit) {
+     driveConfig.CurrentLimits.SupplyCurrentLimit = currentLimit.in(Amps);
+     tryUntilOk(5, () -> driveTalon.getConfigurator().apply(driveConfig.CurrentLimits));
+   }
+
+   @Override
+   public void setTurnSupplyLimit(Current currentLimit) {
+     turnConfig.CurrentLimits.SupplyCurrentLimit = currentLimit.in(Amps);
+     tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig.CurrentLimits));
+   }
 }

@@ -21,6 +21,7 @@ public final class DriveConstants {
     public static final double AUTO_WHEEL_COF = 1.2;
 
     public static final Current DRIVE_SUPPLY_CURRENT_LIMIT = Amps.of(50);
+    public static final Current DRIVE_LAUNCHING_SUPPLY_CURRENT_LIMIT = Amps.of(30);
     public static final Current TURN_SUPPLY_CURRENT_LIMIT = Amps.of(25);
     public static final Current TURN_STATOR_CURRENT_LIMIT = Amps.of(60);
 }
