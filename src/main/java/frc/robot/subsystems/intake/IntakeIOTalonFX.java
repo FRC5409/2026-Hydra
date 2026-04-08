@@ -73,11 +73,18 @@ public final class IntakeIOTalonFX implements IntakeIO {
                                            .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
                                            .withSupplyCurrentLimitEnable(true));
 
+        TalonFXConfiguration rollerFollowerConfig = new TalonFXConfiguration()
+                .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(Roller.GEARING))
+                .withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive))
+                .withCurrentLimits(new CurrentLimitsConfigs()
+                                            .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
+                                            .withSupplyCurrentLimitEnable(true));
+
         extensionMotor.getConfigurator().apply(extensionConfig);
 
         rollerMotor.getConfigurator().apply(rollerConfig);
         rollerFollowerMotor.setControl(new Follower(rollerMotorId, MotorAlignmentValue.Opposed));
-        rollerFollowerMotor.getConfigurator().apply(rollerConfig);
+        rollerFollowerMotor.getConfigurator().apply(rollerFollowerConfig);
 
         extensionPosition = extensionMotor.getPosition();
         extensionTemperature = extensionMotor.getDeviceTemp();
