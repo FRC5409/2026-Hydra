@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.AutoLog;
 
 import static edu.wpi.first.units.Units.Volts;
 
-@Deprecated
 public interface FuelGaugeIO {
 
     @AutoLog

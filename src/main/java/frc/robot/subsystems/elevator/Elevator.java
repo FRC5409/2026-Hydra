@@ -11,7 +11,6 @@ import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.*;
 
-@Deprecated
 public class Elevator extends SubsystemBase {
     private final ElevatorIO               io;
     private final ElevatorInputsAutoLogged inputs;

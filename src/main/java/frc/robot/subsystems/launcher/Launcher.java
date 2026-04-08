@@ -33,6 +33,7 @@ import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase {
     private final LauncherIO                io;
+    private final Drive                     drive;
     private final LauncherInputsAutoLogged  inputs;
     private final AtomicReference<Distance> hoodSetpoint = new AtomicReference<>(Millimeters.of(0.0));
 
@@ -43,6 +44,7 @@ public class Launcher extends SubsystemBase {
 
     public Launcher(LauncherIO io, Drive drive) {
         this.io = io;
+        this.drive = drive;
         inputs = new LauncherInputsAutoLogged();
 
         // create the logged fields
@@ -50,13 +52,31 @@ public class Launcher extends SubsystemBase {
         setStrategy(LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
         Preferences.setDouble(PREF_LAUNCH_SPEED_OFFSET, getSpeedOffset().in(RotationsPerSecond));
 
-        Timer hoodInvalidationTimer = new Timer();
-        hoodInvalidationTimer.start();
+        Timer automaticHoodTimer = new Timer();
+        automaticHoodTimer.start();
 
         // try to update the hood every 500 ms
-        new Trigger(() -> hoodInvalidationTimer.advanceIfElapsed(Hood.HOOD_INVALIDATION_POLL_SECONDS))
-                .onTrue(onHoodInvalidation(drive))
-                .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
+        new Trigger(() -> automaticHoodTimer.advanceIfElapsed(0.5))
+                .onTrue(Commands.runOnce(() -> {
+                    // outside neutral: automatic hood to hub
+                    if (!kField.NEUTRAL_ZONE.contains(drive.getPose().getTranslation())){
+                        Logger.recordOutput("Launcher/ShouldInvalidateHood", true);
+                        Logger.recordOutput("Launcher/AutoHoodMode", "AllianceShoot");
+                        LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
+                        Logger.recordOutput("Launcher/HoodEstimateDifferential", launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters));
+                        if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >= Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
+                            hoodSetpoint.set(launchEstimate.hoodExtension());
+                        }
+                    }
+
+                    // inside neutral: set to passing
+                    else {
+                        hoodSetpoint.set(GameCommandsConstants.PASSING_HOOD_ANGLE);
+                        Logger.recordOutput("Launcher/AutoHoodMode", "NeutralPass");
+                    }
+                }))
+                .onFalse(Commands.runOnce(() -> 
+                    Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
@@ -72,32 +92,6 @@ public class Launcher extends SubsystemBase {
                            Checkmate.TestResult.fail(
                                    "Launcher not fast enough (" + getVelocity().in(RotationsPerSecond) + " RPS)");
                 });
-    }
-
-    private Command onHoodInvalidation(Drive drive) {
-        return Commands.runOnce(() -> {
-            // outside neutral: automatic hood to hub
-            if (!kField.NEUTRAL_ZONE.contains(drive.getPose().getTranslation())) {
-                Logger.recordOutput("Launcher/ShouldInvalidateHood", true);
-                Logger.recordOutput("Launcher/AutoHoodMode", "AllianceShoot");
-
-                LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
-                Logger.recordOutput(
-                        "Launcher/HoodEstimateDifferential",
-                        launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters));
-
-                if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >=
-                    Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
-                    hoodSetpoint.set(launchEstimate.hoodExtension());
-                }
-            }
-
-            // inside neutral: set to passing
-            else {
-                hoodSetpoint.set(GameCommandsConstants.PASSING_HOOD_ANGLE);
-                Logger.recordOutput("Launcher/AutoHoodMode", "NeutralPass");
-            }
-        });
     }
 
     public Command runVelocity(Supplier<AngularVelocity> velocity) {
@@ -184,8 +178,7 @@ public class Launcher extends SubsystemBase {
                 "Launcher/Interpolator/TargetSpeed",
                 config == null ? RotationsPerSecond.of(0) : config.speed());
         Logger.recordOutput(
-                "Launcher/Interpolator/TargetAngle",
-                config == null ? Millimeters.of(0) : config.hoodExtension());
+                "Launcher/Interpolator/TargetAngle", config == null ? Millimeters.of(0) : config.hoodExtension());
         Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", realLaunchSpeed);
         realLaunchSpeedRps = realLaunchSpeed.in(RotationsPerSecond);
     }

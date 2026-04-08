@@ -7,7 +7,6 @@ import org.littletonrobotics.junction.AutoLog;
 
 import static edu.wpi.first.units.Units.*;
 
-@Deprecated
 public interface ElevatorIO {
     @AutoLog
     class ElevatorInputs {

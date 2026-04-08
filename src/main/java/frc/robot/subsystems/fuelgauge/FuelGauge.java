@@ -5,7 +5,6 @@ import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.Volts;
 
-@Deprecated
 public class FuelGauge extends SubsystemBase {
     // TODO: get real number
     public static final double FUEL_PER_VOLT = 0;

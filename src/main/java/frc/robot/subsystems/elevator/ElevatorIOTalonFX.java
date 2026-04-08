@@ -13,7 +13,6 @@ import frc.robot.util.PhoenixUtil;
 
 import static edu.wpi.first.units.Units.Meters;
 
-@Deprecated
 public class ElevatorIOTalonFX implements ElevatorIO {
     private final TalonFX motor;
 
