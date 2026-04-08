@@ -36,10 +36,6 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GameCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
-import frc.robot.subsystems.elevator.Elevator;
-import frc.robot.subsystems.elevator.ElevatorIO;
-import frc.robot.subsystems.elevator.ElevatorIOSim;
-import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.energy.EnergyLogger;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
@@ -68,7 +64,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedNetworkBoolean;
 
 import java.util.ArrayList;
-import java.util.function.BooleanSupplier;
 
 import static edu.wpi.first.units.Units.*;
 
@@ -87,7 +82,7 @@ public class RobotContainer {
     public final Hopper     sys_hopper;
     public final Launcher sys_launcher;
 
-    public final EnergyLogger sys_energyLogger;
+    public final EnergyLogger energyLogger;
 
 
     public static SwerveDriveSimulation simConfig;
@@ -151,8 +146,6 @@ public class RobotContainer {
                         DeviceID.LAUNCHER_HOOD_SERVO_1,
                         DeviceID.LAUNCHER_HOOD_SERVO_2),
                     sys_drive);
-
-                sys_energyLogger = new EnergyLogger();
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -187,7 +180,6 @@ public class RobotContainer {
                 sys_serializer = new Serializer(new SerializerIOSim());
                 sys_feeder = new Feeder(new FeederIOSim());
                 sys_hopper = new Hopper(new HopperIOSim());
-                sys_energyLogger = new EnergyLogger();
 
                 sys_launcher = new Launcher(new LauncherIOSim(), sys_drive);
             }
@@ -206,9 +198,10 @@ public class RobotContainer {
                 sys_serializer = new Serializer(new SerializerIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {}, sys_drive);
-                sys_energyLogger = new EnergyLogger();
             }
         }
+
+        energyLogger = new EnergyLogger();
 
         // Set up auto routines
         autoChooser = buildAutoChooser();

@@ -122,7 +122,7 @@ public class Robot extends LoggedRobot {
         Logger.recordOutput("DistToHub", DriveCommands.distToHub(robotContainer.sys_drive));
         Logger.recordOutput("Controls/AahanControls", robotContainer.aahanControls);
 
-        robotContainer.sys_energyLogger.setBatteryVoltage(RobotController.getBatteryVoltage());
+        robotContainer.energyLogger.setBatteryVoltage(RobotController.getBatteryVoltage());
     }
 
     /** This function is called once when the robot is disabled. */
