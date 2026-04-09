@@ -180,9 +180,13 @@ public class Launcher extends SubsystemBase {
     ) {
         return runVelocity(() -> launchSpeed)
                 .alongWith(setHoodExtension(() -> hoodExt)) // set hood hoodExtension
-                .alongWith(feeder.setUpperFeederVelocity(() -> launchSpeed)) // run upper feeder at same vel.
+                .alongWith(feeder.setUpperFeederVelocity(this::calculateUpperFeederVelocity)) // run upper feeder at same vel.
                 .alongWith(feeder.setLowerFeederVelocity(
                         () -> calculateLowerFeederVelocity(this.getSurfaceVelocity(), serializer.getBeltSpeed())));
+    }
+
+    private AngularVelocity calculateUpperFeederVelocity() {
+        return MathUtils.calculateAngularVelocity(getSurfaceVelocity(), FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
     }
 
     private AngularVelocity calculateLowerFeederVelocity(
