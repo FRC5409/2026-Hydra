@@ -1,6 +1,7 @@
 package frc.robot.subsystems.feeder;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -11,6 +12,9 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
 
+import static edu.wpi.first.units.Units.Meter;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class Feeder extends SubsystemBase {
@@ -49,6 +53,10 @@ public class Feeder extends SubsystemBase {
 
     public AngularVelocity getVelocity() {
         return io.getVelocity();
+    }
+
+    public AngularVelocity getAngularVelocity(LinearVelocity velocity){
+        return RotationsPerSecond.of(velocity.in(MetersPerSecond) / FeederConstants.FEEDER_ROLLER_CIRCUMFRENCE.in(Meters));
     }
 
     @Override
