@@ -8,14 +8,21 @@
 package frc.robot;
 
 import com.ctre.phoenix6.SignalLogger;
+import edu.wpi.first.units.measure.Current;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.Mode;
 import frc.robot.commands.DriveCommands;
+import frc.robot.util.PowerLogger;
+import frc.robot.util.PowerLogger.PowerDistributionIO;
 import frc.robot.util.RebuiltTimer;
 import org.ironmaple.simulation.SimulatedArena;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -25,6 +32,9 @@ import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 
+import static edu.wpi.first.units.Units.Amps;
+import static edu.wpi.first.units.Units.Volts;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to each mode, as
  * described in the TimedRobot documentation. If you change the name of this class or the package after creating this
@@ -33,6 +43,7 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
     private       Command        autonomousCommand;
     private final RobotContainer robotContainer;
+    private final PowerLogger    powerLogger;
     public static RebuiltTimer   rebuiltTimer;
 
     // build constants are defined at compile-time, thus IntelliSense thinks "GitDirty" is unreachable.
@@ -73,6 +84,30 @@ public class Robot extends LoggedRobot {
                 Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
                 break;
         }
+
+        powerLogger = new PowerLogger(Constants.CURRENT_MODE == Mode.REAL ? new PowerDistributionIO() {
+            // real IO, use roboRIO and PDH
+            @Override
+            public Current getTotalCurrent() {
+                return Amps.of(new PowerDistribution().getTotalCurrent());
+            }
+
+            @Override
+            public Voltage getBatteryVoltage() {
+                return Volts.of(RobotController.getBatteryVoltage());
+            }
+        } : new PowerDistributionIO() {
+            // SIM IO, no roboRIO or PDH
+            @Override
+            public Current getTotalCurrent() {
+                return Amps.of(0);
+            }
+
+            @Override
+            public Voltage getBatteryVoltage() {
+                return Volts.of(0);
+            }
+        });
 
         // Start AdvantageKit logger
         Logger.start();
@@ -120,6 +155,8 @@ public class Robot extends LoggedRobot {
         rebuiltTimer.periodic(robotContainer.sys_drive);
         Logger.recordOutput("DistToHub", DriveCommands.distToHub(robotContainer.sys_drive));
         Logger.recordOutput("Controls/AahanControls", robotContainer.aahanControls);
+
+        powerLogger.update();
     }
 
     /** This function is called once when the robot is disabled. */
