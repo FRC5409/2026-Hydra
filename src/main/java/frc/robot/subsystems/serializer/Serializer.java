@@ -8,11 +8,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Checkmate;
 import frc.robot.util.Checkmate.TestResult;
+import frc.robot.util.MathUtils;
 import org.littletonrobotics.junction.Logger;
 
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 public class Serializer extends SubsystemBase {
 
@@ -49,8 +48,8 @@ public class Serializer extends SubsystemBase {
         return io.getVelocity();
     }
 
-    public LinearVelocity getBeltSpeed(){
-        return MetersPerSecond.of(SerializerConstants.PULLEY_CIRCUMFERENCE.in(Meters) * getVelocity().in(RotationsPerSecond));
+    public LinearVelocity getBeltSpeed() {
+        return MathUtils.calculateSurfaceSpeed(getVelocity(), SerializerConstants.PULLEY_CIRCUMFERENCE);
     }
 
     @Override

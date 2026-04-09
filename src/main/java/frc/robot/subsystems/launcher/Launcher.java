@@ -203,8 +203,8 @@ public class Launcher extends SubsystemBase {
         return io.getVelocity();
     }
 
-    public LinearVelocity getSurfaceSpeed(){
-        return MetersPerSecond.of(getVelocity().in(RotationsPerSecond) * LauncherConstants.Launcher.ROLLER_CIRCUMFERENCE.in(Meters));
+    public LinearVelocity getSurfaceVelocity() {
+        return MathUtils.calculateSurfaceSpeed(getVelocity(), LauncherConstants.Launcher.ROLLER_CIRCUMFERENCE);
     }
 
     // Stops

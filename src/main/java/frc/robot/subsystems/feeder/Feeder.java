@@ -60,11 +60,6 @@ public class Feeder extends SubsystemBase {
         return io.getLowerFeederVelocity();
     }
 
-    public AngularVelocity getAngularVelocity(LinearVelocity velocity) {
-        return RotationsPerSecond.of(
-                velocity.in(MetersPerSecond) / FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE.in(Meters));
-    }
-
     @Override
     public void periodic() {
         io.updateInputs(inputs);
