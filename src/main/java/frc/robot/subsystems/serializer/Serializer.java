@@ -1,6 +1,7 @@
 package frc.robot.subsystems.serializer;
 
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -9,6 +10,8 @@ import frc.robot.util.Checkmate;
 import frc.robot.util.Checkmate.TestResult;
 import org.littletonrobotics.junction.Logger;
 
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 public class Serializer extends SubsystemBase {
@@ -44,6 +47,10 @@ public class Serializer extends SubsystemBase {
 
     public AngularVelocity getVelocity() {
         return io.getVelocity();
+    }
+
+    public LinearVelocity getBeltSpeed(){
+        return MetersPerSecond.of(SerializerConstants.PULLEY_CIRCUMFERENCE.in(Meters) * getVelocity().in(RotationsPerSecond));
     }
 
     @Override
