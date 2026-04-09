@@ -56,7 +56,7 @@ public class Feeder extends SubsystemBase {
     }
 
     public AngularVelocity getAngularVelocity(LinearVelocity velocity){
-        return RotationsPerSecond.of(velocity.in(MetersPerSecond) / FeederConstants.FEEDER_ROLLER_CIRCUMFRENCE.in(Meters));
+        return RotationsPerSecond.of(velocity.in(MetersPerSecond) / FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE.in(Meters));
     }
 
     @Override
