@@ -52,7 +52,7 @@ public class GameCommands {
 
                 ),
                 // passively spin up launcher in the background
-                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder)
+                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly()
         );
     }
 
@@ -65,7 +65,7 @@ public class GameCommands {
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
                 agitateThenRetract(robot)
-        ).alongWith(robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder));
+        ).alongWith(robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly());
     }
 
     /**
