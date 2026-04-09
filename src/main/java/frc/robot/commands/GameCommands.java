@@ -93,11 +93,11 @@ public class GameCommands {
 
                         Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                        robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                        robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE)
 
-                        Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
+                        // Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
-                        agitateThenRetract(robot)
+                        // agitateThenRetract(robot)
                 )
 
         );
