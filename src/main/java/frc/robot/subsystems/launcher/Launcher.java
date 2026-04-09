@@ -189,11 +189,12 @@ public class Launcher extends SubsystemBase {
                      .alongWith(serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE));
     }
 
+    @AutoLogOutput(key = "Launcher/CalculatedLowerFeederVelocity", unit = "m/s")
     private AngularVelocity calculateLowerFeederVelocity(
             LinearVelocity launcherRollerSpeed, LinearVelocity serializerBeltSpeed
     ) {
         return MathUtils.calculateAngularVelocity(
-                launcherRollerSpeed.plus(serializerBeltSpeed).div(2),
+                launcherRollerSpeed.plus(MetersPerSecond.of(25)).div(2),
                 FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
     }
 
