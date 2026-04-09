@@ -24,9 +24,12 @@ import frc.robot.subsystems.launcher.LauncherConstants.Hood;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
 import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerConstants;
 import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.util.Checkmate;
 import frc.robot.util.MathUtils;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
@@ -70,8 +73,7 @@ public class Launcher extends SubsystemBase {
                     // launch fuel with dummy IO for feeder; it doesn't matter if the feeder spins
                     CommandScheduler.getInstance().schedule(this.launchFuel(
                             () -> d,
-                            new Feeder(new FeederIO() {}),
-                            new Serializer(new SerializerIO() {})
+                            new Feeder(new FeederIO() {})
                     ));
 
                     return MathUtils.withinTolerance(
@@ -164,25 +166,27 @@ public class Launcher extends SubsystemBase {
      *
      * @return deferred command that launches fuel
      */
-    public Command launchFuel(Supplier<Distance> distance, Feeder feeder, Serializer serializer) {
+    public Command launchFuel(Supplier<Distance> distance, Feeder feeder) {
         return Commands.defer(
                 () -> {
                     LaunchConfig c = strategy.interpolate(distance.get());
                     AngularVelocity launchSpeed = c.speed().plus(getSpeedOffset());
                     logInterpolation(distance.get(), c, launchSpeed);
 
-                    return startLaunchSequence(launchSpeed, c.hoodExtension(), feeder, serializer);
+                    return startLaunchSequence(launchSpeed, c.hoodExtension(), feeder);
                 }, Set.of(this));
     }
 
-    public Command startLaunchSequence(
-            AngularVelocity launchSpeed, Distance hoodExt, Feeder feeder, Serializer serializer
-    ) {
+    public Command startLaunchSequence(AngularVelocity launchSpeed, Distance hoodExt, Feeder feeder) {
         return runVelocity(() -> launchSpeed)
                 .alongWith(setHoodExtension(() -> hoodExt)) // set hood hoodExtension
-                .alongWith(feeder.setUpperFeederVelocity(() -> launchSpeed)) // run upper feeder at same vel.
-                .alongWith(feeder.setLowerFeederVelocity(
-                        () -> calculateLowerFeederVelocity(this.getSurfaceVelocity(), serializer.getBeltSpeed())));
+                .alongWith(feeder.setUpperFeederVelocity(() -> launchSpeed)); // run upper feeder at same vel.
+    }
+
+    public Command serializeFuel(Feeder feeder, Serializer serializer) {
+        return feeder.setLowerFeederVelocity(
+                        () -> calculateLowerFeederVelocity(this.getSurfaceVelocity(), serializer.getBeltSpeed()))
+                     .alongWith(serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE));
     }
 
     private AngularVelocity calculateLowerFeederVelocity(
@@ -222,6 +226,7 @@ public class Launcher extends SubsystemBase {
         return io.getVelocity();
     }
 
+    @AutoLogOutput(key = "Launcher/SurfaceVelocity", unit = "m/s")
     public LinearVelocity getSurfaceVelocity() {
         return MathUtils.calculateSurfaceSpeed(getVelocity(), LauncherConstants.Launcher.ROLLER_CIRCUMFERENCE);
     }

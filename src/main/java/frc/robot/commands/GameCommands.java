@@ -42,12 +42,12 @@ public class GameCommands {
                         Commands.runOnce(() -> Logger.recordOutput("GameCommands/StartingLaunchSequence", true)),
                         Commands.parallel(
                                 Commands.waitUntil(DriveCommands::isAligned),
-                                robot.sys_launcher.launchFuel(distanceSupplier, robot.sys_feeder, robot.sys_serializer)
+                                robot.sys_launcher.launchFuel(distanceSupplier, robot.sys_feeder)
 
                         ),
                         Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                        robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                        robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
 
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
@@ -58,11 +58,11 @@ public class GameCommands {
 
     public static Command manualLaunch(Supplier<Distance> distance, RobotContainer robot) {
         return Commands.sequence(
-                robot.sys_launcher.launchFuel(distance, robot.sys_feeder, robot.sys_serializer),
+                robot.sys_launcher.launchFuel(distance, robot.sys_feeder),
 
                 Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
@@ -89,12 +89,12 @@ public class GameCommands {
                 Commands.sequence(
                         robot.sys_launcher.startLaunchSequence(
                                 GameCommandsConstants.PASSING_RPS, GameCommandsConstants.PASSING_HOOD_ANGLE,
-                                robot.sys_feeder, robot.sys_serializer
+                                robot.sys_feeder
                         ),
 
                         Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                        robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                        robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
 
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
