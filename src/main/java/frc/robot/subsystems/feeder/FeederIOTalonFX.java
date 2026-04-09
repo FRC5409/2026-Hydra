@@ -58,6 +58,7 @@ public class FeederIOTalonFX implements FeederIO {
                              .withKS(FeederConstants.kS));
 
         upperConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+        lowerConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
         upperMotor.setNeutralMode(NeutralModeValue.Coast);
         lowerMotor.setNeutralMode(NeutralModeValue.Coast);
