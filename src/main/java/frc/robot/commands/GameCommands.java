@@ -26,7 +26,7 @@ import static edu.wpi.first.units.Units.*;
 public class GameCommands {
 
     public static Command autoLaunch(
-            Supplier<Distance> distanceSupplier,
+            Supplier<Distance> distToHub,
             DoubleSupplier joystickX,
             DoubleSupplier joystickY,
             RobotContainer robot
@@ -40,34 +40,32 @@ public class GameCommands {
                 ),
                 Commands.sequence(
                         Commands.runOnce(() -> Logger.recordOutput("GameCommands/StartingLaunchSequence", true)),
-                        Commands.parallel(
-                                Commands.waitUntil(DriveCommands::isAligned),
-                                robot.sys_launcher.launchFuel(distanceSupplier, robot.sys_feeder, robot.sys_serializer)
 
-                        ),
+                        Commands.waitUntil(DriveCommands::isAligned),
                         Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                        robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                        robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
 
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
                         agitateThenRetract(robot)
-                )
+
+                ),
+                // passively spin up launcher in the background
+                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly()
         );
     }
 
-    public static Command manualLaunch(Supplier<Distance> distance, RobotContainer robot) {
+    public static Command manualLaunch(Supplier<Distance> distToHub, RobotContainer robot) {
         return Commands.sequence(
-                robot.sys_launcher.launchFuel(distance, robot.sys_feeder, robot.sys_serializer),
-
                 Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
 
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
                 agitateThenRetract(robot)
-        );
+        ).alongWith(robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly());
     }
 
     /**
@@ -89,12 +87,12 @@ public class GameCommands {
                 Commands.sequence(
                         robot.sys_launcher.startLaunchSequence(
                                 GameCommandsConstants.PASSING_RPS, GameCommandsConstants.PASSING_HOOD_ANGLE,
-                                robot.sys_feeder, robot.sys_serializer
+                                robot.sys_feeder
                         ),
 
                         Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                        robot.sys_serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE),
+                        robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
 
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 

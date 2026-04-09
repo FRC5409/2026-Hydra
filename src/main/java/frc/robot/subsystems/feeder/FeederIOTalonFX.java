@@ -50,14 +50,17 @@ public class FeederIOTalonFX implements FeederIO {
         upperConfig.apply(gearing);
         lowerConfig.apply(gearing);
 
-        upperConfig.apply(new Slot0Configs()
+        var pid = new Slot0Configs()
                              .withKP(FeederConstants.TALONFX_PID.kP)
                              .withKI(FeederConstants.TALONFX_PID.kI)
                              .withKD(FeederConstants.TALONFX_PID.kD)
                              .withKV(FeederConstants.kV)
-                             .withKS(FeederConstants.kS));
+                             .withKS(FeederConstants.kS);
+        upperConfig.apply(pid);
+        lowerConfig.apply(pid);
 
         upperConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.CounterClockwise_Positive));
+        lowerConfig.apply(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive));
 
         upperMotor.setNeutralMode(NeutralModeValue.Coast);
         lowerMotor.setNeutralMode(NeutralModeValue.Coast);
@@ -109,8 +112,8 @@ public class FeederIOTalonFX implements FeederIO {
 
     @Override
     public void setLowerFeederVelocity(Supplier<AngularVelocity> velocity) {
-        lowerSetpoint = velocity;
-        lowerMotor.setControl(new VelocityVoltage(velocity.get())
+        lowerSetpoint = () -> velocity.get();
+        lowerMotor.setControl(new VelocityVoltage(lowerSetpoint.get())
                                       .withSlot(0)
                                       .withFeedForward(0));
     }

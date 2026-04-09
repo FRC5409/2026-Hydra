@@ -9,6 +9,9 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.util.Checkmate;
 import frc.robot.util.Checkmate.TestResult;
 import frc.robot.util.MathUtils;
+
+import org.littletonrobotics.junction.AutoLog;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import static edu.wpi.first.units.Units.*;
@@ -48,6 +51,7 @@ public class Serializer extends SubsystemBase {
         return io.getVelocity();
     }
 
+    @AutoLogOutput(key = "Serializer/BeltSpeed", unit = "m/s")
     public LinearVelocity getBeltSpeed() {
         return MathUtils.calculateSurfaceSpeed(getVelocity(), SerializerConstants.PULLEY_CIRCUMFERENCE);
     }
