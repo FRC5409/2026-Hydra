@@ -1,8 +1,14 @@
 package frc.robot.subsystems.launcher;
 
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.units.AngularVelocityUnit;
+import edu.wpi.first.units.DistanceUnit;
+import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mult;
+import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer;
@@ -196,6 +202,10 @@ public class Launcher extends SubsystemBase {
 
     public AngularVelocity getVelocity() {
         return io.getVelocity();
+    }
+
+    public LinearVelocity getSurfaceSpeed(){
+        return MetersPerSecond.of(getVelocity().in(RotationsPerSecond) * LauncherConstants.Launcher.ROLLER_CIRCUMFERENCE.in(Meters));
     }
 
     // Stops
