@@ -26,7 +26,7 @@ import static edu.wpi.first.units.Units.*;
 public class GameCommands {
 
     public static Command autoLaunch(
-            Supplier<Distance> distanceSupplier,
+            Supplier<Distance> distToHub,
             DoubleSupplier joystickX,
             DoubleSupplier joystickY,
             RobotContainer robot
@@ -40,11 +40,8 @@ public class GameCommands {
                 ),
                 Commands.sequence(
                         Commands.runOnce(() -> Logger.recordOutput("GameCommands/StartingLaunchSequence", true)),
-                        Commands.parallel(
-                                Commands.waitUntil(DriveCommands::isAligned),
-                                robot.sys_launcher.launchFuel(distanceSupplier, robot.sys_feeder)
 
-                        ),
+                        Commands.waitUntil(DriveCommands::isAligned),
                         Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
                         robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
@@ -52,14 +49,15 @@ public class GameCommands {
                         Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
                         agitateThenRetract(robot)
-                )
+
+                ),
+                // passively spin up launcher in the background
+                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly()
         );
     }
 
-    public static Command manualLaunch(Supplier<Distance> distance, RobotContainer robot) {
+    public static Command manualLaunch(Supplier<Distance> distToHub, RobotContainer robot) {
         return Commands.sequence(
-                robot.sys_launcher.launchFuel(distance, robot.sys_feeder),
-
                 Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
                 robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
@@ -67,7 +65,7 @@ public class GameCommands {
                 Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
                 agitateThenRetract(robot)
-        );
+        ).alongWith(robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly());
     }
 
     /**
