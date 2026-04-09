@@ -12,10 +12,7 @@ import org.littletonrobotics.junction.Logger;
 
 import java.util.function.Supplier;
 
-import static edu.wpi.first.units.Units.Meter;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.RotationsPerSecond;
+import static edu.wpi.first.units.Units.*;
 
 public class Feeder extends SubsystemBase {
     private final FeederInputsAutoLogged inputs;
@@ -27,11 +24,11 @@ public class Feeder extends SubsystemBase {
 
         Checkmate.register(
                 "Should spin towards launcher", () -> {
-                    CommandScheduler.getInstance().schedule(runVelocity(() -> RotationsPerSecond.of(10)));
+                    CommandScheduler.getInstance().schedule(setUpperFeederVelocity(() -> RotationsPerSecond.of(10)));
 
-                    if (this.getVelocity().in(RotationsPerSecond) > 0) {
+                    if (this.getUpperFeederVelocity().in(RotationsPerSecond) > 0) {
                         return TestResult.success("Feeder spins the right way");
-                    } else if (this.getVelocity().in(RotationsPerSecond) < 0) {
+                    } else if (this.getUpperFeederVelocity().in(RotationsPerSecond) < 0) {
                         return TestResult.fail("Feeder spins the wrong way");
                     } else {
                         return TestResult.fail("Feeder is not spinning!");
@@ -40,23 +37,32 @@ public class Feeder extends SubsystemBase {
     }
 
     public Command setVoltage(double voltage) {
-        return Commands.runOnce(() -> io.setMotorVoltage(voltage), this);
+        return Commands.runOnce(() -> io.setVoltage(voltage), this);
     }
 
-    public Command runVelocity(Supplier<AngularVelocity> velocity) {
-        return Commands.runOnce(() -> io.runVelocity(velocity), this);
+    public Command setUpperFeederVelocity(Supplier<AngularVelocity> velocity) {
+        return Commands.runOnce(() -> io.setUpperFeederVelocity(velocity), this);
+    }
+
+    public Command setLowerFeederVelocity(Supplier<AngularVelocity> velocity) {
+        return Commands.runOnce(() -> io.setLowerFeederVelocity(velocity), this);
     }
 
     public Command stop() {
-        return Commands.runOnce(io::stopMotor, this);
+        return Commands.runOnce(io::stopMotors, this);
     }
 
-    public AngularVelocity getVelocity() {
-        return io.getVelocity();
+    public AngularVelocity getUpperFeederVelocity() {
+        return io.getUpperFeederVelocity();
     }
 
-    public AngularVelocity getAngularVelocity(LinearVelocity velocity){
-        return RotationsPerSecond.of(velocity.in(MetersPerSecond) / FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE.in(Meters));
+    public AngularVelocity getLowerFeederVelocity() {
+        return io.getLowerFeederVelocity();
+    }
+
+    public AngularVelocity getAngularVelocity(LinearVelocity velocity) {
+        return RotationsPerSecond.of(
+                velocity.in(MetersPerSecond) / FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE.in(Meters));
     }
 
     @Override

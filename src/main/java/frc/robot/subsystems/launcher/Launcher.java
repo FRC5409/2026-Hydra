@@ -1,14 +1,9 @@
 package frc.robot.subsystems.launcher;
 
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.units.AngularVelocityUnit;
-import edu.wpi.first.units.DistanceUnit;
-import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.LinearVelocity;
-import edu.wpi.first.units.measure.Mult;
-import edu.wpi.first.units.measure.Velocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer;
@@ -169,10 +164,14 @@ public class Launcher extends SubsystemBase {
                     AngularVelocity launchSpeed = c.speed().plus(getSpeedOffset());
                     logInterpolation(distance.get(), c, launchSpeed);
 
-                    return runVelocity(() -> launchSpeed)
-                            .alongWith(setHoodExtension(c::hoodExtension)) // set hood hoodExtension
-                            .alongWith(feeder.runVelocity(() -> launchSpeed)); // run feeder at same vel.
+                    return startLaunchSequence(launchSpeed, c.hoodExtension(), feeder);
                 }, Set.of(this));
+    }
+
+    public Command startLaunchSequence(AngularVelocity launchSpeed, Distance hoodExt, Feeder feeder) {
+        return runVelocity(() -> launchSpeed)
+                .alongWith(setHoodExtension(() -> hoodExt)) // set hood hoodExtension
+                .alongWith(feeder.setUpperFeederVelocity(() -> launchSpeed)); // run upper feeder at same vel.
     }
 
     /**
