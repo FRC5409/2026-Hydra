@@ -40,11 +40,11 @@ public class Feeder extends SubsystemBase {
     }
 
     public Command setUpperFeederVelocity(Supplier<AngularVelocity> velocity) {
-        return Commands.runOnce(() -> io.setUpperFeederVelocity(velocity), this);
+        return Commands.runOnce(() -> io.setUpperFeederVelocity(velocity));
     }
 
     public Command setLowerFeederVelocity(Supplier<AngularVelocity> velocity) {
-        return Commands.runOnce(() -> io.setLowerFeederVelocity(velocity), this);
+        return Commands.runOnce(() -> io.setLowerFeederVelocity(velocity));
     }
 
     public Command stop() {
