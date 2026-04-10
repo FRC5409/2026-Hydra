@@ -174,12 +174,6 @@ public class Launcher extends SubsystemBase {
                     AngularVelocity launchSpeed = c.speed().plus(getSpeedOffset());
                     logInterpolation(distance.get(), c, launchSpeed);
 
-//                    return startLaunchSequence(
-//                            () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 50)),
-//                            () -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0)),
-//                            robot.sys_feeder
-//                    )
-
                     return startLaunchSequence(() -> launchSpeed, c::hoodExtension, feeder);
                 }, Set.of(this));
     }
