@@ -86,7 +86,7 @@ public class GameCommands {
                 ),
                 Commands.sequence(
                         robot.sys_launcher.startLaunchSequence(
-                                GameCommandsConstants.PASSING_RPS, GameCommandsConstants.PASSING_HOOD_ANGLE,
+                                () -> GameCommandsConstants.PASSING_RPS, () -> GameCommandsConstants.PASSING_HOOD_ANGLE,
                                 robot.sys_feeder
                         ),
 
