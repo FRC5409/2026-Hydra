@@ -18,6 +18,7 @@ import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.subsystems.serializer.SerializerConstants;
 import org.littletonrobotics.junction.Logger;
 
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -56,10 +57,10 @@ public class GameCommands {
 //                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly()
                 // TODO: uncomment this after tuning
                 robot.sys_launcher.startLaunchSequence(
-                        RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 50)),
-                        Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0)),
+                        () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 50)),
+                        () -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0)),
                         robot.sys_feeder
-                )
+                ).repeatedly()
         );
     }
 
@@ -93,7 +94,7 @@ public class GameCommands {
                 ),
                 Commands.sequence(
                         robot.sys_launcher.startLaunchSequence(
-                                GameCommandsConstants.PASSING_RPS, GameCommandsConstants.PASSING_HOOD_ANGLE,
+                                () -> GameCommandsConstants.PASSING_RPS, () -> GameCommandsConstants.PASSING_HOOD_ANGLE,
                                 robot.sys_feeder
                         ),
 

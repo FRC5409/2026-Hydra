@@ -61,9 +61,9 @@ public class Launcher extends SubsystemBase {
         hoodInvalidationTimer.start();
 
         // try to update the hood every 500 ms
-        new Trigger(() -> hoodInvalidationTimer.advanceIfElapsed(Hood.HOOD_INVALIDATION_POLL_SECONDS))
-                .onTrue(onHoodInvalidation(drive))
-                .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
+        // new Trigger(() -> hoodInvalidationTimer.advanceIfElapsed(Hood.HOOD_INVALIDATION_POLL_SECONDS))
+        //         .onTrue(onHoodInvalidation(drive))
+        //         .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
@@ -174,13 +174,13 @@ public class Launcher extends SubsystemBase {
                     AngularVelocity launchSpeed = c.speed().plus(getSpeedOffset());
                     logInterpolation(distance.get(), c, launchSpeed);
 
-                    return startLaunchSequence(launchSpeed, c.hoodExtension(), feeder);
+                    return startLaunchSequence(() -> launchSpeed, c::hoodExtension, feeder);
                 }, Set.of(this));
     }
 
-    public Command startLaunchSequence(AngularVelocity launchSpeed, Distance hoodExt, Feeder feeder) {
-        return runVelocity(() -> launchSpeed)
-                .alongWith(setHoodExtension(() -> hoodExt)) // set hood hoodExtension
+    public Command startLaunchSequence(Supplier<AngularVelocity> launchSpeed, Supplier<Distance> hoodExt, Feeder feeder) {
+        return runVelocity(launchSpeed)
+                .alongWith(setHoodExtension(hoodExt)) // set hood hoodExtension
                 .alongWith(feeder.setUpperFeederVelocity(this::calculateUpperFeederVelocity)); // run upper feeder at same vel.
     }
 
@@ -191,10 +191,12 @@ public class Launcher extends SubsystemBase {
                      .alongWith(serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE));
     }
 
+    @AutoLogOutput(key = "Launcher/CalculatedUpperFeederVelocity")
     private AngularVelocity calculateUpperFeederVelocity() {
         return MathUtils.calculateAngularVelocity(getSurfaceVelocity(), FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
     }
 
+    @AutoLogOutput(key = "Launcher/CalculatedLowerFeederVelocity")
     private AngularVelocity calculateLowerFeederVelocity(LinearVelocity launcherRollerSpeed, LinearVelocity serializerBeltSpeed) {
         return MathUtils.calculateAngularVelocity(
                 launcherRollerSpeed.plus(MetersPerSecond.of(25)).div(2),
