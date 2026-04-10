@@ -184,6 +184,7 @@ public class Launcher extends SubsystemBase {
     }
 
     public Command serializeFuel(Feeder feeder, Serializer serializer) {
+        // TODO: if the lower feeder is too slow, hardcode this to a faster number (i.e. 20 000 RPM)
         return feeder.setLowerFeederVelocity(
                         () -> calculateLowerFeederVelocity(this.getSurfaceVelocity(), serializer.getBeltSpeed()))
                      .alongWith(serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE));
@@ -193,9 +194,7 @@ public class Launcher extends SubsystemBase {
         return MathUtils.calculateAngularVelocity(getSurfaceVelocity(), FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
     }
 
-    private AngularVelocity calculateLowerFeederVelocity(
-            LinearVelocity launcherRollerSpeed, LinearVelocity serializerBeltSpeed
-    ) {
+    private AngularVelocity calculateLowerFeederVelocity(LinearVelocity launcherRollerSpeed, LinearVelocity serializerBeltSpeed) {
         return MathUtils.calculateAngularVelocity(
                 launcherRollerSpeed.plus(MetersPerSecond.of(25)).div(2),
                 FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
