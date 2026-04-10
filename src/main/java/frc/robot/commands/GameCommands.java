@@ -54,13 +54,7 @@ public class GameCommands {
 
                 ),
                 // passively spin up launcher in the background
-//                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly()
-                // TODO: uncomment this after tuning
-                robot.sys_launcher.startLaunchSequence(
-                        () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 50)),
-                        () -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0)),
-                        robot.sys_feeder
-                ).repeatedly()
+                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly()
         );
     }
 
