@@ -191,6 +191,7 @@ public class Launcher extends SubsystemBase {
                      .alongWith(serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE));
     }
 
+    // TODO: try setting upper feeder to the same as lower feeder velocities (smooth accerlation)
     @AutoLogOutput(key = "Launcher/CalculatedUpperFeederVelocity")
     private AngularVelocity calculateUpperFeederVelocity() {
         return MathUtils.calculateAngularVelocity(getSurfaceVelocity(), FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
