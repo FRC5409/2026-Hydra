@@ -92,7 +92,7 @@ public class GameCommands {
 
                         Commands.waitUntil(robot.sys_launcher::isLauncherAtSpeed),
 
-                        robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer),
+                        robot.sys_launcher.serializeFuel(robot.sys_feeder, robot.sys_serializer)
 
                         // Commands.waitTime(GameCommandsConstants.WAIT_TIME_BEFORE_AGITATE),
 
