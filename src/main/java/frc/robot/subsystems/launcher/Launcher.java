@@ -61,9 +61,9 @@ public class Launcher extends SubsystemBase {
         hoodInvalidationTimer.start();
 
         // try to update the hood every 500 ms
-        // new Trigger(() -> hoodInvalidationTimer.advanceIfElapsed(Hood.HOOD_INVALIDATION_POLL_SECONDS))
-        //         .onTrue(onHoodInvalidation(drive))
-        //         .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
+        new Trigger(() -> hoodInvalidationTimer.advanceIfElapsed(Hood.HOOD_INVALIDATION_POLL_SECONDS))
+                .onTrue(onHoodInvalidation(drive))
+                .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
@@ -98,7 +98,9 @@ public class Launcher extends SubsystemBase {
 
                 if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >=
                     Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
-                    hoodSetpoint.set(launchEstimate.hoodExtension());
+                    // hoodSetpoint.set(launchEstimate.hoodExtension());
+                    //TODO: debug cmd
+                    hoodSetpoint.set(Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0)));
                 }
             }
 
@@ -194,7 +196,8 @@ public class Launcher extends SubsystemBase {
     // TODO: try setting upper feeder to the same as lower feeder velocities (smooth accerlation)
     @AutoLogOutput(key = "Launcher/CalculatedUpperFeederVelocity")
     private AngularVelocity calculateUpperFeederVelocity() {
-        return MathUtils.calculateAngularVelocity(getSurfaceVelocity(), FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
+        // overshoot of 7.5%
+        return MathUtils.calculateAngularVelocity(getSurfaceVelocity().times(1.075), FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
     }
 
     @AutoLogOutput(key = "Launcher/CalculatedLowerFeederVelocity")
@@ -221,7 +224,6 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput(
                 "Launcher/Interpolator/TargetAngle",
                 config == null ? Millimeters.of(0) : config.hoodExtension());
-        Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", realLaunchSpeed);
         realLaunchSpeedRps = realLaunchSpeed.in(RotationsPerSecond);
     }
 
@@ -262,6 +264,7 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput("Components/Hood", new Pose3d());
         Logger.recordOutput("Launcher/Interpolator/OperatorSpeedOffset", getSpeedOffset());
         Logger.recordOutput("Launcher/IsAtSpeed", isLauncherAtSpeed());
+        Logger.recordOutput("Launcher/RealLaunchSpeed", RotationsPerSecond.of(realLaunchSpeedRps));
         Logger.processInputs("Launcher", inputs);
     }
 }
