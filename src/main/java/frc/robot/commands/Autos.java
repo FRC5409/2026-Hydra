@@ -1,8 +1,9 @@
 package frc.robot.commands;
 
-import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.GameCommandsConstants;
@@ -16,16 +17,19 @@ import java.util.Objects;
 import static edu.wpi.first.units.Units.*;
 
 public class Autos {
-    public static final EventTrigger autoPoseUpdate = new EventTrigger("Vision_Trigger");
 	public static final Pose2d LEFT_BUMP_STARTING_POSE = new Pose2d(3.496, 5.585, Rotation2d.fromDegrees(-45));
 	public static final Pose2d RIGHT_BUMP_STARTING_POSE = new Pose2d(3.560,2.461, Rotation2d.fromDegrees(45));
-    // public static final Pose2d 
+    public static final Distance DIST_TO_HUB_FROM_SCORING_POSE = Meters.of(2.09);
+
+    private enum SIDE {
+        LEFT,
+        RIGHT
+    }
 
 	public static ArrayList<AutoPath> getAutoPaths(RobotContainer robot) {
 		ArrayList<AutoPath> autoPaths = new ArrayList<>();
 
 		// LEFT SIDE AUTOS:
-
 		autoPaths.add(
 			new AutoPath(
 				"LEFT-SinglePass",
@@ -33,10 +37,7 @@ public class Autos {
 				LEFT_BUMP_STARTING_POSE,
 
                 // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE 
-                Commands.deadline(
-                    Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
-                    GameCommands.startIntake(robot)
-                ),
+                bumpAllianceNeutral(robot, SIDE.LEFT),
 				 
                 // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD 
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
@@ -45,7 +46,7 @@ public class Autos {
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
                 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
-                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
+                bumpNeutralAlliance(robot, SIDE.LEFT),
 
                 // LAUNCH FOR THE REMAINING DURATION OF AUTO
                 GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
@@ -59,10 +60,7 @@ public class Autos {
             	LEFT_BUMP_STARTING_POSE,
 
                // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE 
-                Commands.deadline(
-                    Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
-                    GameCommands.startIntake(robot)
-                ),
+                bumpAllianceNeutral(robot, SIDE.LEFT),
 				 
                 // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
@@ -70,9 +68,8 @@ public class Autos {
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
 
-
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
-                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
+                bumpNeutralAlliance(robot, SIDE.LEFT),
 
                 // LAUNCH FOR AUTO_LAUNCH_WAIT_TIME
                 Commands.deadline(
@@ -107,10 +104,7 @@ public class Autos {
 					LEFT_BUMP_STARTING_POSE,
 
 					// CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE
-                    Commands.deadline(
-					    Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
-                        GameCommands.startIntake(robot)
-                    ),
+                    bumpAllianceNeutral(robot, SIDE.LEFT),
 
 					// FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD 
                     Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
@@ -119,7 +113,9 @@ public class Autos {
                     Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
 
 					// Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
-					Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
+					bumpNeutralAlliance(robot, SIDE.LEFT)
+                    // Spin up launcher ahead of time
+                    .alongWith(robot.sys_launcher.launchFuel(() -> DIST_TO_HUB_FROM_SCORING_POSE, robot.sys_feeder)),
 
 					// LAUNCH FOR AUTO_LAUNCH_WAIT_TIME amount of time before moving on
 					Commands.deadline(
@@ -152,10 +148,7 @@ public class Autos {
                 LEFT_BUMP_STARTING_POSE,
 
                 // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE
-                Commands.deadline(
-                    Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
-                    GameCommands.startIntake(robot)
-                ),
+                bumpAllianceNeutral(robot, SIDE.LEFT),
 
                 // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
@@ -164,8 +157,8 @@ public class Autos {
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
-                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance"))
-                .alongWith(robot.sys_launcher.launchFuel(null, robot.sys_feeder)),
+                bumpNeutralAlliance(robot, SIDE.LEFT)
+                .alongWith(robot.sys_launcher.launchFuel(() -> DIST_TO_HUB_FROM_SCORING_POSE, robot.sys_feeder)),
 
                 // LAUNCH FOR AUTO_LAUNCH_WAIT_TIME amount of time before moving on
                 Commands.deadline(
@@ -183,7 +176,7 @@ public class Autos {
                 Objects.requireNonNull(AutoPath.followPath("LEFT-SecondPass-CLOSE")),
 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
-                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
+                bumpNeutralAlliance(robot, SIDE.LEFT),
 
                 // LAUNCH UNTIL THE END OF AUTO
                 GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
@@ -199,10 +192,7 @@ public class Autos {
 				RIGHT_BUMP_STARTING_POSE,
 				
                 // cross RIGHT BUMP from ALLIANCE zone to NEUTRAL zone 
-                Commands.deadline(
-                    Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
-                    GameCommands.startIntake(robot)
-                ),
+                bumpAllianceNeutral(robot, SIDE.RIGHT),
 
                 // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose")),
@@ -211,7 +201,7 @@ public class Autos {
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-END-FarClose-To-BUMP")),
 
 				// Go from NEUTRAL zone to ALLIANCE zone over RIGHT BUMP
-                Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Neutral-Alliance")),
+                bumpNeutralAlliance(robot, SIDE.RIGHT),
 
                 // LAUNCHES until auto ends
                 GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
@@ -226,10 +216,7 @@ public class Autos {
 						RIGHT_BUMP_STARTING_POSE,
 
 						// cross RIGHT BUMP from ALLIANCE zone to NEUTRAL zone 
-                        Commands.deadline(
-                            Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
-                            GameCommands.startIntake(robot)
-                        ),
+                        bumpAllianceNeutral(robot, SIDE.RIGHT),
 
                         // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field
                         Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose")),
@@ -238,7 +225,7 @@ public class Autos {
 						Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-END-FarClose-To-BUMP")),
 
 						// Go from NEUTRAL zone to ALLIANCE zone over RIGHT BUMP
-						Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Neutral-Alliance")),
+						bumpNeutralAlliance(robot, SIDE.RIGHT),
 
 						// LAUNCHES for AUTO_LAUNCH_WAIT_TIME amount of time
 						Commands.deadline(
@@ -341,7 +328,33 @@ public class Autos {
 
 		return autoPaths;
 	}
-	
+
+    private static Command bumpAllianceNeutral(RobotContainer robot, SIDE side){
+        return Commands.either(
+                // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE 
+                Commands.deadline(
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
+                    GameCommands.startIntake(robot)
+                ), 
+                // CROSS RIGHT BUMP from ALLIANCE ZONE TO NEUTRAL ZONE 
+                Commands.deadline(
+                    Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
+                    GameCommands.startIntake(robot)
+                ), 
+                () -> side.equals(Autos.SIDE.LEFT)
+            );
+    }
+
+    private static Command bumpNeutralAlliance(RobotContainer robot, SIDE side){
+        return Commands.either(
+                // CROSS LEFT BUMP FROM NEUTRAL ZONE TO ALLIANCE ZONE 
+                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")), 
+                // CROSS RIGHT BUMP from ALLIANCE ZONE TO NEUTRAL ZONE 
+                Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Neutral-Alliance")), 
+                () -> side.equals(Autos.SIDE.LEFT)
+            );
+    }
+
 }
 
 
