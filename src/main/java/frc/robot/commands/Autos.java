@@ -43,7 +43,7 @@ public class Autos {
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION 
-                Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
+                // Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
                 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
                 bumpNeutralAlliance(robot, SIDE.LEFT),
@@ -66,7 +66,7 @@ public class Autos {
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
-                Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
+                // Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
                 bumpNeutralAlliance(robot, SIDE.LEFT),
@@ -110,7 +110,7 @@ public class Autos {
                     Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
 
                     // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
-                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
+                    // Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
 
 					// Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
 					bumpNeutralAlliance(robot, SIDE.LEFT)
@@ -130,7 +130,7 @@ public class Autos {
                     ),
 
                     // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD 
-                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-SecondPass-FAR")),
 
                     // GO FROM ENDING OF INTAKE POSITION BACK TO SCORE position (Cross BUMP)
                     Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-SCORE-SecondPass")),
@@ -154,7 +154,7 @@ public class Autos {
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
-                Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
+                // Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
                 bumpNeutralAlliance(robot, SIDE.LEFT)
