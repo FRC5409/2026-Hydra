@@ -102,7 +102,7 @@ public class Autos {
 
 		autoPaths.add(
 				new AutoPath(
-					"LEFT-DoublePass",
+					"LEFT-DoublePass-Far",
 
 					LEFT_BUMP_STARTING_POSE,
 
@@ -134,9 +134,62 @@ public class Autos {
                     ),
 
                     // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
-                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose"))
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
+
+                    // GO FROM ENDING OF INTAKE POSITION BACK TO SCORE position (Cross BUMP)
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-SCORE-SecondPass")),
+
+                    // LAUNCH UNTIL THE END OF AUTO
+                    GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
+
 				)
 		);
+
+        autoPaths.add(
+            new AutoPath(
+                "LEFT-DoublePass-Close",
+
+                LEFT_BUMP_STARTING_POSE,
+
+                // CROSS LEFT BUMP FROM ALLIANCE ZONE TO NEUTRAL ZONE
+                Commands.deadline(
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
+                    GameCommands.startIntake(robot)
+                ),
+
+                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
+                Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
+
+                // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
+                Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-END-FarClose-To-BUMP")),
+
+                // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
+                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance"))
+                .alongWith(robot.sys_launcher.launchFuel(null, robot.sys_feeder)),
+
+                // LAUNCH FOR AUTO_LAUNCH_WAIT_TIME amount of time before moving on
+                Commands.deadline(
+                        Commands.waitTime(GameCommandsConstants.AUTO_LAUNCH_WAIT_TIME),
+                        GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
+                ).andThen(GameCommands.stopLaunching(robot)),
+
+                // GO BACK OVER BUMP
+                Commands.deadline(
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Score-Neutral")),
+                    GameCommands.startIntake(robot)
+                ),
+
+                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
+                Objects.requireNonNull(AutoPath.followPath("LEFT-SecondPass-CLOSE")),
+
+                // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
+                Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
+
+                // LAUNCH UNTIL THE END OF AUTO
+                GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
+
+            )
+        );
 
 		// RIGHT SIDE AUTOS:
         autoPaths.add(
