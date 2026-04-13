@@ -1,36 +1,35 @@
 package frc.robot.subsystems.drive;
 
-import static edu.wpi.first.units.Units.*;
-
 import org.ironmaple.simulation.drivesims.GyroSimulation;
+
+import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 
 public class GyroIOSim implements GyroIO {
+    private final GyroSimulation gyro;
 
-    private final GyroSimulation gyroSim;
-
-    public GyroIOSim(GyroSimulation gyroSim) {
-        this.gyroSim = gyroSim;
+    public GyroIOSim(GyroSimulation gyro) {
+        this.gyro = gyro;
     }
 
     @Override
     public void updateInputs(GyroIOInputs inputs) {
         inputs.isConnected = true;
 
-        inputs.yawPosition = gyroSim.getGyroReading();
-        inputs.yawVelocityRadPerSec = RadiansPerSecond.of(gyroSim.getMeasuredAngularVelocity().in(RadiansPerSecond));
-        inputs.odometryYawTimestamps = new double[] {};
-        inputs.odometryYawPositions = gyroSim.getCachedGyroReadings();
+        inputs.yawPosition = gyro.getGyroReading();
+        inputs.yawVelocity = RadiansPerSecond.of(gyro.getMeasuredAngularVelocity().in(RadiansPerSecond));
+        inputs.odometryYawTimestamps = new double[]{};
+        inputs.odometryYawPositions = gyro.getCachedGyroReadings();
     }
 
     @Override
-    public  void zeroPigeon(){
-        setPigeonYaw(Rotation2d.k180deg);
+    public  void zero(){
+        setYaw(Rotation2d.k180deg);
     }
 
     @Override
-    public  void setPigeonYaw(Rotation2d rotation2d){
-        gyroSim.setRotation(rotation2d);
+    public  void setYaw(Rotation2d rotation2d){
+        gyro.setRotation(rotation2d);
     }
 }
