@@ -173,7 +173,7 @@ public class Autos {
                 ),
 
                 // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD
-                Objects.requireNonNull(AutoPath.followPath("LEFT-SecondPass-CLOSE")),
+                Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-SecondPass-CLOSE")),
 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
                 bumpNeutralAlliance(robot, SIDE.LEFT),
