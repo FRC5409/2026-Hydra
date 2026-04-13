@@ -38,7 +38,7 @@ public class Autos {
                     GameCommands.startIntake(robot)
                 ),
 				 
-                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s) 
+                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD 
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION 
@@ -64,7 +64,7 @@ public class Autos {
                     GameCommands.startIntake(robot)
                 ),
 				 
-                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s) 
+                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
@@ -112,7 +112,7 @@ public class Autos {
                         GameCommands.startIntake(robot)
                     ),
 
-					// FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
+					// FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD 
                     Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
 
                     // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
@@ -133,7 +133,7 @@ public class Autos {
                         GameCommands.startIntake(robot)
                     ),
 
-                    // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
+                    // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD 
                     Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")),
 
                     // GO FROM ENDING OF INTAKE POSITION BACK TO SCORE position (Cross BUMP)
@@ -157,7 +157,7 @@ public class Autos {
                     GameCommands.startIntake(robot)
                 ),
 
-                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
+                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD
                 Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose")), 
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
@@ -179,7 +179,7 @@ public class Autos {
                     GameCommands.startIntake(robot)
                 ),
 
-                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
+                // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD
                 Objects.requireNonNull(AutoPath.followPath("LEFT-SecondPass-CLOSE")),
 
                 // Go from NEUTRAL zone to ALLIANCE zone over LEFT BUMP
@@ -204,7 +204,7 @@ public class Autos {
                     GameCommands.startIntake(robot)
                 ),
 
-                // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
+                // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field
                 Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose")),
 
                 // GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION 
@@ -231,7 +231,7 @@ public class Autos {
                             GameCommands.startIntake(robot)
                         ),
 
-                        // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
+                        // follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field
                         Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose")),
 
 						// GO FROM ENDING OF INTAKE POSITION BACK TO BUMP POSITION
@@ -252,7 +252,7 @@ public class Autos {
                                 GameCommands.startIntake(robot)
                         ),
 
-						// follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
+						// follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field
                         Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose"))
 				)
 		);
