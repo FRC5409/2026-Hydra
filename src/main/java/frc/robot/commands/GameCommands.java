@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.units.measure.Distance;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.GameCommandsConstants;
@@ -18,7 +17,6 @@ import frc.robot.subsystems.intake.IntakeConstants.Extension;
 import frc.robot.subsystems.serializer.SerializerConstants;
 import org.littletonrobotics.junction.Logger;
 
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
@@ -54,12 +52,14 @@ public class GameCommands {
 
                 ),
                 // passively spin up launcher in the background
-//                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly()
-                robot.sys_launcher.startLaunchSequence(
-                        () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 50)),
-                        () -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0)),
-                        robot.sys_feeder
-                ).repeatedly()
+                robot.sys_launcher.launchFuel(distToHub, robot.sys_feeder).repeatedly()
+
+                // uncomment for launcher tuning
+//                robot.sys_launcher.startLaunchSequence(
+//                        () -> RotationsPerSecond.of(SmartDashboard.getNumber("LAUNCHER SPEED [rps]", 50)),
+//                        () -> Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0)),
+//                        robot.sys_feeder
+//                ).repeatedly()
         );
     }
 
