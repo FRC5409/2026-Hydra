@@ -113,8 +113,10 @@ public class Launcher extends SubsystemBase {
     }
 
     public Command runVelocity(Supplier<AngularVelocity> velocity) {
-        realLaunchSpeedRps = velocity.get().in(RotationsPerSecond);
-        return Commands.runOnce(() -> io.runVelocity(velocity));
+        return Commands.runOnce(() -> {
+            realLaunchSpeedRps = velocity.get().in(RotationsPerSecond);
+            io.runVelocity(velocity);
+        });
     }
 
     /**
