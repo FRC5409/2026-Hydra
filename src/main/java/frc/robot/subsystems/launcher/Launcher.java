@@ -3,6 +3,7 @@ package frc.robot.subsystems.launcher;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.Timer;
@@ -17,12 +18,18 @@ import frc.robot.Constants.kField;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederConstants;
 import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.launcher.LauncherConstants.Hood;
 import frc.robot.subsystems.launcher.interpolator.LaunchConfig;
 import frc.robot.subsystems.launcher.interpolator.LaunchStrategy;
+import frc.robot.subsystems.serializer.Serializer;
+import frc.robot.subsystems.serializer.SerializerConstants;
+import frc.robot.subsystems.serializer.SerializerIO;
 import frc.robot.util.Checkmate;
 import frc.robot.util.MathUtils;
+
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 import java.util.Set;
@@ -33,7 +40,6 @@ import static edu.wpi.first.units.Units.*;
 
 public class Launcher extends SubsystemBase {
     private final LauncherIO                io;
-    private final Drive                     drive;
     private final LauncherInputsAutoLogged  inputs;
     private final AtomicReference<Distance> hoodSetpoint = new AtomicReference<>(Millimeters.of(0.0));
 
@@ -44,7 +50,6 @@ public class Launcher extends SubsystemBase {
 
     public Launcher(LauncherIO io, Drive drive) {
         this.io = io;
-        this.drive = drive;
         inputs = new LauncherInputsAutoLogged();
 
         // create the logged fields
@@ -52,31 +57,13 @@ public class Launcher extends SubsystemBase {
         setStrategy(LauncherConstants.Launcher.DEFAULT_LAUNCH_STRATEGY);
         Preferences.setDouble(PREF_LAUNCH_SPEED_OFFSET, getSpeedOffset().in(RotationsPerSecond));
 
-        Timer automaticHoodTimer = new Timer();
-        automaticHoodTimer.start();
+        Timer hoodInvalidationTimer = new Timer();
+        hoodInvalidationTimer.start();
 
         // try to update the hood every 500 ms
-        new Trigger(() -> automaticHoodTimer.advanceIfElapsed(0.5))
-                .onTrue(Commands.runOnce(() -> {
-                    // outside neutral: automatic hood to hub
-                    if (!kField.NEUTRAL_ZONE.contains(drive.getPose().getTranslation())){
-                        Logger.recordOutput("Launcher/ShouldInvalidateHood", true);
-                        Logger.recordOutput("Launcher/AutoHoodMode", "AllianceShoot");
-                        LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
-                        Logger.recordOutput("Launcher/HoodEstimateDifferential", launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters));
-                        if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >= Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
-                            hoodSetpoint.set(launchEstimate.hoodExtension());
-                        }
-                    }
-
-                    // inside neutral: set to passing
-                    else {
-                        hoodSetpoint.set(GameCommandsConstants.PASSING_HOOD_ANGLE);
-                        Logger.recordOutput("Launcher/AutoHoodMode", "NeutralPass");
-                    }
-                }))
-                .onFalse(Commands.runOnce(() -> 
-                    Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
+        new Trigger(() -> hoodInvalidationTimer.advanceIfElapsed(Hood.HOOD_INVALIDATION_POLL_SECONDS))
+                .onTrue(onHoodInvalidation(drive))
+                .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
@@ -84,7 +71,10 @@ public class Launcher extends SubsystemBase {
                     var config = strategy.interpolate(d);
 
                     // launch fuel with dummy IO for feeder; it doesn't matter if the feeder spins
-                    CommandScheduler.getInstance().schedule(this.launchFuel(() -> d, new Feeder(new FeederIO() {})));
+                    CommandScheduler.getInstance().schedule(this.launchFuel(
+                            () -> d,
+                            new Feeder(new FeederIO() {})
+                    ));
 
                     return MathUtils.withinTolerance(
                             getVelocity().in(RotationsPerSecond), config.speed().in(RotationsPerSecond), 5) ?
@@ -94,8 +84,39 @@ public class Launcher extends SubsystemBase {
                 });
     }
 
+    private Command onHoodInvalidation(Drive drive) {
+        return Commands.runOnce(() -> {
+            // outside neutral: automatic hood to hub
+            if (!kField.NEUTRAL_ZONE.contains(drive.getPose().getTranslation())) {
+                Logger.recordOutput("Launcher/ShouldInvalidateHood", true);
+                Logger.recordOutput("Launcher/AutoHoodMode", "AllianceShoot");
+
+                LaunchConfig launchEstimate = strategy.interpolate(DriveCommands.distToHub(drive));
+                Logger.recordOutput(
+                        "Launcher/HoodEstimateDifferential",
+                        launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters));
+
+                if (launchEstimate.hoodExtension().minus(hoodSetpoint.get()).abs(Millimeters) >=
+                    Hood.HOOD_INVALIDATION_THRESHOLD_MM) {
+                     hoodSetpoint.set(launchEstimate.hoodExtension());
+                    // uncomment for tuning debug cmd
+//                    hoodSetpoint.set(Millimeter.of(SmartDashboard.getNumber("Hood Angle [mm]", 0)));
+                }
+            }
+
+            // inside neutral: set to passing
+            else {
+                hoodSetpoint.set(GameCommandsConstants.PASSING_HOOD_ANGLE);
+                Logger.recordOutput("Launcher/AutoHoodMode", "NeutralPass");
+            }
+        });
+    }
+
     public Command runVelocity(Supplier<AngularVelocity> velocity) {
-        return Commands.runOnce(() -> io.runVelocity(velocity));
+        return Commands.runOnce(() -> {
+            realLaunchSpeedRps = velocity.get().in(RotationsPerSecond);
+            io.runVelocity(velocity);
+        });
     }
 
     /**
@@ -157,10 +178,35 @@ public class Launcher extends SubsystemBase {
                     AngularVelocity launchSpeed = c.speed().plus(getSpeedOffset());
                     logInterpolation(distance.get(), c, launchSpeed);
 
-                    return runVelocity(() -> launchSpeed)
-                            .alongWith(setHoodExtension(c::hoodExtension)) // set hood hoodExtension
-                            .alongWith(feeder.runVelocity(() -> launchSpeed)); // run feeder at same vel.
+                    return startLaunchSequence(() -> launchSpeed, c::hoodExtension, feeder);
                 }, Set.of(this));
+    }
+
+    public Command startLaunchSequence(Supplier<AngularVelocity> launchSpeed, Supplier<Distance> hoodExt, Feeder feeder) {
+        return runVelocity(launchSpeed)
+                .alongWith(setHoodExtension(hoodExt)) // set hood hoodExtension
+                .alongWith(feeder.setUpperFeederVelocity(this::calculateUpperFeederVelocity)); // run upper feeder at same vel.
+    }
+
+    public Command serializeFuel(Feeder feeder, Serializer serializer) {
+        // TODO: if the lower feeder is too slow, hardcode this to a faster number (i.e. 20 000 RPM)
+        return feeder.setLowerFeederVelocity(
+                        () -> calculateLowerFeederVelocity(this.getSurfaceVelocity(), serializer.getBeltSpeed()))
+                     .alongWith(serializer.setVoltage(SerializerConstants.SERIALIZING_VOLTAGE));
+    }
+
+    // TODO: try setting upper feeder to the same as lower feeder velocities (smooth accerlation)
+    @AutoLogOutput(key = "Launcher/CalculatedUpperFeederVelocity")
+    private AngularVelocity calculateUpperFeederVelocity() {
+        // overshoot of 7.5%
+        return MathUtils.calculateAngularVelocity(getSurfaceVelocity().times(1.075), FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
+    }
+
+    @AutoLogOutput(key = "Launcher/CalculatedLowerFeederVelocity")
+    private AngularVelocity calculateLowerFeederVelocity(LinearVelocity launcherRollerSpeed, LinearVelocity serializerBeltSpeed) {
+        return MathUtils.calculateAngularVelocity(
+                launcherRollerSpeed.plus(MetersPerSecond.of(25)).div(2),
+                FeederConstants.FEEDER_ROLLER_CIRCUMFERENCE);
     }
 
     /**
@@ -178,8 +224,8 @@ public class Launcher extends SubsystemBase {
                 "Launcher/Interpolator/TargetSpeed",
                 config == null ? RotationsPerSecond.of(0) : config.speed());
         Logger.recordOutput(
-                "Launcher/Interpolator/TargetAngle", config == null ? Millimeters.of(0) : config.hoodExtension());
-        Logger.recordOutput("Launcher/Interpolator/RealLaunchSpeed", realLaunchSpeed);
+                "Launcher/Interpolator/TargetAngle",
+                config == null ? Millimeters.of(0) : config.hoodExtension());
         realLaunchSpeedRps = realLaunchSpeed.in(RotationsPerSecond);
     }
 
@@ -189,6 +235,11 @@ public class Launcher extends SubsystemBase {
 
     public AngularVelocity getVelocity() {
         return io.getVelocity();
+    }
+
+    @AutoLogOutput(key = "Launcher/SurfaceVelocity", unit = "m/s")
+    public LinearVelocity getSurfaceVelocity() {
+        return MathUtils.calculateSurfaceSpeed(getVelocity(), LauncherConstants.Launcher.ROLLER_CIRCUMFERENCE);
     }
 
     // Stops
@@ -215,6 +266,7 @@ public class Launcher extends SubsystemBase {
         Logger.recordOutput("Components/Hood", new Pose3d());
         Logger.recordOutput("Launcher/Interpolator/OperatorSpeedOffset", getSpeedOffset());
         Logger.recordOutput("Launcher/IsAtSpeed", isLauncherAtSpeed());
+        Logger.recordOutput("Launcher/RealLaunchSpeed", RotationsPerSecond.of(realLaunchSpeedRps));
         Logger.processInputs("Launcher", inputs);
     }
 }
