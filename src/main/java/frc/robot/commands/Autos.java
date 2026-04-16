@@ -133,8 +133,8 @@ public class Autos {
                         GameCommands.startIntake(robot)
                     ),
 
-                    // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD (ENDING VELOCITY OF 1.5 m/s)
-                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose"))
+                    // FOLLOW INTAKE PATH, FROM LEFT OF FIELD TOWARDS CENTER OF FIELD
+                    Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose-Long"))
 				)
 		);
 
@@ -199,8 +199,8 @@ public class Autos {
                                 GameCommands.startIntake(robot)
                         ),
 
-						// follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field (ENDING VELOCITY OF 1.5 m/s)
-                        Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose"))
+						// follow INTAKE PATH, from RIGHT of field TOWARDS CENTER of field
+                        Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose-Long"))
 				)
 		);
 
