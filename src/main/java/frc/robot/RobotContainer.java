@@ -351,6 +351,14 @@ public class RobotContainer {
                         Commands.runOnce(() -> sys_drive.runTurnSetpoint(Rotation2d.fromDegrees(45)))
                             .withTimeout(3.0));
 
+        SmartDashboard.putData(
+                "Drive/ResetPose180",
+                Commands.runOnce(() -> {
+                            sys_drive.setPose(new Pose2d(0, 0, Rotation2d.k180deg));
+                            sys_drive.resetGyro();
+                }).ignoringDisable(true)  
+        );
+
         sys_drive.setDefaultCommand(
                 DriveCommands.joystickDrive(
                         sys_drive,
