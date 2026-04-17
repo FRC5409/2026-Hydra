@@ -13,7 +13,7 @@ public final class IntakeConstants {
 
     public static final class Extension {
         public static final Distance EXTENSION_MIN_DISTANCE = Millimeters.of(5);
-        public static final Distance EXTENSION_MAX_DISTANCE = Millimeters.of(243.5);
+        public static final Distance EXTENSION_MAX_DISTANCE = Millimeters.of(240.5);
         public static final Distance EXTENSION_TOLERANCE    = Millimeters.of(5);
 
         public static final PIDController SIM_PID     = new PIDController(0.0, 0.0, 0.0);
