@@ -62,7 +62,9 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 .withMotorOutput(new MotorOutputConfigs().withInverted(InvertedValue.Clockwise_Positive))
                 .withCurrentLimits(new CurrentLimitsConfigs()
                                            .withSupplyCurrentLimit(Extension.CURRENT_LIMIT)
-                                           .withSupplyCurrentLimitEnable(true));
+                                           .withSupplyCurrentLimitEnable(true)
+                                           .withStatorCurrentLimit(40)
+                                           .withStatorCurrentLimitEnable(true));
 
         extensionConfig.Slot0 = new Slot0Configs()
                 .withKP(Extension.TALONFX_PID.kP)
