@@ -302,7 +302,7 @@ public class Autos {
                 new Pose2d(3.565,4.011,Rotation2d.k180deg), 
                 DriveCommands.alignToPoint(
                     robot.sys_drive,
-                    () -> new Pose2d(3.127,4.011,Rotation2d.k180deg), 
+                    () -> new Pose2d(2.627, 4.011,Rotation2d.k180deg), 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY, 
                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION),
 
