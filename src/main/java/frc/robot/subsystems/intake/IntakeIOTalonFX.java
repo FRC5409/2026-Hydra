@@ -77,9 +77,9 @@ public final class IntakeIOTalonFX implements IntakeIO {
                 .withCurrentLimits(new CurrentLimitsConfigs()
                                            .withSupplyCurrentLimit(Roller.CURRENT_LIMIT)
                                            .withSupplyCurrentLimitEnable(true)
-                                           .withStatorCurrentLimit(35)
+                                           .withStatorCurrentLimit(75)
                                            .withStatorCurrentLimitEnable(true)
-                                           );
+                );
 
         extensionMotor.getConfigurator().apply(extensionConfig);
 

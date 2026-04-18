@@ -20,7 +20,7 @@ public final class DriveConstants {
     public static final double ROBOT_MOI      = 6.883;
     public static final double AUTO_WHEEL_COF = 1.2;
 
-    public static final Current DRIVE_SUPPLY_CURRENT_LIMIT = Amps.of(40);
+    public static final Current DRIVE_SUPPLY_CURRENT_LIMIT = Amps.of(50);
     public static final Current TURN_SUPPLY_CURRENT_LIMIT = Amps.of(25);
     public static final Current TURN_STATOR_CURRENT_LIMIT = Amps.of(60);
 }

@@ -34,7 +34,7 @@ public final class IntakeConstants {
     }
 
     public static final class Roller {
-        public static final Current CURRENT_LIMIT = Amps.of(18.0);
+        public static final Current CURRENT_LIMIT = Amps.of(25.0);
         public static final double  GEARING       = 1.5 / 1.0;
 
         public static final double INTAKE_VOLTAGE  = 10;
