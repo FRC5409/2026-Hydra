@@ -12,7 +12,7 @@ import static edu.wpi.first.units.Units.*;
 public final class IntakeConstants {
 
     public static final class Extension {
-        public static final Distance EXTENSION_MIN_DISTANCE = Millimeters.of(5);
+        public static final Distance EXTENSION_MIN_DISTANCE = Millimeters.of(1);
         public static final Distance EXTENSION_MAX_DISTANCE = Millimeters.of(240);
         public static final Distance EXTENSION_TOLERANCE    = Millimeters.of(5);
 
