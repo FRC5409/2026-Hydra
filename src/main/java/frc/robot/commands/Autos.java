@@ -389,11 +389,11 @@ public class Autos {
                 new AutoPath(
                         "LO-ELLEN-LEFT",
                         LEFT_BUMP_STARTING_POSE,
-                        Commands.waitTime(Seconds.of(3)),
                         Commands.deadline(
                             Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Alliance-Neutral")),
                             GameCommands.startIntake(robot)
                         ),
+                        Commands.waitTime(Seconds.of(3)),
                         Objects.requireNonNull(AutoPath.followPath("LEFT-INTAKE-FarClose-Long")),
                         Objects.requireNonNull(AutoPath.followPath("LEFT-BUMP-Neutral-Alliance")),
                         GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
@@ -404,11 +404,11 @@ public class Autos {
                 new AutoPath(
                         "LO-ELLEN-RIGHT",
                         RIGHT_BUMP_STARTING_POSE,
-                        Commands.waitTime(Seconds.of(3)),
                         Commands.deadline(
                                 Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Alliance-Neutral")),
                                 GameCommands.startIntake(robot)
                         ),
+                        Commands.waitTime(Seconds.of(3)),
                         Objects.requireNonNull(AutoPath.followPath("RIGHT-INTAKE-FarClose-Long")),
                         Objects.requireNonNull(AutoPath.followPath("RIGHT-BUMP-Neutral-Alliance")),
                         GameCommands.autoLaunch(() -> DriveCommands.distToHub(robot.sys_drive), () -> 0, () -> 0, robot)
