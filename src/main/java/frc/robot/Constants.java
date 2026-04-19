@@ -211,7 +211,7 @@ public final class Constants {
         public static final Time AUTO_LAUNCH_WAIT_TIME             = Seconds.of(5);
 
         // TODO: TUNE THIS VALUE
-        public static final AngularVelocity PASSING_RPS        = RotationsPerSecond.of(150);
+        public static final AngularVelocity PASSING_RPS        = RotationsPerSecond.of(63);
         public static final Distance        PASSING_HOOD_ANGLE = Millimeters.of(100);
     }
 
