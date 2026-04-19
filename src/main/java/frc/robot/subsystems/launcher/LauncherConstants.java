@@ -15,7 +15,7 @@ public class LauncherConstants {
         public static final PIDConstants PID = new PIDConstants(0.7, 0.0, 0.0);
 
         public static final double SENSOR_RATIO  = 1.0 / 1.5;
-        public static final int    CURRENT_LIMIT = 80;
+        public static final int    CURRENT_LIMIT = 60;
 
         public static final LaunchStrategy DEFAULT_LAUNCH_STRATEGY = new BilinearStrategy();
 
