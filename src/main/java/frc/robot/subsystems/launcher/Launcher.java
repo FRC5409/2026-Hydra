@@ -61,9 +61,9 @@ public class Launcher extends SubsystemBase {
         hoodInvalidationTimer.start();
 
         // try to update the hood every 500 ms
-        new Trigger(() -> hoodInvalidationTimer.advanceIfElapsed(Hood.HOOD_INVALIDATION_POLL_SECONDS))
-                .onTrue(onHoodInvalidation(drive))
-                .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
+        // new Trigger(() -> hoodInvalidationTimer.advanceIfElapsed(Hood.HOOD_INVALIDATION_POLL_SECONDS))
+        //         .onTrue(onHoodInvalidation(drive))
+        //         .onFalse(Commands.runOnce(() -> Logger.recordOutput("Launcher/ShouldInvalidateHood", false)));
 
         Checkmate.register(
                 "Should launch fuel", () -> {
