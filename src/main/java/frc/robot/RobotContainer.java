@@ -511,6 +511,18 @@ public class RobotContainer {
         SmartDashboard.putData("Drive/Coast", Commands.runOnce(sys_drive::coastMode).ignoringDisable(true));
         SmartDashboard.putData("Drive/Brake", Commands.runOnce(sys_drive::brakeMode).ignoringDisable(false));
 
+
+        SmartDashboard.putNumber("Drive/RotationSpeed", 1);
+        SmartDashboard.putNumber("Drive/TranslationSpeed", 1);
+
+        SmartDashboard.putData(
+            "Drive/UpdateSpeed",
+            Commands.runOnce(() -> {
+                DriveCommands.setRotationSpeed(SmartDashboard.getNumber("Drive/RotationSpeed", 1.0));
+                DriveCommands.setTranslationSpeed(SmartDashboard.getNumber("Drive/TranslationSpeed", 1.0));
+            }).ignoringDisable(true)
+        );
+
     }
 
     @Deprecated
