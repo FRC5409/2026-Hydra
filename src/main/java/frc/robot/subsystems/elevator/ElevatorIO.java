@@ -14,9 +14,11 @@ public interface ElevatorIO {
         public boolean  isConnected   = false;
         public Voltage  voltage       = Volts.of(0.0);
         public Current  supplyCurrent = Amps.of(0.0);
+        public Current  statorCurrent = Amps.of(0.0);
+        public Current  torqueCurrent = Amps.of(0.0);
         public double   temperature   = 0.0; // Celsius
         public Distance position      = Meters.of(0.0);
-        public Current  torqueCurrent = Amps.of(0.0);
+        public Distance setpoint      = Meters.of(0.0);
     }
 
     default void updateInputs(ElevatorInputs inputs) {}

@@ -11,7 +11,7 @@ import static edu.wpi.first.units.Units.*;
 public final class ElevatorConstants {
     public static final Current  CURRENT_LIMIT = Amps.of(30.0);
     public static final double   GEARING       = 20.0 / 1.0;
-    public static final Distance DRUM_RADIUS   = Inches.of(20.0);
+    public static final Distance DRUM_RADIUS   = Inches.of(1.504/2.0);
 
     public static final Current SPIKE_CURRENT = Amps.of(50);
 
@@ -21,11 +21,12 @@ public final class ElevatorConstants {
     public static final double       kG               = 0.0;
 
     public static final Mass     ELEVATOR_MASS       = Pound.of(1);
-    public static final Distance ELEVATOR_MIN_HEIGHT = Inches.of(23.2);
-    public static final Distance ELEVATOR_MAX_HEIGHT = Inches.of(27.5);
+    public static final Distance ELEVATOR_MIN_HEIGHT = Inches.of(0.0);
+    public static final Distance ELEVATOR_MAX_HEIGHT = Inches.of(4.8);
 
     public static final class kSetpoints {
-        public static final Distance ELEVATOR_UP   = Meters.of(1);
-        public static final Distance ELEVATOR_DOWN = Meters.of(0.5);
+        public static final Distance ELEVATOR_UP   = Meters.of(
+            0.1219);
+        public static final Distance ELEVATOR_DOWN = Meters.of(0);
     }
 }

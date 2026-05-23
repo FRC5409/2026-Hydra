@@ -17,19 +17,20 @@ public class ElevatorIOSim implements ElevatorIO {
     private final PIDController controller;
 
     private boolean running;
+    private Distance setpoint;
 
     public ElevatorIOSim() {
 
         //Creating sim elevator object
         elevator = new ElevatorSim(
-                DCMotor.getFalcon500(2),
+                DCMotor.getKrakenX60(1),
                 GEARING,
                 ELEVATOR_MASS.in(Kilograms),
-                DRUM_RADIUS.in(Inches),
-                ELEVATOR_MIN_HEIGHT.in(Inches),
-                ELEVATOR_MAX_HEIGHT.in(Inches),
+                DRUM_RADIUS.in(Meters),
+                ELEVATOR_MIN_HEIGHT.in(Meters),
+                ELEVATOR_MAX_HEIGHT.in(Meters),
                 true,
-                ELEVATOR_MIN_HEIGHT.in(Inches)
+                ELEVATOR_MIN_HEIGHT.in(Meters)
         );
         controller = new PIDController(SIM_PID.kP, SIM_PID.kI, SIM_PID.kD);
         running = false;
@@ -61,6 +62,7 @@ public class ElevatorIOSim implements ElevatorIO {
      */
     @Override
     public void setSetpoint(Distance setpoint, int slot) {
+        this.setpoint = setpoint;
         controller.setSetpoint(setpoint.in(Meters));
         running = true;
     }
@@ -95,5 +97,6 @@ public class ElevatorIOSim implements ElevatorIO {
         inputs.supplyCurrent = Units.Amps.of(Math.abs(current));
         inputs.temperature = 0.0;
         inputs.position = Units.Meters.of(elevator.getPositionMeters());
+        inputs.setpoint = setpoint;
     }
 }

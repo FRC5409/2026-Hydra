@@ -21,8 +21,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
     private final StatusSignal<Angle>       position;
     private final StatusSignal<Voltage>     voltage;
-    private final StatusSignal<Current>     supplyCurrent;
     private final StatusSignal<Temperature> temperature;
+    private final StatusSignal<Current>     supplyCurrent;
+    private final StatusSignal<Current>     statorCurrent;
     private final StatusSignal<Current>     torqueCurrent;
 
     public ElevatorIOTalonFX(int id) {
@@ -59,8 +60,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
 
         position = motor.getPosition();
         voltage = motor.getMotorVoltage();
-        supplyCurrent = motor.getSupplyCurrent();
         temperature = motor.getDeviceTemp();
+        supplyCurrent = motor.getSupplyCurrent();
+        statorCurrent = motor.getStatorCurrent();
         torqueCurrent = motor.getTorqueCurrent();
 
         // Update all the values
@@ -68,8 +70,9 @@ public class ElevatorIOTalonFX implements ElevatorIO {
                 50,
                 position,
                 voltage,
-                supplyCurrent,
                 temperature,
+                supplyCurrent,
+                statorCurrent,
                 torqueCurrent
         );
 
@@ -134,15 +137,17 @@ public class ElevatorIOTalonFX implements ElevatorIO {
         inputs.isConnected = BaseStatusSignal.refreshAll(
                 position,
                 voltage,
-                supplyCurrent,
                 temperature,
+                supplyCurrent,
+                statorCurrent,
                 torqueCurrent
         ).isOK();
 
         inputs.voltage = voltage.getValue();
-        inputs.supplyCurrent = supplyCurrent.getValue();
         inputs.temperature = temperature.getValueAsDouble();
         inputs.position = Units.Meters.of(position.getValueAsDouble());
+        inputs.supplyCurrent = supplyCurrent.getValue();
+        inputs.statorCurrent = statorCurrent.getValue();
         inputs.torqueCurrent = torqueCurrent.getValue();
     }
 }
