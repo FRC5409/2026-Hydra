@@ -25,8 +25,7 @@ public final class ElevatorConstants {
     public static final Distance ELEVATOR_MAX_HEIGHT = Inches.of(4.8);
 
     public static final class kSetpoints {
-        public static final Distance ELEVATOR_UP   = Meters.of(
-            0.1219);
+        public static final Distance ELEVATOR_UP   = Meters.of(0.1219);
         public static final Distance ELEVATOR_DOWN = Meters.of(0);
     }
 }

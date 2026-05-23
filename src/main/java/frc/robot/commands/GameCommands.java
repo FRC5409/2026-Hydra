@@ -4,11 +4,14 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.GameCommandsConstants;
+import frc.robot.Constants.kAutoAlign;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.elevator.ElevatorConstants;
 import frc.robot.subsystems.feeder.FeederConstants;
 import frc.robot.subsystems.hopper.HopperConstants;
 import frc.robot.subsystems.intake.Intake;
@@ -167,31 +170,23 @@ public class GameCommands {
         );
     }
 
-    // public static Command autoClimb(RobotContainer robot, Supplier<Pose2d> prepPose, Supplier<Pose2d> climbPose) {
-    //     return Commands.sequence(
-    //             Commands.parallel(
-    //                     DriveCommands.alignToPoint(
-    //                             robot.sys_drive,
-    //                             prepPose,
-    //                             () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY,
-    //                             () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION,
-    //                             kAutoAlign.TRANSLATION_TOLERANCE_CLIMB_PREP,
-    //                             kAutoAlign.ROTATION_TOLERANCE_CLIMB_PREP,
-    //                             kAutoAlign.VELOCITY_TOLERANCE_CLIMB_PREP
-    //                     ),
-    //                     robot.sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_UP, 0)
-    //             ),
-
-    //             DriveCommands.alignToPoint(
-    //                     robot.sys_drive,
-    //                     climbPose,
-    //                     () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB,
-    //                     () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
-    //             ),
-
-    //             robot.sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_DOWN, 0)
-    //     );
-    // }
+    /**
+     * Aligns to the tower and raises the cimber, then lowers it to lift the robot
+     */
+    public static Command autoClimb(RobotContainer robot, BooleanSupplier isRightHalf) {
+        return Commands.sequence(
+                Commands.parallel(
+                        DriveCommands.alignToPoint(
+                                robot.sys_drive,
+                                () -> DriveCommands.getClosestClimbPoseToTower(robot.sys_drive, isRightHalf),
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_VELOCITY_CLIMB,
+                                () -> kAutoAlign.MAX_AUTO_ALIGN_ACCELERATION_CLIMB
+                        ),
+                        robot.sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_UP, 0)
+                ),
+                robot.sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_DOWN, 0)
+        );
+    }
 
     /**
      * Stops launcher, feeder and calls {@link GameCommands#stopSerializing(RobotContainer)}

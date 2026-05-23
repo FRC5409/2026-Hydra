@@ -165,7 +165,7 @@ public final class Constants {
                                   - (DriveConstants.ROBOT_WIDTH.in(Meters) / 2)
                                   - kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters))
                 ),
-                Rotation2d.kZero)),
+                Rotation2d.k180deg)),
         LEFT(new Pose2d(
                 new Translation2d(
                         Meters.of(FieldConstants.Tower.leftUpright.getX()),
@@ -174,7 +174,7 @@ public final class Constants {
                                   + kAutoAlign.CLIMBER_DISTANCE_FROM_UPRIGHT.in(Meters)
                         )
                 ),
-                Rotation2d.k180deg)
+                Rotation2d.kZero)
         ),
 
         LEFT_PREP(new Pose2d(

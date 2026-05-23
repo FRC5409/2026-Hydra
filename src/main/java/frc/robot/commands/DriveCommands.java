@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
+import frc.robot.Constants.ClimbingPositions;
 import frc.robot.Constants.Mode;
 import frc.robot.Constants.PassingPositions;
 import frc.robot.Constants.kAutoAlign;
@@ -559,6 +560,12 @@ public class DriveCommands {
                        ? AutoBuilder.shouldFlip() ? PassingPositions.LEFT.getPose() : PassingPositions.RIGHT.getPose()
                        : AutoBuilder.shouldFlip() ? PassingPositions.RIGHT.getPose()
                                                   : PassingPositions.LEFT.getPose()).plus(Rotation2d.k180deg);
+    }
+    
+    public static Pose2d getClosestClimbPoseToTower(Drive drive, BooleanSupplier isRightHalf) {
+        return AutoBuilder.shouldFlip()
+                ? isRightHalf.getAsBoolean() ? ClimbingPositions.LEFT.getPose() : ClimbingPositions.RIGHT.getPose()
+                : isRightHalf.getAsBoolean() ? ClimbingPositions.RIGHT.getPose() : ClimbingPositions.LEFT.getPose();
     }
 
     public static LinearVelocity getBumpSpeed(LinearVelocity speed) {
