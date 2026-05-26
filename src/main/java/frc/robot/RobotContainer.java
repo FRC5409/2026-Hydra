@@ -36,6 +36,11 @@ import frc.robot.commands.DriveCommands;
 import frc.robot.commands.GameCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.drive.*;
+import frc.robot.subsystems.elevator.Elevator;
+import frc.robot.subsystems.elevator.ElevatorConstants;
+import frc.robot.subsystems.elevator.ElevatorIO;
+import frc.robot.subsystems.elevator.ElevatorIOSim;
+import frc.robot.subsystems.elevator.ElevatorIOTalonFX;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.feeder.FeederIOSim;
@@ -80,6 +85,7 @@ public class RobotContainer {
     public final Feeder     sys_feeder;
     public final Hopper     sys_hopper;
     public final Launcher   sys_launcher;
+    public final Elevator   sys_elevator;
 
     public static SwerveDriveSimulation simConfig;
 
@@ -142,6 +148,8 @@ public class RobotContainer {
                         DeviceID.LAUNCHER_HOOD_SERVO_1,
                         DeviceID.LAUNCHER_HOOD_SERVO_2),
                     sys_drive);
+
+                sys_elevator = new Elevator(new ElevatorIOTalonFX(DeviceID.CLIMBER_MOTOR));
             }
             // Sim robot, instantiate physics sim IO implementations
             case SIM -> {
@@ -178,6 +186,8 @@ public class RobotContainer {
                 sys_hopper = new Hopper(new HopperIOSim());
 
                 sys_launcher = new Launcher(new LauncherIOSim(), sys_drive);
+
+                sys_elevator = new Elevator(new ElevatorIOSim());
             }
             // Replayed robot, disable IO implementations
             default -> {
@@ -194,6 +204,7 @@ public class RobotContainer {
                 sys_serializer = new Serializer(new SerializerIO() {});
                 sys_feeder = new Feeder(new FeederIO() {});
                 sys_launcher = new Launcher(new LauncherIO() {}, sys_drive);
+                sys_elevator = new Elevator(new ElevatorIO() {});
             }
         }
 
@@ -418,15 +429,27 @@ public class RobotContainer {
         secondaryController.b()
                          .onTrue(sys_intake.setRollerVoltage(0));
 
+        // primaryController.a()
+        //                  .onTrue(Commands.runOnce(() -> {
+        //                     DriveCommands.setTranslationSpeed(1.0); 
+        //                     DriveCommands.setRotationSpeed(1.0);
+        //                 }))
+        //                  .onFalse(Commands.runOnce(() -> {
+        //                     DriveCommands.setTranslationSpeed(0.6); 
+        //                     DriveCommands.setRotationSpeed(0.5);
+        //                 }));
+
+        primaryController.povUp()
+                .onTrue(sys_elevator.setVoltage(2))
+                .onFalse(sys_elevator.setVoltage(0));
+
+        primaryController.povDown()
+                .onTrue(sys_elevator.setVoltage(-2))
+                .onFalse(sys_elevator.setVoltage(0));
+
         primaryController.a()
-                         .onTrue(Commands.runOnce(() -> {
-                            DriveCommands.setTranslationSpeed(1.0); 
-                            DriveCommands.setRotationSpeed(1.0);
-                        }))
-                         .onFalse(Commands.runOnce(() -> {
-                            DriveCommands.setTranslationSpeed(0.6); 
-                            DriveCommands.setRotationSpeed(0.5);
-                        }));
+                .onTrue(sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_UP, 0))
+                .onFalse(sys_elevator.stop());
 
         primaryController.povLeft()
                 .multiPress(2, 1)
@@ -436,8 +459,10 @@ public class RobotContainer {
                 }).ignoringDisable(true));
 
         primaryController.povRight()
-                        .whileTrue(GameCommands.manualLaunch(() -> manualLaunchDistance, this))
-                        .onFalse(GameCommands.stopLaunching(this));
+                        // .whileTrue(GameCommands.manualLaunch(() -> manualLaunchDistance, this))
+                        // .onFalse(GameCommands.stopLaunching(this));
+                        .onTrue(sys_elevator.setSetpointAndWait(ElevatorConstants.kSetpoints.ELEVATOR_DOWN, 0))
+                        .onFalse(sys_elevator.stop());
 
         secondaryController.a()
                         .whileTrue(GameCommands.agitateThenRetract(this));
