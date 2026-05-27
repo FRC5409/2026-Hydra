@@ -537,8 +537,8 @@ public class RobotContainer {
         SmartDashboard.putData("Drive/Brake", Commands.runOnce(sys_drive::brakeMode).ignoringDisable(false));
 
 
-        SmartDashboard.putNumber("Drive/RotationSpeed", 1);
-        SmartDashboard.putNumber("Drive/TranslationSpeed", 1);
+        SmartDashboard.putNumber("Drive/RotationSpeed", DriveCommands.getRotationSpeed());
+        SmartDashboard.putNumber("Drive/TranslationSpeed", DriveCommands.getTranslationSpeed());
 
         SmartDashboard.putData(
             "Drive/UpdateSpeed",
